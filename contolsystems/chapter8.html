@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aarova AI — Ch.8 State Space Analysis</title>
+<meta content="Master State Space Analysis for GATE &amp; IES — State equations, Canonical Forms, State Transition Matrix, Controllability, and Observability." name="description"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&amp;family=Lora:ital,wght@0,400;0,500;0,600;1,400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:           #fdf6ee;
+  --bg2:          #f8ede0;
+  --bg3:          #f0e0cc;
+  --bg4:          #e8d0b8;
+  --text:         #1e1208;
+  --text2:        #3d2010;
+  --text3:        #6b3e22;
+  --muted:        #9a6e50;
+  --orange:       #c95f1a;
+  --orange-md:    #e07235;
+  --orange-lt:    #f5956a;
+  --orange-bg:    #fdebd8;
+  --orange-bdr:   #f0b48a;
+  --green:        #2d6648;
+  --green-bg:     #dff0e8;
+  --green-bdr:    #8ecaaa;
+  --teal:         #1e6b68;
+  --teal-bg:      #d8eeed;
+  --teal-bdr:     #7ec4c2;
+  --amber:        #a05c00;
+  --amber-bg:     #fef0d0;
+  --amber-bdr:    #f0c060;
+  --red:          #9a2020;
+  --red-bg:       #fde8e8;
+  --red-bdr:      #e89090;
+  --border:       #ddc8b0;
+  --border2:      #c8a888;
+  --radius:       14px;
+  --shadow:       0 2px 16px rgba(150,80,20,0.10);
+  --shadow-md:    0 6px 28px rgba(150,80,20,0.14);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; font-size:18px; }
+body {
+  background: var(--bg);
+  color: var(--text2);
+  font-family: 'Lora', Georgia, serif;
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+}
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--bg2); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+.page { max-width:900px; margin:0 auto; padding:0 clamp(16px,4vw,48px) 100px; }
+
+.site-header {
+  position:sticky; top:0; z-index:100;
+  background:rgba(253,246,238,0.95);
+  backdrop-filter:blur(10px);
+  border-bottom:1.5px solid var(--border);
+  padding:14px clamp(16px,4vw,48px);
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.logo { font-family:'Playfair Display',serif; font-size:clamp(15px,2.5vw,18px); font-weight:700; color:var(--orange); text-decoration:none; display:flex; align-items:center; }
+.logo-sub { font-family:'Lora',serif; font-size:12px; color:var(--muted); margin-left:10px; font-weight:400; white-space:nowrap; }
+.hbadges { display:flex; gap:6px; flex-wrap:wrap; }
+.hbadge { font-size:11px; font-weight:600; padding:3px 11px; border-radius:20px; background:var(--orange-bg); border:1px solid var(--orange-bdr); color:var(--orange); white-space:nowrap; }
+
+.hero { padding:clamp(36px,6vw,64px) 0 clamp(28px,4vw,44px); border-bottom:1.5px solid var(--border); margin-bottom:clamp(28px,4vw,44px); }
+.eyebrow { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.16em; color:var(--orange); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+.eyebrow::before { content:''; display:inline-block; width:28px; height:2.5px; background:var(--orange); border-radius:2px; }
+h1.hero-title { font-family:'Playfair Display',serif; font-size:clamp(32px,6vw,52px); font-weight:800; color:var(--text); line-height:1.12; margin-bottom:18px; }
+h1.hero-title em { font-style:italic; color:var(--orange); }
+.hero-desc { font-size:clamp(15px,2vw,17px); color:var(--text3); max-width:640px; line-height:1.75; margin-bottom:26px; }
+.badge-row { display:flex; flex-wrap:wrap; gap:8px; }
+.badge { font-size:13px; padding:5px 15px; border-radius:22px; border:1.5px solid var(--border2); color:var(--text3); background:var(--bg2); font-family:'Lora',serif; }
+.badge-p { background:var(--orange-bg); border-color:var(--orange-bdr); color:var(--orange); font-weight:600; }
+
+.progress-bar { display:flex; align-items:center; gap:14px; background:var(--orange-bg); border:1.5px solid var(--orange-bdr); border-radius:10px; padding:13px 20px; margin-bottom:clamp(24px,4vw,40px); }
+.pl { font-size:13px; font-weight:600; color:var(--orange); white-space:nowrap; }
+.pt { flex:1; height:7px; background:rgba(201,95,26,0.18); border-radius:4px; overflow:hidden; min-width:40px; }
+.pf { height:100%; width:100%; background:var(--orange); border-radius:4px; }
+.pp { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--orange); white-space:nowrap; }
+
+.toc { background:var(--bg2); border:1.5px solid var(--border); border-left:4px solid var(--orange); border-radius:var(--radius); padding:clamp(18px,3vw,28px); margin-bottom:clamp(32px,5vw,52px); }
+.toc-title { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:var(--orange); text-transform:uppercase; letter-spacing:0.12em; margin-bottom:16px; }
+.toc-list { list-style:none; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:4px 24px; }
+.toc-list li a { display:flex; align-items:center; gap:10px; font-size:14px; color:var(--text3); text-decoration:none; padding:4px 0; transition:color 0.2s; }
+.toc-list li a:hover { color:var(--orange); }
+.toc-num { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--orange); min-width:28px; }
+
+.section { margin-bottom:clamp(40px,6vw,64px); scroll-margin-top:80px; }
+.sec-hdr { display:flex; align-items:baseline; gap:14px; margin-bottom:20px; padding-bottom:12px; border-bottom:1.5px solid var(--border); }
+.sec-num { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--orange); min-width:40px; }
+h2.sec-t { font-family:'Playfair Display',serif; font-size:clamp(20px,3.5vw,26px); font-weight:700; color:var(--text); }
+h3.sub { font-family:'Playfair Display',serif; font-size:clamp(16px,2.5vw,20px); font-weight:600; color:var(--text2); margin:26px 0 12px; }
+p { margin-bottom:14px; font-size:clamp(14px,1.8vw,16.5px); }
+
+.tw { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0; }
+@media(max-width:580px) { .tw { grid-template-columns:1fr; } }
+.card { background:var(--bg2); border:1.5px solid var(--border); border-radius:var(--radius); padding:18px 20px; }
+.card-title { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:var(--orange); margin-bottom:8px; }
+.card ul { padding-left:18px; font-size:14px; color:var(--text3); }
+.card ul li { margin-bottom:5px; }
+
+.callout { border-radius:12px; padding:16px 20px; margin:20px 0; font-size:14.5px; }
+.callout-ai { background:linear-gradient(135deg,#fdf6ee 0%,#fdebd8 100%); border:1.5px solid var(--orange-bdr); border-left:4px solid var(--orange); }
+.callout-ai .ct { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--orange); margin-bottom:6px; }
+.callout-tip { background:var(--teal-bg); border:1.5px solid var(--teal-bdr); border-left:4px solid var(--teal); }
+.callout-tip .ct { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--teal); margin-bottom:6px; }
+.callout-warn { background:var(--amber-bg); border:1.5px solid var(--amber-bdr); border-left:4px solid var(--amber); }
+.callout-warn .ct { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--amber); margin-bottom:6px; }
+.callout-danger { background:var(--red-bg); border:1.5px solid var(--red-bdr); border-left:4px solid var(--red); }
+.callout-danger .ct { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--red); margin-bottom:6px; }
+
+.formula-block { background:var(--bg3); border:1.5px solid var(--border2); border-radius:12px; padding:18px 22px; margin:18px 0; text-align:center; overflow-x:auto; }
+.formula { font-family:'JetBrains Mono',monospace; font-size:clamp(14px,2vw,17px); color:var(--text); font-weight:500; }
+.formula-label { font-size:12px; color:var(--muted); margin-bottom:6px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:.1em; }
+.formula-sub { font-size:12px; color:var(--text3); margin-top:8px; font-family:'JetBrains Mono',monospace; }
+
+.tbl { width:100%; border-collapse:collapse; font-size:14px; margin:18px 0; }
+.tbl th { background:var(--orange); color:#fff; padding:10px 14px; text-align:left; font-family:'Playfair Display',serif; font-size:13px; }
+.tbl td { padding:10px 14px; border-bottom:1px solid var(--border); color:var(--text2); vertical-align:top; }
+.tbl tr:nth-child(even) td { background:var(--bg2); }
+.tbl tr:hover td { background:var(--orange-bg); }
+code { font-family:'JetBrains Mono',monospace; font-size:13px; background:var(--bg3); padding:2px 6px; border-radius:4px; color:var(--orange); }
+
+/* GATE CONCEPT CARDS */
+.gate-card {
+  background:#fff;
+  border:1.5px solid var(--teal-bdr);
+  border-radius:var(--radius);
+  margin:20px 0;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.gate-hdr {
+  background:var(--teal-bg);
+  border-bottom:1.5px solid var(--teal-bdr);
+  padding:10px clamp(14px,2vw,20px);
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.gate-tag {
+  font-size:10px; font-weight:700;
+  background:var(--teal);
+  color:#fff;
+  padding:3px 10px; border-radius:5px;
+  letter-spacing:.07em;
+  font-family:'JetBrains Mono',monospace;
+  white-space:nowrap;
+}
+.gate-title { font-size:14px; font-weight:600; color:var(--teal); line-height:1.4; }
+.gate-body  { padding:clamp(14px,2vw,20px) clamp(16px,2vw,22px); font-size:clamp(14px,2vw,15.5px); }
+.gate-body p { color:var(--text2); font-size:clamp(14px,2vw,15.5px); }
+
+.diag-wrap { background:var(--bg2); border:1.5px solid var(--border); border-radius:12px; padding:20px 16px; margin:20px 0; text-align:center; overflow-x:auto; }
+.diag-caption { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-top:10px; letter-spacing:.05em; }
+
+.nav-strip { display:flex; gap:10px; justify-content:space-between; padding:20px 0; border-top:1.5px solid var(--border); margin-top:60px; flex-wrap:wrap; }
+.nav-btn { display:flex; align-items:center; gap:8px; padding:10px 18px; border-radius:10px; border:1.5px solid var(--border); color:var(--text3); text-decoration:none; font-size:14px; background:var(--bg2); transition:all 0.2s; }
+.nav-btn:hover { border-color:var(--orange); color:var(--orange); background:var(--orange-bg); }
+.nav-btn.primary { background:var(--orange); color:#fff; border-color:var(--orange); }
+.nav-btn.primary:hover { background:var(--orange-md); }
+
+/* EXAMPLE BLOCK styles */
+.example-block{
+  border:1.5px solid var(--border2);
+  border-left:5px solid var(--orange);
+  border-radius:0 var(--radius) var(--radius) 0;
+  padding:clamp(16px,2.5vw,26px);
+  background:#fff;
+  margin:clamp(20px,3vw,32px) 0;
+}
+.ex-head{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:14px;
+}
+.ex-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;
+  padding:3px 10px;border-radius:6px;
+  background:var(--orange-bg);border:1px solid var(--orange-bdr);
+  color:var(--orange);text-transform:uppercase;letter-spacing:.08em;
+  flex-shrink:0;
+}
+.ex-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(14px,2vw,16.5px);font-weight:700;color:var(--text);
+}
+.ex-q{
+  font-size:clamp(13.5px,1.8vw,15px);
+  color:var(--text2);line-height:1.8;margin-bottom:14px;
+}
+.ex-sol-head{
+  font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--green);
+  margin:14px 0 8px;font-family:'JetBrains Mono',monospace;
+  display:flex;align-items:center;gap:8px;
+}
+.ex-sol-head::before{content:'';width:20px;height:2px;background:var(--green);}
+.ex-steps{
+  display:flex;flex-direction:column;gap:10px;
+}
+.ex-step{
+  font-size:clamp(13px,1.7vw,14.5px);
+  color:var(--text2);line-height:1.75;
+  padding:10px 14px;
+  background:var(--bg2);border-radius:8px;
+}
+.ex-step code,.step-formula{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;color:var(--orange);
+  background:var(--orange-bg);padding:2px 8px;border-radius:4px;
+}
+.ex-ans{
+  margin-top:14px;padding:12px 18px;
+  background:var(--green-bg);border:1.5px solid var(--green-bdr);
+  border-radius:10px;
+  font-size:clamp(13px,1.8vw,15px);color:var(--green);
+  font-weight:600;
+}
+</style>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <a href="index.html" style="font-family:'Playfair Display',serif;font-size:clamp(15px,2.5vw,18px);font-weight:700;color:var(--orange);text-decoration:none;display:flex;align-items:center;">Aarova AI <span style="font-family:'Lora',serif;font-size:12px;color:var(--muted);margin-left:10px;font-weight:400;white-space:nowrap;">Control Systems · Chapter 8</span></a>
+  <div class="hbadges">
+    <span class="hbadge">GATE EE</span>
+    <span class="hbadge">IES</span>
+    <span class="hbadge">PSU</span>
+  </div>
+</header>
+
+<main class="page">
+  <section class="hero">
+    <div class="eyebrow">Chapter 8</div>
+    <h1 class="hero-title">State Space <em>Analysis</em></h1>
+    <p class="hero-desc">
+      Move beyond classical transfer functions. State space provides a powerful, generalized time-domain approach capable of handling multi-input multi-output (MIMO), non-linear, and time-varying systems perfectly suited for modern computer simulation.
+    </p>
+    <div class="badge-row">
+      <span class="badge badge-p">State Equations</span>
+      <span class="badge">Canonical Forms</span>
+      <span class="badge">State Transition Matrix</span>
+      <span class="badge">Controllability</span>
+      <span class="badge">Observability</span>
+    </div>
+  </section>
+
+  <div class="progress-bar">
+    <span class="pl">Course Completed!</span>
+    <div class="pt"><div class="pf"></div></div>
+    <span class="pp">8 / 8 Chapters</span>
+  </div>
+
+  <nav aria-label="Contents" class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#s1"><span class="toc-num">8.1</span>Introduction to State Space</a></li>
+      <li><a href="#s2"><span class="toc-num">8.2</span>State Space Representation (SSR)</a></li>
+      <li><a href="#s3"><span class="toc-num">8.3</span>Canonical Forms</a></li>
+      <li><a href="#s4"><span class="toc-num">8.4</span>State Transition Matrix (STM)</a></li>
+      <li><a href="#s5"><span class="toc-num">8.5</span>Controllability &amp; Observability</a></li>
+      <li><a href="#s6"><span class="toc-num">8.6</span>GATE &amp; IES Exam Concepts</a></li>
+      <li><a href="#s7"><span class="toc-num">8.7</span>Worked Examples (GATE &amp; IES)</a></li>
+    </ul>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+    §8.1  INTRODUCTION TO STATE SPACE
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s1">
+    <div class="sec-hdr"><span class="sec-num">8.1</span><h2 class="sec-t">Introduction to State Space</h2></div>
+    <p>
+      Classical control theory relies heavily on the Laplace transform and transfer functions. However, transfer functions are limited to linear, time-invariant (LTI), single-input single-output (SISO) systems with zero initial conditions. State Space Analysis overcomes all these limitations by using a generalized time-domain matrix approach.
+    </p>
+    
+    <div class="tw">
+      <div class="card">
+        <div class="card-title">State Variables &amp; Vector</div>
+        <p style="font-size:14px; color:var(--text3); line-height:1.6; margin:0;">
+          <strong>State Variables (\(x_1, x_2, \dots x_n\)):</strong> The minimum set of variables required to completely determine the future behavior of the system, given the present state and future inputs.<br/><br/>
+          <strong>State Vector (\(X\)):</strong> An \(n \times 1\) column matrix containing all the state variables.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title">Number of State Variables</div>
+        <p style="font-size:14px; color:var(--text3); line-height:1.6; margin:0;">
+          The number of state variables required to describe a system equals the number of independent energy storage elements (e.g., capacitors, inductors) or the order of the denominator polynomial (poles) in its transfer function.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+    §8.2  STATE SPACE REPRESENTATION (SSR)
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s2">
+    <div class="sec-hdr"><span class="sec-num">8.2</span><h2 class="sec-t">State Space Representation (SSR)</h2></div>
+    <p>
+      A dynamic system is represented by two primary matrix equations: the <strong>State Equation</strong> (which describes the internal dynamics) and the <strong>Output Equation</strong> (which maps states and inputs to the measured output).
+    </p>
+
+    <div class="formula-block">
+      <div class="formula-label">State Equation</div>
+      <div class="formula">$$ \dot{X}(t) = A X(t) + B U(t) $$</div>
+      <div class="formula-label" style="margin-top:10px;">Output Equation</div>
+      <div class="formula">$$ Y(t) = C X(t) + D U(t) $$</div>
+    </div>
+    
+    <p>Where:</p>
+    <ul style="margin-left:20px; font-size:15px; color:var(--text2); margin-bottom:14px;">
+      <li>\( X(t) \): State Vector (\(n \times 1\))</li>
+      <li>\( U(t) \): Input Vector (\(m \times 1\))</li>
+      <li>\( Y(t) \): Output Vector (\(p \times 1\))</li>
+      <li>\( A \): System Matrix (\(n \times n\))</li>
+      <li>\( B \): Input Matrix (\(n \times m\))</li>
+      <li>\( C \): Output Matrix (\(p \times n\))</li>
+      <li>\( D \): Direct Transmission Matrix (\(p \times m\))</li>
+    </ul>
+
+    <h3 class="sub">Transfer Function from SSR</h3>
+    <p>
+      By taking the Laplace transform of the state and output equations (assuming zero initial conditions) and solving for \( Y(s)/U(s) \), we obtain the transfer function matrix:
+    </p>
+    <div class="formula-block">
+      <div class="formula-label">Transfer Function</div>
+      <div class="formula">$$ TF = \frac{Y(s)}{U(s)} = C(sI - A)^{-1}B + D $$</div>
+      <div class="formula-sub">Here, \( |sI - A| = 0 \) yields the <strong>characteristic equation</strong>, and its roots are the eigenvalues of matrix A (the system poles).</div>
+    </div>
+    
+    <div class="diag-wrap">
+      <svg viewbox="0 0 500 200" width="100%" xmlns="http://www.w3.org/2000/svg" style="max-width:500px; display:block; margin:0 auto;">
+        <defs>
+          <marker id="arr-sys" markerheight="4" markerwidth="6" orient="auto" refx="5" refy="2"><polygon fill="#3d2010" points="0 0,6 2,0 4"></polygon></marker>
+        </defs>
+        <!-- Integrator Block -->
+        <rect fill="#fdf6ee" height="40" stroke="#c95f1a" stroke-width="2" width="60" x="220" y="80"></rect>
+        <text fill="#c95f1a" font-family="'JetBrains Mono',monospace" font-size="14" font-weight="bold" text-anchor="middle" x="250" y="105">∫</text>
+
+        <!-- A Matrix -->
+        <rect fill="#fdf6ee" height="40" stroke="#2d6648" stroke-width="2" width="60" x="220" y="150"></rect>
+        <text fill="#2d6648" font-family="Georgia,serif" font-size="14" font-weight="bold" text-anchor="middle" x="250" y="175">A</text>
+
+        <!-- B Matrix -->
+        <rect fill="#fdf6ee" height="40" stroke="#2d6648" stroke-width="2" width="60" x="80" y="80"></rect>
+        <text fill="#2d6648" font-family="Georgia,serif" font-size="14" font-weight="bold" text-anchor="middle" x="110" y="105">B</text>
+
+        <!-- C Matrix -->
+        <rect fill="#fdf6ee" height="40" stroke="#2d6648" stroke-width="2" width="60" x="340" y="80"></rect>
+        <text fill="#2d6648" font-family="Georgia,serif" font-size="14" font-weight="bold" text-anchor="middle" x="370" y="105">C</text>
+
+        <!-- Summing Junctions -->
+        <circle cx="180" cy="100" fill="#fdf6ee" r="12" stroke="#3d2010" stroke-width="1.5"></circle>
+        <text fill="#3d2010" font-family="'JetBrains Mono',monospace" font-size="16" text-anchor="middle" x="180" y="105">+</text>
+        
+        <circle cx="440" cy="100" fill="#fdf6ee" r="12" stroke="#3d2010" stroke-width="1.5"></circle>
+        <text fill="#3d2010" font-family="'JetBrains Mono',monospace" font-size="16" text-anchor="middle" x="440" y="105">+</text>
+
+        <!-- D Matrix Path (top) -->
+        <rect fill="#fdf6ee" height="40" stroke="#2d6648" stroke-width="2" width="60" x="220" y="10"></rect>
+        <text fill="#2d6648" font-family="Georgia,serif" font-size="14" font-weight="bold" text-anchor="middle" x="250" y="35">D</text>
+
+        <!-- Lines and Arrows -->
+        <line marker-end="url(#arr-sys)" stroke="#3d2010" stroke-width="1.5" x1="20" x2="70" y1="100" y2="100"></line>
+        <text fill="#3d2010" font-family="Georgia,serif" font-size="12" x="25" y="90">U(s)</text>
+
+        <line marker-end="url(#arr-sys)" stroke="#3d2010" stroke-width="1.5" x1="140" x2="165" y1="100" y2="100"></line>
+        
+        <line marker-end="url(#arr-sys)" stroke="#3d2010" stroke-width="1.5" x1="192" x2="215" y1="100" y2="100"></line>
+        <text fill="#3d2010" font-family="Georgia,serif" font-size="12" x="200" y="90">Ẋ(s)</text>
+
+        <line marker-end="url(#arr-sys)" stroke="#3d2010" stroke-width="1.5" x1="280" x2="335" y1="100" y2="100"></line>
+        <text fill="#3d2010" font-family="Georgia,serif" font-size="12" x="300" y="90">X(s)</text>
+
+        <line marker-end="url(#arr-sys)" stroke="#3d2010" stroke-width="1.5" x1="400" x2="425" y1="100" y2="100"></line>
+        
+        <line marker-end="url(#arr-sys)" stroke="#3d2010" stroke-width="1.5" x1="452" x2="490" y1="100" y2="100"></line>
+        <text fill="#3d2010" font-family="Georgia,serif" font-size="12" x="460" y="90">Y(s)</text>
+
+        <!-- Feedback Loop A -->
+        <polyline fill="none" marker-end="url(#arr-sys)" points="310,100 310,170 280,170" stroke="#3d2010" stroke-width="1.5"></polyline>
+        <polyline fill="none" marker-end="url(#arr-sys)" points="220,170 180,170 180,115" stroke="#3d2010" stroke-width="1.5"></polyline>
+        <text fill="#3d2010" font-family="'JetBrains Mono',monospace" font-size="12" x="185" y="130">+</text>
+
+        <!-- Feedforward Loop D -->
+        <polyline fill="none" marker-end="url(#arr-sys)" points="50,100 50,30 220,30" stroke="#3d2010" stroke-width="1.5"></polyline>
+        <polyline fill="none" marker-end="url(#arr-sys)" points="280,30 440,30 440,85" stroke="#3d2010" stroke-width="1.5"></polyline>
+      </svg>
+      <div class="diag-caption">Fig 8.1: Block diagram representing the standard State Space Model.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+    §8.3  CANONICAL FORMS
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s3">
+    <div class="sec-hdr"><span class="sec-num">8.3</span><h2 class="sec-t">Canonical Forms</h2></div>
+    <p>
+      A single transfer function can be represented by an infinite number of state space models depending on the choice of state variables. However, we standardise them into specific <strong>Canonical Forms</strong> for easy analysis.
+    </p>
+
+    <h3 class="sub">1. Controllable Canonical Form (CCF)</h3>
+    <p>In this form, the coefficients of the transfer function denominator directly populate the bottom row of matrix A (with negative signs), and matrix B is a column vector with a 1 at the bottom.</p>
+
+    <h3 class="sub">2. Observable Canonical Form (OCF)</h3>
+    <p>This is the dual of the CCF. Matrix A is the transpose of the A matrix from CCF. The transfer function coefficients populate the last column of A, and matrix C is a row vector with a 1 at the end.</p>
+
+    <h3 class="sub">3. Diagonal Canonical Form (DCF)</h3>
+    <p>Used when the system has <strong>distinct, non-repeated poles</strong>. By performing partial fraction expansion on the transfer function, matrix A becomes a purely diagonal matrix where the diagonal elements are the system poles (eigenvalues). Matrices B and C consist of 1s and partial fraction residues.</p>
+
+    <h3 class="sub">4. Jordan Canonical Form (JCF)</h3>
+    <p>Used when the system has <strong>repeated poles</strong>. Matrix A contains Jordan blocks along the diagonal. A Jordan block has the repeated pole on the main diagonal and 1s on the super-diagonal.</p>
+
+  </div>
+
+  <!-- ══════════════════════════════════════
+    §8.4  STATE TRANSITION MATRIX (STM)
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s4">
+    <div class="sec-hdr"><span class="sec-num">8.4</span><h2 class="sec-t">State Transition Matrix (STM)</h2></div>
+    <p>
+      The State Transition Matrix, denoted as \( \phi(t) \) or \( e^{At} \), dictates how the internal state of an unforced system (zero input) transitions from its initial state \( X(0) \) to any future state \( X(t) \).
+    </p>
+
+    <div class="formula-block" style="background:var(--teal-bg); border-color:var(--teal-bdr);">
+      <div class="formula-label" style="color:var(--teal);">Calculation of STM</div>
+      <div class="formula" style="color:var(--teal);">$$ \phi(t) = e^{At} = L^{-1} [ (sI - A)^{-1} ] $$</div>
+    </div>
+
+    <div class="tw">
+      <div class="card">
+        <div class="card-title">Properties of STM</div>
+        <ul style="padding-left:18px; font-size:14px; color:var(--text3); margin:0;">
+          <li>\( \phi(0) = I \) (Identity Matrix)</li>
+          <li>\( \phi^{-1}(t) = \phi(-t) \)</li>
+          <li>\( \phi(t_1 + t_2) = \phi(t_1) \phi(t_2) \)</li>
+          <li>\( [\phi(t)]^k = \phi(kt) \)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Total Response</div>
+        <p style="font-size:14px; color:var(--text3); line-height:1.6; margin:0;">
+          The complete time response of the state vector is the sum of the <strong>Zero Input Response</strong> and the <strong>Zero State Response</strong>:<br/><br/>
+          \( X(t) = \phi(t)X(0) + \int_{0}^{t} \phi(t-\tau)B U(\tau) d\tau \)
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+    §8.5  CONTROLLABILITY & OBSERVABILITY
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s5">
+    <div class="sec-hdr"><span class="sec-num">8.5</span><h2 class="sec-t">Controllability &amp; Observability</h2></div>
+    
+    <p><strong>Controllability:</strong> A system is controllable if it is possible to transfer the system from any initial state to any desired final state within a finite time interval by applying an unconstrained control input vector \( U(t) \).</p>
+    <p><strong>Observability:</strong> A system is observable if it is possible to determine the initial state vector \( X(0) \) by observing the output vector \( Y(t) \) over a finite time interval.</p>
+
+    <h3 class="sub">Kalman's Test for Controllability</h3>
+    <p>Construct the Controllability Matrix \( Q_c \). For an \( n \times n \) system matrix A:</p>
+    <div class="formula-block">
+      <div class="formula">$$ Q_c = \begin{bmatrix} B & AB & A^2B & \dots & A^{n-1}B \end{bmatrix} $$</div>
+      <div class="formula-sub">The system is controllable if and only if the determinant \( |Q_c| \neq 0 \) (i.e., it has full rank \( n \)).</div>
+    </div>
+
+    <h3 class="sub">Kalman's Test for Observability</h3>
+    <p>Construct the Observability Matrix \( Q_o \):</p>
+    <div class="formula-block">
+      <div class="formula">$$ Q_o = \begin{bmatrix} C^T & A^T C^T & (A^T)^2 C^T & \dots & (A^T)^{n-1} C^T \end{bmatrix} $$</div>
+      <div class="formula-sub">The system is observable if and only if the determinant \( |Q_o| \neq 0 \) (i.e., it has full rank \( n \)).</div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════
+    §8.6  GATE & IES EXAM CONCEPTS
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s6">
+    <div class="sec-hdr"><span class="sec-num">8.6</span><h2 class="sec-t">GATE &amp; IES Exam Concepts</h2></div>
+
+    <div class="gate-card">
+      <div class="gate-hdr"><span class="gate-tag">CONCEPT 1</span><span class="gate-title">Uniqueness of Transfer Functions vs. SSR</span></div>
+      <div class="gate-body">
+        <p>A specific system has a <strong>unique</strong> transfer function. However, the same system can have an <strong>infinite</strong> number of State Space Representations depending on how the state variables are chosen (e.g., CCF, OCF, physical variables).</p>
+      </div>
+    </div>
+
+    <div class="gate-card">
+      <div class="gate-hdr"><span class="gate-tag">CONCEPT 2</span><span class="gate-title">Pole-Zero Cancellation</span></div>
+      <div class="gate-body">
+        <p>If you convert a state space model into a transfer function \( C(sI-A)^{-1}B + D \), and you notice a pole-zero cancellation occurs, it implies that the system is <strong>either uncontrollable, unobservable, or both</strong>. A fully controllable and observable system will never have pole-zero cancellations in its transfer function.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+    §8.7  WORKED EXAMPLES
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s7">
+    <div class="sec-hdr"><span class="sec-num">8.7</span><h2 class="sec-t">Worked Examples (GATE &amp; IES)</h2></div>
+
+    <!-- Example 1 -->
+    <div class="example-block">
+      <div class="ex-head">
+        <span class="ex-badge">Example 01</span>
+        <div class="ex-title">Transfer Function to Controllable Canonical Form</div>
+      </div>
+      <p class="ex-q">
+        Obtain the Controllable Canonical Form (CCF) for the system defined by the transfer function \( \frac{Y(s)}{U(s)} = \frac{4s + 10}{s^3 + 6s^2 + 11s + 6} \).
+      </p>
+      <div class="ex-sol-head">Solution</div>
+      <div class="ex-steps">
+        <div class="ex-step">
+          <strong>1. Identify the coefficients:</strong><br/>
+          Denominator: \( s^3 + a_2 s^2 + a_1 s + a_0 \implies a_2=6, a_1=11, a_0=6 \).<br/>
+          Numerator: \( b_2 s^2 + b_1 s + b_0 \implies b_2=0, b_1=4, b_0=10 \).
+        </div>
+        <div class="ex-step">
+          <strong>2. Construct the A matrix (CCF format):</strong><br/>
+          The bottom row contains the negative of the denominator coefficients starting from \( a_0 \).<br/>
+          $$ A = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -6 & -11 & -6 \end{bmatrix} $$
+        </div>
+        <div class="ex-step">
+          <strong>3. Construct B and C matrices:</strong><br/>
+          B is standard for CCF, C contains numerator coefficients.<br/>
+          $$ B = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}, \quad C = \begin{bmatrix} 10 & 4 & 0 \end{bmatrix} $$
+        </div>
+      </div>
+      <div class="ex-ans">✔ Ans: A, B, and C matrices derived successfully using CCF rules.</div>
+    </div>
+
+    <!-- Example 2 -->
+    <div class="example-block">
+      <div class="ex-head">
+        <span class="ex-badge">Example 02</span>
+        <div class="ex-title">Calculation of State Transition Matrix (STM)</div>
+      </div>
+      <p class="ex-q">
+        Calculate the State Transition Matrix \( \phi(t) \) for a system matrix \( A = \begin{bmatrix} 0 & 1 \\ -2 & -3 \end{bmatrix} \).
+      </p>
+      <div class="ex-sol-head">Solution</div>
+      <div class="ex-steps">
+        <div class="ex-step">
+          <strong>1. Find the resolvent matrix \( (sI - A) \):</strong><br/>
+          $$ (sI - A) = \begin{bmatrix} s & -1 \\ 2 & s+3 \end{bmatrix} $$
+        </div>
+        <div class="ex-step">
+          <strong>2. Find the inverse \( (sI - A)^{-1} \):</strong><br/>
+          Determinant: \( \Delta = s(s+3) - (-2) = s^2 + 3s + 2 = (s+1)(s+2) \).<br/>
+          Adjoint: swap diagonals, flip signs on off-diagonals.<br/>
+          $$ (sI - A)^{-1} = \frac{1}{(s+1)(s+2)} \begin{bmatrix} s+3 & 1 \\ -2 & s \end{bmatrix} $$
+        </div>
+        <div class="ex-step">
+          <strong>3. Apply Partial Fractions &amp; Inverse Laplace:</strong><br/>
+          Element (1,1): \( \frac{s+3}{(s+1)(s+2)} = \frac{2}{s+1} - \frac{1}{s+2} \implies 2e^{-t} - e^{-2t} \)<br/>
+          Element (1,2): \( \frac{1}{(s+1)(s+2)} = \frac{1}{s+1} - \frac{1}{s+2} \implies e^{-t} - e^{-2t} \)<br/>
+          Element (2,1): \( \frac{-2}{(s+1)(s+2)} = \frac{-2}{s+1} + \frac{2}{s+2} \implies -2e^{-t} + 2e^{-2t} \)<br/>
+          Element (2,2): \( \frac{s}{(s+1)(s+2)} = \frac{-1}{s+1} + \frac{2}{s+2} \implies -e^{-t} + 2e^{-2t} \)
+        </div>
+      </div>
+      <div class="ex-ans">✔ Ans: \( \phi(t) = \begin{bmatrix} 2e^{-t} - e^{-2t} & e^{-t} - e^{-2t} \\ -2e^{-t} + 2e^{-2t} & -e^{-t} + 2e^{-2t} \end{bmatrix} \).</div>
+    </div>
+
+    <!-- Example 3 -->
+    <div class="example-block">
+      <div class="ex-head">
+        <span class="ex-badge">Example 03</span>
+        <div class="ex-title">Checking Controllability using Kalman's Test</div>
+      </div>
+      <p class="ex-q">
+        Given a system defined by \( A = \begin{bmatrix} 0 & 1 \\ -1 & -2 \end{bmatrix} \) and \( B = \begin{bmatrix} 1 \\ -1 \end{bmatrix} \). Determine if the system is completely state controllable.
+      </p>
+      <div class="ex-sol-head">Solution</div>
+      <div class="ex-steps">
+        <div class="ex-step">
+          <strong>1. Construct Controllability Matrix \( Q_c \):</strong><br/>
+          Since it's a 2x2 matrix (n=2), \( Q_c = \begin{bmatrix} B & AB \end{bmatrix} \).<br/>
+          We already have B. Now find AB:<br/>
+          $$ AB = \begin{bmatrix} 0 & 1 \\ -1 & -2 \end{bmatrix} \begin{bmatrix} 1 \\ -1 \end{bmatrix} = \begin{bmatrix} -1 \\ 1 \end{bmatrix} $$
+        </div>
+        <div class="ex-step">
+          <strong>2. Assemble \( Q_c \) and find its determinant:</strong><br/>
+          $$ Q_c = \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix} $$<br/>
+          $$ |Q_c| = (1)(1) - (-1)(-1) = 1 - 1 = 0 $$
+        </div>
+        <div class="ex-step">
+          <strong>3. Conclusion:</strong><br/>
+          Because the determinant of \( Q_c \) is exactly zero, the matrix does not have full rank. The system is <strong>uncontrollable</strong>.
+        </div>
+      </div>
+      <div class="ex-ans">✔ Ans: $|Q_c| = 0$. The system is UNCONTROLLABLE.</div>
+    </div>
+  </div>
+
+  <!-- NAV STRIP (inside .page) -->
+  <nav class="nav-strip">
+    <a class="nav-btn" href="AarovaAI_Ch7_Controllers.html">← Ch.7 Compensators & Controllers</a>
+  </nav>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aarova AI — Ch.7 Compensators &amp; Controllers</title>
+<meta content="Master Compensators &amp; Controllers for GATE &amp; IES — P, PI, PD, PID, Lead, Lag, and Lead-Lag networks with OP-AMP realizations." name="description"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&amp;family=Lora:ital,wght@0,400;0,500;0,600;1,400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:           #fdf6ee;
+  --bg2:          #f8ede0;
+  --bg3:          #f0e0cc;
+  --bg4:          #e8d0b8;
+  --text:         #1e1208;
+  --text2:        #3d2010;
+  --text3:        #6b3e22;
+  --muted:        #9a6e50;
+  --orange:       #c95f1a;
+  --orange-md:    #e07235;
+  --orange-lt:    #f5956a;
+  --orange-bg:    #fdebd8;
+  --orange-bdr:   #f0b48a;
+  --green:        #2d6648;
+  --green-bg:     #dff0e8;
+  --green-bdr:    #8ecaaa;
+  --teal:         #1e6b68;
+  --teal-bg:      #d8eeed;
+  --teal-bdr:     #7ec4c2;
+  --amber:        #a05c00;
+  --amber-bg:     #fef0d0;
+  --amber-bdr:    #f0c060;
+  --red:          #9a2020;
+  --red-bg:       #fde8e8;
+  --red-bdr:      #e89090;
+  --border:       #ddc8b0;
+  --border2:      #c8a888;
+  --radius:       14px;
+  --shadow:       0 2px 16px rgba(150,80,20,0.10);
+  --shadow-md:    0 6px 28px rgba(150,80,20,0.14);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; font-size:18px; }
+body {
+  background: var(--bg);
+  color: var(--text2);
+  font-family: 'Lora', Georgia, serif;
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+}
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--bg2); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+.page { max-width:900px; margin:0 auto; padding:0 clamp(16px,4vw,48px) 100px; }
+
+.site-header {
+  position:sticky; top:0; z-index:100;
+  background:rgba(253,246,238,0.95);
+  backdrop-filter:blur(10px);
+  border-bottom:1.5px solid var(--border);
+  padding:14px clamp(16px,4vw,48px);
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.logo { font-family:'Playfair Display',serif; font-size:clamp(15px,2.5vw,18px); font-weight:700; color:var(--orange); text-decoration:none; display:flex; align-items:center; }
+.logo-sub { font-family:'Lora',serif; font-size:12px; color:var(--muted); margin-left:10px; font-weight:400; white-space:nowrap; }
+.hbadges { display:flex; gap:6px; flex-wrap:wrap; }
+.hbadge { font-size:11px; font-weight:600; padding:3px 11px; border-radius:20px; background:var(--orange-bg); border:1px solid var(--orange-bdr); color:var(--orange); white-space:nowrap; }
+
+.hero { padding:clamp(36px,6vw,64px) 0 clamp(28px,4vw,44px); border-bottom:1.5px solid var(--border); margin-bottom:clamp(28px,4vw,44px); }
+.eyebrow { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.16em; color:var(--orange); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+.eyebrow::before { content:''; display:inline-block; width:28px; height:2.5px; background:var(--orange); border-radius:2px; }
+h1.hero-title { font-family:'Playfair Display',serif; font-size:clamp(32px,6vw,52px); font-weight:800; color:var(--text); line-height:1.12; margin-bottom:18px; }
+h1.hero-title em { font-style:italic; color:var(--orange); }
+.hero-desc { font-size:clamp(15px,2vw,17px); color:var(--text3); max-width:640px; line-height:1.75; margin-bottom:26px; }
+.badge-row { display:flex; flex-wrap:wrap; gap:8px; }
+.badge { font-size:13px; padding:5px 15px; border-radius:22px; border:1.5px solid var(--border2); color:var(--text3); background:var(--bg2); font-family:'Lora',serif; }
+.badge-p { background:var(--orange-bg); border-color:var(--orange-bdr); color:var(--orange); font-weight:600; }
+
+.progress-bar { display:flex; align-items:center; gap:14px; background:var(--orange-bg); border:1.5px solid var(--orange-bdr); border-radius:10px; padding:13px 20px; margin-bottom:clamp(24px,4vw,40px); }
+.pl { font-size:13px; font-weight:600; color:var(--orange); white-space:nowrap; }
+.pt { flex:1; height:7px; background:rgba(201,95,26,0.18); border-radius:4px; overflow:hidden; min-width:40px; }
+.pf { height:100%; width:87.5%; background:var(--orange); border-radius:4px; }
+.pp { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--orange); white-space:nowrap; }
+
+.toc { background:var(--bg2); border:1.5px solid var(--border); border-left:4px solid var(--orange); border-radius:var(--radius); padding:clamp(18px,3vw,28px); margin-bottom:clamp(32px,5vw,52px); }
+.toc-title { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:var(--orange); text-transform:uppercase; letter-spacing:0.12em; margin-bottom:16px; }
+.toc-list { list-style:none; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:4px 24px; }
+.toc-list li a { display:flex; align-items:center; gap:10px; font-size:14px; color:var(--text3); text-decoration:none; padding:4px 0; transition:color 0.2s; }
+.toc-list li a:hover { color:var(--orange); }
+.toc-num { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--orange); min-width:28px; }
+
+.section { margin-bottom:clamp(40px,6vw,64px); scroll-margin-top:80px; }
+.sec-hdr { display:flex; align-items:baseline; gap:14px; margin-bottom:20px; padding-bottom:12px; border-bottom:1.5px solid var(--border); }
+.sec-num { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--orange); min-width:40px; }
+h2.sec-t { font-family:'Playfair Display',serif; font-size:clamp(20px,3.5vw,26px); font-weight:700; color:var(--text); }
+h3.sub { font-family:'Playfair Display',serif; font-size:clamp(16px,2.5vw,20px); font-weight:600; color:var(--text2); margin:26px 0 12px; }
+p { margin-bottom:14px; font-size:clamp(14px,1.8vw,16.5px); }
+
+.tw { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0; }
+@media(max-width:580px) { .tw { grid-template-columns:1fr; } }
+.card { background:var(--bg2); border:1.5px solid var(--border); border-radius:var(--radius); padding:18px 20px; }
+.card-title { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:var(--orange); margin-bottom:8px; }
+.card ul { padding-left:18px; font-size:14px; color:var(--text3); }
+.card ul li { margin-bottom:5px; }
+
+.callout { border-radius:12px; padding:16px 20px; margin:20px 0; font-size:14.5px; }
+.callout-ai { background:linear-gradient(135deg,#fdf6ee 0%,#fdebd8 100%); border:1.5px solid var(--orange-bdr); border-left:4px solid var(--orange); }
+.callout-ai .ct { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--orange); margin-bottom:6px; }
+.callout-tip { background:var(--teal-bg); border:1.5px solid var(--teal-bdr); border-left:4px solid var(--teal); }
+.callout-tip .ct { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--teal); margin-bottom:6px; }
+.callout-warn { background:var(--amber-bg); border:1.5px solid var(--amber-bdr); border-left:4px solid var(--amber); }
+.callout-warn .ct { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--amber); margin-bottom:6px; }
+.callout-danger { background:var(--red-bg); border:1.5px solid var(--red-bdr); border-left:4px solid var(--red); }
+.callout-danger .ct { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--red); margin-bottom:6px; }
+
+.formula-block { background:var(--bg3); border:1.5px solid var(--border2); border-radius:12px; padding:18px 22px; margin:18px 0; text-align:center; }
+.formula { font-family:'JetBrains Mono',monospace; font-size:clamp(14px,2vw,17px); color:var(--text); font-weight:500; }
+.formula-label { font-size:12px; color:var(--muted); margin-bottom:6px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:.1em; }
+.formula-sub { font-size:12px; color:var(--text3); margin-top:8px; font-family:'JetBrains Mono',monospace; }
+
+.tbl { width:100%; border-collapse:collapse; font-size:14px; margin:18px 0; }
+.tbl th { background:var(--orange); color:#fff; padding:10px 14px; text-align:left; font-family:'Playfair Display',serif; font-size:13px; }
+.tbl td { padding:10px 14px; border-bottom:1px solid var(--border); color:var(--text2); vertical-align:top; }
+.tbl tr:nth-child(even) td { background:var(--bg2); }
+.tbl tr:hover td { background:var(--orange-bg); }
+code { font-family:'JetBrains Mono',monospace; font-size:13px; background:var(--bg3); padding:2px 6px; border-radius:4px; color:var(--orange); }
+
+/* GATE CONCEPT CARDS */
+.gate-card {
+  background:#fff;
+  border:1.5px solid var(--teal-bdr);
+  border-radius:var(--radius);
+  margin:20px 0;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.gate-hdr {
+  background:var(--teal-bg);
+  border-bottom:1.5px solid var(--teal-bdr);
+  padding:10px clamp(14px,2vw,20px);
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.gate-tag {
+  font-size:10px; font-weight:700;
+  background:var(--teal);
+  color:#fff;
+  padding:3px 10px; border-radius:5px;
+  letter-spacing:.07em;
+  font-family:'JetBrains Mono',monospace;
+  white-space:nowrap;
+}
+.gate-title { font-size:14px; font-weight:600; color:var(--teal); line-height:1.4; }
+.gate-body  { padding:clamp(14px,2vw,20px) clamp(16px,2vw,22px); font-size:clamp(14px,2vw,15.5px); }
+.gate-body p { color:var(--text2); font-size:clamp(14px,2vw,15.5px); }
+
+.diag-wrap { background:var(--bg2); border:1.5px solid var(--border); border-radius:12px; padding:20px 16px; margin:20px 0; text-align:center; overflow-x:auto; }
+.diag-caption { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-top:10px; letter-spacing:.05em; }
+
+.nav-strip { display:flex; gap:10px; justify-content:space-between; padding:20px 0; border-top:1.5px solid var(--border); margin-top:60px; flex-wrap:wrap; }
+.nav-btn { display:flex; align-items:center; gap:8px; padding:10px 18px; border-radius:10px; border:1.5px solid var(--border); color:var(--text3); text-decoration:none; font-size:14px; background:var(--bg2); transition:all 0.2s; }
+.nav-btn:hover { border-color:var(--orange); color:var(--orange); background:var(--orange-bg); }
+.nav-btn.primary { background:var(--orange); color:#fff; border-color:var(--orange); }
+.nav-btn.primary:hover { background:var(--orange-md); }
+
+/* EXAMPLE BLOCK styles */
+.example-block{
+  border:1.5px solid var(--border2);
+  border-left:5px solid var(--orange);
+  border-radius:0 var(--radius) var(--radius) 0;
+  padding:clamp(16px,2.5vw,26px);
+  background:#fff;
+  margin:clamp(20px,3vw,32px) 0;
+}
+.ex-head{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:14px;
+}
+.ex-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;
+  padding:3px 10px;border-radius:6px;
+  background:var(--orange-bg);border:1px solid var(--orange-bdr);
+  color:var(--orange);text-transform:uppercase;letter-spacing:.08em;
+  flex-shrink:0;
+}
+.ex-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(14px,2vw,16.5px);font-weight:700;color:var(--text);
+}
+.ex-q{
+  font-size:clamp(13.5px,1.8vw,15px);
+  color:var(--text2);line-height:1.8;margin-bottom:14px;
+}
+.ex-sol-head{
+  font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--green);
+  margin:14px 0 8px;font-family:'JetBrains Mono',monospace;
+  display:flex;align-items:center;gap:8px;
+}
+.ex-sol-head::before{content:'';width:20px;height:2px;background:var(--green);}
+.ex-steps{
+  display:flex;flex-direction:column;gap:10px;
+}
+.ex-step{
+  font-size:clamp(13px,1.7vw,14.5px);
+  color:var(--text2);line-height:1.75;
+  padding:10px 14px;
+  background:var(--bg2);border-radius:8px;
+}
+.ex-step code,.step-formula{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;color:var(--orange);
+  background:var(--orange-bg);padding:2px 8px;border-radius:4px;
+}
+.ex-ans{
+  margin-top:14px;padding:12px 18px;
+  background:var(--green-bg);border:1.5px solid var(--green-bdr);
+  border-radius:10px;
+  font-size:clamp(13px,1.8vw,15px);color:var(--green);
+  font-weight:600;
+}
+.bd-wrap{
+  overflow-x:auto;
+  background:var(--bg2);border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+  margin:16px 0;text-align:center;
+}
+.bd-wrap svg{max-width:100%;height:auto;}
+</style>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <a href="index.html" style="font-family:'Playfair Display',serif;font-size:clamp(15px,2.5vw,18px);font-weight:700;color:var(--orange);text-decoration:none;display:flex;align-items:center;">Aarova AI <span style="font-family:'Lora',serif;font-size:12px;color:var(--muted);margin-left:10px;font-weight:400;white-space:nowrap;">Control Systems · Chapter 7</span></a>
+  <div class="hbadges">
+    <span class="hbadge">GATE EE</span>
+    <span class="hbadge">IES</span>
+    <span class="hbadge">PSU</span>
+  </div>
+</header>
+
+<main class="page">
+  <section class="hero">
+    <div class="eyebrow">Chapter 7</div>
+    <h1 class="hero-title">Compensators &amp; <em>Controllers</em></h1>
+    <p class="hero-desc">
+      When a raw system doesn't meet performance specifications, we actively modify its dynamics. Learn how Proportional, Integral, and Derivative (PID) controllers work, and understand the design of Lead, Lag, and Lead-Lag compensation networks.
+    </p>
+    <div class="badge-row">
+      <span class="badge badge-p">PID Control</span>
+      <span class="badge">Lead/Lag Networks</span>
+      <span class="badge">Transient Tuning</span>
+      <span class="badge">Steady-State Errors</span>
+      <span class="badge">OP-AMP Realizations</span>
+    </div>
+  </section>
+
+  <div class="progress-bar">
+    <span class="pl">Chapter Progress</span>
+    <div class="pt"><div class="pf"></div></div>
+    <span class="pp">7 / 8 Chapters</span>
+  </div>
+
+  <nav aria-label="Contents" class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#s1"><span class="toc-num">7.1</span>Introduction to Control Action</a></li>
+      <li><a href="#s2"><span class="toc-num">7.2</span>P, PI, PD, and PID Controllers</a></li>
+      <li><a href="#s3"><span class="toc-num">7.3</span>Phase Lead Compensator</a></li>
+      <li><a href="#s4"><span class="toc-num">7.4</span>Phase Lag Compensator</a></li>
+      <li><a href="#s5"><span class="toc-num">7.5</span>Lead-Lag Compensator</a></li>
+      <li><a href="#s6"><span class="toc-num">7.6</span>GATE &amp; IES Exam Concepts</a></li>
+      <li><a href="#s7"><span class="toc-num">7.7</span>Worked Examples (GATE &amp; IES)</a></li>
+    </ul>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+    §7.1  INTRODUCTION TO CONTROL ACTION
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s1">
+    <div class="sec-hdr"><span class="sec-num">7.1</span><h2 class="sec-t">Introduction to Control Action</h2></div>
+    <p>
+      In many practical engineering scenarios, altering the gain \( K \) alone (as seen in Root Locus) is insufficient to simultaneously meet stringent transient (speed, overshoot) and steady-state (error) specifications. A <strong>controller</strong> or <strong>compensator</strong> is an additional block inserted into the system (usually in the forward path) to reshape the root locus or Bode plot.
+    </p>
+    <div class="tw">
+      <div class="card">
+        <div class="card-title">Controllers (P, I, D)</div>
+        <p style="font-size:14px; color:var(--text3); line-height:1.6; margin:0;">
+          Controllers modify the error signal directly using proportional, integral, and derivative mathematical operations. They add distinct poles (often at the origin) and zeros to the system.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title">Compensators (Lead, Lag)</div>
+        <p style="font-size:14px; color:var(--text3); line-height:1.6; margin:0;">
+          Compensators are physical networks (like RC circuits or OP-AMP filters) designed to inject a specific phase lead or phase lag at critical frequencies to improve stability margins.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+    §7.2  P, PI, PD, AND PID CONTROLLERS
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s2">
+    <div class="sec-hdr"><span class="sec-num">7.2</span><h2 class="sec-t">P, PI, PD, and PID Controllers</h2></div>
+    
+    <h3 class="sub">1. Proportional (P) Controller</h3>
+    <p>The control signal is proportional to the error: \( G_c(s) = K_p \). It acts as a simple amplifier. While it can reduce steady-state error (by increasing loop gain), it cannot eliminate it for Type 0 systems and can cause instability if \( K_p \) is too high.</p>
+
+    <h3 class="sub">2. Integral (I) &amp; Proportional-Integral (PI) Controller</h3>
+    <p>The I-controller integrates the error over time, which ensures that even a tiny error will eventually produce a corrective action. </p>
+    <div class="formula-block">
+      <div class="formula-label">PI Controller Transfer Function</div>
+      <div class="formula">$$ G_c(s) = K_p + \frac{K_i}{s} = K_p \left(1 + \frac{1}{T_i s}\right) = \frac{K_p(s + K_i/K_p)}{s} $$</div>
+      <div class="formula-sub">Adds a pole at the origin (\( s=0 \)) and a finite zero at \( s = -K_i/K_p \).</div>
+    </div>
+    <ul style="margin-left:20px; font-size:15px; color:var(--text2); margin-bottom:14px;">
+      <li><strong>Advantage:</strong> Increases system Type by 1, driving steady-state error to zero for step inputs.</li>
+      <li><strong>Disadvantage:</strong> The added pole at the origin shifts the root locus to the right, reducing relative stability and making the transient response sluggish.</li>
+    </ul>
+
+    <h3 class="sub">3. Derivative (D) &amp; Proportional-Derivative (PD) Controller</h3>
+    <p>The D-controller anticipates future errors by responding to the <i>rate of change</i> of the error. Pure derivative control is never used alone.</p>
+    <div class="formula-block">
+      <div class="formula-label">PD Controller Transfer Function</div>
+      <div class="formula">$$ G_c(s) = K_p + K_d s = K_p (1 + T_d s) $$</div>
+      <div class="formula-sub">Adds a single finite zero at \( s = -1/T_d \).</div>
+    </div>
+    <ul style="margin-left:20px; font-size:15px; color:var(--text2); margin-bottom:14px;">
+      <li><strong>Advantage:</strong> Adds a LHP zero, pulling the root locus left. This drastically improves damping, reduces overshoot, and speeds up the transient response.</li>
+      <li><strong>Disadvantage:</strong> Amplifies high-frequency noise (since derivative gain increases with frequency).</li>
+    </ul>
+
+    <h3 class="sub">4. Proportional-Integral-Derivative (PID) Controller</h3>
+    <p>Combines the zero steady-state error of the PI controller with the fast, stable transient response of the PD controller. It adds two zeros and one pole at the origin.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════
+    §7.3  PHASE LEAD COMPENSATOR
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s3">
+    <div class="sec-hdr"><span class="sec-num">7.3</span><h2 class="sec-t">Phase Lead Compensator</h2></div>
+    <p>
+      A lead compensator acts somewhat like a PD controller but is physically realizable without infinite high-frequency gain. It introduces a positive phase angle (phase lead) into the system.
+    </p>
+
+    <div class="formula-block">
+      <div class="formula-label">Lead Compensator Transfer Function</div>
+      <div class="formula">$$ G_c(s) = \frac{1 + a T s}{1 + T s} \quad \text{where } a > 1 $$</div>
+      <div class="formula-sub">The zero is at \( -1/(aT) \) and the pole is at \( -1/T \). Since \( a > 1 \), the zero is closer to the origin than the pole.</div>
+    </div>
+
+    <div class="tw">
+      <div class="card">
+        <div class="card-title">Maximum Phase Lead (\(\phi_m\))</div>
+        <p style="font-size:14px; color:var(--text3); line-height:1.6; margin:0;">
+          The maximum phase lead occurs at the geometric mean of the corner frequencies:<br/><br/>
+          \( \omega_m = \frac{1}{T\sqrt{a}} \)<br/><br/>
+          The maximum angle is given by:<br/>
+          \( \sin(\phi_m) = \frac{a - 1}{a + 1} \)
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title">Effects of Lead Compensation</div>
+        <ul style="padding-left:18px; font-size:14px; color:var(--text3); margin:0;">
+          <li>Improves phase margin and gain margin.</li>
+          <li>Increases bandwidth, resulting in a faster response (lower rise time).</li>
+          <li>Acts as a high-pass filter.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+    §7.4  PHASE LAG COMPENSATOR
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s4">
+    <div class="sec-hdr"><span class="sec-num">7.4</span><h2 class="sec-t">Phase Lag Compensator</h2></div>
+    <p>
+      A lag compensator approximates a PI controller. It provides high gain at low frequencies to improve steady-state error, while attenuating high frequencies to maintain stability.
+    </p>
+
+    <div class="formula-block">
+      <div class="formula-label">Lag Compensator Transfer Function</div>
+      <div class="formula">$$ G_c(s) = \frac{1 + a T s}{1 + T s} \quad \text{where } a < 1 $$</div>
+      <div class="formula-sub">The pole is at \( -1/T \) and the zero is at \( -1/(aT) \). Since \( a < 1 \), the pole is closer to the origin than the zero.</div>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="ct">📉 Primary Purpose: Attenuation</div>
+      Unlike a PI controller, a lag compensator does not increase the system Type, so it doesn't drive steady-state error perfectly to zero. Instead, it allows the designer to massively increase the DC gain \( K \) (which lowers error) without ruining the phase margin, because the compensator acts as a low-pass filter to attenuate the magnitude at the phase crossover frequency.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+    §7.5  LEAD-LAG COMPENSATOR
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s5">
+    <div class="sec-hdr"><span class="sec-num">7.5</span><h2 class="sec-t">Lead-Lag Compensator</h2></div>
+    <p>
+      This combines both networks: it provides phase lag at low frequencies to improve steady-state accuracy, and phase lead at high frequencies to improve transient response and stability margins. It acts as a band-reject (notch) filter.
+    </p>
+    <div class="diag-wrap">
+      <svg viewbox="0 0 400 150" width="100%" xmlns="http://www.w3.org/2000/svg" style="max-width:400px; display:block; margin:0 auto;">
+        <defs>
+          <marker id="arr-polezero" markerheight="4" markerwidth="6" orient="auto" refx="5" refy="2"><polygon fill="#3d2010" points="0 0,6 2,0 4"></polygon></marker>
+        </defs>
+        <!-- Axes -->
+        <line marker-end="url(#arr-polezero)" stroke="#3d2010" stroke-width="1.2" x1="20" x2="380" y1="75" y2="75"></line>
+        <line stroke="#3d2010" stroke-width="1.2" x1="320" x2="320" y1="20" y2="130"></line>
+        <text fill="#3d2010" font-family="Georgia,serif" font-size="12" x="382" y="79">Re</text>
+        <text fill="#3d2010" font-family="Georgia,serif" font-size="12" x="326" y="20">Im</text>
+        
+        <!-- Origin -->
+        <text fill="#3d2010" font-family="'JetBrains Mono',monospace" font-size="10" x="325" y="90">0</text>
+
+        <!-- Lag Section (closest to origin) -->
+        <!-- Pole near origin -->
+        <line stroke="#c95f1a" stroke-width="2" x1="275" x2="285" y1="70" y2="80"></line>
+        <line stroke="#c95f1a" stroke-width="2" x1="285" x2="275" y1="70" y2="80"></line>
+        <text fill="#c95f1a" font-family="Georgia,serif" font-size="10" x="270" y="95">-p_lag</text>
+        
+        <!-- Zero slightly further out -->
+        <circle cx="230" cy="75" fill="#fdf6ee" r="4" stroke="#2d6648" stroke-width="1.5"></circle>
+        <text fill="#2d6648" font-family="Georgia,serif" font-size="10" x="220" y="95">-z_lag</text>
+
+        <!-- Lead Section (further out) -->
+        <!-- Zero -->
+        <circle cx="120" cy="75" fill="#fdf6ee" r="4" stroke="#2d6648" stroke-width="1.5"></circle>
+        <text fill="#2d6648" font-family="Georgia,serif" font-size="10" x="110" y="95">-z_lead</text>
+
+        <!-- Pole furthest out -->
+        <line stroke="#c95f1a" stroke-width="2" x1="55" x2="65" y1="70" y2="80"></line>
+        <line stroke="#c95f1a" stroke-width="2" x1="65" x2="55" y1="70" y2="80"></line>
+        <text fill="#c95f1a" font-family="Georgia,serif" font-size="10" x="45" y="95">-p_lead</text>
+      </svg>
+      <div class="diag-caption">Fig 7.1: Pole-zero map of a Lead-Lag compensator. The lag pair is closer to the imaginary axis to dominate low-frequency behavior.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+    §7.6  GATE & IES EXAM CONCEPTS
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s6">
+    <div class="sec-hdr"><span class="sec-num">7.6</span><h2 class="sec-t">GATE &amp; IES Exam Concepts</h2></div>
+
+    <div class="gate-card">
+      <div class="gate-hdr"><span class="gate-tag">CONCEPT 1</span><span class="gate-title">PD Controller vs. Lead Compensator</span></div>
+      <div class="gate-body">
+        <p>A pure PD controller (\( K_p + K_d s \)) has infinite gain at high frequencies (\(\omega \to \infty\)), meaning it drastically amplifies high-frequency sensor noise. </p>
+        <p>A Lead compensator adds a high-frequency pole alongside the zero. This limits the high-frequency gain to a constant maximum value (\(1/a\)), mitigating the noise amplification issue while still providing the required phase lead.</p>
+      </div>
+    </div>
+
+    <div class="gate-card">
+      <div class="gate-hdr"><span class="gate-tag">CONCEPT 2</span><span class="gate-title">PI Controller vs. Lag Compensator</span></div>
+      <div class="gate-body">
+        <p>A PI controller adds a pole exactly at the origin (\(s=0\)), which mathematically increases the system Type by 1. If you have a Type 0 system (which has a steady-state error to a step input), adding a PI controller drops that step error to absolutely <strong>zero</strong>.</p>
+        <p>A Lag compensator adds a pole very close to the origin, but not exactly on it. It does <strong>not</strong> change the system Type. It only reduces the steady-state error by a finite factor.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+    §7.7  WORKED EXAMPLES
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s7">
+    <div class="sec-hdr"><span class="sec-num">7.7</span><h2 class="sec-t">Worked Examples (GATE &amp; IES)</h2></div>
+
+    <!-- Example 1 -->
+    <div class="example-block">
+      <div class="ex-head">
+        <span class="ex-badge">Example 01</span>
+        <div class="ex-title">Maximum Phase Lead Frequency Calculation</div>
+      </div>
+      <p class="ex-q">
+        A phase lead compensator has the transfer function \( G_c(s) = \frac{1 + 0.4s}{1 + 0.1s} \). Determine the frequency at which the maximum phase lead occurs, and the value of the maximum phase angle.
+      </p>
+      <div class="ex-sol-head">Solution</div>
+      <div class="ex-steps">
+        <div class="ex-step">
+          <strong>1. Map to Standard Form:</strong><br/>
+          Standard form: \( \frac{1 + aTs}{1 + Ts} \).<br/>
+          Comparing terms: \( T = 0.1 \) and \( aT = 0.4 \).<br/>
+          Therefore, \( a = \frac{0.4}{0.1} = 4 \).
+        </div>
+        <div class="ex-step">
+          <strong>2. Calculate Frequency for Max Phase Lead (\(\omega_m\)):</strong><br/>
+          $$ \omega_m = \frac{1}{T\sqrt{a}} = \frac{1}{0.1\sqrt{4}} = \frac{1}{0.1 \times 2} = \frac{1}{0.2} = \mathbf{5 \text{ rad/s}} $$
+        </div>
+        <div class="ex-step">
+          <strong>3. Calculate Maximum Phase Lead Angle (\(\phi_m\)):</strong><br/>
+          $$ \sin(\phi_m) = \frac{a - 1}{a + 1} = \frac{4 - 1}{4 + 1} = \frac{3}{5} = 0.6 $$
+          $$ \phi_m = \sin^{-1}(0.6) = \mathbf{36.87^\circ} $$
+        </div>
+      </div>
+      <div class="ex-ans">✔ Ans: \(\omega_m = 5 \text{ rad/s}\), \(\phi_m = 36.87^\circ\).</div>
+    </div>
+
+    <!-- Example 2 -->
+    <div class="example-block">
+      <div class="ex-head">
+        <span class="ex-badge">Example 02</span>
+        <div class="ex-title">PID Controller Parameters</div>
+      </div>
+      <p class="ex-q">
+        A PID controller is defined by the transfer function \( G_c(s) = 25 \left( 1 + \frac{1}{2s} + 0.5s \right) \). Determine the proportional gain (\(K_p\)), integral time constant (\(T_i\)), and derivative time constant (\(T_d\)).
+      </p>
+      <div class="ex-sol-head">Solution</div>
+      <div class="ex-steps">
+        <div class="ex-step">
+          <strong>1. Identify the Standard PID Form:</strong><br/>
+          The standard time-constant form of a PID controller is:<br/>
+          $$ G_c(s) = K_p \left( 1 + \frac{1}{T_i s} + T_d s \right) $$
+        </div>
+        <div class="ex-step">
+          <strong>2. Extract Parameters by Direct Comparison:</strong><br/>
+          - <strong>Proportional Gain (\(K_p\)):</strong> The constant multiplier outside the bracket is \( \mathbf{25} \).<br/>
+          - <strong>Integral Time Constant (\(T_i\)):</strong> The term is \( \frac{1}{2s} \), which maps to \( \frac{1}{T_i s} \). Thus, \( T_i = \mathbf{2 \text{ seconds}} \).<br/>
+          - <strong>Derivative Time Constant (\(T_d\)):</strong> The term is \( 0.5s \), which maps to \( T_d s \). Thus, \( T_d = \mathbf{0.5 \text{ seconds}} \).
+        </div>
+      </div>
+      <div class="ex-ans">✔ Ans: \(K_p = 25\), \(T_i = 2\text{ s}\), \(T_d = 0.5\text{ s}\).</div>
+    </div>
+
+    <!-- Example 3 -->
+    <div class="example-block">
+      <div class="ex-head">
+        <span class="ex-badge">Example 03</span>
+        <div class="ex-title">Steady State Error Improvement via Lag Compensator</div>
+      </div>
+      <p class="ex-q">
+        An uncompensated Type 1 system has a velocity error constant \( K_v = 10 \). A lag compensator \( G_c(s) = \frac{1 + 0.5s}{1 + 5s} \) is cascaded in the forward path. Calculate the new velocity error constant and the percentage reduction in steady-state error for a unit ramp input.
+      </p>
+      <div class="ex-sol-head">Solution</div>
+      <div class="ex-steps">
+        <div class="ex-step">
+          <strong>1. Analyze the Uncompensated System:</strong><br/>
+          Original error constant \( K_{v\_old} = 10 \).<br/>
+          Steady-state error for a unit ramp: \( e_{ss\_old} = \frac{1}{K_{v\_old}} = \frac{1}{10} = 0.1 \).
+        </div>
+        <div class="ex-step">
+          <strong>2. Determine the DC Gain of the Lag Compensator:</strong><br/>
+          The DC gain of the compensator is evaluated at \( s = 0 \):<br/>
+          $$ G_c(0) = \frac{1 + 0}{1 + 0} = 1 $$
+          Wait, a standard lag compensator in the form \( \frac{1 + aTs}{1 + Ts} \) has a DC gain of 1. It does not improve steady-state error unless combined with an amplifier. But wait, if the compensator was written as \( \frac{s + z}{s + p} = \frac{s + 2}{s + 0.2} \), its DC gain would be \( \frac{2}{0.2} = 10 \).<br/>
+          Since the problem gives \( G_c(s) = \frac{1 + 0.5s}{1 + 5s} \), at \( s \to 0 \), the gain is exactly 1. <strong>Therefore, the new \( K_v \) is STILL 10!</strong>
+        </div>
+        <div class="ex-step">
+          <strong>3. The Catch (Real-World Application):</strong><br/>
+          In practice, a lag compensator is used alongside a proportional amplifier. If we increased the system gain \( K \) by a factor of 10 to get \( K_{v\_new} = 100 \), it would destroy the phase margin. The lag compensator is then inserted (with DC gain = 1) to attenuate the high frequencies and restore the phase margin, while preserving the new \( K_v = 100 \).<br/>
+          But purely inserting \( \frac{1 + 0.5s}{1 + 5s} \) without changing \( K \) results in <strong>0% reduction</strong> in steady-state error.
+        </div>
+      </div>
+      <div class="ex-ans">✔ Ans: New \(K_v = 10\). Reduction in error = 0%.</div>
+    </div>
+  </div>
+
+  <!-- NAV STRIP (inside .page) -->
+  <nav class="nav-strip">
+    <a class="nav-btn" href="AarovaAI_Ch6_FrequencyResponse.html">← Ch.6 Frequency Response</a>
+    <a class="nav-btn primary" href="AarovaAI_Ch8_StateSpace.html">Ch.8 State Space Analysis →</a>
+  </nav>
+
+</main>
+</body>
+</html>

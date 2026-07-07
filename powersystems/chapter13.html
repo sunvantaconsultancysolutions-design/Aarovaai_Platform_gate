@@ -1,0 +1,3355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#fdf6ee">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Aarova AI — Power Systems Ch.8 Protective Relays</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+  <style>
+    :root {
+      --bg: #fdf6ee;
+      --bg2: #f8ede0;
+      --bg3: #f0e0cc;
+      --bg4: #e8d0b8;
+      --text: #1e1208;
+      --text2: #3d2010;
+      --text3: #6b3e22;
+      --muted: #9a6e50;
+      --orange: #c95f1a;
+      --orange-md: #e07235;
+      --orange-lt: #f5956a;
+      --orange-bg: #fdebd8;
+      --orange-bdr: #f0b48a;
+      --green: #2d6648;
+      --green-bg: #dff0e8;
+      --green-bdr: #8ecaaa;
+      --teal: #1e6b68;
+      --teal-bg: #d8eeed;
+      --teal-bdr: #7ec4c2;
+      --amber: #a05c00;
+      --amber-bg: #fef0d0;
+      --amber-bdr: #f0c060;
+      --red: #9a2020;
+      --red-bg: #fde8e8;
+      --red-bdr: #e89090;
+      --border: #ddc8b0;
+      --border2: #c8a888;
+      --radius: 14px;
+      --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+      --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+      --page-px: clamp(14px, 4vw, 48px);
+      --section-gap: clamp(36px, 6vw, 64px);
+      --card-px: clamp(14px, 2.5vw, 22px);
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 18px;
+      -webkit-text-size-adjust: 100%
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text2);
+      font-family: 'Lora', Georgia, serif;
+      line-height: 1.85;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg2)
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 3px
+    }
+
+    img,
+    svg {
+      max-width: 100%;
+      display: block
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 var(--page-px) 80px
+    }
+
+    /* HEADER */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(253, 246, 238, .96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1.5px solid var(--border);
+      padding: 12px var(--page-px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(14px, 2.5vw, 18px);
+      font-weight: 700;
+      color: var(--orange);
+      white-space: nowrap
+    }
+
+    .logo-sub {
+      font-family: 'Lora', serif;
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: 8px;
+      font-weight: 400
+    }
+
+    .hbadges {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap
+    }
+
+    .hbadge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--orange-bg);
+      border: 1px solid var(--orange-bdr);
+      color: var(--orange);
+      white-space: nowrap
+    }
+
+    /* HERO */
+    .hero {
+      padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+      border-bottom: 1.5px solid var(--border);
+      margin-bottom: clamp(24px, 4vw, 44px)
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      color: var(--orange);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 9px
+    }
+
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 2.5px;
+      background: var(--orange);
+      border-radius: 2px;
+      flex-shrink: 0
+    }
+
+    h1.hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 7vw, 52px);
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 14px
+    }
+
+    h1.hero-title em {
+      font-style: italic;
+      color: var(--orange)
+    }
+
+    .hero-desc {
+      font-size: clamp(14px, 2vw, 17px);
+      color: var(--text3);
+      max-width: 640px;
+      line-height: 1.75;
+      font-weight: 400;
+      margin-bottom: 22px
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px
+    }
+
+    .badge {
+      font-size: 12px;
+      padding: 4px 13px;
+      border-radius: 22px;
+      border: 1.5px solid var(--border2);
+      color: var(--text3);
+      background: var(--bg2);
+      font-family: 'Lora', serif
+    }
+
+    .badge-p {
+      background: var(--orange-bg);
+      border-color: var(--orange-bdr);
+      color: var(--orange);
+      font-weight: 600
+    }
+
+    /* PROGRESS */
+    .progress-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--orange-bg);
+      border: 1.5px solid var(--orange-bdr);
+      border-radius: 10px;
+      padding: 11px 16px;
+      margin-bottom: clamp(20px, 4vw, 40px)
+    }
+
+    .pl {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--orange);
+      white-space: nowrap
+    }
+
+    .pt {
+      flex: 1;
+      height: 7px;
+      background: rgba(201, 95, 26, .18);
+      border-radius: 4px;
+      overflow: hidden;
+      min-width: 30px
+    }
+
+    .pf {
+      height: 100%;
+      width: 100%;
+      background: var(--orange);
+      border-radius: 4px
+    }
+
+    .pp {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--orange);
+      white-space: nowrap
+    }
+
+    /* TOC */
+    .toc {
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-left: 4px solid var(--orange);
+      border-radius: var(--radius);
+      padding: clamp(16px, 3vw, 28px);
+      margin-bottom: clamp(28px, 5vw, 52px)
+    }
+
+    .toc-h {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: var(--muted);
+      margin-bottom: 14px
+    }
+
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 0 24px
+    }
+
+    .toc-item {
+      display: flex;
+      align-items: baseline;
+      gap: 9px;
+      font-size: 14px;
+      color: var(--text3);
+      text-decoration: none;
+      padding: 7px 0;
+      border-bottom: 1px dashed transparent;
+      transition: color .2s, border-color .2s;
+      line-height: 1.5
+    }
+
+    .toc-item:hover,
+    .toc-item:focus {
+      color: var(--orange);
+      border-bottom-color: var(--orange-lt)
+    }
+
+    .toc-n {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--orange);
+      min-width: 28px;
+      flex-shrink: 0
+    }
+
+    /* SECTION */
+    .section {
+      margin-bottom: var(--section-gap);
+      opacity: 0;
+      transform: translateY(12px);
+      animation: rise .42s forwards
+    }
+
+    @keyframes rise {
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    .section:nth-child(1) {
+      animation-delay: .04s
+    }
+
+    .section:nth-child(2) {
+      animation-delay: .09s
+    }
+
+    .section:nth-child(3) {
+      animation-delay: .13s
+    }
+
+    .section:nth-child(4) {
+      animation-delay: .17s
+    }
+
+    .section:nth-child(5) {
+      animation-delay: .21s
+    }
+
+    .section:nth-child(6) {
+      animation-delay: .25s
+    }
+
+    .section:nth-child(7) {
+      animation-delay: .29s
+    }
+
+    .section:nth-child(8) {
+      animation-delay: .33s
+    }
+
+    .section:nth-child(9) {
+      animation-delay: .37s
+    }
+
+    .section:nth-child(10) {
+      animation-delay: .41s
+    }
+
+    .section:nth-child(11) {
+      animation-delay: .45s
+    }
+
+    .section:nth-child(12) {
+      animation-delay: .49s
+    }
+
+    .sec-hdr {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: clamp(14px, 3vw, 24px);
+      padding-bottom: 12px;
+      border-bottom: 1.5px solid var(--border)
+    }
+
+    .sec-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      background: var(--orange-bg);
+      color: var(--orange);
+      border: 1px solid var(--orange-bdr);
+      padding: 3px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      flex-shrink: 0
+    }
+
+    h2.sec-t {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(18px, 3.5vw, 26px);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2
+    }
+
+    h3.sub {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(15px, 2.5vw, 19px);
+      font-weight: 600;
+      color: var(--text2);
+      margin: clamp(20px, 3vw, 32px) 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 9px
+    }
+
+    h3.sub::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 16px;
+      background: var(--orange-lt);
+      border-radius: 2px;
+      flex-shrink: 0
+    }
+
+    p {
+      margin-bottom: 14px;
+      color: var(--text2);
+      font-size: clamp(14px, 2vw, 17px);
+      line-height: 1.85
+    }
+
+    strong {
+      font-weight: 600;
+      color: var(--text)
+    }
+
+    sup.cite {
+      font-size: 9px;
+      color: var(--teal);
+      font-weight: 700;
+      cursor: pointer;
+      vertical-align: super;
+      margin-left: 1px
+    }
+
+    /* CALLOUTS */
+    .callout {
+      border-radius: 10px;
+      padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+      margin: 16px 0;
+      display: flex;
+      gap: 11px;
+      align-items: flex-start
+    }
+
+    .ci {
+      font-size: 17px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      line-height: 1
+    }
+
+    .cb {
+      flex: 1;
+      min-width: 0
+    }
+
+    .ct {
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 4px
+    }
+
+    .cb p {
+      margin: 0;
+      font-size: clamp(13px, 1.8vw, 15.5px);
+      line-height: 1.68
+    }
+
+    .c-info {
+      background: var(--orange-bg);
+      border-left: 4px solid var(--orange)
+    }
+
+    .c-info .ct {
+      color: var(--orange)
+    }
+
+    .c-info p {
+      color: var(--text2)
+    }
+
+    .c-tip {
+      background: var(--green-bg);
+      border-left: 4px solid var(--green)
+    }
+
+    .c-tip .ct {
+      color: var(--green)
+    }
+
+    .c-tip p {
+      color: #1e4d38
+    }
+
+    .c-key {
+      background: var(--teal-bg);
+      border-left: 4px solid var(--teal)
+    }
+
+    .c-key .ct {
+      color: var(--teal)
+    }
+
+    .c-key p {
+      color: #154e4c
+    }
+
+    .c-warn {
+      background: var(--amber-bg);
+      border-left: 4px solid var(--amber)
+    }
+
+    .c-warn .ct {
+      color: var(--amber)
+    }
+
+    .c-warn p {
+      color: #6e3f00
+    }
+
+    .c-danger {
+      background: var(--red-bg);
+      border-left: 4px solid var(--red)
+    }
+
+    .c-danger .ct {
+      color: var(--red)
+    }
+
+    .c-danger p {
+      color: #6e1515
+    }
+
+    /* TABLE */
+    .tw {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 16px 0;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow)
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: clamp(12px, 1.8vw, 15px)
+    }
+
+    thead tr {
+      background: var(--bg3)
+    }
+
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--text3);
+      border-bottom: 1.5px solid var(--border);
+      white-space: nowrap
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--bg3);
+      transition: background .12s
+    }
+
+    tbody tr:last-child {
+      border-bottom: none
+    }
+
+    tbody tr:hover {
+      background: var(--bg2)
+    }
+
+    tbody td {
+      padding: 10px 14px;
+      color: var(--text2);
+      vertical-align: top;
+      line-height: 1.55
+    }
+
+    tbody td:first-child {
+      font-weight: 600;
+      color: var(--text)
+    }
+
+    .t-org {
+      color: var(--orange) !important;
+      font-weight: 600 !important
+    }
+
+    .t-grn {
+      color: var(--green) !important;
+      font-weight: 600 !important
+    }
+
+    .t-red {
+      color: var(--red) !important;
+      font-weight: 600 !important
+    }
+
+    .t-amb {
+      color: var(--amber) !important;
+      font-weight: 600 !important
+    }
+
+    .t-tel {
+      color: var(--teal) !important;
+      font-weight: 600 !important
+    }
+
+    /* FORMULA BLOCK */
+    .fblock {
+      background: var(--bg3);
+      border: 1.5px solid var(--border2);
+      border-left: 4px solid var(--orange-lt);
+      border-radius: 10px;
+      padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+      margin: 14px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(11.5px, 1.8vw, 13.5px);
+      color: var(--text);
+      line-height: 2;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      white-space: pre
+    }
+
+    .fblock .flbl {
+      font-family: 'Lora', serif;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: 5px;
+      white-space: normal;
+      display: block
+    }
+
+    .fv {
+      color: var(--orange)
+    }
+
+    .feq {
+      color: var(--green);
+      font-weight: 500
+    }
+
+    .fh {
+      color: var(--teal)
+    }
+
+    /* MATH */
+    .math-block {
+      background: var(--bg3);
+      border: 1.5px solid var(--border2);
+      border-left: 4px solid var(--teal);
+      border-radius: 10px;
+      padding: 14px 20px;
+      margin: 14px 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      text-align: center
+    }
+
+    .math-block .math-lbl {
+      font-family: 'Lora', serif;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-align: left
+    }
+
+    /* SVG */
+    .svg-wrap {
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: clamp(12px, 2.5vw, 24px);
+      margin: 16px 0;
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch
+    }
+
+    .svg-wrap svg {
+      width: 100%;
+      height: auto;
+      min-width: 300px;
+      display: block
+    }
+
+    .svg-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch
+    }
+
+    .svg-scroll svg {
+      min-width: 560px;
+      width: 100%;
+      height: auto;
+      display: block
+    }
+
+    .svg-cap {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+      font-style: italic;
+      line-height: 1.5
+    }
+
+    .svg-cite {
+      font-size: 10.5px;
+      color: var(--teal);
+      text-align: center;
+      margin-top: 3px
+    }
+
+    /* EXAMPLES */
+    .example {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      margin: 20px 0;
+      box-shadow: var(--shadow);
+      overflow: hidden
+    }
+
+    .ex-hdr {
+      background: var(--bg3);
+      padding: 9px var(--card-px);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      border-bottom: 1.5px solid var(--border);
+      flex-wrap: wrap
+    }
+
+    .ex-num {
+      font-size: 9px;
+      font-weight: 700;
+      background: var(--orange);
+      color: #fff;
+      padding: 3px 9px;
+      border-radius: 5px;
+      letter-spacing: .06em;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap
+    }
+
+    .ex-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text2);
+      line-height: 1.4
+    }
+
+    .ex-body {
+      padding: clamp(13px, 2vw, 22px) var(--card-px)
+    }
+
+    .ex-q {
+      font-size: clamp(13px, 2vw, 15.5px);
+      color: var(--text);
+      background: var(--orange-bg);
+      border-left: 4px solid var(--orange);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 14px;
+      line-height: 1.62
+    }
+
+    .sol-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .10em;
+      color: var(--green);
+      margin-bottom: 9px
+    }
+
+    /* GATE / PYQ */
+    .gate-card {
+      background: #fff;
+      border: 1.5px solid var(--teal-bdr);
+      border-radius: var(--radius);
+      margin: 18px 0;
+      box-shadow: var(--shadow);
+      overflow: hidden
+    }
+
+    .gate-hdr {
+      background: var(--teal-bg);
+      border-bottom: 1.5px solid var(--teal-bdr);
+      padding: 9px var(--card-px);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap
+    }
+
+    .gate-tag {
+      font-size: 9px;
+      font-weight: 700;
+      background: var(--teal);
+      color: #fff;
+      padding: 3px 9px;
+      border-radius: 5px;
+      letter-spacing: .07em;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap
+    }
+
+    .gate-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--teal);
+      line-height: 1.4
+    }
+
+    .gate-body {
+      padding: clamp(13px, 2vw, 20px) var(--card-px)
+    }
+
+    .gate-body p {
+      color: var(--text2);
+      font-size: clamp(13px, 2vw, 15.5px)
+    }
+
+    .pyq-card {
+      background: #fff;
+      border: 1.5px solid var(--teal-bdr);
+      border-radius: var(--radius);
+      margin: 18px 0;
+      box-shadow: var(--shadow);
+      overflow: hidden
+    }
+
+    .pyq-hdr {
+      background: var(--teal-bg);
+      border-bottom: 1.5px solid var(--teal-bdr);
+      padding: 9px var(--card-px);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap
+    }
+
+    .pyq-tag {
+      font-size: 9px;
+      font-weight: 700;
+      color: #fff;
+      padding: 3px 9px;
+      border-radius: 5px;
+      letter-spacing: .07em;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap
+    }
+
+    .pyq-gate {
+      background: var(--teal)
+    }
+
+    .pyq-ies {
+      background: var(--green)
+    }
+
+    .pyq-hdr.ies-hdr {
+      background: var(--green-bg);
+      border-color: var(--green-bdr)
+    }
+
+    .pyq-card.ies-card {
+      border-color: var(--green-bdr)
+    }
+
+    .pyq-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--teal);
+      line-height: 1.4;
+      flex: 1
+    }
+
+    .pyq-title-ies {
+      color: var(--green)
+    }
+
+    .pyq-year {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      white-space: nowrap
+    }
+
+    .pyq-body {
+      padding: clamp(13px, 2vw, 20px) var(--card-px)
+    }
+
+    .pyq-body p {
+      color: var(--text2);
+      font-size: clamp(13px, 2vw, 15.5px)
+    }
+
+    .pyq-opts {
+      list-style: none;
+      margin: 10px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px
+    }
+
+    .pyq-opts li {
+      font-size: clamp(13px, 1.8vw, 15px);
+      color: var(--text2);
+      padding: 9px 13px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--bg2);
+      font-family: 'Lora', serif;
+      cursor: default;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      line-height: 1.45
+    }
+
+    .pyq-opts li.correct {
+      background: var(--green-bg);
+      border-color: var(--green-bdr);
+      color: var(--green);
+      font-weight: 600
+    }
+
+    /* TWO COL */
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+      margin: 16px 0
+    }
+
+    .mini-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: var(--card-px);
+      box-shadow: var(--shadow)
+    }
+
+    .mc-t {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      margin-bottom: 11px
+    }
+
+    .mc-grn .mc-t {
+      color: var(--green)
+    }
+
+    .mc-red .mc-t {
+      color: var(--red)
+    }
+
+    .mc-org .mc-t {
+      color: var(--orange)
+    }
+
+    .mc-tel .mc-t {
+      color: var(--teal)
+    }
+
+    .mc-amb .mc-t {
+      color: var(--amber)
+    }
+
+    .mc-list {
+      list-style: none
+    }
+
+    .mc-list li {
+      font-size: clamp(13px, 1.8vw, 15px);
+      color: var(--text2);
+      padding: 6px 0;
+      border-bottom: 1px solid var(--bg3);
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      line-height: 1.5
+    }
+
+    .mc-list li:last-child {
+      border-bottom: none
+    }
+
+    .dot {
+      color: var(--muted);
+      flex-shrink: 0;
+      margin-top: 2px
+    }
+
+    /* SUMMARY GRID */
+    .sum-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 16px 0
+    }
+
+    .sum-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+      transition: box-shadow .2s, transform .15s
+    }
+
+    .sum-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px)
+    }
+
+    .sum-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      margin-bottom: 6px
+    }
+
+    .sum-card p {
+      font-size: clamp(12px, 1.7vw, 14px);
+      color: var(--text3);
+      margin: 0;
+      line-height: 1.62
+    }
+
+    .sc-o .sum-lbl {
+      color: var(--orange)
+    }
+
+    .sc-g .sum-lbl {
+      color: var(--green)
+    }
+
+    .sc-t .sum-lbl {
+      color: var(--teal)
+    }
+
+    .sc-a .sum-lbl {
+      color: var(--amber)
+    }
+
+    .sc-r .sum-lbl {
+      color: var(--red)
+    }
+
+    /* CITATIONS */
+    .citations {
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-left: 4px solid var(--teal);
+      border-radius: var(--radius);
+      padding: clamp(16px, 3vw, 28px);
+      margin-top: 36px
+    }
+
+    .cite-h {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px
+    }
+
+    .cite-list {
+      list-style: none
+    }
+
+    .cite-list li {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: clamp(12px, 1.8vw, 14px);
+      color: var(--text2);
+      line-height: 1.62
+    }
+
+    .cite-list li:last-child {
+      border-bottom: none
+    }
+
+    .cite-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--teal);
+      background: var(--teal-bg);
+      padding: 2px 7px;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      height: fit-content;
+      margin-top: 2px
+    }
+
+    .cite-list em {
+      color: var(--orange-md);
+      font-style: italic
+    }
+
+    /* PROB TAGS */
+    .prob {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 8px;
+      border-radius: 5px;
+      margin-left: 8px;
+      vertical-align: middle
+    }
+
+    .prob-h {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid var(--green-bdr)
+    }
+
+    .prob-m {
+      background: var(--amber-bg);
+      color: var(--amber);
+      border: 1px solid var(--amber-bdr)
+    }
+
+    .prob-l {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red-bdr)
+    }
+
+    /* ASK CLAUDE */
+    .ai-prompt {
+      background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+      border: 2px solid var(--teal-bdr);
+      border-radius: var(--radius);
+      padding: clamp(16px, 3vw, 28px);
+      margin: 28px 0;
+      box-shadow: var(--shadow-md)
+    }
+
+    .ai-prompt-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--teal);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 7px
+    }
+
+    .ai-prompt>p {
+      color: var(--text2);
+      font-size: 14px;
+      margin-bottom: 12px
+    }
+
+    .ai-input-row {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap
+    }
+
+    .ai-input {
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 9px;
+      border: 1.5px solid var(--border2);
+      background: var(--bg);
+      font-family: 'Lora', serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      -webkit-appearance: none
+    }
+
+    .ai-input:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(30, 107, 104, .12)
+    }
+
+    .ai-btn {
+      padding: 11px 20px;
+      border-radius: 9px;
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      font-family: 'Lora', serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s;
+      white-space: nowrap;
+      min-height: 44px;
+      -webkit-appearance: none
+    }
+
+    .ai-btn:hover {
+      background: #155250
+    }
+
+    .ai-btn:active {
+      background: #0f3d3b
+    }
+
+    .ai-suggest {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px
+    }
+
+    .ai-chip {
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--teal-bdr);
+      color: var(--teal);
+      background: var(--bg);
+      cursor: pointer;
+      font-family: 'Lora', serif;
+      transition: background .15s;
+      min-height: 36px;
+      display: flex;
+      align-items: center
+    }
+
+    .ai-chip:hover,
+    .ai-chip:active {
+      background: var(--teal-bg)
+    }
+
+    .ai-response {
+      margin-top: 14px;
+      padding: 13px 15px;
+      background: #fff;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      font-size: 14px;
+      color: var(--text2);
+      display: none;
+      line-height: 1.72;
+      white-space: pre-wrap;
+      overflow-x: auto
+    }
+
+    /* MISC */
+    hr {
+      border: none;
+      border-top: 1.5px solid var(--border);
+      margin: 40px 0
+    }
+
+    footer {
+      text-align: center;
+      padding: 26px 0;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1.5px solid var(--border)
+    }
+
+    footer strong {
+      color: var(--orange)
+    }
+
+    ul,
+    ol {
+      padding-left: 1.4em;
+      margin-bottom: 14px
+    }
+
+    li {
+      font-size: clamp(13px, 1.9vw, 16px);
+      color: var(--text2);
+      line-height: 1.78;
+      margin-bottom: 5px
+    }
+
+    /* TABLET */
+    @media(min-width:481px) and (max-width:768px) {
+      html {
+        font-size: 16.5px
+      }
+
+      .logo-sub {
+        display: none
+      }
+
+      .svg-wrap {
+        padding: 12px 10px
+      }
+
+      .svg-wrap svg {
+        min-width: 480px
+      }
+
+      .toc-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0 20px
+      }
+
+      .two-col {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px
+      }
+
+      .sum-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 11px
+      }
+
+      .fblock {
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 12px;
+        line-height: 1.8
+      }
+
+      thead th,
+      tbody td {
+        padding: 8px 10px
+      }
+
+      .pyq-year {
+        margin-left: 0
+      }
+    }
+
+    /* MOBILE */
+    @media(max-width:480px) {
+      html {
+        font-size: 15.5px
+      }
+
+      .logo-sub {
+        display: none
+      }
+
+      .hbadges {
+        display: none
+      }
+
+      .site-header {
+        padding: 10px 14px
+      }
+
+      h1.hero-title {
+        font-size: clamp(26px, 8vw, 34px)
+      }
+
+      .hero-desc {
+        font-size: 14px
+      }
+
+      .badge-row .badge {
+        font-size: 11px;
+        padding: 4px 10px
+      }
+
+      .progress-bar {
+        padding: 9px 12px;
+        gap: 8px
+      }
+
+      .pl {
+        font-size: 11px
+      }
+
+      .toc-grid {
+        grid-template-columns: 1fr;
+        gap: 0
+      }
+
+      .toc-item {
+        font-size: 14px;
+        padding: 9px 0
+      }
+
+      .toc {
+        padding: 14px 16px
+      }
+
+      .sec-hdr {
+        gap: 9px
+      }
+
+      h2.sec-t {
+        font-size: clamp(16px, 5vw, 20px)
+      }
+
+      h3.sub {
+        font-size: clamp(14px, 4.5vw, 17px)
+      }
+
+      p {
+        font-size: 15px
+      }
+
+      .svg-wrap {
+        padding: 10px 8px;
+        border-radius: 10px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch
+      }
+
+      .svg-wrap svg {
+        min-width: 520px;
+        width: 520px;
+        height: auto
+      }
+
+      .svg-wrap.svg-simple svg {
+        min-width: 280px;
+        width: 100%
+      }
+
+      .svg-cap {
+        font-size: 11px
+      }
+
+      .fblock {
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 11.5px;
+        line-height: 1.75;
+        padding: 12px;
+        border-radius: 8px
+      }
+
+      .tw {
+        border-radius: 8px
+      }
+
+      thead th {
+        font-size: 9px;
+        padding: 8px 10px;
+        letter-spacing: .06em
+      }
+
+      tbody td {
+        font-size: 12px;
+        padding: 8px 10px
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+        gap: 10px
+      }
+
+      .sum-grid {
+        grid-template-columns: 1fr;
+        gap: 9px
+      }
+
+      .mini-card {
+        padding: 13px 14px
+      }
+
+      .example,
+      .gate-card,
+      .pyq-card {
+        margin: 14px 0
+      }
+
+      .ex-body,
+      .gate-body,
+      .pyq-body {
+        padding: 13px 14px
+      }
+
+      .ai-prompt {
+        padding: 16px 14px
+      }
+
+      .ai-btn {
+        width: 100%
+      }
+
+      .ai-input-row {
+        flex-direction: column
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══ STICKY HEADER ═══ -->
+  <header class="site-header">
+    <div style="display:flex;align-items:center">
+      <span class="logo">Aarova AI</span>
+      <span class="logo-sub">Power Systems Series</span>
+    </div>
+    <div class="hbadges">
+      <span class="hbadge">GATE EE</span>
+      <span class="hbadge">IES E&amp;T</span>
+      <span class="hbadge">PSU</span>
+      <span class="hbadge">Chapter 8</span>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <!-- ═══ HERO ═══ -->
+    <div class="hero">
+      <div class="eyebrow">Power Systems — Chapter 8</div>
+      <h1 class="hero-title">Protective <em>Relays</em></h1>
+      <p class="hero-desc">Complete concept-first study of relay fundamentals, classification, operating principles,
+        over-current relays, distance relays, and differential relays — with GATE &amp; IES previous year questions, SVG
+        diagrams, and worked examples.</p>
+      <div class="badge-row">
+        <span class="badge badge-p">🟢 High GATE Weight</span>
+        <span class="badge">Electromechanical Relays</span>
+        <span class="badge">OCR &amp; IDMT</span>
+        <span class="badge">Distance Relays</span>
+        <span class="badge">Differential Relays</span>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-bar">
+      <span class="pl">Chapter Progress</span>
+      <div class="pt">
+        <div class="pf"></div>
+      </div>
+      <span class="pp">8 / 8</span>
+    </div>
+
+    <!-- ═══ TABLE OF CONTENTS ═══ -->
+    <div class="toc">
+      <div class="toc-h">Contents — Chapter 8</div>
+      <div class="toc-grid">
+        <a class="toc-item" href="#s1"><span class="toc-n">8.1</span>Introduction &amp; Terminology</a>
+        <a class="toc-item" href="#s2"><span class="toc-n">8.2</span>Basic Objectives of Protection</a>
+        <a class="toc-item" href="#s3"><span class="toc-n">8.3</span>Classification of Relays</a>
+        <a class="toc-item" href="#s4"><span class="toc-n">8.4</span>Electromagnetic Relays</a>
+        <a class="toc-item" href="#s5"><span class="toc-n">8.5</span>Over-Current Relays</a>
+        <a class="toc-item" href="#s6"><span class="toc-n">8.6</span>Directional Relays</a>
+        <a class="toc-item" href="#s7"><span class="toc-n">8.7</span>Distance Relays</a>
+        <a class="toc-item" href="#s8"><span class="toc-n">8.8</span>Differential Relays</a>
+        <a class="toc-item" href="#s9"><span class="toc-n">8.9</span>Worked Examples</a>
+        <a class="toc-item" href="#s10"><span class="toc-n">8.10</span>GATE &amp; IES PYQs</a>
+        <a class="toc-item" href="#s11"><span class="toc-n">8.11</span>Ask the AI Tutor</a>
+        <a class="toc-item" href="#s12"><span class="toc-n">8.12</span>Summary &amp; Revision</a>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+       SECTION 8.1 — INTRODUCTION
+  ══════════════════════════════════════════════ -->
+    <div class="section" id="s1">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 8.1</span>
+        <h2 class="sec-t">Introduction &amp; Key Terminology</h2>
+      </div>
+
+      <div class="callout c-info">
+        <div class="ci">⚡</div>
+        <div class="cb">
+          <div class="ct">Why Protection Matters</div>
+          <p>A power system carries enormous energy. Any fault — if not cleared within milliseconds — can cascade into
+            widespread outage, equipment destruction, and even fire. Protective relays are the nervous system that
+            senses abnormal conditions and triggers circuit breakers before damage spreads.</p>
+        </div>
+      </div>
+
+      <h3 class="sub">Big Picture — Where Does a Relay Sit?</h3>
+
+      <!-- System flow diagram -->
+      <div class="svg-wrap svg-simple">
+        <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" aria-label="Power system protection flow">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#c95f1a" />
+            </marker>
+          </defs>
+          <!-- Boxes -->
+          <rect x="10" y="70" width="110" height="50" rx="8" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5" />
+          <text x="65" y="90" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#3d2010">Power
+            System</text>
+          <text x="65" y="107" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">(CT /
+            PT)</text>
+          <line x1="120" y1="95" x2="158" y2="95" stroke="#c95f1a" stroke-width="1.5" marker-end="url(#arr)" />
+          <rect x="160" y="70" width="110" height="50" rx="8" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5" />
+          <text x="215" y="90" text-anchor="middle" font-family="Lora,serif" font-size="11"
+            fill="#1e6b68">Protective</text>
+          <text x="215" y="107" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68">Relay</text>
+          <line x1="270" y1="95" x2="308" y2="95" stroke="#c95f1a" stroke-width="1.5" marker-end="url(#arr)" />
+          <text x="289" y="88" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a6e50">Trip</text>
+          <text x="289" y="100" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a6e50">Signal</text>
+          <rect x="310" y="70" width="120" height="50" rx="8" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5" />
+          <text x="370" y="90" text-anchor="middle" font-family="Lora,serif" font-size="11"
+            fill="#2d6648">Circuit</text>
+          <text x="370" y="107" text-anchor="middle" font-family="Lora,serif" font-size="11"
+            fill="#2d6648">Breaker</text>
+          <line x1="430" y1="95" x2="468" y2="95" stroke="#c95f1a" stroke-width="1.5" marker-end="url(#arr)" />
+          <rect x="470" y="70" width="110" height="50" rx="8" fill="#fef0d0" stroke="#f0c060" stroke-width="1.5" />
+          <text x="525" y="90" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#a05c00">Fault</text>
+          <text x="525" y="107" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#a05c00">Isolated
+            ✓</text>
+          <!-- Fault indicator -->
+          <text x="600" y="50" font-family="Lora,serif" font-size="10" fill="#9a2020">⚡ Fault</text>
+          <line x1="600" y1="56" x2="530" y2="70" stroke="#9a2020" stroke-width="1" stroke-dasharray="4,3" />
+        </svg>
+        <div class="svg-cap">Fig. 8.0 — Protection action chain: CT/PT sense → Relay decides → CB isolates the fault
+        </div>
+      </div>
+
+      <h3 class="sub">Essential Terminology</h3>
+      <div class="tw">
+        <table>
+          <thead>
+            <tr>
+              <th>Term</th>
+              <th>Definition</th>
+              <th>Engineering Significance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Pick-up Level</td>
+              <td>Minimum actuating quantity that causes relay to operate</td>
+              <td>Sets the fault-detection threshold — must be above max load</td>
+            </tr>
+            <tr>
+              <td>Reset Level</td>
+              <td>Value below which relay returns to its normal position</td>
+              <td>Ratio of reset-to-pickup ≈ 0.95–0.99 for good relay</td>
+            </tr>
+            <tr>
+              <td>Operating Time</td>
+              <td>Time from pickup-level crossing to contact closure</td>
+              <td>Shorter → better; determines fault clearance speed</td>
+            </tr>
+            <tr>
+              <td>Reset Time</td>
+              <td>Time from de-energisation to return of contact to normal</td>
+              <td>Must be short to restore system quickly after fault clearance</td>
+            </tr>
+            <tr>
+              <td>Stability</td>
+              <td>Ability to remain inoperative for external faults &amp; loads</td>
+              <td>Prevents unwanted tripping — heavy load current must not trip relay</td>
+            </tr>
+            <tr>
+              <td>Primary Relay</td>
+              <td>Connected directly in the protected circuit</td>
+              <td>Used for low-voltage, directly accessible equipment</td>
+            </tr>
+            <tr>
+              <td>Secondary Relay</td>
+              <td>Connected via CTs and PTs to high-voltage circuits</td>
+              <td>Standard for all high-voltage systems (11 kV and above)</td>
+            </tr>
+            <tr>
+              <td>Back-up Relay</td>
+              <td>Operates with delay if primary protection fails</td>
+              <td>Second line of defence — may be at adjacent breaker</td>
+            </tr>
+            <tr>
+              <td>Auxiliary Relay</td>
+              <td>Operates in response to main relay opening/closing</td>
+              <td>Used for lockout, alarm, flag — can be instantaneous or time-delayed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout c-warn">
+        <div class="ci">🎯</div>
+        <div class="cb">
+          <div class="ct">GATE Trap — Primary vs Back-up</div>
+          <p>Students often confuse "primary protection" with "primary relay." Primary <em>protection</em> is the
+            first-level scheme (e.g., differential protection for a transformer). A primary <em>relay</em> is one
+            connected directly (without CT/PT). These are entirely different concepts — expect a MCQ on this
+            distinction.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+       SECTION 8.2 — OBJECTIVES
+  ══════════════════════════════════════════════ -->
+    <div class="section" id="s2">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 8.2</span>
+        <h2 class="sec-t">Basic Objectives of System Protection</h2>
+      </div>
+
+      <p>The goal of protection is not to <em>prevent</em> faults — faults are inevitable in any large power system. The
+        goal is to <strong>minimise damage and outage time</strong> by rapidly isolating the faulty section while
+        keeping the rest of the system intact.</p>
+
+      <div class="two-col">
+        <div class="mini-card mc-tel">
+          <div class="mc-t">Speed <span class="prob prob-h">🟢 HIGH</span></div>
+          <ul class="mc-list">
+            <li><span class="dot">▸</span>Delayed clearing → thermal &amp; mechanical damage to healthy equipment</li>
+            <li><span class="dot">▸</span>May cause synchronous generators to lose synchronism (out-of-step)</li>
+            <li><span class="dot">▸</span>Fast clearing = less energy released at fault point</li>
+          </ul>
+        </div>
+        <div class="mini-card mc-org">
+          <div class="mc-t">Sensitivity <span class="prob prob-h">🟢 HIGH</span></div>
+          <ul class="mc-list">
+            <li><span class="dot">▸</span>Must detect minimum possible fault current</li>
+            <li><span class="dot">▸</span>High-impedance faults on long lines need sensitive relays</li>
+            <li><span class="dot">▸</span>Measured as ratio: I<sub>fault,min</sub> / I<sub>pickup</sub></li>
+          </ul>
+        </div>
+        <div class="mini-card mc-grn">
+          <div class="mc-t">Selectivity (Discrimination) <span class="prob prob-h">🟢 HIGH</span></div>
+          <ul class="mc-list">
+            <li><span class="dot">▸</span>Only the faulted zone is disconnected</li>
+            <li><span class="dot">▸</span>Relay must discriminate: in-zone vs out-of-zone fault</li>
+            <li><span class="dot">▸</span>Achieved by time-grading or unit protection</li>
+          </ul>
+        </div>
+        <div class="mini-card mc-amb">
+          <div class="mc-t">Reliability</div>
+          <ul class="mc-list">
+            <li><span class="dot">▸</span><strong>Dependability</strong>: Operate when required (no miss)</li>
+            <li><span class="dot">▸</span><strong>Security</strong>: Don't operate when not required (no false trip)
+            </li>
+            <li><span class="dot">▸</span>These two aspects sometimes conflict — design trade-off</li>
+          </ul>
+        </div>
+        <div class="mini-card mc-red">
+          <div class="mc-t">Stability <span class="prob prob-m">🟡 MED</span></div>
+          <ul class="mc-list">
+            <li><span class="dot">▸</span>Must be stable (inoperative) under all load conditions</li>
+            <li><span class="dot">▸</span>External faults carry large currents through the relay — must not trip</li>
+            <li><span class="dot">▸</span>Relay must carry fault current without self-damage until CB opens</li>
+          </ul>
+        </div>
+        <div class="mini-card mc-grn">
+          <div class="mc-t">Simplicity &amp; Economics</div>
+          <ul class="mc-list">
+            <li><span class="dot">▸</span>Minimum equipment → fewer failure points</li>
+            <li><span class="dot">▸</span>Maximum protection at minimum total cost</li>
+            <li><span class="dot">▸</span>Cost of relay + CB must be justified by value of protected equipment</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout c-key">
+        <div class="ci">🔑</div>
+        <div class="cb">
+          <div class="ct">Memory Trick — "SSS RE" for Protection Objectives</div>
+          <p><strong>S</strong>peed · <strong>S</strong>ensitivity · <strong>S</strong>electivity ·
+            <strong>R</strong>eliability (Dependability + Security) · <strong>E</strong>conomics + Simplicity +
+            Stability. In GATE questions, all seven objectives may be listed and you are asked which one is NOT an
+            objective — memorise all seven.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+       SECTION 8.3 — CLASSIFICATION
+  ══════════════════════════════════════════════ -->
+    <div class="section" id="s3">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 8.3</span>
+        <h2 class="sec-t">Classification of Relays</h2>
+      </div>
+
+      <h3 class="sub">By Technology</h3>
+      <div class="tw">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Operating Principle</th>
+              <th>Key Feature</th>
+              <th>Era</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="t-org">Electromechanical</td>
+              <td>Mechanical force on armature or disc</td>
+              <td>Moving parts; attracted-armature or induction disc</td>
+              <td>Pre-1960s</td>
+            </tr>
+            <tr>
+              <td class="t-tel">Static Relay</td>
+              <td>Analog electronics (op-amp, comparator)</td>
+              <td>No moving parts; coils/magnets replaced by transistors</td>
+              <td>1960s–1980s</td>
+            </tr>
+            <tr>
+              <td class="t-grn">Digital Relay</td>
+              <td>Microprocessors replacing analog circuits</td>
+              <td>Numerical processing; programmable settings</td>
+              <td>1980s–2000s</td>
+            </tr>
+            <tr>
+              <td class="t-amb">Numerical Relay</td>
+              <td>DSP + dedicated software tools</td>
+              <td>Multiple protection functions in one device; SCADA integration</td>
+              <td>2000s–present</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sub">By Application (Function)</h3>
+      <div class="svg-wrap svg-simple">
+        <svg viewBox="0 0 660 180" xmlns="http://www.w3.org/2000/svg" aria-label="Relay classification by application">
+          <!-- Root -->
+          <rect x="255" y="10" width="150" height="38" rx="8" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5" />
+          <text x="330" y="24" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+            font-weight="700" fill="#c95f1a">Relay Types</text>
+          <text x="330" y="40" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22">(by
+            Application)</text>
+          <!-- Lines -->
+          <line x1="330" y1="48" x2="75" y2="90" stroke="#ddc8b0" stroke-width="1.5" />
+          <line x1="330" y1="48" x2="220" y2="90" stroke="#ddc8b0" stroke-width="1.5" />
+          <line x1="330" y1="48" x2="370" y2="90" stroke="#ddc8b0" stroke-width="1.5" />
+          <line x1="330" y1="48" x2="575" y2="90" stroke="#ddc8b0" stroke-width="1.5" />
+          <!-- Boxes -->
+          <rect x="10" y="90" width="130" height="44" rx="8" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5" />
+          <text x="75" y="108" text-anchor="middle" font-family="Lora,serif" font-size="11"
+            fill="#1e6b68">Over-Current</text>
+          <text x="75" y="124" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#1e6b68">Relay
+            (OCR)</text>
+          <rect x="155" y="90" width="130" height="44" rx="8" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5" />
+          <text x="220" y="108" text-anchor="middle" font-family="Lora,serif" font-size="11"
+            fill="#2d6648">Directional</text>
+          <text x="220" y="124" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">Relay</text>
+          <rect x="305" y="90" width="130" height="44" rx="8" fill="#fef0d0" stroke="#f0c060" stroke-width="1.5" />
+          <text x="370" y="108" text-anchor="middle" font-family="Lora,serif" font-size="11"
+            fill="#a05c00">Distance</text>
+          <text x="370" y="124" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#a05c00">Relay</text>
+          <rect x="510" y="90" width="140" height="44" rx="8" fill="#fde8e8" stroke="#e89090" stroke-width="1.5" />
+          <text x="580" y="108" text-anchor="middle" font-family="Lora,serif" font-size="11"
+            fill="#9a2020">Differential</text>
+          <text x="580" y="124" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a2020">Relay</text>
+          <!-- Sub-labels -->
+          <text x="75" y="148" text-anchor="middle" font-family="Lora,serif" font-size="9" font-style="italic"
+            fill="#9a6e50">Feeders, motors</text>
+          <text x="220" y="148" text-anchor="middle" font-family="Lora,serif" font-size="9" font-style="italic"
+            fill="#9a6e50">Ring mains</text>
+          <text x="370" y="148" text-anchor="middle" font-family="Lora,serif" font-size="9" font-style="italic"
+            fill="#9a6e50">Transmission lines</text>
+          <text x="580" y="148" text-anchor="middle" font-family="Lora,serif" font-size="9" font-style="italic"
+            fill="#9a6e50">Transformers, alternators</text>
+        </svg>
+        <div class="svg-cap">Fig. 8.1 — Four main relay types by application and typical use-cases</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+       SECTION 8.4 — ELECTROMAGNETIC RELAYS
+  ══════════════════════════════════════════════ -->
+    <div class="section" id="s4">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 8.4</span>
+        <h2 class="sec-t">Operating Principles of Electromechanical Relays</h2>
+      </div>
+
+      <p>Electromechanical relays generate a <strong>mechanical torque</strong> proportional to electrical quantities.
+        When operating torque exceeds restraining torque, the moving element closes the trip contact.</p>
+
+      <h3 class="sub">8.4.1 Electromagnetic Attraction Relay (Attracted Armature)</h3>
+      <p>Think of this as a simple electromagnet pulling a hinged iron arm. When current through the coil is large
+        enough, the magnetic force on the armature overcomes the spring restraint and closes the trip contact.</p>
+
+      <!-- Attracted armature diagram -->
+      <div class="svg-wrap">
+        <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" aria-label="Attracted armature relay diagram">
+          <defs>
+            <marker id="a2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L7,3 z" fill="#c95f1a" />
+            </marker>
+          </defs>
+          <!-- Background card -->
+          <rect x="10" y="10" width="440" height="280" rx="10" fill="#f8ede0" stroke="#ddc8b0" stroke-width="1.5" />
+          <!-- Rigid body / top bar -->
+          <rect x="40" y="25" width="240" height="22" rx="4" fill="#c8a888" stroke="#9a6e50" stroke-width="1.5" />
+          <text x="155" y="41" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#3d2010">Rigid Body
+            (Fixed Frame)</text>
+          <!-- Spring -->
+          <text x="60" y="70" font-family="Lora,serif" font-size="10" fill="#9a6e50">Spring</text>
+          <path d="M70,75 L70,80 L80,83 L60,87 L80,91 L60,95 L80,99 L70,103" stroke="#9a6e50" stroke-width="1.5"
+            fill="none" />
+          <!-- Movable armature -->
+          <rect x="40" y="105" width="120" height="16" rx="3" fill="#e8d0b8" stroke="#c8a888" stroke-width="1.5" />
+          <text x="100" y="118" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#3d2010">Movable
+            Armature</text>
+          <!-- Pivot -->
+          <circle cx="40" cy="113" r="4" fill="#c95f1a" />
+          <!-- Forces labels -->
+          <text x="20" y="165" font-family="JetBrains Mono,monospace" font-size="10" fill="#9a2020">F₀</text>
+          <path d="M32,160 L32,135" stroke="#9a2020" stroke-width="1.5" marker-end="url(#a2)" />
+          <text x="40" y="160" font-family="JetBrains Mono,monospace" font-size="10" fill="#2d6648">Fᵣ</text>
+          <path d="M50,154 L50,125" stroke="#2d6648" stroke-width="1.5" marker-end="url(#a2)" />
+          <!-- Electromagnet (coil) -->
+          <rect x="90" y="170" width="120" height="80" rx="6" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5" />
+          <text x="150" y="200" text-anchor="middle" font-family="Lora,serif" font-size="11"
+            fill="#1e6b68">Electro-</text>
+          <text x="150" y="218" text-anchor="middle" font-family="Lora,serif" font-size="11"
+            fill="#1e6b68">magnet</text>
+          <text x="150" y="236" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">(ROC)</text>
+          <!-- Trip coil -->
+          <rect x="250" y="60" width="80" height="55" rx="5" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5" />
+          <text x="290" y="81" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">Trip
+            CB</text>
+          <text x="290" y="96" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">Coil</text>
+          <!-- Relay contacts -->
+          <circle cx="230" cy="115" r="5" fill="none" stroke="#c95f1a" stroke-width="1.5" />
+          <circle cx="248" cy="107" r="5" fill="none" stroke="#c95f1a" stroke-width="1.5" />
+          <text x="253" y="130" font-family="Lora,serif" font-size="10" fill="#c95f1a">Relay contacts</text>
+          <!-- CT box -->
+          <rect x="40" y="230" width="35" height="40" rx="4" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5" />
+          <text x="57" y="254" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#c95f1a">CT</text>
+          <!-- Current label -->
+          <text x="10" y="280" font-family="JetBrains Mono,monospace" font-size="12" fill="#c95f1a">i →</text>
+          <text x="200" y="280" font-family="JetBrains Mono,monospace" font-size="12" fill="#c95f1a">→ I (Line)</text>
+          <!-- Explanation boxes on right -->
+          <rect x="470" y="20" width="200" height="260" rx="10" fill="#fff" stroke="#ddc8b0" stroke-width="1.5" />
+          <text x="570" y="44" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+            font-weight="700" fill="#c95f1a">Key Physics</text>
+          <!-- Derivation steps -->
+          <text x="480" y="68" font-family="Lora,serif" font-size="10" fill="#3d2010">Field energy:</text>
+          <text x="480" y="84" font-family="JetBrains Mono,monospace" font-size="10" fill="#1e6b68">W = ½Li²</text>
+          <text x="480" y="104" font-family="Lora,serif" font-size="10" fill="#3d2010">Inductance:</text>
+          <text x="480" y="120" font-family="JetBrains Mono,monospace" font-size="10" fill="#1e6b68">L = μN²a / l</text>
+          <text x="480" y="142" font-family="Lora,serif" font-size="10" fill="#3d2010">Operating torque:</text>
+          <text x="480" y="158" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">Top =
+            ½i²(dL/dx)</text>
+          <text x="480" y="178" font-family="Lora,serif" font-size="10" fill="#3d2010">For AC (avg):</text>
+          <text x="480" y="194" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">Top∝ Iₙ²
+            (rms²)</text>
+          <line x1="480" y1="204" x2="660" y2="204" stroke="#ddc8b0" stroke-width="1" />
+          <text x="480" y="222" font-family="Lora,serif" font-size="10" fill="#3d2010">Resultant torque:</text>
+          <text x="480" y="238" font-family="JetBrains Mono,monospace" font-size="10" fill="#2d6648">T = K₁I² − K</text>
+          <text x="480" y="256" font-family="Lora,serif" font-size="9" font-style="italic" fill="#9a6e50">(K = spring
+            torque)</text>
+          <text x="480" y="272" font-family="Lora,serif" font-size="9" fill="#9a2020">Works for AC &amp; DC</text>
+        </svg>
+        <div class="svg-cap">Fig. 8.2 — Attracted Armature Relay: F₀ = operating (magnetic) force, Fᵣ = restraining
+          (spring) force</div>
+      </div>
+
+      <h3 class="sub">Mathematical Derivation — Attracted Armature</h3>
+
+      <div class="math-block">
+        <div class="math-lbl">Stored Magnetic Field Energy &amp; Inductance</div>
+        $$W = \frac{1}{2}Li^{2}, \qquad L = \frac{\mu N^{2} a}{l}$$
+      </div>
+
+      <div class="math-block">
+        <div class="math-lbl">Operating Torque (rate of change of stored energy with displacement x)</div>
+        $$T_{op} = \frac{\partial W}{\partial x} = \frac{1}{2}i^{2}\frac{dL}{dx}$$
+      </div>
+
+      <div class="math-block">
+        <div class="math-lbl">For AC supply: i = Iₘ sin ωt — Average torque over one cycle</div>
+        $$T_{op,avg} = \frac{1}{4}\frac{dL}{dx}I_{m}^{2} = \frac{1}{2}\frac{dL}{dx}I_{n}^{2} \propto I_{rms}^{2}$$
+      </div>
+
+      <div class="math-block">
+        <div class="math-lbl">Resultant Net Torque (T > 0 → Relay operates)</div>
+        $$T = T_{op} - T_{res} = K_{1}I^{2} - K \quad \Rightarrow \quad I_{pickup} = \sqrt{\frac{K}{K_1}}$$
+      </div>
+
+      <div class="callout c-tip">
+        <div class="ci">💡</div>
+        <div class="cb">
+          <div class="ct">Physical Intuition</div>
+          <p>Operating torque is proportional to <strong>I²</strong> (square of rms current). This is why even a small
+            increase in fault current dramatically increases the operating force — the relay reacts very strongly to
+            large faults. The spring torque K is constant, so the relay has a definite pickup threshold.</p>
+        </div>
+      </div>
+
+      <h3 class="sub">8.4.2 Induction Type Relays (AC Only)</h3>
+
+      <p>Induction relays work on the same principle as an induction motor: two phase-displaced fluxes produce a
+        rotating field that exerts torque on an aluminum rotor (disc or cup). Because both fluxes must exist, induction
+        relays are <strong>AC only</strong>.</p>
+
+      <div class="two-col">
+        <div class="mini-card mc-tel">
+          <div class="mc-t">Shaded Pole Disc</div>
+          <ul class="mc-list">
+            <li><span class="dot">▸</span>One flux shaded (phase-shifted by shading ring) → rotating field on disc</li>
+            <li><span class="dot">▸</span>Torque: \(T \propto \phi_s \phi_u \sin\alpha\)</li>
+            <li><span class="dot">▸</span>For constant X/R: \(T = K_1 I^2\)</li>
+            <li><span class="dot">▸</span>Used as inverse-time overcurrent relay element</li>
+          </ul>
+        </div>
+        <div class="mini-card mc-org">
+          <div class="mc-t">Watt-Hour Meter Disc</div>
+          <ul class="mc-list">
+            <li><span class="dot">▸</span>Two electromagnets: upper (voltage coil) &amp; lower (current coil)</li>
+            <li><span class="dot">▸</span>Torque: \(T \propto \phi_1\phi_2\sin(\theta_1-\theta_2)\)</li>
+            <li><span class="dot">▸</span>Used as directional element</li>
+            <li><span class="dot">▸</span>PM magnet damps oscillations</li>
+          </ul>
+        </div>
+        <div class="mini-card mc-grn">
+          <div class="mc-t">Induction Cup</div>
+          <ul class="mc-list">
+            <li><span class="dot">▸</span>Hollow Al cup — behaves like induction motor rotor</li>
+            <li><span class="dot">▸</span>Operating time ≈ 0.01 s → high-speed relay</li>
+            <li><span class="dot">▸</span>Reset/pickup ratio ≈ 0.99 — very accurate</li>
+            <li><span class="dot">▸</span>Used in distance relay applications</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Shaded pole disc diagram -->
+      <div class="svg-wrap">
+        <svg viewBox="0 0 680 240" xmlns="http://www.w3.org/2000/svg" aria-label="Shaded pole induction disc relay">
+          <!-- Left: Shaded pole structure -->
+          <rect x="10" y="10" width="300" height="220" rx="10" fill="#f8ede0" stroke="#ddc8b0" stroke-width="1.5" />
+          <text x="155" y="32" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+            font-weight="700" fill="#1e6b68">Shaded Pole Induction Disc</text>
+          <!-- Core -->
+          <rect x="40" y="45" width="60" height="150" rx="5" fill="#c8a888" stroke="#9a6e50" stroke-width="1.5" />
+          <text x="70" y="75" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#3d2010">ROC</text>
+          <!-- Ixc arrow -->
+          <text x="25" y="100" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">Ixc →</text>
+          <!-- Shading ring -->
+          <ellipse cx="118" cy="120" rx="18" ry="28" fill="none" stroke="#2d6648" stroke-width="2" />
+          <text x="118" y="118" text-anchor="middle" font-family="Lora,serif" font-size="8" fill="#2d6648">Shade</text>
+          <text x="118" y="130" text-anchor="middle" font-family="Lora,serif" font-size="8" fill="#2d6648">ring</text>
+          <!-- Flux labels -->
+          <text x="88" y="90" font-family="JetBrains Mono,monospace" font-size="9" fill="#a05c00">ϕu</text>
+          <text x="138" y="90" font-family="JetBrains Mono,monospace" font-size="9" fill="#1e6b68">ϕs</text>
+          <!-- Al Disc -->
+          <ellipse cx="210" cy="120" rx="28" ry="65" fill="#fef0d0" stroke="#f0c060" stroke-width="1.5" />
+          <text x="210" y="115" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#a05c00">Al</text>
+          <text x="210" y="130" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#a05c00">Disc</text>
+          <!-- PM for damping -->
+          <rect x="245" y="100" width="40" height="40" rx="5" fill="#fde8e8" stroke="#e89090" stroke-width="1.5" />
+          <text x="265" y="116" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a2020">PM</text>
+          <text x="265" y="130" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a2020">Damp</text>
+          <text x="155" y="215" text-anchor="middle" font-family="Lora,serif" font-size="9" font-style="italic"
+            fill="#9a6e50">Fig A — Shaded pole disc</text>
+
+          <!-- Right: Cup type -->
+          <rect x="330" y="10" width="340" height="220" rx="10" fill="#f8ede0" stroke="#ddc8b0" stroke-width="1.5" />
+          <text x="500" y="32" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+            font-weight="700" fill="#a05c00">Induction Cup Relay</text>
+          <!-- 4-pole structure -->
+          <rect x="360" y="50" width="280" height="130" rx="8" fill="#fff" stroke="#c8a888" stroke-width="1.5" />
+          <!-- Poles -->
+          <rect x="370" y="60" width="35" height="50" rx="4" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5" />
+          <text x="387" y="90" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#1e6b68">1</text>
+          <rect x="555" y="60" width="35" height="50" rx="4" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5" />
+          <text x="572" y="90" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#1e6b68">2</text>
+          <rect x="370" y="130" width="35" height="50" rx="4" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5" />
+          <text x="387" y="160" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#2d6648">3</text>
+          <rect x="555" y="130" width="35" height="50" rx="4" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5" />
+          <text x="572" y="160" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#2d6648">4</text>
+          <!-- Al Cup (hollow cylinder) -->
+          <ellipse cx="487" cy="115" rx="45" ry="55" fill="none" stroke="#a05c00" stroke-width="2.5" />
+          <ellipse cx="487" cy="115" rx="28" ry="38" fill="none" stroke="#a05c00" stroke-width="1.5"
+            stroke-dasharray="4,3" />
+          <text x="487" y="108" text-anchor="middle" font-family="Lora,serif" font-size="10"
+            fill="#a05c00">Rotating</text>
+          <text x="487" y="122" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#a05c00">Al
+            Cup</text>
+          <!-- Iron core inside -->
+          <circle cx="487" cy="115" r="10" fill="#c8a888" stroke="#9a6e50" stroke-width="1" />
+          <text x="487" y="119" text-anchor="middle" font-family="Lora,serif" font-size="7" fill="#3d2010">Iron</text>
+          <!-- Current labels -->
+          <text x="345" y="68" font-family="JetBrains Mono,monospace" font-size="9" fill="#c95f1a">I₁ →</text>
+          <text x="345" y="165" font-family="JetBrains Mono,monospace" font-size="9" fill="#2d6648">I₂ →</text>
+          <!-- Contact -->
+          <text x="540" y="200" font-family="Lora,serif" font-size="10" fill="#9a2020">← Contact to trip</text>
+          <text x="500" y="215" text-anchor="middle" font-family="Lora,serif" font-size="9" font-style="italic"
+            fill="#9a6e50">Fig B — Induction Cup (4-pole)</text>
+        </svg>
+        <div class="svg-cap">Fig. 8.3 — Left: Shaded pole induction disc. Right: Induction cup relay with 4-pole
+          structure. Cup type is faster (0.01 s) with higher torque/weight ratio.</div>
+      </div>
+
+      <div class="math-block">
+        <div class="math-lbl">Torque on Aluminum Disc (Watt-hour meter type)</div>
+        $$T \propto \phi_1 \phi_2 \sin(\theta_1 - \theta_2)$$
+      </div>
+
+      <div class="callout c-warn">
+        <div class="ci">⚠️</div>
+        <div class="cb">
+          <div class="ct">IES Favourite — Induction Relay vs Attracted Armature</div>
+          <p>Induction relays work on <strong>AC only</strong> — they need two phase-displaced fluxes to create a
+            rotating field. Attracted armature relays work on <strong>both AC and DC</strong>. This distinction appears
+            in IES objective questions almost every year.</p>
+        </div>
+      </div>
+
+      <h3 class="sub">8.4.3 Thermal Relay</h3>
+      <p>Used to protect rotating machines from overheating due to sustained overload. The operating element directly
+        senses temperature rise, not current directly.</p>
+      <div class="tw">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Sensing Element</th>
+              <th>Application</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Thermocouple / Thermistor</td>
+              <td>Junction of two dissimilar metals — generates EMF proportional to temperature</td>
+              <td>Motor winding protection; embedded in stator slots</td>
+            </tr>
+            <tr>
+              <td>RTD (Resistance Temp. Detector)</td>
+              <td>Platinum wire resistance increases with temperature</td>
+              <td>Large generators, transformers — very accurate</td>
+            </tr>
+            <tr>
+              <td>Bimetallic Strip</td>
+              <td>Two metals with different expansion rates bend on heating</td>
+              <td>Simple motor starters, small appliances — mechanical actuation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+       SECTION 8.5 — OVER CURRENT RELAYS
+  ══════════════════════════════════════════════ -->
+    <div class="section" id="s5">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 8.5</span>
+        <h2 class="sec-t">Over-Current Relays (OCR)</h2>
+      </div>
+
+      <p>The most widely used relay in distribution systems. It operates when the current through it exceeds a pre-set
+        threshold (pickup). Derived from the Universal Torque Equation with \(K_1 > 0,\; K_2 = 0,\; K_3 = 0,\; K <
+          0\).</p>
+
+          <h3 class="sub">Universal Torque Equation</h3>
+
+          <div class="math-block">
+            <div class="math-lbl">Universal Torque Equation — General Form for All Relays</div>
+            $$T = K_1 I^2 + K_2 V^2 + K_3 VI\cos(\theta - \tau) + K$$
+          </div>
+
+          <div class="fblock">
+            <span class="flbl">Mapping of constants to relay type</span>
+            <span class="fv">Over-current relay :</span> <span class="feq">K₁ = +ve, K₂ = 0, K₃ = 0, K = −ve</span> →
+            <span class="fh">T = K₁I² − K</span>
+            <span class="fv">Directional relay :</span> <span class="feq">K₁ = 0, K₂ = 0, K₃ = +ve, K = −ve</span> →
+            <span class="fh">T = K₃VIcos(θ−τ) − K</span>
+            <span class="fv">Impedance relay :</span> <span class="feq">K₁ = +ve, K₂ = −ve, K₃ = 0, K = 0</span> → <span
+              class="fh">T = K₁I² − K₂V²</span>
+            <span class="fv">Reactance relay :</span> <span class="feq">K₁ = +ve, K₂ = 0, K₃ = −ve, K = 0</span> → <span
+              class="fh">T = K₁I² − K₃VIsinθ</span>
+            <span class="fv">Mho relay :</span> <span class="feq">K₁ = 0, K₂ = −ve, K₃ = +ve, K = 0</span> → <span
+              class="fh">T = K₃VIcos(θ−τ) − K₂V²</span>
+          </div>
+
+          <h3 class="sub">Pick-up Current &amp; Current Setting</h3>
+
+          <div class="math-block">
+            <div class="math-lbl">At threshold (T = 0 → relay just about to operate)</div>
+            $$I_{pickup} = \sqrt{\frac{K}{K_1}}$$
+          </div>
+
+          <div class="math-block">
+            <div class="math-lbl">Current Setting (CS%) — Adjusts pickup as percentage of relay rated current</div>
+            $$\text{CS\%} = \frac{I_{pickup}}{I_{relay,rated}} \times 100, \qquad \text{Pickup current} =
+            \frac{\text{CS\%}}{100} \times I_{relay,rated}$$
+          </div>
+
+          <h3 class="sub">Plug Setting Multiplier (PSM) <span class="prob prob-h">🟢 HIGH</span></h3>
+
+          <div class="math-block">
+            <div class="math-lbl">PSM — The x-axis of the overcurrent relay characteristic curve</div>
+            $$\text{PSM} = \frac{\text{Primary fault current of CT}}{\text{CT Ratio} \times \text{Relay current setting
+            (A)}} = \frac{\text{Secondary fault current}}{\text{Relay current setting (A)}}$$
+          </div>
+
+          <div class="callout c-info">
+            <div class="ci">📌</div>
+            <div class="cb">
+              <div class="ct">PSM — Intuitive Meaning</div>
+              <p>PSM tells you "how many times the fault current is the relay's pickup current." PSM = 1 means the relay
+                is exactly at pickup. PSM = 10 means 10× pickup — the relay will operate very quickly. The
+                characteristic curve maps PSM → operating time.</p>
+            </div>
+          </div>
+
+          <h3 class="sub">Time Multiplier Setting (TMS) <span class="prob prob-h">🟢 HIGH</span></h3>
+
+          <div class="math-block">
+            <div class="math-lbl">Actual operating time from TMS</div>
+            $$t_{actual} = \text{TMS} \times t_{100\%\,\text{TMS}}$$
+          </div>
+
+          <p>TMS is adjusted by changing the position of the backstop (the starting angle of the disc). A TMS = 0.5
+            means the relay operates in half the time read from the standard 100% TMS curve.</p>
+
+          <h3 class="sub">8.5.2 Characteristic Curve of OCR</h3>
+
+          <!-- OCR characteristic curve SVG -->
+          <div class="svg-wrap">
+            <svg viewBox="0 0 660 320" xmlns="http://www.w3.org/2000/svg"
+              aria-label="Over current relay characteristic curves">
+              <!-- Axes -->
+              <line x1="60" y1="280" x2="620" y2="280" stroke="#9a6e50" stroke-width="1.5" marker-end="url(#a2)" />
+              <line x1="60" y1="280" x2="60" y2="20" stroke="#9a6e50" stroke-width="1.5" marker-end="url(#a2)" />
+              <defs>
+                <marker id="a2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L7,3 z" fill="#9a6e50" />
+                </marker>
+              </defs>
+              <!-- Axis labels -->
+              <text x="340" y="300" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                font-weight="700" fill="#3d2010">Plug Setting Multiplier (PSM)</text>
+              <text x="18" y="150" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                font-weight="700" fill="#3d2010" transform="rotate(-90,18,150)">Operating Time (sec)</text>
+              <!-- Grid x-axis marks -->
+              <text x="60" y="296" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                fill="#9a6e50">1</text>
+              <text x="170" y="296" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                fill="#9a6e50">2</text>
+              <text x="280" y="296" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                fill="#9a6e50">5</text>
+              <text x="390" y="296" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                fill="#9a6e50">10</text>
+              <text x="510" y="296" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                fill="#9a6e50">20</text>
+              <!-- Grid y-axis marks -->
+              <text x="50" y="283" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="9"
+                fill="#9a6e50">0</text>
+              <text x="50" y="240" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="9"
+                fill="#9a6e50">2</text>
+              <text x="50" y="200" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="9"
+                fill="#9a6e50">4</text>
+              <text x="50" y="160" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="9"
+                fill="#9a6e50">6</text>
+              <text x="50" y="100" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="9"
+                fill="#9a6e50">10</text>
+              <text x="50" y="60" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="9"
+                fill="#9a6e50">15</text>
+              <!-- Definite time relay — horizontal line -->
+              <line x1="60" y1="150" x2="600" y2="150" stroke="#a05c00" stroke-width="2" stroke-dasharray="6,4" />
+              <text x="602" y="154" font-family="Lora,serif" font-size="10" fill="#a05c00">Definite Time</text>
+              <!-- IDMT curve -->
+              <path d="M60,30 Q95,100 150,170 T280,230 T500,255 T600,260" stroke="#c95f1a" stroke-width="2.5"
+                fill="none" />
+              <text x="305" y="225" font-family="Lora,serif" font-size="10" fill="#c95f1a">IDMT</text>
+              <!-- Very inverse -->
+              <path d="M60,22 Q100,130 180,205 T340,248 T600,265" stroke="#1e6b68" stroke-width="2" fill="none" />
+              <text x="380" y="244" font-family="Lora,serif" font-size="10" fill="#1e6b68">Very Inverse</text>
+              <!-- Extremely inverse -->
+              <path d="M60,15 Q110,150 200,230 T380,265 T600,273" stroke="#2d6648" stroke-width="2" fill="none"
+                stroke-dasharray="5,3" />
+              <text x="400" y="270" font-family="Lora,serif" font-size="10" fill="#2d6648">Extremely Inverse</text>
+              <!-- Instantaneous line -->
+              <path d="M60,275 L60,270 L80,270 L80,275" stroke="#9a2020" stroke-width="2" />
+              <line x1="80" y1="270" x2="600" y2="270" stroke="#9a2020" stroke-width="1.5" stroke-dasharray="2,3" />
+              <text x="300" y="268" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                fill="#9a2020">Instantaneous (≈ 0.1 s)</text>
+              <!-- PSM=1 vertical -->
+              <line x1="60" y1="20" x2="60" y2="280" stroke="#ddc8b0" stroke-width="1" stroke-dasharray="3,3" />
+            </svg>
+            <div class="svg-cap">Fig. 8.4 — OCR characteristic curves. As PSM increases, operating time decreases
+              (inverse relationship). IDMT becomes nearly constant at high PSM (saturation).</div>
+          </div>
+
+          <h3 class="sub">8.5.4 Types of Over-Current Relays <span class="prob prob-h">🟢 HIGH</span></h3>
+          <div class="tw">
+            <table>
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Operating Time</th>
+                  <th>Characteristic</th>
+                  <th>Use Case</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="t-org">Instantaneous OCR</td>
+                  <td>≈ 0.1 sec (no intentional delay)</td>
+                  <td>Operates immediately above pickup</td>
+                  <td>Close-in faults; first stage of OCR coordination</td>
+                </tr>
+                <tr>
+                  <td class="t-amb">Definite Time OCR</td>
+                  <td>Fixed, independent of PSM</td>
+                  <td>Horizontal line on t-PSM graph</td>
+                  <td>Where coordination step-time must be fixed</td>
+                </tr>
+                <tr>
+                  <td class="t-tel">IDMT OCR</td>
+                  <td>Inversely proportional near pickup; approximately constant at high PSM</td>
+                  <td>Standard inverse curve</td>
+                  <td>Most common — distribution feeder protection</td>
+                </tr>
+                <tr>
+                  <td class="t-grn">Very Inverse</td>
+                  <td>Core saturates later → inverse over wider PSM range</td>
+                  <td>Steeper inverse curve</td>
+                  <td>Feeders where fault current varies widely</td>
+                </tr>
+                <tr>
+                  <td class="t-red">Extremely Inverse</td>
+                  <td>I²t ≈ K (very steep)</td>
+                  <td>Almost I²t = constant</td>
+                  <td>Coordination with fuses; cable protection</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout c-key">
+            <div class="ci">🔑</div>
+            <div class="cb">
+              <div class="ct">IDMT — Inverse Definite Minimum Time</div>
+              <p>For fault currents just above pickup, operating time is approximately inversely proportional to fault
+                current (inverse region). For very high fault currents, the electromagnet core saturates and the time
+                becomes nearly constant — this is the "definite minimum time" region. The transition happens because
+                core saturation limits further flux increase even as current grows.</p>
+            </div>
+          </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+       SECTION 8.6 — DIRECTIONAL RELAYS
+  ══════════════════════════════════════════════ -->
+    <div class="section" id="s6">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 8.6</span>
+        <h2 class="sec-t">Directional Relays</h2>
+      </div>
+
+      <p>In ring mains and parallel feeders, fault current can flow in either direction. A simple OCR cannot
+        discriminate direction. A <strong>directional relay</strong> adds a voltage (polarising) coil so the relay can
+        detect the power direction and only trip for faults in the specified direction.</p>
+
+      <div class="math-block">
+        <div class="math-lbl">Directional Relay Torque (from Universal Equation: K₁=0, K₂=0, K₃=+ve, K=−ve)</div>
+        $$T = K_3 VI\cos(\theta - \tau) - K$$
+      </div>
+
+      <div class="fblock">
+        <span class="flbl">Variables in directional relay torque equation</span>
+        <span class="fv">V</span> = rms voltage fed to voltage coil (polarising quantity)
+        <span class="fv">I</span> = rms current fed to current coil (operating quantity)
+        <span class="fv">θ</span> = angle between V and I (system power factor angle)
+        <span class="fv">τ</span> = maximum torque angle (MTA) — angle at which relay produces max torque
+        <span class="fh">Relay operates when: K₃VI − |K| > 0 → VI > K/K₃</span>
+        <span class="fh">Threshold condition: VI = |K|/K₃ (constant product characteristic)</span>
+      </div>
+
+      <!-- Directional relay diagram -->
+      <div class="svg-wrap">
+        <svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg"
+          aria-label="Directional relay polar characteristic">
+          <!-- Left: circuit diagram -->
+          <rect x="10" y="10" width="260" height="240" rx="10" fill="#f8ede0" stroke="#ddc8b0" stroke-width="1.5" />
+          <text x="135" y="32" text-anchor="middle" font-family="Playfair Display,serif" font-size="11"
+            font-weight="700" fill="#1e6b68">Zero Degree Connection</text>
+          <!-- CT -->
+          <rect x="30" y="50" width="50" height="30" rx="4" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5" />
+          <text x="55" y="70" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#1e6b68">CT</text>
+          <!-- Line from CT to C.Coil -->
+          <line x1="80" y1="65" x2="120" y2="80" stroke="#c95f1a" stroke-width="1.5" />
+          <!-- C.Coil -->
+          <rect x="120" y="70" width="60" height="25" rx="4" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5" />
+          <text x="150" y="87" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#c95f1a">C.Coil
+            (I)</text>
+          <!-- PT box -->
+          <rect x="30" y="120" width="50" height="30" rx="4" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5" />
+          <text x="55" y="140" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">PT</text>
+          <!-- C capacitor symbol -->
+          <line x1="80" y1="135" x2="100" y2="135" stroke="#2d6648" stroke-width="1.5" />
+          <line x1="100" y1="125" x2="100" y2="145" stroke="#2d6648" stroke-width="2" />
+          <line x1="107" y1="125" x2="107" y2="145" stroke="#2d6648" stroke-width="2" />
+          <text x="95" y="115" font-family="Lora,serif" font-size="9" fill="#2d6648">C</text>
+          <!-- V.Coil -->
+          <rect x="120" y="120" width="60" height="25" rx="4" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5" />
+          <text x="150" y="137" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">V.Coil
+            (V)</text>
+          <!-- Relay disc -->
+          <ellipse cx="150" cy="190" rx="40" ry="25" fill="#fef0d0" stroke="#f0c060" stroke-width="1.5" />
+          <text x="150" y="194" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#a05c00">Relay</text>
+          <!-- R (resistance) -->
+          <rect x="200" y="175" width="40" height="20" rx="3" fill="#fde8e8" stroke="#e89090" stroke-width="1.5" />
+          <text x="220" y="189" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a2020">R</text>
+          <text x="135" y="235" text-anchor="middle" font-family="Lora,serif" font-size="9" font-style="italic"
+            fill="#9a6e50">Zero-degree connection</text>
+
+          <!-- Right: Polar characteristic -->
+          <rect x="290" y="10" width="380" height="240" rx="10" fill="#f8ede0" stroke="#ddc8b0" stroke-width="1.5" />
+          <text x="480" y="32" text-anchor="middle" font-family="Playfair Display,serif" font-size="11"
+            font-weight="700" fill="#c95f1a">Polar Characteristic</text>
+          <!-- Axes -->
+          <line x1="310" y1="130" x2="650" y2="130" stroke="#9a6e50" stroke-width="1" />
+          <line x1="480" y1="40" x2="480" y2="230" stroke="#9a6e50" stroke-width="1" />
+          <text x="652" y="134" font-family="Lora,serif" font-size="10" fill="#3d2010">V=VYB</text>
+          <text x="482" y="36" font-family="JetBrains Mono,monospace" font-size="9" fill="#3d2010">VR↑</text>
+          <!-- MTA line -->
+          <line x1="480" y1="130" x2="570" y2="50" stroke="#c95f1a" stroke-width="2" stroke-dasharray="5,3" />
+          <text x="572" y="46" font-family="Lora,serif" font-size="9" fill="#c95f1a">M.T.A line</text>
+          <!-- OP zone semicircle (simplified as arc) -->
+          <path d="M 400,130 A 80,80 0 0 1 480,50" stroke="#2d6648" stroke-width="2" fill="none" />
+          <path d="M 480,50 A 80,80 0 0 1 560,130" stroke="#2d6648" stroke-width="2" fill="none" />
+          <text x="480" y="90" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">OP</text>
+          <!-- NOP regions -->
+          <text x="340" y="90" font-family="Lora,serif" font-size="10" fill="#9a2020">NOP</text>
+          <text x="340" y="170" font-family="Lora,serif" font-size="10" fill="#9a2020">NOP</text>
+          <text x="580" y="90" font-family="Lora,serif" font-size="10" fill="#9a2020">NOP</text>
+          <text x="580" y="170" font-family="Lora,serif" font-size="10" fill="#9a2020">NOP</text>
+          <!-- τ angle label -->
+          <text x="512" y="110" font-family="JetBrains Mono,monospace" font-size="9" fill="#c95f1a">τ</text>
+          <!-- I current vector -->
+          <line x1="480" y1="130" x2="540" y2="100" stroke="#1e6b68" stroke-width="1.5" />
+          <text x="542" y="97" font-family="JetBrains Mono,monospace" font-size="9" fill="#1e6b68">I</text>
+          <!-- Zero torque line -->
+          <line x1="310" y1="210" x2="640" y2="90" stroke="#9a6e50" stroke-width="1" stroke-dasharray="3,3" />
+          <text x="620" y="86" font-family="Lora,serif" font-size="9" fill="#9a6e50">Zero torque</text>
+          <text x="480" y="240" text-anchor="middle" font-family="Lora,serif" font-size="9" font-style="italic"
+            fill="#9a6e50">OP = operate region; NOP = no-operate region</text>
+        </svg>
+        <div class="svg-cap">Fig. 8.5 — Left: Zero-degree connection of directional relay. Right: Polar characteristic —
+          relay operates only when impedance falls in OP (shaded) region. MTA line and Zero Torque line are always
+          perpendicular.</div>
+      </div>
+
+      <h3 class="sub">Dead Zone in Directional Relay</h3>
+      <div class="callout c-danger">
+        <div class="ci">🚨</div>
+        <div class="cb">
+          <div class="ct">Dead Zone — Critical Weakness</div>
+          <p>When a fault occurs very close to the relay location, the voltage at the relay terminals drops to near
+            zero. If V ≈ 0, the directional torque \(T = K_3 VI\cos(\theta-\tau) \approx 0\) — the relay <strong>cannot
+              operate</strong> even though fault current is flowing. This region is called the <strong>Dead
+              Zone</strong>. Solution: voltage coil must NOT be connected to the same phase as the current coil
+            (cross-polarisation).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+       SECTION 8.7 — DISTANCE RELAYS
+  ══════════════════════════════════════════════ -->
+    <div class="section" id="s7">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 8.7</span>
+        <h2 class="sec-t">Distance Relays</h2>
+      </div>
+
+      <p>Distance relays measure the impedance (V/I) between the relay and the fault. Since impedance of a transmission
+        line is proportional to its length, impedance measurement is equivalent to distance measurement — hence the
+        name.</p>
+
+      <div class="callout c-info">
+        <div class="ci">📐</div>
+        <div class="cb">
+          <div class="ct">Why Impedance = Distance?</div>
+          <p>For a uniform transmission line: \(Z_{fault} = V_{relay}/I_{fault} = z \cdot d\) where z = impedance per km
+            and d = distance to fault in km. So measuring V/I is equivalent to measuring the distance to the fault. If
+            Z<sub>seen</sub> &lt; Z<sub>set</sub>, the fault is within the protected zone → relay trips.</p>
+        </div>
+      </div>
+
+      <!-- R-X diagram comparison -->
+      <div class="svg-wrap">
+        <svg viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg"
+          aria-label="RX diagram for impedance, reactance and mho relay">
+          <text x="340" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+            font-weight="700" fill="#3d2010">R-X Diagram Comparison of Distance Relays</text>
+
+          <!-- IMPEDANCE RELAY -->
+          <g transform="translate(10,30)">
+            <rect x="0" y="0" width="200" height="230" rx="10" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5" />
+            <text x="100" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="11"
+              font-weight="700" fill="#c95f1a">Impedance Relay</text>
+            <!-- Axes -->
+            <line x1="20" y1="120" x2="185" y2="120" stroke="#9a6e50" stroke-width="1" />
+            <line x1="100" y1="25" x2="100" y2="215" stroke="#9a6e50" stroke-width="1" />
+            <text x="187" y="124" font-family="JetBrains Mono,monospace" font-size="8" fill="#9a6e50">R</text>
+            <text x="102" y="22" font-family="JetBrains Mono,monospace" font-size="8" fill="#9a6e50">X</text>
+            <!-- Circle centred at origin -->
+            <circle cx="100" cy="120" r="70" fill="rgba(201,95,26,0.12)" stroke="#c95f1a" stroke-width="2" />
+            <text x="100" y="118" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#c95f1a">OP</text>
+            <!-- NOP labels -->
+            <text x="30" y="45" font-family="Lora,serif" font-size="9" fill="#9a2020">NOP</text>
+            <text x="145" y="45" font-family="Lora,serif" font-size="9" fill="#9a2020">NOP</text>
+            <!-- Zset -->
+            <text x="145" y="70" font-family="JetBrains Mono,monospace" font-size="8" fill="#c95f1a">Zset</text>
+            <line x1="100" y1="120" x2="150" y2="70" stroke="#c95f1a" stroke-width="1" stroke-dasharray="3,2" />
+            <text x="100" y="220" text-anchor="middle" font-family="Lora,serif" font-size="9" font-style="italic"
+              fill="#9a6e50">Circle at origin<br />No direction</text>
+          </g>
+
+          <!-- REACTANCE RELAY -->
+          <g transform="translate(235,30)">
+            <rect x="0" y="0" width="200" height="230" rx="10" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5" />
+            <text x="100" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="11"
+              font-weight="700" fill="#1e6b68">Reactance Relay</text>
+            <!-- Axes -->
+            <line x1="20" y1="140" x2="185" y2="140" stroke="#9a6e50" stroke-width="1" />
+            <line x1="100" y1="25" x2="100" y2="215" stroke="#9a6e50" stroke-width="1" />
+            <text x="187" y="144" font-family="JetBrains Mono,monospace" font-size="8" fill="#9a6e50">R</text>
+            <text x="102" y="22" font-family="JetBrains Mono,monospace" font-size="8" fill="#9a6e50">X</text>
+            <!-- Horizontal band (OP below Xset) -->
+            <rect x="20" y="80" width="165" height="60" rx="4" fill="rgba(30,107,104,0.15)" stroke="#1e6b68"
+              stroke-width="1.5" />
+            <text x="102" y="115" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#1e6b68">OP</text>
+            <text x="102" y="74" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+              fill="#1e6b68">Xset</text>
+            <line x1="20" y1="80" x2="185" y2="80" stroke="#1e6b68" stroke-width="2" />
+            <text x="30" y="55" font-family="Lora,serif" font-size="9" fill="#9a2020">NOP</text>
+            <text x="30" y="175" font-family="Lora,serif" font-size="9" fill="#9a2020">NOP</text>
+            <text x="100" y="220" text-anchor="middle" font-family="Lora,serif" font-size="9" font-style="italic"
+              fill="#9a6e50">Horizontal line<br />No direction</text>
+          </g>
+
+          <!-- MHO RELAY -->
+          <g transform="translate(460,30)">
+            <rect x="0" y="0" width="200" height="230" rx="10" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5" />
+            <text x="100" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="11"
+              font-weight="700" fill="#2d6648">Mho Relay</text>
+            <!-- Axes -->
+            <line x1="20" y1="140" x2="185" y2="140" stroke="#9a6e50" stroke-width="1" />
+            <line x1="100" y1="25" x2="100" y2="215" stroke="#9a6e50" stroke-width="1" />
+            <text x="187" y="144" font-family="JetBrains Mono,monospace" font-size="8" fill="#9a6e50">R</text>
+            <text x="102" y="22" font-family="JetBrains Mono,monospace" font-size="8" fill="#9a6e50">X</text>
+            <!-- Circle passing through origin -->
+            <circle cx="140" cy="100" r="55" fill="rgba(45,102,72,0.15)" stroke="#2d6648" stroke-width="2" />
+            <text x="145" y="103" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">OP</text>
+            <text x="30" y="55" font-family="Lora,serif" font-size="9" fill="#9a2020">NOP</text>
+            <text x="30" y="175" font-family="Lora,serif" font-size="9" fill="#9a2020">NOP</text>
+            <text x="100" y="220" text-anchor="middle" font-family="Lora,serif" font-size="9" font-style="italic"
+              fill="#9a6e50">Circle through origin<br />Inherent directional</text>
+          </g>
+        </svg>
+        <div class="svg-cap">Fig. 8.6 — R-X diagrams for three distance relay types. Impedance relay: circle centred at
+          origin (no direction). Reactance: horizontal line (no direction). Mho: circle through origin (inherently
+          directional — operates only in the forward direction).</div>
+      </div>
+
+      <h3 class="sub">Comparison Table — Distance Relays <span class="prob prob-h">🟢 HIGH</span></h3>
+      <div class="tw">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Impedance</th>
+              <th>Reactance</th>
+              <th>Mho</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Also called</td>
+              <td class="t-org">Voltage-restrained OCR</td>
+              <td class="t-tel">Directional-restrained OCR / Reactive-power-restrained OCR</td>
+              <td class="t-grn">Voltage-restrained directional relay</td>
+            </tr>
+            <tr>
+              <td>Operating torque</td>
+              <td>Current unit (I²)</td>
+              <td>Current unit (I²)</td>
+              <td>Directional unit (VI cosθ)</td>
+            </tr>
+            <tr>
+              <td>Restraining torque</td>
+              <td>Voltage unit (V²)</td>
+              <td>Directional unit (VI sinθ)</td>
+              <td>Voltage unit (V²)</td>
+            </tr>
+            <tr>
+              <td>Inherent direction</td>
+              <td class="t-red">No</td>
+              <td class="t-red">No</td>
+              <td class="t-grn">Yes</td>
+            </tr>
+            <tr>
+              <td>Arc resistance effect</td>
+              <td>Moderate</td>
+              <td class="t-grn">Not affected</td>
+              <td class="t-red">Highly affected</td>
+            </tr>
+            <tr>
+              <td>Power swing effect</td>
+              <td>Moderate</td>
+              <td class="t-red">High</td>
+              <td class="t-grn">Less</td>
+            </tr>
+            <tr>
+              <td>Load encroachment</td>
+              <td>Moderate</td>
+              <td class="t-red">High</td>
+              <td class="t-grn">Less</td>
+            </tr>
+            <tr>
+              <td>RX diagram space</td>
+              <td>Moderate (circle at origin)</td>
+              <td>Most (horizontal band)</td>
+              <td class="t-grn">Least (circle through origin)</td>
+            </tr>
+            <tr>
+              <td>Best for</td>
+              <td>Medium transmission lines</td>
+              <td class="t-grn">Short lines (high arc R)</td>
+              <td>Long lines (power swings)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sub">Mathematical Derivations</h3>
+
+      <div class="two-col">
+        <div class="mini-card mc-org">
+          <div class="mc-t">Impedance Relay — Threshold</div>
+          <p style="font-size:13px;margin:6px 0;">At threshold \(T=0\): \(K_1I^2 = K_2V^2\)</p>
+          <div class="math-block" style="margin:6px 0;padding:8px;">$$Z_{set} = \frac{V}{I} = \sqrt{\frac{K_1}{K_2}}$$
+          </div>
+          <p style="font-size:12px;color:var(--text3);margin:0;">Relay operates when: \(Z_{seen} < Z_{set}\)</p>
+        </div>
+        <div class="mini-card mc-tel">
+          <div class="mc-t">Reactance Relay — Threshold</div>
+          <p style="font-size:13px;margin:6px 0;">At threshold \(T=0\): \(K_1I^2 = K_3VI\sin\theta\)</p>
+          <div class="math-block" style="margin:6px 0;padding:8px;">$$X_{set} = \frac{K_1}{K_3}, \quad X_{seen} <
+              X_{set} \Rightarrow \text{Trip}$$</div>
+              <p style="font-size:12px;color:var(--text3);margin:0;">Maximum torque angle = 90°</p>
+          </div>
+          <div class="mini-card mc-grn">
+            <div class="mc-t">Mho Relay — Threshold</div>
+            <p style="font-size:13px;margin:6px 0;">At threshold \(T=0\):</p>
+            <div class="math-block" style="margin:6px 0;padding:8px;">$$Z_{set} = \frac{K_3}{K_2}\cos(\theta-\tau)$$
+            </div>
+            <p style="font-size:12px;color:var(--text3);margin:0;">Circle passes through origin on R-X diagram</p>
+          </div>
+        </div>
+
+        <div class="callout c-key">
+          <div class="ci">🔑</div>
+          <div class="cb">
+            <div class="ct">Application Rule — Which Relay for Which Line?</div>
+            <p><strong>Short line:</strong> Arc resistance comparable to line impedance → use <strong>Reactance
+                relay</strong> (not affected by arc R). <strong>Medium line:</strong> Arc R moderate, power swings
+              appreciable → use <strong>Impedance relay</strong>. <strong>Long line:</strong> Power swings are severe,
+              arc R effect small → use <strong>Mho relay</strong> (least affected by power swings; inherently
+              directional).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+       SECTION 8.8 — DIFFERENTIAL RELAYS
+  ══════════════════════════════════════════════ -->
+      <div class="section" id="s8">
+        <div class="sec-hdr">
+          <span class="sec-num">§ 8.8</span>
+          <h2 class="sec-t">Current Differential Relay</h2>
+        </div>
+
+        <p>The most selective relay known — it operates <em>only</em> for internal faults in the protected zone, making
+          it a <strong>unit protection</strong> scheme. External faults (no matter how large) do not cause operation.
+        </p>
+
+        <div class="callout c-info">
+          <div class="ci">⚖️</div>
+          <div class="cb">
+            <div class="ct">Intuitive Principle — Kirchhoff's Current Law</div>
+            <p>Under normal conditions and for external faults: <strong>current in = current out</strong> (KCL holds for
+              the protected zone). So the difference \(i_1 - i_2 = 0\) and the relay operating coil (ROC) carries zero
+              current. For an internal fault, some current escapes to the fault point: \(i_1 \neq i_2\), and \(I_{ROC} =
+              i_1 - i_2 = I_{fault}\) — the relay trips.</p>
+          </div>
+        </div>
+
+        <!-- Differential relay principle diagram -->
+        <div class="svg-wrap">
+          <svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" aria-label="Differential relay principle">
+            <!-- Normal operation case -->
+            <rect x="10" y="10" width="300" height="110" rx="10" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5" />
+            <text x="155" y="30" text-anchor="middle" font-family="Playfair Display,serif" font-size="11"
+              font-weight="700" fill="#2d6648">Normal / External Fault</text>
+            <!-- CT1 -->
+            <rect x="25" y="50" width="40" height="30" rx="4" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5" />
+            <text x="45" y="70" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#1e6b68">CT₁</text>
+            <!-- CT2 -->
+            <rect x="255" y="50" width="40" height="30" rx="4" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5" />
+            <text x="275" y="70" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#1e6b68">CT₂</text>
+            <!-- i1 arrow -->
+            <line x1="65" y1="65" x2="120" y2="65" stroke="#c95f1a" stroke-width="1.5" marker-end="url(#arr3)" />
+            <defs>
+              <marker id="arr3" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L7,3 z" fill="#c95f1a" />
+              </marker>
+            </defs>
+            <text x="93" y="60" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+              fill="#c95f1a">i₁</text>
+            <!-- i2 arrow -->
+            <line x1="195" y1="65" x2="255" y2="65" stroke="#c95f1a" stroke-width="1.5" marker-end="url(#arr3)" />
+            <text x="225" y="60" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+              fill="#c95f1a">i₂</text>
+            <!-- System box -->
+            <rect x="120" y="45" width="75" height="40" rx="4" fill="#f8ede0" stroke="#ddc8b0" stroke-width="1.5" />
+            <text x="157" y="70" text-anchor="middle" font-family="Lora,serif" font-size="9"
+              fill="#3d2010">System</text>
+            <!-- ROC with zero current -->
+            <rect x="120" y="100" width="75" height="15" rx="3" fill="#fde8e8" stroke="#e89090" stroke-width="1.5" />
+            <text x="157" y="112" text-anchor="middle" font-family="Lora,serif" font-size="8" fill="#9a2020">ROC: IROC =
+              i₁−i₂ = 0</text>
+            <text x="155" y="108" text-anchor="middle" font-family="Lora,serif" font-size="8" fill="#9a2020"></text>
+            <line x1="45" y1="80" x2="45" y2="108" stroke="#9a6e50" stroke-width="1" />
+            <line x1="45" y1="108" x2="120" y2="108" stroke="#9a6e50" stroke-width="1" />
+            <line x1="275" y1="80" x2="275" y2="108" stroke="#9a6e50" stroke-width="1" />
+            <line x1="195" y1="108" x2="275" y2="108" stroke="#9a6e50" stroke-width="1" />
+            <text x="155" y="130" text-anchor="middle" font-family="Lora,serif" font-size="9" font-style="italic"
+              fill="#2d6648">✓ No trip (i₁ = i₂)</text>
+
+            <!-- Internal fault case -->
+            <rect x="330" y="10" width="340" height="180" rx="10" fill="#fde8e8" stroke="#e89090" stroke-width="1.5" />
+            <text x="500" y="30" text-anchor="middle" font-family="Playfair Display,serif" font-size="11"
+              font-weight="700" fill="#9a2020">Internal Fault</text>
+            <!-- CT1 -->
+            <rect x="345" y="50" width="40" height="30" rx="4" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5" />
+            <text x="365" y="70" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#1e6b68">CT₁</text>
+            <!-- CT2 -->
+            <rect x="630" y="50" width="35" height="30" rx="4" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5" />
+            <text x="647" y="70" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#1e6b68">CT₂</text>
+            <!-- Winding -->
+            <rect x="395" y="45" width="75" height="40" rx="4" fill="#fef0d0" stroke="#f0c060" stroke-width="1.5" />
+            <text x="432" y="70" text-anchor="middle" font-family="Lora,serif" font-size="9"
+              fill="#a05c00">Winding</text>
+            <!-- Fault point -->
+            <circle cx="500" cy="65" r="8" fill="#9a2020" opacity="0.8" />
+            <text x="500" y="69" text-anchor="middle" font-family="Lora,serif" font-size="8" fill="#fff">F</text>
+            <!-- If arrow downward -->
+            <line x1="500" y1="73" x2="500" y2="100" stroke="#9a2020" stroke-width="1.5" stroke-dasharray="3,2" />
+            <text x="515" y="92" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a2020">If</text>
+            <!-- i1 arrow -->
+            <line x1="385" y1="65" x2="395" y2="65" stroke="#c95f1a" stroke-width="1.5" marker-end="url(#arr3)" />
+            <text x="390" y="58" font-family="JetBrains Mono,monospace" font-size="8" fill="#c95f1a">If →</text>
+            <!-- i2=0 -->
+            <line x1="470" y1="65" x2="500" y2="65" stroke="#1e6b68" stroke-width="1.5" stroke-dasharray="3,2" />
+            <text x="613" y="70" font-family="JetBrains Mono,monospace" font-size="8" fill="#1e6b68">I₂=0</text>
+            <!-- ROC -->
+            <rect x="400" y="110" width="130" height="20" rx="4" fill="#9a2020" />
+            <text x="465" y="124" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#fff">ROC: IROC = If
+              → TRIP ⚡</text>
+            <line x1="365" y1="80" x2="365" y2="120" stroke="#9a6e50" stroke-width="1" />
+            <line x1="365" y1="120" x2="400" y2="120" stroke="#9a6e50" stroke-width="1" />
+            <line x1="647" y1="80" x2="647" y2="120" stroke="#9a6e50" stroke-width="1" />
+            <line x1="530" y1="120" x2="647" y2="120" stroke="#9a6e50" stroke-width="1" />
+            <text x="500" y="165" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a2020">⚡ Internal
+              fault: i₁ − i₂ = If → relay trips</text>
+
+            <!-- Biased differential section -->
+            <rect x="10" y="155" width="660" height="100" rx="10" fill="#fef0d0" stroke="#f0c060" stroke-width="1.5" />
+            <text x="335" y="175" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+              font-weight="700" fill="#a05c00">Biased (% Slope) Differential Relay</text>
+            <text x="50" y="195" font-family="Lora,serif" font-size="11" fill="#3d2010">Operating torque:</text>
+            <text x="200" y="195" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">Top ∝
+              [n₀(i₁−i₂)]²</text>
+            <text x="50" y="215" font-family="Lora,serif" font-size="11" fill="#3d2010">Restraining torque:</text>
+            <text x="200" y="215" font-family="JetBrains Mono,monospace" font-size="10" fill="#2d6648">Tres ∝
+              [nᵣ(i₁+i₂)/2]²</text>
+            <text x="420" y="195" font-family="Lora,serif" font-size="11" fill="#3d2010">Slope:</text>
+            <text x="470" y="195" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">nᵣ/n₀</text>
+            <text x="420" y="215" font-family="Lora,serif" font-size="11" fill="#3d2010">Trip condition:</text>
+            <text x="520" y="215" font-family="JetBrains Mono,monospace" font-size="10" fill="#9a2020">|i₁−i₂| /
+              [(i₁+i₂)/2] > nᵣ/n₀</text>
+            <text x="335" y="245" text-anchor="middle" font-family="Lora,serif" font-size="9" font-style="italic"
+              fill="#9a6e50">Biased relay prevents mal-operation due to CT mismatch and magnetising inrush</text>
+          </svg>
+          <div class="svg-cap">Fig. 8.7 — Differential relay principle. Normal/external: I<sub>ROC</sub>=0. Internal
+            fault: I<sub>ROC</sub>=I<sub>f</sub> → trip. Biased differential adds restraining coil proportional to
+            through-current to prevent mal-operation.</div>
+        </div>
+
+        <h3 class="sub">Biased Differential Relay <span class="prob prob-h">🟢 HIGH</span></h3>
+
+        <div class="math-block">
+          <div class="math-lbl">Trip condition for biased differential relay (% slope relay)</div>
+          $$\frac{|i_1 - i_2|}{\dfrac{i_1 + i_2}{2}} > \frac{n_r}{n_0} \quad \Longleftrightarrow \quad T_{op} >
+          T_{res}$$
+        </div>
+
+        <h3 class="sub">Causes of Mal-operation &amp; Prevention</h3>
+        <div class="tw">
+          <table>
+            <thead>
+              <tr>
+                <th>Cause of Mal-operation</th>
+                <th>Effect</th>
+                <th>Preventive Measure</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>CT mislocation from equipotential points</td>
+                <td>I<sub>ROC</sub> ≠ 0 under normal conditions</td>
+                <td>Place balancing resistors on pilot wire; ROC at exact mid-point</td>
+              </tr>
+              <tr>
+                <td>CT characteristic mismatch (BH curves)</td>
+                <td>Ratio error → differential current even at no fault</td>
+                <td>Both CTs must have identical magnetisation characteristics</td>
+              </tr>
+              <tr>
+                <td>CT ratio and phase angle errors</td>
+                <td>Differential current under through-fault</td>
+                <td>Biased/percentage-slope differential relay — restraint proportional to through-current</td>
+              </tr>
+              <tr>
+                <td>Transformer magnetising inrush</td>
+                <td>Large asymmetric current at switching — relay may trip</td>
+                <td>Harmonic restraint (2nd harmonic is signature of inrush, not fault)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout c-tip">
+          <div class="ci">💡</div>
+          <div class="cb">
+            <div class="ct">Slope of Biased Relay — Physical Meaning</div>
+            <p>The slope (n<sub>r</sub>/n<sub>0</sub>) sets how much CT mismatch the relay tolerates. A 20% slope means:
+              the differential current must be more than 20% of the average current before tripping. Too low slope →
+              mal-operation on external faults. Too high slope → insensitive to genuine internal faults. Typical
+              transformer protection: 15–30% slope.</p>
+          </div>
+        </div>
+
+        <h3 class="sub">Applications of Differential Relay</h3>
+        <div class="two-col">
+          <div class="mini-card mc-grn">
+            <div class="mc-t">Transformer Protection</div>
+            <ul class="mc-list">
+              <li><span class="dot">▸</span>Merz-Price circulating current protection</li>
+              <li><span class="dot">▸</span>CTs on primary and secondary — ratio must match transformer turns ratio</li>
+              <li><span class="dot">▸</span>Harmonic restraint for magnetising inrush</li>
+            </ul>
+          </div>
+          <div class="mini-card mc-tel">
+            <div class="mc-t">Alternator (Stator) Protection</div>
+            <ul class="mc-list">
+              <li><span class="dot">▸</span>Differential relay for stator winding faults</li>
+              <li><span class="dot">▸</span>CTs at both ends of each phase winding</li>
+              <li><span class="dot">▸</span>Highest selectivity — unit protection</li>
+            </ul>
+          </div>
+          <div class="mini-card mc-org">
+            <div class="mc-t">Bus-bar Protection</div>
+            <ul class="mc-list">
+              <li><span class="dot">▸</span>All ingoing and outgoing CTs compared</li>
+              <li><span class="dot">▸</span>Under normal: sum of all currents = 0</li>
+              <li><span class="dot">▸</span>Bus fault → circulating current in ROC</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+       SECTION 8.9 — WORKED EXAMPLES
+  ══════════════════════════════════════════════ -->
+      <div class="section" id="s9">
+        <div class="sec-hdr">
+          <span class="sec-num">§ 8.9</span>
+          <h2 class="sec-t">Worked Numerical Examples</h2>
+        </div>
+
+        <div class="example">
+          <div class="ex-hdr">
+            <span class="ex-num">EXAMPLE 8.1</span>
+            <span class="ex-title">Plug Setting Multiplier — Basic</span>
+          </div>
+          <div class="ex-body">
+            <div class="ex-q">A 10 A relay is connected to the supply circuit through a 1000/10 A CT and set at 50%. The
+              fault current in the system is 5000 A. Find the Plug Setting Multiplier (PSM).</div>
+            <div class="sol-lbl">▸ Solution</div>
+            <p><strong>Step 1:</strong> Find the current setting in Amperes:</p>
+            <div class="math-block">$$\text{CS(A)} = \frac{\text{CS\%}}{100} \times I_{relay,rated} = \frac{50}{100}
+              \times 10 = 5 \text{ A}$$</div>
+            <p><strong>Step 2:</strong> Find the secondary fault current from CT:</p>
+            <div class="math-block">$$I_f^{secondary} = \frac{I_f^{primary}}{\text{CT Ratio}} = \frac{5000}{1000/10} =
+              \frac{5000}{100} = 50 \text{ A}$$</div>
+            <p><strong>Step 3:</strong> Calculate PSM:</p>
+            <div class="math-block">$$\text{PSM} = \frac{I_f^{secondary}}{\text{CS(A)}} = \frac{50}{5} = \boxed{10}$$
+            </div>
+            <div class="callout c-tip" style="margin-top:10px">
+              <div class="ci">✓</div>
+              <div class="cb">
+                <div class="ct">Interpretation</div>
+                <p>PSM = 10 means the fault current is 10 times the relay's pickup current. From the IDMT characteristic
+                  curve at PSM = 10, the operating time at TMS = 1 is typically about 1.5–2 sec (read from standard
+                  curve).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="ex-hdr">
+            <span class="ex-num">EXAMPLE 8.2</span>
+            <span class="ex-title">IDMT Relay Operating Time with TMS</span>
+          </div>
+          <div class="ex-body">
+            <div class="ex-q">A relay of rating 5 A, 2.2 sec IDMT is set at 125% current setting and TMS = 0.6. It is
+              connected through a 400/5 CT. The fault current is 4000 A. Find the actual operating time.</div>
+            <div class="sol-lbl">▸ Solution</div>
+            <p><strong>Step 1:</strong> Find operating current (pickup):</p>
+            <div class="math-block">$$I_{pickup} = \frac{\text{CS\%}}{100} \times I_{rated} = \frac{125}{100} \times 5 =
+              6.25 \text{ A}$$</div>
+            <p><strong>Step 2:</strong> Find PSM:</p>
+            <div class="math-block">$$\text{PSM} = \frac{I_f^{primary}}{\text{CT Ratio} \times I_{pickup}} =
+              \frac{4000}{\frac{400}{5} \times 6.25} = \frac{4000}{80 \times 6.25} = \frac{4000}{500} = 8$$</div>
+            <p><strong>Step 3:</strong> From the IDMT curve at PSM = 8, TMS = 1.0 → operating time ≈ 3 sec</p>
+            <p><strong>Step 4:</strong> Apply TMS scaling:</p>
+            <div class="math-block">$$t_{actual} = \text{TMS} \times t_{100\%} = 0.6 \times 3 = \boxed{1.8 \text{
+              sec}}$$</div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="ex-hdr">
+            <span class="ex-num">EXAMPLE 8.3</span>
+            <span class="ex-title">Distance Relay — Impedance Seen by Relay</span>
+          </div>
+          <div class="ex-body">
+            <div class="ex-q">A distance relay is connected via a 400/5 CT and 10,000/1000 VT to a 50 Ω line. A fault
+              occurs at the remote end (point P). Find the impedance seen by the relay.</div>
+            <div class="sol-lbl">▸ Solution</div>
+            <p><strong>Actual impedance to fault:</strong> \(Z_{actual} = 50 \;\Omega\)</p>
+            <p><strong>CT ratio:</strong> \(n_{CT} = 400/5 = 80\)</p>
+            <p><strong>VT ratio:</strong> \(n_{VT} = 10{,}000/1000 = 10\)</p>
+            <div class="math-block">$$Z_{seen} = \frac{V_1/I_1}{V_1/(V_{secondary})} = \frac{Z_{actual} \times
+              n_{CT}}{n_{VT}} = \frac{50 \times 80}{10} = \boxed{400 \;\Omega}$$</div>
+            <div class="callout c-warn" style="margin-top:10px">
+              <div class="ci">⚠️</div>
+              <div class="cb">
+                <div class="ct">GATE Trap — CT and VT Ratios</div>
+                <p>The impedance seen by the relay is NOT the actual line impedance. It is scaled by (CT ratio / VT
+                  ratio). The relay must be set to \(Z_{set} \geq Z_{seen,max}\) to cover the full protected zone.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="ex-hdr">
+            <span class="ex-num">EXAMPLE 8.4</span>
+            <span class="ex-title">Merz-Price Alternator Protection — Neutral Earthing Resistance</span>
+          </div>
+          <div class="ex-body">
+            <div class="ex-q">A 6600 V, 3-phase turbo-alternator, 2000 kW at 0.8 p.f., reactance 12.5%, is protected by
+              Merz-Price circulating current protection set to operate at fault currents ≥ 200 A. Find the neutral
+              earthing resistance to leave 10% of windings unprotected.</div>
+            <div class="sol-lbl">▸ Solution</div>
+            <p><strong>Full load current:</strong></p>
+            <div class="math-block">$$I_{FL} = \frac{P}{\sqrt{3} \cdot V \cdot \cos\phi} = \frac{2000 \times
+              10^3}{\sqrt{3} \times 6600 \times 0.8} \approx 219 \text{ A}$$</div>
+            <p><strong>Reactance per phase:</strong> \(X_{ph} = \frac{12.5\%}{\sqrt{3} \times 219} \times 6600 \approx
+              2.19 \;\Omega\)</p>
+            <p><strong>Reactance of 10% winding:</strong> \(X_{10\%} = 0.1 \times 2.19 = 0.219 \;\Omega\)</p>
+            <p><strong>Phase voltage of 10% winding:</strong> \(V_{10\%} = \frac{6600}{\sqrt{3} \times 10} = 381 \text{
+              V}\)</p>
+            <p><strong>At fault current = 200 A:</strong></p>
+            <div class="math-block">$$200 = \frac{381}{\sqrt{r^2 + (0.219)^2}} \;\Rightarrow\; r =
+              \sqrt{\left(\frac{381}{200}\right)^2 - (0.219)^2} = \boxed{1.89 \;\Omega}$$</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+       SECTION 8.10 — GATE & IES PYQs
+  ══════════════════════════════════════════════ -->
+      <div class="section" id="s10">
+        <div class="sec-hdr">
+          <span class="sec-num">§ 8.10</span>
+          <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+        </div>
+
+        <div class="pyq-card">
+          <div class="pyq-hdr">
+            <span class="pyq-tag pyq-gate">GATE EE</span>
+            <span class="pyq-title">A distance relay operates when the impedance seen by the relay is</span>
+            <span class="pyq-year">GATE 2019</span>
+          </div>
+          <div class="pyq-body">
+            <ul class="pyq-opts">
+              <li>(A) Greater than the set impedance</li>
+              <li class="correct">(B) Less than the set impedance ✓</li>
+              <li>(C) Equal to the set impedance</li>
+              <li>(D) In the first quadrant of the R-X diagram only</li>
+            </ul>
+            <p><strong>Explanation:</strong> During a fault, the voltage drops and current increases — the ratio V/I
+              (impedance seen) decreases. When Z<sub>seen</sub> &lt; Z<sub>set</sub>, the fault is within the relay's
+              protection zone and it operates. This is the fundamental operating condition of all distance relays.</p>
+          </div>
+        </div>
+
+        <div class="pyq-card">
+          <div class="pyq-hdr">
+            <span class="pyq-tag pyq-gate">GATE EE</span>
+            <span class="pyq-title">Which of the following relay has highest selectivity?</span>
+            <span class="pyq-year">GATE 2017</span>
+          </div>
+          <div class="pyq-body">
+            <ul class="pyq-opts">
+              <li>(A) Over-current relay</li>
+              <li>(B) Distance relay</li>
+              <li class="correct">(C) Differential relay ✓</li>
+              <li>(D) Directional relay</li>
+            </ul>
+            <p><strong>Explanation:</strong> Differential relay is a <em>unit protection</em> scheme — it responds
+              exclusively to internal faults within its protected zone. External faults (regardless of magnitude) cannot
+              cause operation. This gives it the highest selectivity of all relay types. Distance relay has good
+              selectivity but is not perfectly selective (zone reach uncertainty). OCR has the least selectivity.</p>
+          </div>
+        </div>
+
+        <div class="pyq-card">
+          <div class="pyq-hdr">
+            <span class="pyq-tag pyq-gate">GATE EE</span>
+            <span class="pyq-title">IDMT relay — time of operation for inverse characteristic</span>
+            <span class="pyq-year">GATE 2015</span>
+          </div>
+          <div class="pyq-body">
+            <p>An IDMT relay with TMS = 0.5 and current setting 125% is connected to a circuit through a 400/5 CT. The
+              fault current is 2000 A. From the characteristic, at PSM = 5, standard time = 5 sec. Find actual operating
+              time.</p>
+            <div class="math-block">$$\text{CT ratio} = \frac{400}{5} = 80, \quad I_{pickup} = \frac{125}{100} \times 5
+              = 6.25 \text{ A}$$</div>
+            <div class="math-block">$$\text{PSM} = \frac{2000}{80 \times 6.25} = \frac{2000}{500} = 4, \quad t =
+              \text{TMS} \times t_{standard} = 0.5 \times 5 = \boxed{2.5 \text{ sec}}$$</div>
+          </div>
+        </div>
+
+        <div class="pyq-card ies-card">
+          <div class="pyq-hdr ies-hdr">
+            <span class="pyq-tag pyq-ies">IES 2018</span>
+            <span class="pyq-title pyq-title-ies">Mho relay on R-X diagram is represented by</span>
+            <span class="pyq-year">IES 2018</span>
+          </div>
+          <div class="pyq-body">
+            <ul class="pyq-opts">
+              <li>(A) A circle with centre at origin</li>
+              <li class="correct">(B) A circle passing through origin ✓</li>
+              <li>(C) A straight horizontal line</li>
+              <li>(D) A straight vertical line</li>
+            </ul>
+            <p><strong>Explanation:</strong> The Mho relay characteristic on the R-X diagram is a circle that passes
+              through the origin. This is because the threshold condition \(Z_{set} = \frac{K_3}{K_2}\cos(\theta -
+              \tau)\) traces a circle centred at \(\frac{Z_{set}}{2}\angle\tau\) and passing through the origin. Since
+              it passes through the origin, faults at the relay location (Z=0) are just at the relay boundary — giving
+              it inherent directional properties.</p>
+          </div>
+        </div>
+
+        <div class="pyq-card ies-card">
+          <div class="pyq-hdr ies-hdr">
+            <span class="pyq-tag pyq-ies">IES 2016</span>
+            <span class="pyq-title pyq-title-ies">Induction type relays are NOT suitable for</span>
+            <span class="pyq-year">IES 2016</span>
+          </div>
+          <div class="pyq-body">
+            <ul class="pyq-opts">
+              <li class="correct">(A) DC circuits ✓</li>
+              <li>(B) AC inverse-time over-current protection</li>
+              <li>(C) AC directional protection</li>
+              <li>(D) AC distance protection</li>
+            </ul>
+            <p><strong>Explanation:</strong> Induction relays operate on the principle of a rotating magnetic field
+              produced by two phase-displaced AC fluxes. In DC circuits, there is only one flux — no phase displacement
+              possible — so the rotating field and hence the torque cannot be produced. Attracted-armature type relays
+              work on both AC and DC.</p>
+          </div>
+        </div>
+
+        <div class="pyq-card">
+          <div class="pyq-hdr">
+            <span class="pyq-tag pyq-gate">GATE EE</span>
+            <span class="pyq-title">Which relay is best suited for protection of short transmission line?</span>
+            <span class="pyq-year">GATE 2014</span>
+          </div>
+          <div class="pyq-body">
+            <ul class="pyq-opts">
+              <li>(A) Mho relay</li>
+              <li>(B) Impedance relay</li>
+              <li class="correct">(C) Reactance relay ✓</li>
+              <li>(D) Differential relay</li>
+            </ul>
+            <p><strong>Explanation:</strong> For short transmission lines, the arc resistance at the fault point is
+              comparable in magnitude to the line impedance. Impedance relay and Mho relay are significantly affected by
+              arc resistance (which adds a resistive component, shifting the apparent impedance off the expected locus).
+              Reactance relay measures only the reactive component X = V sinθ / I and is therefore unaffected by arc
+              resistance — making it the best choice for short lines.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+       SECTION 8.11 — AI TUTOR
+  ══════════════════════════════════════════════ -->
+      <div class="section" id="s11">
+        <div class="sec-hdr">
+          <span class="sec-num">§ 8.11</span>
+          <h2 class="sec-t">Ask the AI Tutor</h2>
+        </div>
+        <div class="ai-prompt">
+          <div class="ai-prompt-title">🤖 Aarova AI — Protective Relays Tutor</div>
+          <p>Ask any question about Protective Relays — derivations, numericals, GATE concepts, or relay comparisons.
+          </p>
+          <div class="ai-input-row">
+            <input class="ai-input" id="userQ" type="text"
+              placeholder="e.g. Explain why Mho relay is preferred for long transmission lines…" autocomplete="off">
+            <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+          </div>
+          <div class="ai-suggest">
+            <span class="ai-chip"
+              onclick="setQ('Derive the operating torque equation of a shaded-pole induction disc relay from first principles.')">Shaded
+              pole derivation</span>
+            <span class="ai-chip"
+              onclick="setQ('Explain the dead zone problem in directional relays and how cross-polarisation solves it.')">Dead
+              zone solution</span>
+            <span class="ai-chip"
+              onclick="setQ('Compare impedance, reactance and Mho relays on the R-X diagram. Which is best for which line length and why?')">Relay
+              comparison</span>
+            <span class="ai-chip"
+              onclick="setQ('A 5A IDMT relay is set at 150% CS and TMS=0.4. CT ratio is 200/5. Fault current is 3000A. Find PSM and operating time if standard time at that PSM is 4 sec.')">Calculate
+              PSM &amp; time</span>
+            <span class="ai-chip"
+              onclick="setQ('Why does harmonic restraint prevent mal-operation of transformer differential relay during magnetising inrush?')">Harmonic
+              restraint</span>
+            <span class="ai-chip"
+              onclick="setQ('What is the universal torque equation? Explain how setting different constants gives different relay types.')">Universal
+              torque equation</span>
+          </div>
+          <div class="ai-response" id="aiResp"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+       SECTION 8.12 — SUMMARY
+  ══════════════════════════════════════════════ -->
+      <div class="section" id="s12">
+        <div class="sec-hdr">
+          <span class="sec-num">§ 8.12</span>
+          <h2 class="sec-t">Chapter Summary &amp; Rapid Revision</h2>
+        </div>
+
+        <div class="sum-grid">
+          <div class="sum-card sc-o">
+            <div class="sum-lbl">Relay Basics</div>
+            <p>Relay senses abnormal quantities → issues trip to CB → isolates fault. Objectives: Speed, Sensitivity,
+              Selectivity, Reliability (Dependability + Security), Stability, Simplicity, Economics.</p>
+          </div>
+          <div class="sum-card sc-g">
+            <div class="sum-lbl">Electromechanical</div>
+            <p>Attracted armature: \(T_{op} \propto I^2\) — works AC &amp; DC. Induction disc/cup: needs two
+              phase-displaced fluxes — AC only. Cup: fastest (0.01 s), ratio reset/pickup ≈ 0.99.</p>
+          </div>
+          <div class="sum-card sc-t">
+            <div class="sum-lbl">Over-Current Relay</div>
+            <p>PSM = Secondary fault current / CS(A). TMS scales actual time. IDMT: inverse near pickup, definite at
+              saturation. Extremely inverse: I²t = K (coordinates with fuses).</p>
+          </div>
+          <div class="sum-card sc-a">
+            <div class="sum-lbl">Directional Relay</div>
+            <p>\(T = K_3 VI\cos(\theta-\tau) - K\). MTA line ⊥ zero torque line. Dead zone at near fault. Cross-polarise
+              voltage to avoid dead zone. Used in ring mains &amp; parallel feeders.</p>
+          </div>
+          <div class="sum-card sc-r">
+            <div class="sum-lbl">Distance Relays</div>
+            <p>Impedance: circle at origin, no direction. Reactance: horizontal line, best for short lines (arc R
+              immune). Mho: circle through origin, inherently directional, best for long lines.</p>
+          </div>
+          <div class="sum-card sc-g">
+            <div class="sum-lbl">Differential Relay</div>
+            <p>Highest selectivity — unit protection. \(I_{ROC} = i_1 - i_2\). Biased: slope =
+              n<sub>r</sub>/n<sub>0</sub>. Applications: transformer, alternator stator, busbar. Harmonic restraint for
+              inrush.</p>
+          </div>
+        </div>
+
+        <h3 class="sub">Quick Formula Sheet</h3>
+        <div class="fblock">
+          <span class="flbl">All key formulas — Chapter 8: Protective Relays</span>
+          <span class="fh">── Universal Torque ────────────────────────────────────────────────</span>
+          <span class="fv">T</span> = <span class="feq">K₁I² + K₂V² + K₃VIcos(θ−τ) + K</span>
+
+          <span class="fh">── Over-Current Relay ──────────────────────────────────────────────</span>
+          <span class="fv">I_pickup</span> = <span class="feq">√(K/K₁)</span>
+          <span class="fv">CS(%)</span> = <span class="feq">(I_pickup / I_relay_rated) × 100</span>
+          <span class="fv">PSM</span> = <span class="feq">Secondary fault current / CS(A)</span>
+          = <span class="feq">Primary fault current / (CT_ratio × CS(A))</span>
+          <span class="fv">t_actual</span> = <span class="feq">TMS × t_at_100%TMS</span>
+
+          <span class="fh">── Attracted Armature ──────────────────────────────────────────────</span>
+          <span class="fv">W</span> = <span class="feq">½Li²</span>, <span class="fv">L</span> = <span
+            class="feq">μN²a/l</span>
+          <span class="fv">T_op</span> = <span class="feq">½i²(dL/dx)</span> → <span class="feq">T_op,avg ∝
+            I_rms²</span>
+          <span class="fv">T_net</span> = <span class="feq">K₁I² − K</span>
+
+          <span class="fh">── Distance Relays ─────────────────────────────────────────────────</span>
+          <span class="fv">Impedance:</span> <span class="feq">Z_set = √(K₁/K₂)</span> (circle centred at origin)
+          <span class="fv">Reactance:</span> <span class="feq">X_set = K₁/K₃</span> (horizontal line; τ_max = 90°)
+          <span class="fv">Mho:</span> <span class="feq">Z_set = (K₃/K₂)cos(θ−τ)</span> (circle through origin)
+          <span class="fv">Z_seen</span> = <span class="feq">Z_actual × (CT_ratio / VT_ratio)</span>
+
+          <span class="fh">── Differential Relay ──────────────────────────────────────────────</span>
+          <span class="fv">I_ROC</span> = <span class="feq">i₁ − i₂</span>
+          <span class="fv">Slope</span> = <span class="feq">nᵣ/n₀</span>
+          <span class="fv">Trip:</span> <span class="feq">|i₁−i₂| / [(i₁+i₂)/2] > nᵣ/n₀</span>
+
+          <span class="fh">── Induction Disc Torque ───────────────────────────────────────────</span>
+          <span class="fv">T</span> = <span class="feq">ϕ₁ϕ₂ sin(θ₁−θ₂)</span> (watt-hour meter type)
+          <span class="fv">T</span> = <span class="feq">K₁I²</span> (shaded pole, constant X/R)
+        </div>
+
+        <div class="callout c-tip" style="margin-top:22px">
+          <div class="ci">➡️</div>
+          <div class="cb">
+            <div class="ct">Coming Next — Chapter 9</div>
+            <p>Protection of Transformers, Alternators, and Transmission Lines — Buchholz relay, restricted earth fault
+              protection, negative sequence protection, carrier current protection, pilot wire protection, and digital
+              protection schemes with full GATE &amp; IES coverage.</p>
+          </div>
+        </div>
+
+        <!-- CITATIONS -->
+        <div class="citations" id="citations">
+          <div class="cite-h">References &amp; Citations</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from the
+            following standard textbooks. All explanations, derivations, SVG diagrams, and examples are original to
+            Aarova AI.</p>
+          <ul class="cite-list">
+            <li><span class="cite-num">[1]</span><span>Stevenson, William D. <em>Elements of Power System Analysis</em>,
+                4th ed. McGraw-Hill, 1982. Chapter 10 — Power system protection: relay fundamentals, distance relays,
+                differential relays.</span></li>
+            <li><span class="cite-num">[2]</span><span>Kothari, D.P. and Nagrath, I.J. <em>Modern Power System
+                  Analysis</em>, 4th ed. Tata McGraw-Hill, 2011. Chapter 12 — Power system protection and relaying, IDMT
+                characteristics, differential relay.</span></li>
+            <li><span class="cite-num">[3]</span><span>Wadhwa, C.L. <em>Electrical Power Systems</em>, 6th ed. New Age
+                International, 2012. Chapter 14 — Protective relays: types, characteristics, applications, numerical
+                examples.</span></li>
+            <li><span class="cite-num">[4]</span><span>Ravindranath, B. and Chander, M. <em>Power System Protection and
+                  Switchgear</em>. New Age International, 1997. Chapters 3–8 — Relay operating principles, overcurrent,
+                distance, and differential protection.</span></li>
+            <li><span class="cite-num">[5]</span><span>IIT Kharagpur NPTEL. <em>Power Systems Engineering — Protective
+                  Relays (Lectures 35–46)</em>. National Programme on Technology Enhanced Learning. nptel.ac.in. Relay
+                types, torque equations, GATE-relevant derivations.</span></li>
+          </ul>
+        </div>
+
+        <hr>
+        <footer>
+          <strong>Aarova AI</strong> &nbsp;·&nbsp; Power Systems Series &nbsp;·&nbsp; Chapter 8 of 8<br>
+          <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp; PSU
+            Electrical Engineering</span><br>
+          <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and diagrams are
+            original to Aarova AI. Derived from standard textbooks [1–5].</span>
+        </footer>
+      </div>
+
+    </div><!-- end .page -->
+
+    <script>
+      function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+      async function askClaude() {
+        const q = document.getElementById('userQ').value.trim(); if (!q) return;
+        const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+        btn.textContent = 'Thinking…'; btn.disabled = true;
+        resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+        const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Power Systems. Topic: Protective Relays (Chapter 8). Cover relay fundamentals, classification, electromagnetic relays, over-current relays (PSM, TMS, IDMT, types), directional relays (dead zone, MTA), distance relays (impedance, reactance, Mho — R-X diagrams, applications), differential relays (basic and biased, mal-operation causes). Answer with step-by-step working for numericals. Use LaTeX for equations where helpful (wrap in $ $ for inline). Base on Kothari & Nagrath, Wadhwa, Stevenson, Ravindranath & Chander. All content is original — do not reproduce textbook text.`;
+        try {
+          const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+          const data = await res.json();
+          resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+        } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+        btn.textContent = 'Ask Claude'; btn.disabled = false;
+      }
+      document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+      /* Mobile SVG scroll hints */
+      (function () {
+        if (window.innerWidth > 600) return;
+        document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+          const hint = document.createElement('div');
+          hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+          hint.textContent = '← scroll to see full diagram →';
+          wrap.appendChild(hint);
+          wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+        });
+      })();
+    </script>
+</body>
+
+</html>

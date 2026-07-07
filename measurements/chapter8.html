@@ -1,0 +1,2783 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Digital Voltmeters</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* PROGRESS */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 12.5%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px
+        }
+
+        /* CALLOUTS */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* FORMULA */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* MATH */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* SVG */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* GATE / PYQ */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* TWO COL */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        /* SUMMARY */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* PROB TAGS */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* AI PROMPT */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12)
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none
+        }
+
+        .ai-btn:hover {
+            background: #155250
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg)
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto
+        }
+
+        /* MISC */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border)
+        }
+
+        footer strong {
+            color: var(--orange)
+        }
+
+        /* TABLET */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .svg-wrap {
+                padding: 12px 10px
+            }
+
+            .svg-wrap svg {
+                min-width: 480px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px
+            }
+
+            .pyq-year {
+                margin-left: 0
+            }
+        }
+
+        /* MOBILE */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .hbadges {
+                display: none
+            }
+
+            .site-header {
+                padding: 10px 14px
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px)
+            }
+
+            .hero-desc {
+                font-size: 14px
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px
+            }
+
+            .pl {
+                font-size: 11px
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0
+            }
+
+            .toc {
+                padding: 14px 16px
+            }
+
+            .sec-hdr {
+                gap: 9px
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px)
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px)
+            }
+
+            p {
+                font-size: 15px
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%
+            }
+
+            .svg-cap {
+                font-size: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px;
+                border-radius: 8px
+            }
+
+            .tw {
+                border-radius: 8px
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px
+            }
+
+            .mini-card {
+                padding: 13px 14px
+            }
+
+            .sum-card {
+                padding: 14px 16px
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px
+            }
+
+            .ci {
+                font-size: 16px
+            }
+
+            .cb p {
+                font-size: 13.5px
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px
+            }
+
+            .pyq-year {
+                display: none
+            }
+
+            .ai-prompt {
+                padding: 14px
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-input {
+                font-size: 15px
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px
+            }
+
+            .ai-chip {
+                font-size: 11px
+            }
+
+            .ai-suggest {
+                gap: 5px
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px
+            }
+
+            .citations {
+                padding: 14px
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px
+            }
+
+            .math-block {
+                padding: 10px 12px
+            }
+        }
+
+        /* DESKTOP */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow)
+            }
+
+            .ai-btn:hover {
+                background: var(--teal)
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none
+            }
+
+            .svg-wrap {
+                break-inside: avoid
+            }
+
+            body {
+                font-size: 12pt
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Electronic Measurements Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 01 &nbsp;·&nbsp; Electronic Measurements &amp; Instrumentation</div>
+            <h1 class="hero-title">Digital <em>Voltmeters</em></h1>
+            <p class="hero-desc">Principles of digital voltage measurement, ADC types, ramp and dual-slope integrating
+                techniques, resolution, sensitivity, accuracy — comprehensive coverage of GATE EE, IES E&amp;T, and PSU
+                exam concepts with full derivations and worked analysis.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">EMI — Chapter 1</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Chapter 1 of 8</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">1.1</span>Introduction &amp; Big Picture</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">1.6</span>Dual-Slope Integrating DVM</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">1.2</span>DVM Block Diagram</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">1.7</span>Resolution, Sensitivity &amp; Accuracy</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">1.3</span>Digital vs Analog Meters</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">1.8</span>GATE &amp; IES Insights</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">1.4</span>ADC Types in DVMs</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">1.9</span>Memory Techniques</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">1.5</span>Ramp (Staircase) DVM</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">1.10</span>Chapter Summary</a>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 1 ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">1.1</span>
+                <h2 class="sec-t">Introduction — Why Digital Voltmeters Exist</h2>
+            </div>
+
+            <p>Voltage measurement is at the very heart of electrical and electronic engineering. Before digital
+                instruments became widespread, engineers relied entirely on moving-coil (PMMC) and moving-iron meters to
+                read voltage. These analogue meters were useful but carried fundamental limitations: a mechanical
+                pointer deflection was subject to friction, parallax error during reading, and the meter's own internal
+                resistance loaded the circuit under test.</p>
+
+            <p>The <strong>Digital Voltmeter (DVM)</strong> was conceived to eliminate these weaknesses. Instead of
+                converting an electrical quantity into a mechanical deflection, a DVM converts the analogue input
+                voltage into a <em>coded digital number</em> that is displayed directly as decimal digits on a numeric
+                readout. The conversion is performed by an <strong>Analog-to-Digital Converter (ADC)</strong> at the
+                heart of every DVM.<sup class="cite">[1]</sup></p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Problem Solved</div>
+                    <p>A DVM eliminates parallax reading error completely, presents results in unambiguous digits,
+                        offers extremely high input impedance (typically 10 MΩ), and can interface directly with
+                        computers and data loggers — none of which analogue meters can do.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Historical Context and Industry Significance</h3>
+            <p>The first commercially successful DVM was introduced by Non-Linear Systems Inc. in 1952. The instrument
+                used a voltage-to-time conversion principle that is still the foundation of modern integrating DVMs.
+                Today, DVMs are used as standalone bench instruments, as the measurement engine inside Digital
+                Multimeters (DMMs), as panel meters in industrial control panels, as data-acquisition front ends in
+                automated test systems, and as embedded measurement blocks inside PLCs and energy meters.<sup
+                    class="cite">[2]</sup></p>
+
+            <p>In modern power grids, the revenue-grade energy meter you see on every domestic or industrial supply is
+                essentially a precision DVM (or multi-channel DVM for three-phase) sampling voltage many thousands of
+                times per second. In electric vehicle battery management systems (BMS), individual cell voltages are
+                monitored by DVMs integrated onto a single chip. The concept scales from millivolt precision
+                measurements in medical devices to kV-range high-voltage divider systems in switchyards.</p>
+
+            <div class="callout c-tip">
+                <div class="ci">🏭</div>
+                <div class="cb">
+                    <div class="ct">Where DVMs Appear in Industry</div>
+                    <p>Power system protection relays · EV Battery Management Systems · Smart energy meters · Automated
+                        test equipment · Process control instrumentation · Medical diagnostic equipment · Solar inverter
+                        MPPT controllers · Industrial PLC analog input modules</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 2 ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">1.2</span>
+                <h2 class="sec-t">Block Diagram of a Digital Voltmeter</h2>
+            </div>
+
+            <p>Every DVM, regardless of its ADC technique, passes the input voltage through a standard
+                signal-conditioning chain before conversion and display. Understanding this chain is essential for both
+                troubleshooting real instruments and answering GATE/IES questions on DVM operation.<sup
+                    class="cite">[1]</sup></p>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 760 220" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="Digital Voltmeter block diagram">
+                    <defs>
+                        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L8,3 z" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <!-- Vm label -->
+                    <text x="12" y="112" font-family="Lora,serif" font-size="13" fill="#6b3e22">V<tspan font-size="9"
+                            dy="3">m</tspan></text>
+                    <line x1="32" y1="110" x2="65" y2="110" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr)" />
+                    <!-- Block 1: Attenuator -->
+                    <rect x="68" y="82" width="110" height="56" rx="8" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1.5" />
+                    <text x="123" y="106" font-family="Lora,serif" font-size="11" fill="#3d2010"
+                        text-anchor="middle">Attenuator</text>
+                    <text x="123" y="121" font-family="Lora,serif" font-size="10" fill="#9a6e50"
+                        text-anchor="middle">(Range Selector)</text>
+                    <!-- Arrow -->
+                    <line x1="178" y1="110" x2="215" y2="110" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr)" />
+                    <!-- Block 2: ADC -->
+                    <rect x="218" y="68" width="130" height="84" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.8" />
+                    <text x="283" y="97" font-family="Lora,serif" font-size="11" fill="#c95f1a" text-anchor="middle"
+                        font-weight="600">ADC</text>
+                    <text x="283" y="112" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        text-anchor="middle">(Dual-slope</text>
+                    <text x="283" y="126" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        text-anchor="middle">Integrating type)</text>
+                    <!-- Arrow -->
+                    <line x1="348" y1="110" x2="385" y2="110" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr)" />
+                    <!-- Block 3: Digit Drivers -->
+                    <rect x="388" y="82" width="110" height="56" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="443" y="106" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        text-anchor="middle">Digit</text>
+                    <text x="443" y="121" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        text-anchor="middle">Drivers</text>
+                    <!-- Arrow -->
+                    <line x1="498" y1="110" x2="535" y2="110" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr)" />
+                    <!-- Block 4: 7-seg decoder -->
+                    <rect x="538" y="82" width="100" height="56" rx="8" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="588" y="103" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        text-anchor="middle">7-Segment</text>
+                    <text x="588" y="118" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        text-anchor="middle">Decoder/</text>
+                    <text x="588" y="132" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        text-anchor="middle">Driver</text>
+                    <!-- Arrow -->
+                    <line x1="638" y1="110" x2="675" y2="110" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr)" />
+                    <!-- Display -->
+                    <rect x="678" y="82" width="72" height="56" rx="8" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1.5" />
+                    <text x="714" y="107" font-family="'JetBrains Mono',monospace" font-size="18" fill="#c95f1a"
+                        text-anchor="middle" font-weight="700">3.142</text>
+                    <text x="714" y="126" font-family="Lora,serif" font-size="9" fill="#9a6e50"
+                        text-anchor="middle">Display</text>
+                    <!-- Range switch label -->
+                    <text x="123" y="72" font-family="Lora,serif" font-size="10" fill="#9a6e50" text-anchor="middle"
+                        font-style="italic">Range switch</text>
+                    <line x1="123" y1="76" x2="123" y2="82" stroke="#9a6e50" stroke-width="1" stroke-dasharray="3,2" />
+                    <!-- Pulse label above ADC arrow -->
+                    <text x="283" y="57" font-family="'JetBrains Mono',monospace" font-size="10" fill="#1e6b68"
+                        text-anchor="middle">n ∝ |Vm|</text>
+                    <text x="283" y="48" font-family="Lora,serif" font-size="9" fill="#9a6e50"
+                        text-anchor="middle">(pulse count)</text>
+                </svg>
+                <div class="svg-cap">Fig. 1.1 — Standard block diagram of a Digital Voltmeter</div>
+                <div class="svg-cite">Ref: Cooper &amp; Helfrick, <em>Electronic Instrumentation &amp; Measurement
+                        Techniques</em>, Ch. 6</div>
+            </div>
+
+            <h3 class="sub">Function of Each Block</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Block</th>
+                            <th>Function</th>
+                            <th>Key Parameter</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Attenuator (Range Selector)</td>
+                            <td>Scales the unknown input V<sub>m</sub> to a level the ADC can handle without
+                                overloading. A calibrated resistive divider network switched by a front-panel knob or
+                                auto-ranging circuit.</td>
+                            <td>Attenuation ratio; input impedance ≥ 10 MΩ</td>
+                        </tr>
+                        <tr>
+                            <td>ADC (A-to-D Converter)</td>
+                            <td>Converts the analogue voltage into a digital count proportional to V<sub>m</sub>. The
+                                preferred type in precision DVMs is the dual-slope integrating ADC.</td>
+                            <td>Resolution (bits / digits); conversion speed</td>
+                        </tr>
+                        <tr>
+                            <td>Digit Drivers</td>
+                            <td>Amplify the logic-level digital signals from the ADC to the current levels needed to
+                                illuminate display segments.</td>
+                            <td>Output current capability</td>
+                        </tr>
+                        <tr>
+                            <td>7-Segment Decoder</td>
+                            <td>Translates Binary Coded Decimal (BCD) from the ADC into the correct segment pattern for
+                                each digit position.</td>
+                            <td>BCD-to-7-segment truth table</td>
+                        </tr>
+                        <tr>
+                            <td>Digital Display</td>
+                            <td>Presents the measured value visually. Common types: LED (fast, robust), LCD (low power,
+                                outdoor readable), Nixie (historical, high voltage).</td>
+                            <td>Number of digit places; refresh rate</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 3 ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">1.3</span>
+                <h2 class="sec-t">Digital Meters versus Analogue Meters</h2>
+            </div>
+
+            <p>The choice between digital and analogue instruments is not merely cosmetic — it has deep engineering
+                implications for accuracy, loading, and system integration. Golding and Widdis (1963) and later Helfrick
+                and Cooper enumerate the structural reasons why digital instruments have replaced analogue meters in
+                precision measurement applications.<sup class="cite">[3]</sup></p>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Advantages of Digital</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>High input impedance (10 MΩ typical) — negligible loading effect
+                            on circuit under test</li>
+                        <li><span class="dot">▸</span>No parallax error — display is read directly in decimal digits
+                        </li>
+                        <li><span class="dot">▸</span>No friction or mechanical wear — no moving parts in signal path
+                        </li>
+                        <li><span class="dot">▸</span>Superior resolution and accuracy (0.005% of reading typical)</li>
+                        <li><span class="dot">▸</span>Auto-ranging — selects appropriate range automatically</li>
+                        <li><span class="dot">▸</span>Polarity indication — automatic + / − sign</li>
+                        <li><span class="dot">▸</span>BCD or RS-232/USB output for data logging and remote control</li>
+                        <li><span class="dot">▸</span>Fast reading rate (up to several per second)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Remaining Use of Analogue</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Trend monitoring — a moving pointer makes rate-of-change visible
+                            instantly</li>
+                        <li><span class="dot">▸</span>Very low frequency or DC null detection</li>
+                        <li><span class="dot">▸</span>Simpler circuits — no power supply or ADC required</li>
+                        <li><span class="dot">▸</span>Immune to numerical aliasing in rapidly fluctuating signals</li>
+                        <li><span class="dot">▸</span>Lower cost in basic measurement panels</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Misconception</div>
+                    <p>Students often assume a digital reading is always more accurate than an analogue one. The digital
+                        display only eliminates <em>reading</em> error — if the ADC linearity, reference voltage, or
+                        clock frequency are poor, the reading can still be inaccurate. A 3½-digit DVM with ±0.5%
+                        full-scale error can be less accurate than a calibrated laboratory-grade galvanometer in a null
+                        measurement.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 4 ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">1.4</span>
+                <h2 class="sec-t">ADC Types Used in Digital Voltmeters</h2>
+            </div>
+
+            <p>The ADC is the defining component of a DVM — its type determines accuracy, speed, noise rejection, and
+                cost. Helfrick and Cooper (2005) classify DVM ADCs into two broad families based on their conversion
+                principle.<sup class="cite">[2]</sup></p>
+
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 660 260" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="ADC classification tree">
+                    <defs>
+                        <marker id="arr2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L7,3 z" fill="#9a6e50" />
+                        </marker>
+                    </defs>
+                    <!-- Root -->
+                    <rect x="220" y="10" width="220" height="44" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.8" />
+                    <text x="330" y="29" font-family="Lora,serif" font-size="12" fill="#c95f1a" text-anchor="middle"
+                        font-weight="600">ADC Types in DVMs</text>
+                    <text x="330" y="46" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        text-anchor="middle">(IEC 60051 classification)</text>
+                    <!-- Branch lines -->
+                    <line x1="330" y1="54" x2="330" y2="75" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="165" y1="75" x2="495" y2="75" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="165" y1="75" x2="165" y2="94" stroke="#9a6e50" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+                    <line x1="495" y1="75" x2="495" y2="94" stroke="#9a6e50" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+                    <!-- Left: Non-integrating -->
+                    <rect x="60" y="97" width="210" height="44" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="165" y="116" font-family="Lora,serif" font-size="11" fill="#1e6b68" text-anchor="middle"
+                        font-weight="600">Non-Integrating Type</text>
+                    <text x="165" y="131" font-family="Lora,serif" font-size="10" fill="#154e4c"
+                        text-anchor="middle">Fast; noise-sensitive</text>
+                    <!-- Right: Integrating -->
+                    <rect x="390" y="97" width="210" height="44" rx="8" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.8" />
+                    <text x="495" y="116" font-family="Lora,serif" font-size="11" fill="#2d6648" text-anchor="middle"
+                        font-weight="600">Integrating Type</text>
+                    <text x="495" y="131" font-family="Lora,serif" font-size="10" fill="#1e4d38"
+                        text-anchor="middle">Slow; excellent noise rejection</text>
+                    <!-- Non-integrating subtypes -->
+                    <line x1="100" y1="141" x2="100" y2="158" stroke="#9a6e50" stroke-width="1.2"
+                        marker-end="url(#arr2)" />
+                    <line x1="230" y1="141" x2="230" y2="158" stroke="#9a6e50" stroke-width="1.2"
+                        marker-end="url(#arr2)" />
+                    <rect x="30" y="161" width="140" height="36" rx="6" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1.2" />
+                    <text x="100" y="178" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        text-anchor="middle">Successive</text>
+                    <text x="100" y="191" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        text-anchor="middle">Approximation (SAR)</text>
+                    <rect x="160" y="161" width="140" height="36" rx="6" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1.2" />
+                    <text x="230" y="178" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        text-anchor="middle">Flash /</text>
+                    <text x="230" y="191" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        text-anchor="middle">Parallel Comparator</text>
+                    <!-- Integrating subtypes -->
+                    <line x1="410" y1="141" x2="410" y2="158" stroke="#9a6e50" stroke-width="1.2"
+                        marker-end="url(#arr2)" />
+                    <line x1="580" y1="141" x2="580" y2="158" stroke="#9a6e50" stroke-width="1.2"
+                        marker-end="url(#arr2)" />
+                    <rect x="335" y="161" width="150" height="36" rx="6" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="410" y="178" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        text-anchor="middle">Ramp / Staircase</text>
+                    <text x="410" y="191" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        text-anchor="middle">(Single-slope)</text>
+                    <rect x="505" y="161" width="150" height="36" rx="6" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.8" />
+                    <text x="580" y="173" font-family="Lora,serif" font-size="10" fill="#2d6648" text-anchor="middle"
+                        font-weight="600">★ Dual-Slope</text>
+                    <text x="580" y="186" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        text-anchor="middle">(Preferred in DVMs)</text>
+                    <!-- Star note -->
+                    <text x="580" y="215" font-family="Lora,serif" font-size="9" fill="#2d6648" text-anchor="middle"
+                        font-style="italic">High accuracy + noise immunity</text>
+                </svg>
+                <div class="svg-cap">Fig. 1.2 — Classification of ADC types used in DVMs</div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Key Exam Point</div>
+                    <p>The <strong>Dual-Slope Integrating ADC</strong> is the preferred choice for precision DVMs
+                        because it inherently rejects noise at the supply frequency (50/60 Hz), has excellent linearity,
+                        and is independent of component tolerances in the integrator — explained in detail in Section
+                        1.6.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 5 ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">1.5</span>
+                <h2 class="sec-t">Ramp (Single-Slope) Type DVM</h2>
+            </div>
+
+            <p>The ramp-type DVM, also called the linear-ramp or voltage-to-time conversion DVM, is historically the
+                simplest integrating DVM. Understanding it builds the intuition needed to appreciate why the dual-slope
+                design was introduced.<sup class="cite">[2]</sup></p>
+
+            <h3 class="sub">Principle of Operation</h3>
+            <p>The operating principle can be stated simply: <strong>the unknown voltage V<sub>x</sub> is compared with
+                    a linearly falling (or rising) voltage ramp. The time T<sub>x</sub> required for the ramp to cross
+                    from V<sub>x</sub> to zero (or zero to V<sub>x</sub>) is proportional to V<sub>x</sub>.</strong> A
+                counter counts clock pulses during T<sub>x</sub>; the count is thus proportional to the voltage.</p>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="Ramp type DVM waveform and block diagram">
+                    <defs>
+                        <marker id="arr3" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L7,3 z" fill="#3d2010" />
+                        </marker>
+                    </defs>
+                    <!-- Axes -->
+                    <text x="10" y="15" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="600">Voltage–Time Waveform (Ramp DVM)</text>
+                    <line x1="50" y1="200" x2="430" y2="200" stroke="#3d2010" stroke-width="1.5"
+                        marker-end="url(#arr3)" />
+                    <line x1="50" y1="200" x2="50" y2="30" stroke="#3d2010" stroke-width="1.5"
+                        marker-end="url(#arr3)" />
+                    <text x="435" y="204" font-family="Lora,serif" font-size="11" fill="#3d2010">t</text>
+                    <text x="36" y="28" font-family="Lora,serif" font-size="11" fill="#3d2010">V</text>
+                    <!-- Ramp line -->
+                    <line x1="80" y1="60" x2="380" y2="200" stroke="#c95f1a" stroke-width="2.2" />
+                    <!-- Vx horizontal line -->
+                    <line x1="50" y1="110" x2="200" y2="110" stroke="#2d6648" stroke-width="1.5"
+                        stroke-dasharray="5,3" />
+                    <text x="24" y="114" font-family="Lora,serif" font-size="11" fill="#2d6648">V<tspan font-size="8"
+                            dy="2">x</tspan></text>
+                    <!-- Zero crossing -->
+                    <line x1="200" y1="110" x2="200" y2="200" stroke="#9a6e50" stroke-width="1.2"
+                        stroke-dasharray="3,3" />
+                    <!-- Gate open marker -->
+                    <line x1="80" y1="200" x2="80" y2="213" stroke="#c95f1a" stroke-width="1.5" />
+                    <text x="80" y="225" font-family="Lora,serif" font-size="9" fill="#c95f1a" text-anchor="middle">Gate
+                        opens (t₁)</text>
+                    <!-- Gate close marker -->
+                    <line x1="200" y1="200" x2="200" y2="213" stroke="#c95f1a" stroke-width="1.5" />
+                    <text x="200" y="225" font-family="Lora,serif" font-size="9" fill="#c95f1a"
+                        text-anchor="middle">Gate closes (t₂)</text>
+                    <!-- Tx brace -->
+                    <line x1="80" y1="238" x2="200" y2="238" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="80" y1="233" x2="80" y2="243" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="200" y1="233" x2="200" y2="243" stroke="#c95f1a" stroke-width="1.5" />
+                    <text x="140" y="255" font-family="Lora,serif" font-size="10" fill="#c95f1a" text-anchor="middle">T
+                        <tspan font-size="8" dy="2">x</tspan> ∝ V<tspan font-size="8" dy="0">x</tspan></text>
+                    <!-- Block diagram on right -->
+                    <rect x="460" y="30" width="100" height="34" rx="7" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="510" y="51" font-family="Lora,serif" font-size="10" fill="#c95f1a"
+                        text-anchor="middle">Ramp Generator</text>
+                    <rect x="460" y="85" width="100" height="34" rx="7" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="510" y="107" font-family="Lora,serif" font-size="10" fill="#1e6b68"
+                        text-anchor="middle">Comparators (×2)</text>
+                    <rect x="460" y="140" width="100" height="34" rx="7" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="510" y="162" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        text-anchor="middle">AND Gate</text>
+                    <rect x="460" y="195" width="100" height="34" rx="7" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="510" y="217" font-family="Lora,serif" font-size="10" fill="#a05c00"
+                        text-anchor="middle">Counter + Display</text>
+                    <line x1="510" y1="64" x2="510" y2="85" stroke="#9a6e50" stroke-width="1.2"
+                        marker-end="url(#arr3)" />
+                    <line x1="510" y1="119" x2="510" y2="140" stroke="#9a6e50" stroke-width="1.2"
+                        marker-end="url(#arr3)" />
+                    <line x1="510" y1="174" x2="510" y2="195" stroke="#9a6e50" stroke-width="1.2"
+                        marker-end="url(#arr3)" />
+                    <text x="460" y="20" font-family="Lora,serif" font-size="10" fill="#9a6e50"
+                        font-style="italic">Simplified blocks</text>
+                </svg>
+                <div class="svg-cap">Fig. 1.3 — Ramp (single-slope) DVM: waveform and functional block summary</div>
+            </div>
+
+            <h3 class="sub">Mathematical Analysis</h3>
+            <p>Let the ramp have a constant slope (rate of change) of \(S\) volts per second, so the ramp voltage at
+                time \(t\) from its start is:</p>
+            <div class="math-block">
+                <div class="math-lbl">Ramp voltage</div>
+                $$v_{ramp}(t) = V_{max} - S \cdot t$$
+            </div>
+            <p>The ramp starts at \(V_{max}\) and falls linearly. At time \(t_1\), the ramp equals \(V_x\) (comparator
+                C1 triggers, opening the gate). At time \(t_2\), the ramp reaches zero (comparator C2 triggers, closing
+                the gate). Therefore:</p>
+            <div class="math-block">
+                <div class="math-lbl">Gate open interval</div>
+                $$T_x = t_2 - t_1 = \frac{V_x}{S}$$
+            </div>
+            <p>If the clock frequency is \(f_c\), the count registered is:</p>
+            <div class="math-block">
+                <div class="math-lbl">Digital count (proportional to Vx)</div>
+                $$N = f_c \cdot T_x = \frac{f_c \cdot V_x}{S}$$
+            </div>
+            <p>This count \(N\), when displayed, directly reads the value of \(V_x\). The accuracy depends critically on
+                the <em>linearity</em> of the ramp and the <em>stability of the clock frequency</em>.</p>
+
+            <h3 class="sub">Limitation: Noise Sensitivity</h3>
+            <div class="callout c-danger">
+                <div class="ci">🚫</div>
+                <div class="cb">
+                    <div class="ct">Major Weakness of Ramp Type DVM</div>
+                    <p>Any noise superimposed on the input \(V_x\) will directly cause an error in the comparator
+                        triggering instant \(t_1\). Since the ramp slope is typically steep, even a few millivolts of
+                        noise causes a measurable error in \(T_x\), and hence in the count \(N\). This noise sensitivity
+                        is the fundamental reason why the dual-slope design was developed.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 6 ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">1.6</span>
+                <h2 class="sec-t">Dual-Slope Integrating DVM</h2>
+            </div>
+
+            <p>The dual-slope (or double-integration) DVM is the most important ADC technique for precision voltage
+                measurement instruments. It is the standard against which all other DVM ADC approaches are judged for
+                accuracy and noise rejection. The technique was developed to overcome the noise sensitivity of the
+                single-slope ramp DVM.<sup class="cite">[1,2]</sup></p>
+
+            <h3 class="sub">Intuitive Understanding — The River Analogy</h3>
+            <p>Imagine filling a bucket with river water (the unknown voltage V<sub>x</sub>) for a fixed time
+                T<sub>1</sub>, then emptying the same bucket through a calibrated drain (the reference voltage
+                V<sub>ref</sub>). The time T<sub>2</sub> needed to empty the bucket is proportional to V<sub>x</sub>
+                divided by V<sub>ref</sub>. Crucially, if the river is choppy (noisy), you filled the bucket with the
+                <em>average</em> water level — noise cancels out naturally. This is the essence of dual-slope
+                integration.</p>
+
+            <h3 class="sub">Circuit Topology</h3>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="Dual slope DVM circuit blocks">
+                    <defs>
+                        <marker id="arr4" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L7,3 z" fill="#9a6e50" />
+                        </marker>
+                    </defs>
+                    <!-- Switch block -->
+                    <rect x="20" y="70" width="90" height="60" rx="7" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="65" y="97" font-family="Lora,serif" font-size="10" fill="#a05c00"
+                        text-anchor="middle">Input Switch</text>
+                    <text x="65" y="112" font-family="Lora,serif" font-size="9" fill="#a05c00" text-anchor="middle">Vx /
+                        −Vref</text>
+                    <!-- Integrator -->
+                    <rect x="145" y="55" width="110" height="90" rx="7" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.8" />
+                    <text x="200" y="90" font-family="Lora,serif" font-size="11" fill="#1e6b68" text-anchor="middle"
+                        font-weight="600">Op-Amp</text>
+                    <text x="200" y="106" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        text-anchor="middle">Integrator</text>
+                    <text x="200" y="122" font-family="Lora,serif" font-size="9" fill="#154e4c" text-anchor="middle">(R,
+                        C)</text>
+                    <!-- Comparator -->
+                    <rect x="295" y="70" width="100" height="60" rx="7" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="345" y="97" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        text-anchor="middle">Zero-Crossing</text>
+                    <text x="345" y="112" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        text-anchor="middle">Comparator</text>
+                    <!-- Control logic -->
+                    <rect x="435" y="55" width="110" height="90" rx="7" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="490" y="90" font-family="Lora,serif" font-size="10" fill="#c95f1a"
+                        text-anchor="middle">Control Logic</text>
+                    <text x="490" y="106" font-family="Lora,serif" font-size="10" fill="#c95f1a"
+                        text-anchor="middle">&amp; Clock</text>
+                    <text x="490" y="121" font-family="Lora,serif" font-size="9" fill="#9a6e50"
+                        text-anchor="middle">(frequency fc)</text>
+                    <!-- Counter/Display -->
+                    <rect x="585" y="70" width="115" height="60" rx="7" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1.5" />
+                    <text x="642" y="97" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        text-anchor="middle">Counter</text>
+                    <text x="642" y="112" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        text-anchor="middle">&amp; Display</text>
+                    <!-- Arrows -->
+                    <line x1="110" y1="100" x2="145" y2="100" stroke="#9a6e50" stroke-width="1.5"
+                        marker-end="url(#arr4)" />
+                    <line x1="255" y1="100" x2="295" y2="100" stroke="#9a6e50" stroke-width="1.5"
+                        marker-end="url(#arr4)" />
+                    <line x1="395" y1="100" x2="435" y2="100" stroke="#9a6e50" stroke-width="1.5"
+                        marker-end="url(#arr4)" />
+                    <line x1="545" y1="100" x2="585" y2="100" stroke="#9a6e50" stroke-width="1.5"
+                        marker-end="url(#arr4)" />
+                    <!-- Feedback: control → switch -->
+                    <line x1="490" y1="55" x2="490" y2="28" stroke="#c95f1a" stroke-width="1.2"
+                        stroke-dasharray="4,2" />
+                    <line x1="490" y1="28" x2="65" y2="28" stroke="#c95f1a" stroke-width="1.2" stroke-dasharray="4,2" />
+                    <line x1="65" y1="28" x2="65" y2="70" stroke="#c95f1a" stroke-width="1.2" stroke-dasharray="4,2"
+                        marker-end="url(#arr4)" />
+                    <text x="280" y="22" font-family="Lora,serif" font-size="9" fill="#c95f1a"
+                        font-style="italic">Switch control (Phase 1 → Phase 2)</text>
+                </svg>
+                <div class="svg-cap">Fig. 1.4 — Dual-slope DVM circuit: functional block arrangement</div>
+            </div>
+
+            <h3 class="sub">Two-Phase Operation — Detailed Analysis</h3>
+
+            <p><strong>Phase 1 — Fixed-Time Integration of V<sub>x</sub>:</strong></p>
+            <p>The input switch connects to V<sub>x</sub>. The integrator integrates V<sub>x</sub> for a <em>fixed</em>
+                time interval \(T_1 = N_1 / f_c\), where \(N_1\) is a predetermined counter full-scale count and \(f_c\)
+                is the clock frequency. At the end of \(T_1\), the integrator output voltage is:</p>
+            <div class="math-block">
+                <div class="math-lbl">Integrator output at end of Phase 1</div>
+                $$V_{int} = -\frac{V_x}{RC} \cdot T_1$$
+            </div>
+            <p>Note the negative sign — the integrating op-amp inverts. The output is a negative ramp if V<sub>x</sub>
+                is positive.</p>
+
+            <p><strong>Phase 2 — Variable-Time Discharge by −V<sub>ref</sub>:</strong></p>
+            <p>The switch now connects to \(-V_{ref}\) (opposite polarity to V<sub>x</sub>). The counter resets to zero
+                and begins counting again. The integrator now integrates \(-V_{ref}\), which drives its output back
+                toward zero. When the output crosses zero, the comparator fires, stopping the counter. The discharge
+                time is \(T_2 = N_2 / f_c\).</p>
+            <p>During Phase 2:</p>
+            <div class="math-block">
+                <div class="math-lbl">Integrator discharging in Phase 2</div>
+                $$V_{int}(t) = -\frac{V_x \cdot T_1}{RC} + \frac{V_{ref}}{RC} \cdot t = 0$$
+            </div>
+            <p>Solving for \(T_2\):</p>
+            <div class="math-block">
+                <div class="math-lbl">Discharge time T₂</div>
+                $$T_2 = \frac{V_x}{V_{ref}} \cdot T_1$$
+            </div>
+            <p>The count \(N_2\) registered during Phase 2 is therefore:</p>
+            <div class="math-block">
+                <div class="math-lbl">Final digital count — key result</div>
+                $$\boxed{N_2 = N_1 \cdot \frac{V_x}{V_{ref}}}$$
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Profound Engineering Insight</div>
+                    <p>The expression \(N_2 = N_1 \cdot (V_x / V_{ref})\) does <strong>not contain R, C, or
+                            f<sub>c</sub></strong>. This means the reading is completely independent of the integrator's
+                        RC time constant and the clock frequency — as long as both are stable over the two phases.
+                        Component drift over temperature, age, or supply voltage has no effect on accuracy. Only the
+                        reference voltage V<sub>ref</sub> needs to be stable and accurate. This is the fundamental
+                        superiority of the dual-slope technique.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Waveforms — Visual Learning</h3>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="Dual slope waveform diagram">
+                    <defs>
+                        <marker id="arr5" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L7,3 z" fill="#3d2010" />
+                        </marker>
+                    </defs>
+                    <!-- Axes -->
+                    <line x1="50" y1="230" x2="620" y2="230" stroke="#3d2010" stroke-width="1.5"
+                        marker-end="url(#arr5)" />
+                    <line x1="50" y1="230" x2="50" y2="30" stroke="#3d2010" stroke-width="1.5"
+                        marker-end="url(#arr5)" />
+                    <text x="625" y="234" font-family="Lora,serif" font-size="11" fill="#3d2010">t</text>
+                    <text x="34" y="28" font-family="Lora,serif" font-size="11" fill="#3d2010">V<tspan font-size="8"
+                            dy="2">int</tspan></text>
+                    <!-- Zero line -->
+                    <line x1="50" y1="230" x2="620" y2="230" stroke="#ddc8b0" stroke-width="1" />
+                    <!-- Phase 1: charging ramp (Vx1 = larger) -->
+                    <line x1="80" y1="230" x2="280" y2="65" stroke="#c95f1a" stroke-width="2.5" />
+                    <!-- Phase 2 from Vx1: discharge slope -->
+                    <line x1="280" y1="65" x2="430" y2="230" stroke="#2d6648" stroke-width="2.5" />
+                    <!-- Phase 1 smaller Vx2 -->
+                    <line x1="80" y1="230" x2="280" y2="130" stroke="#c95f1a" stroke-width="2" stroke-dasharray="6,3" />
+                    <!-- Phase 2 from Vx2: shorter discharge -->
+                    <line x1="280" y1="130" x2="355" y2="230" stroke="#2d6648" stroke-width="2"
+                        stroke-dasharray="6,3" />
+                    <!-- T1 brace -->
+                    <line x1="80" y1="248" x2="280" y2="248" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="80" y1="243" x2="80" y2="253" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="280" y1="243" x2="280" y2="253" stroke="#c95f1a" stroke-width="1.5" />
+                    <text x="180" y="265" font-family="Lora,serif" font-size="10" fill="#c95f1a" text-anchor="middle">T₁
+                        (fixed)</text>
+                    <!-- T2 brace for larger -->
+                    <line x1="280" y1="276" x2="430" y2="276" stroke="#2d6648" stroke-width="1.5" />
+                    <line x1="280" y1="271" x2="280" y2="281" stroke="#2d6648" stroke-width="1.5" />
+                    <line x1="430" y1="271" x2="430" y2="281" stroke="#2d6648" stroke-width="1.5" />
+                    <text x="355" y="293" font-family="Lora,serif" font-size="10" fill="#2d6648" text-anchor="middle">T₂
+                        (∝ V<tspan font-size="8" dy="2">x</tspan>
+                        <tspan dy="-2"> large</tspan>)
+                    </text>
+                    <!-- T2 brace for smaller -->
+                    <line x1="280" y1="248" x2="355" y2="248" stroke="#2d6648" stroke-width="1.5"
+                        stroke-dasharray="4,2" />
+                    <text x="318" y="243" font-family="Lora,serif" font-size="9" fill="#2d6648" text-anchor="middle">T₂
+                        small</text>
+                    <!-- Phase labels -->
+                    <text x="180" y="45" font-family="Lora,serif" font-size="11" fill="#c95f1a" font-weight="600">Phase
+                        1</text>
+                    <text x="180" y="59" font-family="Lora,serif" font-size="10" fill="#c95f1a">(integrate V<tspan
+                            font-size="8" dy="2">x</tspan>
+                        <tspan dy="-2">, fixed T₁)</tspan>
+                    </text>
+                    <text x="380" y="140" font-family="Lora,serif" font-size="11" fill="#2d6648" font-weight="600">Phase
+                        2</text>
+                    <text x="380" y="154" font-family="Lora,serif" font-size="10" fill="#2d6648">(discharge −V<tspan
+                            font-size="8" dy="2">ref</tspan>
+                        <tspan dy="-2">)</tspan>
+                    </text>
+                    <!-- Vp label -->
+                    <text x="36" y="68" font-family="Lora,serif" font-size="9" fill="#9a6e50">V<tspan font-size="7"
+                            dy="2">p1</tspan></text>
+                    <text x="36" y="133" font-family="Lora,serif" font-size="9" fill="#9a6e50">V<tspan font-size="7"
+                            dy="2">p2</tspan></text>
+                    <line x1="50" y1="65" x2="80" y2="65" stroke="#9a6e50" stroke-width="1" stroke-dasharray="3,2" />
+                    <line x1="50" y1="130" x2="80" y2="130" stroke="#9a6e50" stroke-width="1" stroke-dasharray="3,2" />
+                </svg>
+                <div class="svg-cap">Fig. 1.5 — Dual-slope integrator output waveform for two values of V<sub>x</sub>. A
+                    larger V<sub>x</sub> charges the integrator to a higher peak, requiring a proportionally longer T₂
+                    to discharge.</div>
+                <div class="svg-cite">Ref: Golding &amp; Widdis, <em>Electrical Measurements &amp; Measuring
+                        Instruments</em>, 5th ed., Ch. 10</div>
+            </div>
+
+            <h3 class="sub">Noise Rejection — The 50/60 Hz Advantage</h3>
+            <p>The integration time \(T_1\) is typically chosen to be an integer multiple of the supply frequency
+                period: \(T_1 = n / f_{supply}\) where \(n = 1, 2, 3, \ldots\) For \(f_{supply} = 50\ \text{Hz}\),
+                choosing \(T_1 = 20\ \text{ms}\) (one full cycle) means that any sinusoidal noise at 50 Hz (or its
+                harmonics) integrates to exactly zero over Phase 1. This is the <strong>Normal Mode Rejection
+                    (NMR)</strong> property of the dual-slope DVM, and is the reason it is specified in power-system
+                environments where 50 Hz pickup is ubiquitous.<sup class="cite">[1]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Normal Mode Rejection (NMR) — fundamental property</div>
+                $$\int_0^{T_1} V_{noise} \sin(2\pi f_{supply} t)\, dt = 0 \quad \text{when } T_1 =
+                \frac{n}{f_{supply}}$$
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 7 ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">1.7</span>
+                <h2 class="sec-t">Resolution, Sensitivity &amp; Accuracy of a DVM</h2>
+            </div>
+
+            <h3 class="sub">Digit Notation — Understanding ½-Digit</h3>
+            <p>DVMs are described by the number of display digit places. A <strong>3½-digit DVM</strong> has three full
+                decimal digits (each 0–9) and one <em>half-digit</em> that can only display 0 or 1. The maximum reading
+                is therefore 1999. A <strong>4½-digit DVM</strong> can display 0–19999. The "½" simply indicates the
+                most significant digit is limited — not that there are 0.5 physical digits.<sup class="cite">[2]</sup>
+            </p>
+
+            <div class="fblock"><span class="flbl">Digit notation examples</span><span class="fv">3½ digit DVM</span>: max display = <span class="feq">1999</span> resolution = 1 part in 2000
+<span class="fv">4½ digit DVM</span>: max display = <span class="feq">19999</span> resolution = 1 part in 20000
+<span class="fv">5½ digit DVM</span>: max display = <span class="feq">199999</span> resolution = 1 part in 200000
+            </div>
+
+            <h3 class="sub">Resolution</h3>
+            <p>Resolution is the smallest change in the input that produces a change in the reading. For a DVM,
+                resolution equals one count in the least significant digit position.</p>
+            <div class="math-block">
+                <div class="math-lbl">Resolution formula</div>
+                $$\text{Resolution} = \frac{\text{Full-scale range}}{\text{Maximum count}} = \frac{V_{FS}}{N_{max}}$$
+            </div>
+            <p>A 3½-digit DVM on the 2 V range has resolution = 2/2000 = 1 mV. The same meter on the 200 mV range
+                resolves 0.1 mV.</p>
+
+            <h3 class="sub">Sensitivity</h3>
+            <p>Sensitivity of a DVM is the minimum input that produces a reliable reading — numerically equal to the
+                resolution on the most sensitive range. For a 3½-digit DVM with a 199.9 mV full-scale range: sensitivity
+                = 0.1 mV.</p>
+
+            <h3 class="sub">Accuracy Specification</h3>
+            <p>Manufacturers specify DVM accuracy in the form: <strong>±(% of reading + number of counts)</strong>. This
+                two-part specification accounts for both proportional error (gain error, reference drift) and absolute
+                error (offset, quantisation noise).</p>
+            <div class="fblock"><span class="flbl">Accuracy specification example</span>Specification: ±(0.05% of reading + 1 count)
+Input reading: 100.0 V on 3½-digit DVM, 200 V range
+Resolution = 0.1 V per count
+
+Proportional error = <span class="feq">0.05% × 100.0 = ±0.05 V</span>
+Absolute error = <span class="feq">±1 count = ±0.1 V</span>
+Total max error = <span class="feq">±0.15 V</span> → reading: 99.85 V to 100.15 V
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Instrument</th>
+                            <th>Digits</th>
+                            <th>Typical Resolution</th>
+                            <th>Typical Accuracy</th>
+                            <th>Application</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Handheld DMM</td>
+                            <td>3½</td>
+                            <td>0.1 mV / 100 mΩ</td>
+                            <td class="t-amb">±0.5% + 1 ct</td>
+                            <td>Field maintenance</td>
+                        </tr>
+                        <tr>
+                            <td>Bench DMM</td>
+                            <td>4½</td>
+                            <td>10 μV</td>
+                            <td class="t-org">±0.05% + 1 ct</td>
+                            <td>Lab measurement</td>
+                        </tr>
+                        <tr>
+                            <td>Precision DMM</td>
+                            <td>5½–6½</td>
+                            <td>1 μV – 100 nV</td>
+                            <td class="t-grn">±0.005% + 1 ct</td>
+                            <td>Standards / metrology</td>
+                        </tr>
+                        <tr>
+                            <td>System DMM (ATE)</td>
+                            <td>6½</td>
+                            <td>100 nV</td>
+                            <td class="t-grn">±0.002% + 1 ct</td>
+                            <td>Automated test systems</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 8 ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr">
+                <span class="sec-num">1.8</span>
+                <h2 class="sec-t">GATE &amp; IES Insights — Previous Year Concepts</h2>
+            </div>
+
+            <h3 class="sub">GATE Perspective &amp; Probability Map</h3>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE EE</span>
+                    <span class="gate-title">High-Frequency Exam Topics — Digital Voltmeters</span>
+                </div>
+                <div class="gate-body">
+                    <p><strong>Dual-slope DVM derivation and key result \(N_2 = N_1 \cdot V_x/V_{ref}\)</strong> <span
+                            class="prob prob-h">🟢 High</span> — appears repeatedly in GATE EE and IES papers. Students
+                        must be able to derive and explain independence from R, C, f<sub>c</sub>.</p>
+                    <p><strong>Resolution and accuracy calculations</strong> <span class="prob prob-h">🟢 High</span> —
+                        given a digit specification and range, compute resolution in mV; compute error given accuracy
+                        spec and a reading.</p>
+                    <p><strong>Normal Mode Rejection — formula and physical basis</strong> <span class="prob prob-m">🟡
+                            Medium</span> — why T<sub>1</sub> must be integer multiple of 1/f<sub>supply</sub>.</p>
+                    <p><strong>Block diagram identification</strong> <span class="prob prob-m">🟡 Medium</span> —
+                        identify attenuator, ADC, digit drivers in a DVM block diagram; state the role of each.</p>
+                    <p><strong>Digital vs Analogue advantages list</strong> <span class="prob prob-l">🔴 Low</span> —
+                        factual recall type; less common in GATE EE, more in IES objective paper.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Previous Year Question — Dual-Slope Derivation Type</h3>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">In a dual-slope integrating type DVM, the first integration is carried out
+                        for a fixed count of 1000 clock pulses. If the reference voltage is 2 V and the input voltage is
+                        0.6 V, what is the count at the end of the second phase?</span>
+                    <span class="pyq-year">GATE EE — Type</span>
+                </div>
+                <div class="pyq-body">
+                    <p><strong>Solution using the key formula:</strong></p>
+                    <p>Given: \(N_1 = 1000\), \(V_{ref} = 2\ \text{V}\), \(V_x = 0.6\ \text{V}\)</p>
+                    <div class="math-block">
+                        <div class="math-lbl">Applying N₂ = N₁ × Vx / Vref</div>
+                        $$N_2 = N_1 \times \frac{V_x}{V_{ref}} = 1000 \times \frac{0.6}{2} = \mathbf{300}$$
+                    </div>
+                    <ul class="pyq-opts">
+                        <li>200</li>
+                        <li class="correct">✓ 300 — Correct. \(N_2 = 1000 \times 0.6/2 = 300\)</li>
+                        <li>400</li>
+                        <li>600</li>
+                    </ul>
+                    <p style="font-size:13px;color:var(--muted);margin-top:8px;">Notice: R, C, and clock frequency
+                        f<sub>c</sub> are not given — the result is independent of them.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">A 4½-digit DVM is set to the 10 V range. What is its resolution?</span>
+                    <span class="pyq-year">Conceptual Type</span>
+                </div>
+                <div class="pyq-body">
+                    <p>4½-digit DVM: maximum count = 19999. On 10 V (actually 19.999 V) range:</p>
+                    <div class="math-block">
+                        <div class="math-lbl">Resolution</div>
+                        $$\text{Resolution} = \frac{19.999\ \text{V}}{19999} = 1\ \text{mV per count}$$
+                    </div>
+                    <ul class="pyq-opts">
+                        <li>10 mV</li>
+                        <li>5 mV</li>
+                        <li class="correct">✓ 1 mV — Each least-significant count corresponds to 1 mV.</li>
+                        <li>0.1 mV</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&T</span>
+                    <span class="pyq-title pyq-title-ies">Which of the following ADC types is used in a precision DVM
+                        for its superior noise rejection and independence from component tolerances?</span>
+                    <span class="pyq-year">IES Objective</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) Flash (Parallel comparator) ADC</li>
+                        <li>(B) Successive Approximation ADC</li>
+                        <li class="correct">✓ (C) Dual-Slope Integrating ADC — Result independent of R, C,
+                            f<sub>c</sub>; NMR rejects 50/60 Hz noise.</li>
+                        <li>(D) Sigma-Delta ADC</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub">Common Student Mistakes</h3>
+            <div class="callout c-danger">
+                <div class="ci">🚨</div>
+                <div class="cb">
+                    <div class="ct">Frequent Errors in GATE Answers</div>
+                    <p><strong>Mistake 1 —</strong> Writing N₂ = N₁ × V<sub>ref</sub>/V<sub>x</sub> (inverted ratio).
+                        Remember: larger V<sub>x</sub> → longer discharge time → larger N₂.</p>
+                    <p><strong>Mistake 2 —</strong> Believing accuracy depends on R and C in a dual-slope DVM. The
+                        result N₂ = N₁ × V<sub>x</sub>/V<sub>ref</sub> contains neither R nor C.</p>
+                    <p><strong>Mistake 3 —</strong> Confusing resolution with accuracy. Resolution = 1 count = smallest
+                        detectable change. Accuracy = total error including linearity, reference drift, quantisation.
+                    </p>
+                    <p><strong>Mistake 4 —</strong> Stating 3½-digit DVM has maximum count of 1999 but then computing
+                        resolution as V<sub>FS</sub>/1000 (forgetting the ½-digit doubles the count to 2000, not 1000).
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Concept Building Questions &amp; Answers</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            <th>Answer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Why is T₁ chosen as integer multiples of 20 ms (for 50 Hz systems)?</td>
+                            <td>To integrate exactly n complete cycles of 50 Hz interference, making its integral zero —
+                                Normal Mode Rejection. For 60 Hz systems, T₁ = n × 16.67 ms.</td>
+                        </tr>
+                        <tr>
+                            <td>What happens if V<sub>x</sub> > V<sub>ref</sub> in a dual-slope DVM?</td>
+                            <td>The integrator cannot discharge back to zero during Phase 2 — the instrument over-ranges
+                                (displays OL or a flashing reading). V<sub>ref</sub> must always be set > max
+                                V<sub>x</sub>.</td>
+                        </tr>
+                        <tr>
+                            <td>If the clock frequency doubles, what happens to N₂?</td>
+                            <td>Nothing — N₂ = N₁ × V<sub>x</sub>/V<sub>ref</sub> does not contain f<sub>c</sub>. Both
+                                T₁ and T₂ halve but N₁ and N₂ remain the same because N = f<sub>c</sub> × T, and
+                                f<sub>c</sub> cancels.</td>
+                        </tr>
+                        <tr>
+                            <td>Why does increasing the number of digits improve resolution but not necessarily
+                                accuracy?</td>
+                            <td>More digits reduce quantisation step size, but accuracy also depends on reference
+                                stability, ADC linearity, temperature coefficients of R and C. A 6½-digit DVM with a
+                                poor reference can be less accurate than a 3½-digit DVM with a precision reference.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 9 ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr">
+                <span class="sec-num">1.9</span>
+                <h2 class="sec-t">Memory Techniques</h2>
+            </div>
+
+            <h3 class="sub">Mnemonic for Dual-Slope Advantages</h3>
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">RAIN — Remember This!</div>
+                    <p><strong>R</strong>ejects noise (Normal Mode Rejection at f<sub>supply</sub>)<br>
+                        <strong>A</strong>ccurate — independent of R, C, and clock frequency<br>
+                        <strong>I</strong>ntegrates for fixed time T₁<br>
+                        <strong>N</strong> count = N₁ × V<sub>x</sub> / V<sub>ref</sub> (the core formula)
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Story-Based Learning for Dual-Slope Phases</h3>
+            <div class="callout c-key">
+                <div class="ci">📖</div>
+                <div class="cb">
+                    <div class="ct">The Bucket Story</div>
+                    <p><strong>Phase 1 — Fill:</strong> You fill a bucket (integrator capacitor) with water from a river
+                        whose flow rate is V<sub>x</sub>. You fill for a fixed time T₁ regardless of the flow rate. A
+                        faster river (bigger V<sub>x</sub>) fills the bucket higher.</p>
+                    <p><strong>Phase 2 — Drain:</strong> You drain the bucket through a fixed nozzle whose flow rate is
+                        V<sub>ref</sub>. The time T₂ to empty is proportional to how full it got, which is proportional
+                        to V<sub>x</sub>. Count clock pulses during draining → you've measured V<sub>x</sub>.</p>
+                    <p>Noise in the river? You measured average level — short ripples cancel during fill phase. This is
+                        NMR.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Formula Card</h3>
+            <div class="fblock"><span class="flbl">Quick Revision Formulas — Digital Voltmeters</span><span
+                    class="fh">Dual-Slope DVM</span>
+                <span class="fv">N₂</span> = <span class="feq">N₁ × (Vx / Vref)</span> [independent of R, C, fc]
+                <span class="fv">T₁</span> = N₁ / fc (fixed count phase)
+                <span class="fv">T₂</span> = N₂ / fc (variable discharge phase)
+                T₁ for NMR = <span class="feq">n / f_supply</span> [n = 1,2,3...]
+
+                <span class="fh">Resolution &amp; Accuracy</span>
+                <span class="fv">Resolution</span> = V_FS / N_max [V per count]
+                <span class="fv">N_max</span> (3½ dig) = 1999 ≈ 2000
+                <span class="fv">N_max</span> (4½ dig) = 19999 ≈ 20000
+                <span class="fv">Accuracy</span> = ±(% reading) ± (n counts)
+
+                <span class="fh">Single-Slope Ramp DVM</span>
+                <span class="fv">N</span> = fc × Vx / S [S = ramp slope V/s]
+            </div>
+        </div>
+
+        <!-- ═══ ASK AI ═══ -->
+        <div class="ai-prompt">
+            <div class="ai-prompt-title">🤖 Ask the AI Tutor — Digital Voltmeters</div>
+            <p>Ask any question on dual-slope DVMs, resolution, accuracy, GATE problems, or circuit analysis. Powered by
+                Claude.</p>
+            <div class="ai-input-row">
+                <input class="ai-input" type="text" id="userQ"
+                    placeholder="e.g. Derive why dual-slope DVM is independent of RC…" autocomplete="off"
+                    autocorrect="off" spellcheck="false">
+                <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+            </div>
+            <div class="ai-suggest">
+                <span class="ai-chip"
+                    onclick="setQ('Derive the equation N2 = N1 × Vx/Vref for dual-slope DVM from first principles, showing why R and C cancel.')">Dual-slope
+                    derivation</span>
+                <span class="ai-chip"
+                    onclick="setQ('Explain Normal Mode Rejection in dual-slope DVM. Why is integration time chosen as integer multiples of 1/50 Hz?')">NMR
+                    — why 20 ms?</span>
+                <span class="ai-chip"
+                    onclick="setQ('A 3½ digit DVM reads 199.9 mV full scale. What is its resolution on this range? What is the sensitivity?')">Resolution
+                    of 3½ digit DVM</span>
+                <span class="ai-chip"
+                    onclick="setQ('Compare ramp type DVM and dual-slope DVM — accuracy, noise immunity, speed, and GATE significance.')">Ramp
+                    vs Dual-slope</span>
+                <span class="ai-chip"
+                    onclick="setQ('A dual-slope DVM has N1 = 5000, Vref = 5V. If N2 = 2750, what is the input voltage Vx? What range is the DVM on?')">Find
+                    Vx from N2</span>
+            </div>
+            <div class="ai-response" id="aiResp"></div>
+        </div>
+
+        <!-- ═══ SECTION 10 ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr">
+                <span class="sec-num">1.10</span>
+                <h2 class="sec-t">Chapter Summary</h2>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">DVM Basics</div>
+                    <p>Converts analogue V<sub>x</sub> → digital count via ADC. Chain: Attenuator → ADC → Digit Drivers
+                        → 7-seg decoder → Display. High input impedance (≥10 MΩ). No parallax error. Programmable,
+                        auto-ranging.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">ADC Types</div>
+                    <p>Non-integrating (SAR, Flash) — fast, noise-sensitive. Integrating (Ramp, Dual-slope) — slow but
+                        inherent noise averaging. Dual-slope is preferred for precision DVMs and DMMs.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Dual-Slope Formula</div>
+                    <p>N₂ = N₁ × V<sub>x</sub>/V<sub>ref</sub>. Independent of R, C, and f<sub>c</sub>. T₁ fixed (Phase
+                        1). T₂ variable (Phase 2). NMR when T₁ = n/f<sub>supply</sub>. Only V<sub>ref</sub> accuracy
+                        matters.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Resolution</div>
+                    <p>3½-digit: max count ≈ 2000. 4½-digit: ≈ 20,000. Resolution = V<sub>FS</sub>/N<sub>max</sub>.
+                        Sensitivity = resolution on most sensitive range. More digits → finer resolution but same
+                        accuracy class unless reference improves.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Accuracy Spec</div>
+                    <p>Stated as ±(% reading + n counts). Two error components: proportional (gain, reference drift) and
+                        absolute (offset, quantisation). Both must be added for worst-case error.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">GATE Traps</div>
+                    <p>N₂/N₁ = V<sub>x</sub>/V<sub>ref</sub> (not inverted). Dual-slope independent of R, C,
+                        f<sub>c</sub>. Resolution ≠ accuracy. 3½ digit max = 1999 (counts 0–1999 = 2000 steps). NMR
+                        requires integer multiple of supply period.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 2</div>
+                    <p>Digital Multimeters (DMMs) — architecture combining DCV, ACV, DC current, AC current, resistance
+                        measurement in one instrument; current-to-voltage and ACV rectifier circuits; true-RMS DVMs;
+                        frequency and period measurement; auto-ranging logic — complete GATE &amp; IES coverage.</p>
+                </div>
+            </div>
+
+            <!-- CITATIONS -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                    the following standard textbooks. All explanations, derivations, and diagrams are original to Aarova
+                    AI — no content is reproduced from any coaching institute material.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Cooper, William D. and Helfrick, Albert D. <em>Electronic
+                                Instrumentation and Measurement Techniques</em>, 3rd ed. Prentice-Hall, 1985. Chapter 6
+                            — Digital Instruments: ramp DVM, dual-slope DVM, resolution and accuracy.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Helfrick, Albert D. and Cooper, William D. <em>Modern
+                                Electronic Instrumentation and Measurement Techniques</em>. Prentice-Hall of India,
+                            2005. Chapter 9 — Digital Voltmeters: integrating ADCs, noise rejection,
+                            specification.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Golding, E.W. and Widdis, F.C. <em>Electrical
+                                Measurements and Measuring Instruments</em>, 5th ed. Sir Isaac Pitman, 1963. Chapter 10
+                            — Digital and electronic instruments, parallax and loading errors.</span></li>
+                    <li><span class="cite-num">[4]</span><span>Bakshi, U.A. and Bakshi, A.V. <em>Electronic Measurements
+                                and Instrumentation</em>. Technical Publications, Pune, 2009. Chapter 3 — Digital
+                            Voltmeters, ADC types, dual-slope analysis.</span></li>
+                    <li><span class="cite-num">[5]</span><span>IIT Kharagpur NPTEL. <em>Electronics Measurement &amp;
+                                Instrumentation — Lecture 14–17: Digital Instruments</em>. National Programme on
+                            Technology Enhanced Learning. nptel.ac.in. Dual-slope ADC derivation, resolution
+                            concepts.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Electronic Measurements &amp; Instrumentation Series
+                &nbsp;·&nbsp; Chapter 1 of 8<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                    diagrams are original to Aarova AI. Derived from standard textbooks [1–5]. No content from coaching
+                    institute materials.</span>
+            </footer>
+        </div>
+
+    </div><!-- /page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Electronic Measurements and Instrumentation. Topic: Digital Voltmeters (Chapter 1). Cover DVM block diagram, ADC types, ramp/single-slope DVM, dual-slope integrating DVM (derivation, independence of R/C/fc, NMR), resolution, sensitivity, accuracy specifications (% reading + counts). Base all answers on Cooper & Helfrick "Modern Electronic Instrumentation", Golding & Widdis. Answer with step-by-step working for numericals. All content is original and from standard textbooks only.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response received.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+        /* Mobile scroll hints */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

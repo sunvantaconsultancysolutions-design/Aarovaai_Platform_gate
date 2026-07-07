@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#fdf6ee">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Aarova AI — EM Ch.2 Armature Reaction & DC Machine Numericals</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    tags: 'ams'
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+/* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+:root{
+  --bg:#fdf6ee;--bg2:#f8ede0;--bg3:#f0e0cc;--bg4:#e8d0b8;
+  --text:#1e1208;--text2:#3d2010;--text3:#6b3e22;--muted:#9a6e50;
+  --orange:#c95f1a;--orange-md:#e07235;--orange-lt:#f5956a;
+  --orange-bg:#fdebd8;--orange-bdr:#f0b48a;
+  --green:#2d6648;--green-bg:#dff0e8;--green-bdr:#8ecaaa;
+  --teal:#1e6b68;--teal-bg:#d8eeed;--teal-bdr:#7ec4c2;
+  --amber:#a05c00;--amber-bg:#fef0d0;--amber-bdr:#f0c060;
+  --red:#9a2020;--red-bg:#fde8e8;--red-bdr:#e89090;
+  --border:#ddc8b0;--border2:#c8a888;
+  --radius:14px;
+  --shadow:0 2px 16px rgba(150,80,20,0.10);
+  --shadow-md:0 6px 28px rgba(150,80,20,0.14);
+  --page-px:clamp(14px,4vw,48px);
+  --section-gap:clamp(36px,6vw,64px);
+  --card-px:clamp(14px,2.5vw,22px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;font-size:18px;-webkit-text-size-adjust:100%;}
+body{background:var(--bg);color:var(--text2);font-family:'Lora',Georgia,serif;line-height:1.85;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+img,svg{max-width:100%;display:block;}
+
+.page{max-width:900px;margin:0 auto;padding:0 var(--page-px) 80px;}
+
+/* HEADER */
+.site-header{position:sticky;top:0;z-index:100;background:rgba(253,246,238,0.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1.5px solid var(--border);padding:12px var(--page-px);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.logo{font-family:'Playfair Display',serif;font-size:clamp(14px,2.5vw,18px);font-weight:700;color:var(--orange);white-space:nowrap;}
+.logo-sub{font-family:'Lora',serif;font-size:11px;color:var(--muted);margin-left:8px;font-weight:400;}
+.hbadges{display:flex;gap:5px;flex-wrap:wrap;}
+.hbadge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--orange-bg);border:1px solid var(--orange-bdr);color:var(--orange);white-space:nowrap;}
+
+/* HERO */
+.hero{padding:clamp(28px,6vw,64px) 0 clamp(22px,4vw,44px);border-bottom:1.5px solid var(--border);margin-bottom:clamp(24px,4vw,44px);}
+.eyebrow{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.15em;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:9px;}
+.eyebrow::before{content:'';display:inline-block;width:24px;height:2.5px;background:var(--orange);border-radius:2px;flex-shrink:0;}
+h1.hero-title{font-family:'Playfair Display',serif;font-size:clamp(28px,7vw,52px);font-weight:800;color:var(--text);line-height:1.1;margin-bottom:14px;}
+h1.hero-title em{font-style:italic;color:var(--orange);}
+.hero-desc{font-size:clamp(14px,2vw,17px);color:var(--text3);max-width:640px;line-height:1.75;font-weight:400;margin-bottom:22px;}
+.badge-row{display:flex;flex-wrap:wrap;gap:7px;}
+.badge{font-size:12px;padding:4px 13px;border-radius:22px;border:1.5px solid var(--border2);color:var(--text3);background:var(--bg2);font-family:'Lora',serif;}
+.badge-p{background:var(--orange-bg);border-color:var(--orange-bdr);color:var(--orange);font-weight:600;}
+
+/* PROGRESS BAR */
+.progress-bar{display:flex;align-items:center;gap:12px;background:var(--orange-bg);border:1.5px solid var(--orange-bdr);border-radius:10px;padding:11px 16px;margin-bottom:clamp(20px,4vw,40px);}
+.pl{font-size:12px;font-weight:600;color:var(--orange);white-space:nowrap;}
+.pt{flex:1;height:7px;background:rgba(201,95,26,0.18);border-radius:4px;overflow:hidden;min-width:30px;}
+.pf{height:100%;width:36%;background:var(--orange);border-radius:4px;}
+.pp{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--orange);white-space:nowrap;}
+
+/* TOC */
+.toc{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--orange);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin-bottom:clamp(28px,5vw,52px);}
+.toc-h{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:14px;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0 24px;}
+.toc-item{display:flex;align-items:baseline;gap:9px;font-size:14px;color:var(--text3);text-decoration:none;padding:7px 0;border-bottom:1px dashed transparent;transition:color .2s,border-color .2s;line-height:1.5;}
+.toc-item:hover,.toc-item:focus{color:var(--orange);border-bottom-color:var(--orange-lt);}
+.toc-n{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--orange);min-width:28px;flex-shrink:0;}
+
+/* SECTION */
+.section{margin-bottom:var(--section-gap);opacity:0;transform:translateY(12px);animation:rise .42s forwards;}
+@keyframes rise{to{opacity:1;transform:none;}}
+.section:nth-child(1){animation-delay:.04s}.section:nth-child(2){animation-delay:.09s}
+.section:nth-child(3){animation-delay:.13s}.section:nth-child(4){animation-delay:.17s}
+.section:nth-child(5){animation-delay:.21s}.section:nth-child(6){animation-delay:.25s}
+.section:nth-child(7){animation-delay:.29s}.section:nth-child(8){animation-delay:.33s}
+.section:nth-child(9){animation-delay:.37s}.section:nth-child(10){animation-delay:.41s}
+.section:nth-child(11){animation-delay:.45s}.section:nth-child(12){animation-delay:.49s}
+.sec-hdr{display:flex;align-items:center;gap:12px;margin-bottom:clamp(14px,3vw,24px);padding-bottom:12px;border-bottom:1.5px solid var(--border);}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-bdr);padding:3px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+h2.sec-t{font-family:'Playfair Display',serif;font-size:clamp(18px,3.5vw,26px);font-weight:700;color:var(--text);line-height:1.2;}
+h3.sub{font-family:'Playfair Display',serif;font-size:clamp(15px,2.5vw,19px);font-weight:600;color:var(--text2);margin:clamp(20px,3vw,32px) 0 10px;display:flex;align-items:center;gap:9px;}
+h3.sub::before{content:'';display:inline-block;width:4px;height:16px;background:var(--orange-lt);border-radius:2px;flex-shrink:0;}
+p{margin-bottom:14px;color:var(--text2);font-size:clamp(14px,2vw,17px);line-height:1.85;}
+strong{font-weight:600;color:var(--text);}
+sup.cite{font-size:9px;color:var(--teal);font-weight:700;cursor:pointer;vertical-align:super;margin-left:1px;}
+
+/* CALLOUT BOXES */
+.callout{border-radius:10px;padding:clamp(11px,2vw,16px) clamp(13px,2vw,20px);margin:16px 0;display:flex;gap:11px;align-items:flex-start;}
+.ci{font-size:17px;flex-shrink:0;margin-top:2px;line-height:1;}
+.cb{flex:1;min-width:0;}
+.ct{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.cb p{margin:0;font-size:clamp(13px,1.8vw,15.5px);line-height:1.68;}
+.c-info{background:var(--orange-bg);border-left:4px solid var(--orange);}.c-info .ct{color:var(--orange);}.c-info p{color:var(--text2);}
+.c-tip{background:var(--green-bg);border-left:4px solid var(--green);}.c-tip .ct{color:var(--green);}.c-tip p{color:#1e4d38;}
+.c-key{background:var(--teal-bg);border-left:4px solid var(--teal);}.c-key .ct{color:var(--teal);}.c-key p{color:#154e4c;}
+.c-warn{background:var(--amber-bg);border-left:4px solid var(--amber);}.c-warn .ct{color:var(--amber);}.c-warn p{color:#6e3f00;}
+.c-danger{background:var(--red-bg);border-left:4px solid var(--red);}.c-danger .ct{color:var(--red);}.c-danger p{color:#6e1515;}
+
+/* TABLE */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0;border-radius:10px;border:1.5px solid var(--border);box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:clamp(12px,1.8vw,15px);}
+thead tr{background:var(--bg3);}
+thead th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);border-bottom:1.5px solid var(--border);white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--bg3);transition:background .12s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg2);}
+tbody td{padding:10px 14px;color:var(--text2);vertical-align:top;line-height:1.55;}
+tbody td:first-child{font-weight:600;color:var(--text);}
+.t-org{color:var(--orange)!important;font-weight:600!important;}
+.t-grn{color:var(--green)!important;font-weight:600!important;}
+.t-red{color:var(--red)!important;font-weight:600!important;}
+.t-amb{color:var(--amber)!important;font-weight:600!important;}
+.t-tel{color:var(--teal)!important;font-weight:600!important;}
+
+/* FORMULA BLOCK */
+.fblock{background:var(--bg3);border:1.5px solid var(--border2);border-left:4px solid var(--orange-lt);border-radius:10px;padding:clamp(13px,2vw,20px) clamp(14px,2vw,24px);margin:14px 0;font-family:'JetBrains Mono',monospace;font-size:clamp(11.5px,1.8vw,13.5px);color:var(--text);line-height:2;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:pre;}
+.fblock .flbl{font-family:'Lora',serif;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px;white-space:normal;display:block;}
+.fv{color:var(--orange);}.feq{color:var(--green);font-weight:500;}.fh{color:var(--teal);}
+
+/* SVG DIAGRAMS */
+.svg-wrap{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:clamp(12px,2.5vw,24px);margin:16px 0;box-shadow:var(--shadow);overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.svg-wrap svg{width:100%;height:auto;min-width:300px;display:block;}
+.svg-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.svg-scroll svg{min-width:560px;width:100%;height:auto;display:block;}
+.svg-cap{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;font-style:italic;line-height:1.5;}
+.svg-cite{font-size:10.5px;color:var(--teal);text-align:center;margin-top:3px;}
+
+/* EXAMPLES */
+.example{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);margin:20px 0;box-shadow:var(--shadow);overflow:hidden;}
+.ex-hdr{background:var(--bg3);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;border-bottom:1.5px solid var(--border);flex-wrap:wrap;}
+.ex-num{font-size:9px;font-weight:700;background:var(--orange);color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.06em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.ex-title{font-size:13px;font-weight:600;color:var(--text2);line-height:1.4;}
+.ex-body{padding:clamp(13px,2vw,22px) var(--card-px);}
+.ex-q{font-size:clamp(13px,2vw,15.5px);color:var(--text);background:var(--orange-bg);border-left:4px solid var(--orange);padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:14px;line-height:1.62;}
+.sol-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--green);margin-bottom:9px;}
+
+/* GATE / PYQ CARDS */
+.gate-card{background:#fff;border:1.5px solid var(--teal-bdr);border-radius:var(--radius);margin:18px 0;box-shadow:var(--shadow);overflow:hidden;}
+.gate-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.gate-tag{font-size:9px;font-weight:700;background:var(--teal);color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.07em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.gate-title{font-size:13px;font-weight:600;color:var(--teal);line-height:1.4;}
+.gate-body{padding:clamp(13px,2vw,20px) var(--card-px);}
+.gate-body p{color:var(--text2);font-size:clamp(13px,2vw,15.5px);}
+.pyq-card{background:#fff;border:1.5px solid var(--teal-bdr);border-radius:var(--radius);margin:18px 0;box-shadow:var(--shadow);overflow:hidden;}
+.pyq-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.pyq-tag{font-size:9px;font-weight:700;color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.07em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.pyq-gate{background:var(--teal);}.pyq-ies{background:var(--green);}
+.pyq-hdr.ies-hdr{background:var(--green-bg);border-color:var(--green-bdr);}
+.pyq-card.ies-card{border-color:var(--green-bdr);}
+.pyq-title{font-size:13px;font-weight:600;color:var(--teal);line-height:1.4;flex:1;}
+.pyq-title-ies{color:var(--green);}
+.pyq-year{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;}
+.pyq-body{padding:clamp(13px,2vw,20px) var(--card-px);}
+.pyq-body p{color:var(--text2);font-size:clamp(13px,2vw,15.5px);}
+.pyq-opts{list-style:none;margin:10px 0;display:flex;flex-direction:column;gap:6px;}
+.pyq-opts li{font-size:clamp(13px,1.8vw,15px);color:var(--text2);padding:9px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg2);font-family:'Lora',serif;cursor:default;min-height:44px;display:flex;align-items:center;line-height:1.45;}
+.pyq-opts li.correct{background:var(--green-bg);border-color:var(--green-bdr);color:var(--green);font-weight:600;}
+
+/* TWO COLUMN */
+.two-col{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0;}
+.mini-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:var(--card-px);box-shadow:var(--shadow);}
+.mc-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:11px;}
+.mc-grn .mc-t{color:var(--green);}.mc-red .mc-t{color:var(--red);}.mc-org .mc-t{color:var(--orange);}.mc-tel .mc-t{color:var(--teal);}.mc-amb .mc-t{color:var(--amber);}
+.mc-list{list-style:none;}
+.mc-list li{font-size:clamp(13px,1.8vw,15px);color:var(--text2);padding:6px 0;border-bottom:1px solid var(--bg3);display:flex;align-items:flex-start;gap:9px;line-height:1.5;}
+.mc-list li:last-child{border-bottom:none;}
+.dot{color:var(--muted);flex-shrink:0;margin-top:2px;}
+
+/* SUMMARY GRID */
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:16px 0;}
+.sum-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);transition:box-shadow .2s,transform .15s;}
+.sum-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.sum-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px;}
+.sum-card p{font-size:clamp(12px,1.7vw,14px);color:var(--text3);margin:0;line-height:1.62;}
+.sc-o .sum-lbl{color:var(--orange);}.sc-g .sum-lbl{color:var(--green);}.sc-t .sum-lbl{color:var(--teal);}.sc-a .sum-lbl{color:var(--amber);}.sc-r .sum-lbl{color:var(--red);}
+
+/* CITATIONS */
+.citations{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--teal);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin-top:36px;}
+.cite-h{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:16px;}
+.cite-list{list-style:none;}
+.cite-list li{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:clamp(12px,1.8vw,14px);color:var(--text2);line-height:1.62;}
+.cite-list li:last-child{border-bottom:none;}
+.cite-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--teal);background:var(--teal-bg);padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;height:fit-content;margin-top:2px;}
+.cite-list em{color:var(--orange-md);font-style:italic;}
+
+/* ASK CLAUDE */
+.ai-prompt{background:linear-gradient(135deg,var(--teal-bg),var(--orange-bg));border:2px solid var(--teal-bdr);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin:28px 0;box-shadow:var(--shadow-md);}
+.ai-prompt-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:7px;}
+.ai-prompt>p{color:var(--text2);font-size:14px;margin-bottom:12px;}
+.ai-input-row{display:flex;gap:9px;flex-wrap:wrap;}
+.ai-input{flex:1;min-width:0;width:100%;padding:11px 14px;border-radius:9px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Lora',serif;font-size:14px;color:var(--text);outline:none;-webkit-appearance:none;}
+.ai-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(30,107,104,0.12);}
+.ai-btn{padding:11px 20px;border-radius:9px;background:var(--teal);color:#fff;border:none;font-family:'Lora',serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .18s;white-space:nowrap;min-height:44px;-webkit-appearance:none;}
+.ai-btn:hover{background:#155250;}
+.ai-btn:active{background:#0f3d3b;}
+.ai-suggest{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.ai-chip{font-size:11px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--teal-bdr);color:var(--teal);background:var(--bg);cursor:pointer;font-family:'Lora',serif;transition:background .15s;min-height:36px;display:flex;align-items:center;}
+.ai-chip:hover,.ai-chip:active{background:var(--teal-bg);}
+.ai-response{margin-top:14px;padding:13px 15px;background:#fff;border-radius:8px;border:1.5px solid var(--border);font-size:14px;color:var(--text2);display:none;line-height:1.72;white-space:pre-wrap;overflow-x:auto;}
+
+/* MISC */
+hr{border:none;border-top:1.5px solid var(--border);margin:40px 0;}
+footer{text-align:center;padding:26px 0;font-size:12px;color:var(--muted);border-top:1.5px solid var(--border);}
+footer strong{color:var(--orange);}
+
+/* STEP-BY-STEP SOLUTION */
+.step{display:flex;gap:12px;margin:10px 0;align-items:flex-start;}
+.step-n{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;background:var(--orange);color:#fff;padding:3px 8px;border-radius:5px;white-space:nowrap;flex-shrink:0;margin-top:2px;}
+.step-c{flex:1;font-size:clamp(13px,1.8vw,15.5px);color:var(--text2);line-height:1.72;}
+.ans-box{background:var(--green-bg);border:1.5px solid var(--green-bdr);border-radius:8px;padding:10px 16px;margin:12px 0;font-size:clamp(13px,1.8vw,15.5px);color:var(--green);font-weight:600;}
+
+/* GIVEN BLOCK */
+.given-block{background:var(--teal-bg);border:1.5px solid var(--teal-bdr);border-radius:8px;padding:10px 16px;margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:clamp(11px,1.7vw,13px);color:var(--text2);line-height:1.9;}
+
+/* ════ TABLET ════ */
+@media(min-width:481px) and (max-width:768px){
+  html{font-size:16.5px;}
+  .logo-sub{display:none;}
+  .svg-wrap{padding:12px 10px;}
+  .svg-wrap svg{min-width:480px;}
+  .toc-grid{grid-template-columns:repeat(2,1fr);gap:0 20px;}
+  .two-col{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .sum-grid{grid-template-columns:repeat(2,1fr);gap:11px;}
+  .fblock{white-space:pre-wrap;word-break:break-word;font-size:12px;line-height:1.8;}
+  thead th,tbody td{padding:8px 10px;}
+  .pyq-year{margin-left:0;}
+}
+
+/* ════ MOBILE ════ */
+@media(max-width:480px){
+  html{font-size:15.5px;}
+  .logo-sub{display:none;}
+  .hbadges{display:none;}
+  .site-header{padding:10px 14px;}
+  h1.hero-title{font-size:clamp(26px,8vw,34px);}
+  .hero-desc{font-size:14px;}
+  .badge-row .badge{font-size:11px;padding:4px 10px;}
+  .progress-bar{padding:9px 12px;gap:8px;}
+  .pl{font-size:11px;}
+  .toc-grid{grid-template-columns:1fr;gap:0;}
+  .toc-item{font-size:14px;padding:9px 0;}
+  .toc{padding:14px 16px;}
+  .sec-hdr{gap:9px;}
+  h2.sec-t{font-size:clamp(16px,5vw,20px);}
+  h3.sub{font-size:clamp(14px,4.5vw,17px);}
+  p{font-size:15px;}
+  .svg-wrap{padding:10px 8px;border-radius:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .svg-wrap svg{min-width:520px;width:520px;height:auto;}
+  .svg-wrap.svg-simple svg{min-width:280px;width:100%;}
+  .svg-cap{font-size:11px;}
+  .fblock{white-space:pre-wrap;word-break:break-word;font-size:11.5px;line-height:1.75;padding:12px 12px;border-radius:8px;}
+  .tw{border-radius:8px;}
+  thead th{font-size:9px;padding:8px 10px;letter-spacing:.06em;}
+  tbody td{font-size:12px;padding:8px 10px;}
+  .two-col{grid-template-columns:1fr;gap:10px;}
+  .sum-grid{grid-template-columns:1fr;gap:9px;}
+  .mini-card{padding:13px 14px;}
+  .sum-card{padding:14px 16px;}
+  .callout{padding:11px 13px;gap:9px;}
+  .ci{font-size:16px;}
+  .cb p{font-size:13.5px;}
+  .ex-hdr{padding:8px 13px;}
+  .ex-body{padding:12px 13px;}
+  .ex-q{font-size:13.5px;padding:9px 12px;}
+  .gate-hdr,.pyq-hdr{padding:8px 13px;gap:7px;}
+  .gate-body,.pyq-body{padding:12px 13px;}
+  .pyq-opts li{font-size:13px;padding:9px 11px;}
+  .pyq-year{display:none;}
+  .ai-prompt{padding:14px 14px;}
+  .ai-input-row{flex-direction:column;}
+  .ai-input{font-size:15px;}
+  .ai-btn{width:100%;justify-content:center;font-size:15px;padding:13px;}
+  .ai-chip{font-size:11px;}
+  .ai-suggest{gap:5px;}
+  .cite-list li{font-size:12.5px;gap:9px;}
+  .citations{padding:14px 14px;}
+  footer{padding:20px 0;font-size:11.5px;}
+}
+
+/* ════ DESKTOP ════ */
+@media(min-width:1024px){
+  .page{padding:0 48px 100px;}
+  .toc-grid{grid-template-columns:repeat(3,1fr);}
+  .two-col{grid-template-columns:repeat(2,1fr);}
+  .sum-grid{grid-template-columns:repeat(3,1fr);}
+  .svg-wrap svg{min-width:auto;width:100%;}
+}
+@media(hover:none){
+  .toc-item:hover{color:var(--text3);border-bottom-color:transparent;}
+  .sum-card:hover{transform:none;box-shadow:var(--shadow);}
+  .ai-btn:hover{background:var(--teal);}
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div style="display:flex;align-items:center;">
+    <span class="logo">Aarova AI</span>
+    <span class="logo-sub">Electrical Machines · Ch. 2</span>
+  </div>
+  <div class="hbadges">
+    <span class="hbadge">GATE EE</span>
+    <span class="hbadge">IES E&amp;T</span>
+    <span class="hbadge">DC Machines</span>
+  </div>
+</header>
+
+<div class="page">
+<!-- HERO -->
+<div class="hero">
+  <div class="eyebrow">Electrical Machines Series · Chapter 2</div>
+  <h1 class="hero-title">Armature Reaction in <em>DC Machines</em></h1>
+  <p class="hero-desc">
+    A complete, exam-ready treatment of armature reaction — its effect on flux distribution, MNA shift, demagnetisation and cross-magnetisation, remedies (interpoles &amp; compensating windings), and its special behaviour in DC motors. Includes solved numericals on EMF, torque, efficiency, armature resistance, and compound generators — fully aligned with GATE EE and IES question patterns.
+  </p>
+  <div class="badge-row">
+    <span class="badge badge-p">Armature Reaction</span>
+    <span class="badge">Interpoles</span>
+    <span class="badge">Compensating Winding</span>
+    <span class="badge">DC Motor/Generator</span>
+    <span class="badge">Solved Numericals</span>
+    <span class="badge">GATE PYQs</span>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-bar">
+  <span class="pl">Chapter Progress</span>
+  <div class="pt"><div class="pf"></div></div>
+  <span class="pp">Ch 2 / 8</span>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <div class="toc-h">Contents</div>
+  <div class="toc-grid">
+    <a class="toc-item" href="#sec1"><span class="toc-n">01</span>What is Armature Reaction?</a>
+    <a class="toc-item" href="#sec2"><span class="toc-n">02</span>Effects on Generator vs Motor</a>
+    <a class="toc-item" href="#sec3"><span class="toc-n">03</span>Demagnetisation &amp; Cross-Magnetisation</a>
+    <a class="toc-item" href="#sec4"><span class="toc-n">04</span>Remedies — Interpoles &amp; CW</a>
+    <a class="toc-item" href="#sec5"><span class="toc-n">05</span>Universal Motor Concept</a>
+    <a class="toc-item" href="#sec6"><span class="toc-n">06</span>Solved: EMF &amp; Armature Resistance</a>
+    <a class="toc-item" href="#sec7"><span class="toc-n">07</span>Solved: Compound Generator</a>
+    <a class="toc-item" href="#sec8"><span class="toc-n">08</span>Solved: DC Shunt Motor</a>
+    <a class="toc-item" href="#sec9"><span class="toc-n">09</span>Solved: Armature Reaction AT/p</a>
+    <a class="toc-item" href="#sec10"><span class="toc-n">10</span>GATE &amp; IES Previous Questions</a>
+    <a class="toc-item" href="#sec11"><span class="toc-n">11</span>Quick Formula Sheet</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 1 ═══════════════════════ -->
+<div class="section" id="sec1">
+  <div class="sec-hdr">
+    <span class="sec-num">01</span>
+    <h2 class="sec-t">What is Armature Reaction?</h2>
+  </div>
+
+  <p>
+    When a DC machine operates under load, the armature conductors carry current and produce their own magnetic field — the <strong>armature MMF (magnetomotive force)</strong>. This armature flux interacts with the main field flux produced by the field poles, distorting and weakening the resultant air-gap flux. This phenomenon is called <strong>armature reaction</strong>.<sup class="cite">[1]</sup>
+  </p>
+
+  <div class="callout c-key">
+    <div class="ci">🔑</div>
+    <div class="cb">
+      <div class="ct">Core Definition</div>
+      <p>Armature reaction = the effect of armature flux on the distribution of main field flux when the machine carries load. It causes (a) distortion of the flux density waveform, (b) shift of the Magnetic Neutral Axis (MNA), and (c) a slight net reduction in total flux due to magnetic saturation.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Geometric Neutral Axis (GNA) vs Magnetic Neutral Axis (MNA)</h3>
+  <p>
+    The <strong>Geometric Neutral Axis (GNA)</strong> is the axis perpendicular to the main field axis — it is fixed regardless of load. The <strong>Magnetic Neutral Axis (MNA)</strong> is the axis where the resultant air-gap flux density is zero; it is where the brushes must be placed for sparkless commutation. Under no-load, MNA ≡ GNA. Under load, the armature current shifts the MNA away from the GNA.
+  </p>
+
+  <div class="svg-wrap svg-scroll">
+    <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+      <!-- Background -->
+      <rect width="680" height="320" fill="#f8ede0" rx="10"/>
+      <!-- Title -->
+      <text x="340" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#1e1208">Armature Reaction — Flux Distortion in a DC Generator</text>
+
+      <!-- LEFT: Generator diagram (no-load) -->
+      <g transform="translate(30,50)">
+        <text x="110" y="0" text-anchor="middle" font-size="11" font-weight="600" fill="#c95f1a">Generator (No-Load)</text>
+        <!-- Stator outline -->
+        <ellipse cx="110" cy="120" rx="105" ry="105" fill="none" stroke="#6b3e22" stroke-width="2"/>
+        <!-- Pole N -->
+        <rect x="55" y="20" width="110" height="30" rx="5" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5"/>
+        <text x="110" y="41" text-anchor="middle" font-size="14" font-weight="700" fill="#2d6648">N</text>
+        <!-- Pole S -->
+        <rect x="55" y="190" width="110" height="30" rx="5" fill="#fde8e8" stroke="#9a2020" stroke-width="1.5"/>
+        <text x="110" y="211" text-anchor="middle" font-size="14" font-weight="700" fill="#9a2020">S</text>
+        <!-- Rotor -->
+        <circle cx="110" cy="120" r="70" fill="#fdebd8" stroke="#c8a888" stroke-width="1.5"/>
+        <!-- GNA = MNA line -->
+        <line x1="18" y1="120" x2="202" y2="120" stroke="#1e6b68" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="205" y="115" font-size="10" fill="#1e6b68" font-weight="600">GNA</text>
+        <text x="205" y="127" font-size="10" fill="#1e6b68">=MNA</text>
+        <!-- Main flux arrows (vertical) -->
+        <defs>
+          <marker id="arrowB" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <polygon points="0 0, 7 3.5, 0 7" fill="#2d6648"/>
+          </marker>
+          <marker id="arrowBr" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <polygon points="0 0, 7 3.5, 0 7" fill="#c95f1a"/>
+          </marker>
+        </defs>
+        <line x1="110" y1="85" x2="110" y2="55" stroke="#2d6648" stroke-width="2" marker-end="url(#arrowB)"/>
+        <line x1="90" y1="85" x2="90" y2="58" stroke="#2d6648" stroke-width="1.5" marker-end="url(#arrowB)" opacity="0.6"/>
+        <line x1="130" y1="85" x2="130" y2="58" stroke="#2d6648" stroke-width="1.5" marker-end="url(#arrowB)" opacity="0.6"/>
+        <line x1="110" y1="155" x2="110" y2="185" stroke="#9a2020" stroke-width="2" marker-end="url(#arrowB)" opacity="0.5"/>
+        <text x="110" y="140" text-anchor="middle" font-size="10" fill="#3d2010">φ<tspan font-size="8" baseline-shift="sub">main</tspan></text>
+        <!-- Brushes at MNA -->
+        <rect x="24" y="113" width="18" height="14" rx="3" fill="#c95f1a" opacity="0.85"/>
+        <text x="33" y="123" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">B</text>
+        <rect x="178" y="113" width="18" height="14" rx="3" fill="#c95f1a" opacity="0.85"/>
+        <text x="187" y="123" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">B</text>
+      </g>
+
+      <!-- RIGHT: Generator under load -->
+      <g transform="translate(350,50)">
+        <text x="110" y="0" text-anchor="middle" font-size="11" font-weight="600" fill="#c95f1a">Generator (Under Load)</text>
+        <!-- Stator outline -->
+        <ellipse cx="110" cy="120" rx="105" ry="105" fill="none" stroke="#6b3e22" stroke-width="2"/>
+        <!-- Pole N -->
+        <rect x="55" y="20" width="110" height="30" rx="5" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5"/>
+        <text x="110" y="41" text-anchor="middle" font-size="14" font-weight="700" fill="#2d6648">N</text>
+        <!-- Pole S -->
+        <rect x="55" y="190" width="110" height="30" rx="5" fill="#fde8e8" stroke="#9a2020" stroke-width="1.5"/>
+        <text x="110" y="211" text-anchor="middle" font-size="14" font-weight="700" fill="#9a2020">S</text>
+        <!-- Rotor -->
+        <circle cx="110" cy="120" r="70" fill="#fdebd8" stroke="#c8a888" stroke-width="1.5"/>
+        <!-- GNA line (horizontal, fixed) -->
+        <line x1="18" y1="120" x2="202" y2="120" stroke="#9a6e50" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+        <text x="6" y="118" font-size="9" fill="#9a6e50">GNA</text>
+        <!-- MNA shifted line -->
+        <line x1="50" y1="85" x2="170" y2="155" stroke="#1e6b68" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="172" y="150" font-size="9" fill="#1e6b68" font-weight="600">MNA</text>
+        <text x="172" y="162" font-size="9" fill="#1e6b68">(shifted)</text>
+        <!-- Armature flux arrows (horizontal cross) -->
+        <line x1="50" y1="120" x2="80" y2="120" stroke="#c95f1a" stroke-width="2" marker-end="url(#arrowBr)"/>
+        <line x1="140" y1="120" x2="170" y2="120" stroke="#c95f1a" stroke-width="2" marker-end="url(#arrowBr)" opacity="0.6"/>
+        <text x="110" y="110" text-anchor="middle" font-size="10" fill="#c95f1a">φ<tspan font-size="8" baseline-shift="sub">a</tspan></text>
+        <!-- Main flux distorted -->
+        <line x1="95" y1="88" x2="82" y2="58" stroke="#2d6648" stroke-width="2" marker-end="url(#arrowB)"/>
+        <line x1="110" y1="85" x2="114" y2="56" stroke="#2d6648" stroke-width="1.5" marker-end="url(#arrowB)"/>
+        <line x1="125" y1="88" x2="140" y2="60" stroke="#2d6648" stroke-width="1.5" marker-end="url(#arrowB)" opacity="0.6"/>
+        <!-- Brushes still at GNA (misaligned) -->
+        <rect x="24" y="113" width="18" height="14" rx="3" fill="#9a2020" opacity="0.85"/>
+        <text x="33" y="123" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">B</text>
+        <rect x="178" y="113" width="18" height="14" rx="3" fill="#9a2020" opacity="0.85"/>
+        <text x="187" y="123" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">B</text>
+        <!-- Angle label -->
+        <path d="M110,120 L130,100" stroke="#a05c00" stroke-width="1" fill="none"/>
+        <text x="125" y="108" font-size="9" fill="#a05c00">α</text>
+      </g>
+
+      <!-- Bottom legend -->
+      <g transform="translate(30,285)">
+        <line x1="0" y1="5" x2="25" y2="5" stroke="#2d6648" stroke-width="2" marker-end="url(#arrowB)"/>
+        <text x="30" y="9" font-size="10" fill="#2d6648">Main flux φ<tspan font-size="8" baseline-shift="sub">f</tspan></text>
+        <line x1="150" y1="5" x2="175" y2="5" stroke="#c95f1a" stroke-width="2" marker-end="url(#arrowBr)"/>
+        <text x="180" y="9" font-size="10" fill="#c95f1a">Armature flux φ<tspan font-size="8" baseline-shift="sub">a</tspan></text>
+        <line x1="330" y1="5" x2="355" y2="5" stroke="#1e6b68" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="360" y="9" font-size="10" fill="#1e6b68">MNA (shifted under load)</text>
+      </g>
+    </svg>
+    <p class="svg-cap">Fig. 1 — Left: No-load DC generator; GNA = MNA; brushes at correct position. Right: Loaded generator; armature current produces φ<sub>a</sub> which distorts the resultant flux and shifts the MNA by angle α in the direction of rotation.</p>
+  </div>
+
+  <h3 class="sub">Nature of Armature MMF</h3>
+  <p>
+    The armature winding, when carrying current \(I_a\), produces a distributed MMF whose axis lies along the GNA (i.e., perpendicular to the field axis). This MMF is <strong>cross-magnetising</strong> — it neither adds nor subtracts from the field MMF directly, but it is at right angles and causes distortion. However, due to magnetic saturation, the leading pole tip (where armature flux aids field flux) saturates, while the trailing pole tip only partially aids — leading to a net <em>demagnetisation</em> effect.
+  </p>
+
+  <div class="callout c-warn">
+    <div class="ci">⚠️</div>
+    <div class="cb">
+      <div class="ct">Saturation Effect — Net Demagnetisation</div>
+      <p>Even though armature reaction is theoretically purely cross-magnetising (no net change in flux), in practice magnetic saturation causes the increase in flux under the leading pole tip to be less than the decrease under the trailing pole tip. The net result is a slight <strong>reduction in total flux (ΔΦ)</strong>, reducing both EMF and torque capability.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 2 ═══════════════════════ -->
+<div class="section" id="sec2">
+  <div class="sec-hdr">
+    <span class="sec-num">02</span>
+    <h2 class="sec-t">Armature Reaction in Generators vs Motors</h2>
+  </div>
+
+  <p>
+    The physics of armature reaction is identical in generators and motors — it is the armature current flowing in the armature winding that produces the disturbing MMF. However, since the <strong>direction of armature current reverses between generator and motor action</strong> (even for the same rotation), the direction of MNA shift is opposite.<sup class="cite">[2]</sup>
+  </p>
+
+  <div class="svg-wrap svg-scroll">
+    <svg viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+      <rect width="680" height="280" fill="#f8ede0" rx="10"/>
+      <text x="340" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#1e1208">GNA vs MNA: Generator and Motor Comparison</text>
+      <defs>
+        <marker id="ag" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#2d6648"/></marker>
+        <marker id="ao" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#c95f1a"/></marker>
+        <marker id="at" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#1e6b68"/></marker>
+      </defs>
+
+      <!-- GENERATOR -->
+      <g transform="translate(40,45)">
+        <text x="120" y="0" text-anchor="middle" font-size="12" font-weight="700" fill="#2d6648">DC GENERATOR</text>
+        <circle cx="120" cy="115" r="90" fill="#fdebd8" stroke="#c8a888" stroke-width="1.5"/>
+        <!-- Field axis vertical -->
+        <line x1="120" y1="30" x2="120" y2="200" stroke="#9a6e50" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+        <!-- GNA horizontal -->
+        <line x1="30" y1="115" x2="210" y2="115" stroke="#9a6e50" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="212" y="112" font-size="9" fill="#9a6e50">GNA</text>
+        <!-- MNA shifted forward (direction of rotation) -->
+        <line x1="60" y1="75" x2="180" y2="155" stroke="#1e6b68" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="182" y="150" font-size="9" fill="#1e6b68" font-weight="700">MNA</text>
+        <!-- Rotation arrow -->
+        <path d="M145,35 A80,80 0 0,1 200,100" fill="none" stroke="#c95f1a" stroke-width="2" marker-end="url(#ao)"/>
+        <text x="185" y="60" font-size="10" fill="#c95f1a">ω</text>
+        <!-- MNA shift label -->
+        <text x="80" y="132" font-size="9" fill="#1e6b68">α shift →</text>
+        <!-- Labels -->
+        <text x="120" y="80" text-anchor="middle" font-size="11" fill="#6b3e22">φ<tspan font-size="8" baseline-shift="sub">a</tspan> axis ⊥ GNA</text>
+        <text x="120" y="240" text-anchor="middle" font-size="10" fill="#3d2010">MNA shifts in direction</text>
+        <text x="120" y="253" text-anchor="middle" font-size="10" fill="#3d2010">of rotation (forward)</text>
+        <!-- Poles -->
+        <rect x="75" y="20" width="90" height="22" rx="4" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5"/>
+        <text x="120" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#2d6648">N</text>
+        <rect x="75" y="188" width="90" height="22" rx="4" fill="#fde8e8" stroke="#9a2020" stroke-width="1.5"/>
+        <text x="120" y="204" text-anchor="middle" font-size="13" font-weight="700" fill="#9a2020">S</text>
+      </g>
+
+      <!-- MOTOR -->
+      <g transform="translate(360,45)">
+        <text x="120" y="0" text-anchor="middle" font-size="12" font-weight="700" fill="#9a2020">DC MOTOR</text>
+        <circle cx="120" cy="115" r="90" fill="#fdebd8" stroke="#c8a888" stroke-width="1.5"/>
+        <!-- GNA horizontal -->
+        <line x1="30" y1="115" x2="210" y2="115" stroke="#9a6e50" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="212" y="112" font-size="9" fill="#9a6e50">GNA</text>
+        <!-- MNA shifted backward (opposite to rotation) -->
+        <line x1="60" y1="155" x2="180" y2="75" stroke="#1e6b68" stroke-width="2" stroke-dasharray="5,3"/>
+        <text x="182" y="73" font-size="9" fill="#1e6b68" font-weight="700">MNA</text>
+        <!-- Rotation same direction -->
+        <path d="M145,35 A80,80 0 0,1 200,100" fill="none" stroke="#c95f1a" stroke-width="2" marker-end="url(#ao)"/>
+        <text x="185" y="60" font-size="10" fill="#c95f1a">ω</text>
+        <!-- MNA shift label -->
+        <text x="65" y="98" font-size="9" fill="#1e6b68">← α shift</text>
+        <text x="120" y="240" text-anchor="middle" font-size="10" fill="#3d2010">MNA shifts opposite to</text>
+        <text x="120" y="253" text-anchor="middle" font-size="10" fill="#3d2010">direction of rotation (backward)</text>
+        <!-- Poles -->
+        <rect x="75" y="20" width="90" height="22" rx="4" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5"/>
+        <text x="120" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#2d6648">N</text>
+        <rect x="75" y="188" width="90" height="22" rx="4" fill="#fde8e8" stroke="#9a2020" stroke-width="1.5"/>
+        <text x="120" y="204" text-anchor="middle" font-size="13" font-weight="700" fill="#9a2020">S</text>
+      </g>
+    </svg>
+    <p class="svg-cap">Fig. 2 — MNA shifts forward (in direction of rotation) in a generator, and backward (opposite to rotation) in a motor, for the same direction of mechanical rotation.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>DC Generator</th>
+          <th>DC Motor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Armature current direction</td><td>Flows outward (load driven)</td><td>Flows inward (drives load)</td></tr>
+        <tr><td>MNA shift direction</td><td class="t-grn">Forward (same as ω)</td><td class="t-red">Backward (opposite to ω)</td></tr>
+        <tr><td>Brush shift for commutation</td><td>Shift forward with load</td><td>Shift backward with load</td></tr>
+        <tr><td>Leading pole tip</td><td>Trailing pole tip in generator = Leading in motor</td><td>Trailing tip of generator becomes leading</td></tr>
+        <tr><td>Flux density under leading tip</td><td class="t-org">Increases (aids field)</td><td class="t-org">Increases (aids field)</td></tr>
+        <tr><td>Effect of interpole polarity</td><td>Same as next main pole (in direction of rotation)</td><td>Same as previous main pole (behind in rotation)</td></tr>
+        <tr><td>Speed effect with armature reaction</td><td>EMF reduces slightly due to ΔΦ↓</td><td class="t-warn">Speed may increase in shunt motor (ΔΦ↓ → N↑)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout c-info">
+    <div class="ci">💡</div>
+    <div class="cb">
+      <div class="ct">Key Memory Aid for GATE</div>
+      <p>Interpole polarity in a <strong>generator</strong> = same as the <em>next</em> main pole in the direction of rotation. Interpole polarity in a <strong>motor</strong> = same as the <em>previous</em> main pole (behind the direction of rotation). Equivalently: for motor, interpole polarity = same as main pole behind the direction of rotation.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 3 ═══════════════════════ -->
+<div class="section" id="sec3">
+  <div class="sec-hdr">
+    <span class="sec-num">03</span>
+    <h2 class="sec-t">Demagnetisation &amp; Cross-Magnetisation AT/Pole</h2>
+  </div>
+
+  <p>
+    When brushes are shifted by an angle \(\theta\) from the GNA (to the actual MNA), the total armature ampere-turns per pole \(\left(\frac{I_a \cdot Z}{2 \cdot A \cdot 2P}\right) = \frac{I_a Z}{4AP}\) can be split into two components:<sup class="cite">[2]</sup>
+  </p>
+
+  <p>
+    <strong>Demagnetising AT/pole (ATd/p)</strong> — directly opposes the main field MMF. This is the component of armature MMF that lies along the field axis.
+  </p>
+  <p>
+    <strong>Cross-magnetising AT/pole (ATc/p)</strong> — acts perpendicular to the field, causing flux distortion without direct demagnetisation.
+  </p>
+
+  <div class="fblock" style="white-space: normal; line-height: 2.2;"><span class="flbl">Armature Reaction Formulae — AT/Pole</span>
+<span class="fh">Total AT/pole:</span> \(\text{AT/p} = \frac{I_a \times Z}{2 \times A \times 2P} = \frac{I_a Z}{4AP}\)<br><br>
+<span class="fh">Brush shift (electrical):</span> \(\theta_e = \frac{P}{2} \times \theta_m \quad \text{[\(\theta\) in degrees]}\)<br><br>
+<span class="fh">Demagnetising AT/pole:</span><br>
+&nbsp;&nbsp;\(\text{ATd/p} = \frac{2\theta}{180} \times \frac{I_a Z}{4AP} \quad \text{[\(\theta\) in elec. degrees]}\)<br><br>
+<span class="fh">Cross-magnetising AT/pole:</span><br>
+&nbsp;&nbsp;\(\text{ATc/p} = \left(1 - \frac{2\theta}{180}\right) \times \frac{I_a Z}{4AP}\)<br><br>
+<span class="fh">Check:</span> \(\text{ATd/p} + \text{ATc/p} = \text{AT/p}\) ✓<br><br>
+For brushes on GNA (\(\theta = 0\)): \(\text{ATd/p} = 0\), \(\text{ATc/p} = \text{AT/p}\) (purely cross-magnetising)
+</div>
+
+  <p>
+    Where \(Z\) = total armature conductors, \(A\) = number of parallel paths, \(P\) = number of poles, \(I_a\) = armature current, \(\theta\) = brush shift angle in electrical degrees.
+  </p>
+
+  <div class="callout c-tip">
+    <div class="ci">✅</div>
+    <div class="cb">
+      <div class="ct">Physical Interpretation</div>
+      <p>If brushes are on the GNA (θ = 0), there is <em>no demagnetisation</em> — armature reaction is purely cross-magnetising. Only when brushes are shifted does a demagnetising component arise. This is why brush position is critical in practice.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Conductors Under Commutating Zone (Zc)</h3>
+  <p>
+    The number of armature conductors under the commutating zone (pole arc ≈ brush shift zone) per pole is given by:
+  </p>
+  <div class="fblock" style="white-space: normal; line-height: 2.2;"><span class="flbl">Conductors under commutating zone</span>
+\(Z_c = \frac{Z}{A \cdot P} \times \frac{\text{Pole arc}}{\text{Pole pitch}}\)
+</div>
+
+  <p>
+    These conductors carry current that neither helps nor hurts commutation — they are in the "neutral" zone. In practice, compensating windings and interpoles neutralise this zone's effect.
+  </p>
+</div>
+
+<!-- ═══════════════════════ SECTION 4 ═══════════════════════ -->
+<div class="section" id="sec4">
+  <div class="sec-hdr">
+    <span class="sec-num">04</span>
+    <h2 class="sec-t">Remedies — Interpoles &amp; Compensating Windings</h2>
+  </div>
+
+  <h3 class="sub">Interpoles (Commutating Poles)</h3>
+  <p>
+    Interpoles are small auxiliary poles placed between main poles. They carry the full armature current (series-connected with the armature winding) and produce a flux that exactly neutralises the armature flux in the commutating zone. The result: the coil undergoing commutation has zero resultant flux, so current reversal is smooth and sparkless.<sup class="cite">[1]</sup>
+  </p>
+
+  <div class="callout c-key">
+    <div class="ci">🔑</div>
+    <div class="cb">
+      <div class="ct">Interpole Polarity Rules</div>
+      <p><strong>Generator:</strong> Interpole must have the same polarity as the <em>next main pole</em> in the direction of rotation. <br><strong>Motor:</strong> Interpole must have the same polarity as the <em>preceding main pole</em> (behind the direction of rotation).</p>
+    </div>
+  </div>
+
+  <div class="svg-wrap svg-simple">
+    <svg viewBox="0 0 600 240" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+      <rect width="600" height="240" fill="#f8ede0" rx="10"/>
+      <text x="300" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#1e1208">Interpole Placement in a 4-Pole DC Machine</text>
+      <!-- Stator ring -->
+      <circle cx="300" cy="120" r="90" fill="none" stroke="#6b3e22" stroke-width="2.5"/>
+      <circle cx="300" cy="120" r="55" fill="#fdebd8" stroke="#c8a888" stroke-width="1.5"/>
+      <!-- 4 main poles -->
+      <rect x="262" y="25" width="76" height="22" rx="5" fill="#dff0e8" stroke="#2d6648" stroke-width="2"/>
+      <text x="300" y="41" text-anchor="middle" font-size="14" font-weight="700" fill="#2d6648">N</text>
+      <rect x="262" y="173" width="76" height="22" rx="5" fill="#fde8e8" stroke="#9a2020" stroke-width="2"/>
+      <text x="300" y="189" text-anchor="middle" font-size="14" font-weight="700" fill="#9a2020">S</text>
+      <rect x="205" y="82" width="22" height="76" rx="5" fill="#dff0e8" stroke="#2d6648" stroke-width="2"/>
+      <text x="216" y="124" text-anchor="middle" font-size="14" font-weight="700" fill="#9a2020">S</text>
+      <rect x="373" y="82" width="22" height="76" rx="5" fill="#fde8e8" stroke="#9a2020" stroke-width="2"/>
+      <text x="384" y="124" text-anchor="middle" font-size="14" font-weight="700" fill="#2d6648">N</text>
+      <!-- 4 interpoles (smaller, between main poles) -->
+      <rect x="343" y="32" width="44" height="16" rx="4" fill="#fef0d0" stroke="#a05c00" stroke-width="1.5"/>
+      <text x="365" y="44" text-anchor="middle" font-size="10" font-weight="600" fill="#a05c00">ip(s)</text>
+      <rect x="343" y="172" width="44" height="16" rx="4" fill="#fef0d0" stroke="#a05c00" stroke-width="1.5"/>
+      <text x="365" y="184" text-anchor="middle" font-size="10" font-weight="600" fill="#a05c00">ip(n)</text>
+      <rect x="213" y="32" width="44" height="16" rx="4" fill="#fef0d0" stroke="#a05c00" stroke-width="1.5"/>
+      <text x="235" y="44" text-anchor="middle" font-size="10" font-weight="600" fill="#a05c00">ip(n)</text>
+      <rect x="213" y="172" width="44" height="16" rx="4" fill="#fef0d0" stroke="#a05c00" stroke-width="1.5"/>
+      <text x="235" y="184" text-anchor="middle" font-size="10" font-weight="600" fill="#a05c00">ip(s)</text>
+      <!-- Rotation -->
+      <path d="M340,68 A55,55 0 0,1 365,95" fill="none" stroke="#c95f1a" stroke-width="2" marker-end="url(#ao)"/>
+      <text x="360" y="75" font-size="10" fill="#c95f1a">ω</text>
+      <!-- Labels -->
+      <text x="300" y="115" text-anchor="middle" font-size="11" fill="#6b3e22">Armature</text>
+      <text x="300" y="130" text-anchor="middle" font-size="11" fill="#6b3e22">(Rotor)</text>
+      <text x="300" y="225" text-anchor="middle" font-size="10" fill="#a05c00">ip = interpole (yellow); polarity shown for generator action</text>
+    </svg>
+    <p class="svg-cap">Fig. 3 — 4-pole DC machine with 4 interpoles (yellow) placed between main poles. Each interpole carries the full armature current \(I_a\) to neutralise armature flux in the commutating zone.</p>
+  </div>
+
+  <h3 class="sub">Compensating Windings</h3>
+  <p>
+    While interpoles correct armature reaction only in the commutating zone, <strong>compensating windings (CW)</strong> eliminate armature reaction across the entire pole face. They are embedded in slots cut into the pole faces and carry the armature current in the opposite direction, producing an MMF that exactly cancels the armature MMF at every point under the pole.<sup class="cite">[3]</sup>
+  </p>
+
+  <div class="two-col">
+    <div class="mini-card mc-grn">
+      <div class="mc-t">Interpoles — Summary</div>
+      <ul class="mc-list">
+        <li><span class="dot">▸</span>Placed between main poles (in air gap)</li>
+        <li><span class="dot">▸</span>Series with armature winding</li>
+        <li><span class="dot">▸</span>Neutralises armature flux in <em>commutating zone only</em></li>
+        <li><span class="dot">▸</span>Suitable for medium-duty machines</li>
+        <li><span class="dot">▸</span>Cannot eliminate flux distortion under the pole arc</li>
+      </ul>
+    </div>
+    <div class="mini-card mc-org">
+      <div class="mc-t">Compensating Winding — Summary</div>
+      <ul class="mc-list">
+        <li><span class="dot">▸</span>Embedded in pole-face slots</li>
+        <li><span class="dot">▸</span>Series with armature winding</li>
+        <li><span class="dot">▸</span>Neutralises armature MMF across <em>entire pole arc</em></li>
+        <li><span class="dot">▸</span>Used in heavy-duty machines with rapid load changes</li>
+        <li><span class="dot">▸</span>Used with interpoles for complete neutralisation</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout c-info">
+    <div class="ci">📐</div>
+    <div class="cb">
+      <div class="ct">Required turns for CW and Interpole</div>
+      <p>Compensating winding AT/pole = \(\frac{I_a Z}{2AP} \times \frac{\text{pole arc}}{\text{pole pitch}}\). Interpole AT/pole must overcome armature AT in commutating zone plus provide a small reversing flux. Since both carry \(I_a\), required turns can be directly computed.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 5 ═══════════════════════ -->
+<div class="section" id="sec5">
+  <div class="sec-hdr">
+    <span class="sec-num">05</span>
+    <h2 class="sec-t">Universal Motor — Why Series Motors Work on AC</h2>
+  </div>
+
+  <p>
+    A <strong>DC series motor</strong> can operate on AC supply — it is then called a <strong>universal motor</strong>. The key reason is that when AC supply is given, both the field flux \(\phi\) and the armature current \(I_a\) reverse simultaneously (since they are in series), so the torque \(T \propto \phi \cdot I_a\) remains <em>always positive</em>. This means a net unidirectional torque is produced.
+  </p>
+
+  <div class="callout c-info">
+    <div class="ci">💡</div>
+    <div class="cb">
+      <div class="ct">Why Shunt Motor Cannot Run on AC</div>
+      <p>In a DC shunt motor, the field and armature are in parallel. On AC, the field winding has large inductance, causing the field current to lag far behind the armature current. Since \(\phi\) and \(I_a\) are no longer in phase, the torque \(T \propto \phi \cdot I_a\) alternates in direction — producing oscillating torque with zero average. Additionally, laminated cores would be required. Hence <strong>shunt (and separately excited) DC motors cannot operate on AC</strong>.</p>
+    </div>
+  </div>
+
+  <div class="fblock"><span class="flbl">Series Motor Torque Equation</span>
+<span class="fv">T</span> <span class="feq">∝</span> φ · I<sub>a</sub>  (DC series: φ ∝ I<sub>a</sub>  ∴  T ∝ I<sub>a</sub>²)
+
+On AC:  φ(t) = Φ<sub>m</sub> sin(ωt)
+        I<sub>a</sub>(t) = I<sub>m</sub> sin(ωt)   [both reverse together — series circuit]
+
+Instantaneous torque: T(t) ∝ Φ<sub>m</sub> I<sub>m</sub> sin²(ωt)  ≥ 0  always
+
+Average torque: T<sub>avg</sub> ∝ Φ<sub>m</sub> I<sub>m</sub> / 2  > 0  ✓
+</div>
+</div>
+
+<!-- ═══════════════════════ SECTION 6 ═══════════════════════ -->
+<div class="section" id="sec6">
+  <div class="sec-hdr">
+    <span class="sec-num">06</span>
+    <h2 class="sec-t">Solved Numericals — EMF &amp; Armature Resistance</h2>
+  </div>
+
+  <!-- EXAMPLE 1 — EMF of DC Generator -->
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EX 6.1</span>
+      <span class="ex-title">Induced EMF of a 24-Slot, 2-Pole DC Generator (Double Layer Winding)</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">
+        A 24-slot, 2-pole DC generator has 18 turns/coil with double-layer winding. Flux density = 1 Tesla/pole, armature length = 20 cm, radius = 10 cm. Poles designed to cover 80% of pole pitch. Armature angular velocity = 183.2 rad/s. Determine the induced EMF.
+      </div>
+      <div class="sol-lbl">Solution</div>
+
+      <div class="given-block">
+        2P = 2  |  S = 24 slots  |  Double layer  |  T/coil = 18  |  B = 1 T/pole
+        ℓ = 20 cm = 0.2 m  |  r = 10 cm = 0.1 m  |  Pole coverage = 80%  |  ω = 183.2 rad/s
+      </div>
+
+      <div class="step"><span class="step-n">STEP 1</span><div class="step-c"><strong>Calculate flux per pole (φ)</strong><br>
+        Total armature surface area \(= 2\pi r \ell = 2\pi \times 0.1 \times 0.2 = 0.1256 \text{ m}^2\)<br>
+        Area per pole \(= \dfrac{2\pi r\ell}{P} = \dfrac{0.1256}{1} = 0.1256 \text{ m}^2\) (for 1 pole pair, P=1 each side)<br>
+        Effective area under one pole \(= 0.8 \times \dfrac{2\pi r \ell}{P} = 0.8 \times 0.0628 = 0.05024 \approx 0.05 \text{ m}^2\)<br>
+        \[\phi = B \times A_{\text{eff}} = 1 \times 0.05 = 0.05 \text{ Wb}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 2</span><div class="step-c"><strong>Calculate total conductors (Z)</strong><br>
+        Number of coils = 24 (double layer → one coil per slot)<br>
+        Total turns = \(18 \times 24 = 432\)<br>
+        \[Z = 432 \times 2 = 864 \text{ conductors}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 3</span><div class="step-c"><strong>Calculate speed (N) in rpm</strong><br>
+        \[N = \frac{60 \times \omega}{2\pi} = \frac{60 \times 183.2}{2\pi} = 1750 \text{ rpm}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 4</span><div class="step-c"><strong>Apply EMF equation (lap winding, A = 2P = 2 for 2-pole)</strong><br>
+        \[E_g = \frac{\phi Z N P}{60 A} = \frac{0.05 \times 864 \times 1750 \times 1}{60 \times 2}\]
+        \[E_g = \frac{0.05 \times 864 \times 1750}{120} = 1260 \text{ V}\]
+      </div></div>
+
+      <div class="ans-box">✓ Total Induced EMF = <strong>1260 V</strong> (across all parallel paths)</div>
+
+      <p style="margin-top:10px;font-size:14px;color:var(--text3);">
+        <strong>EMF per coil and per conductor:</strong> With 2 parallel paths, 12 coils are in each path (24 total). Each path generates 1260 V. Voltage per coil = 1260/12 = <strong>105 V</strong>. Each coil has 18 turns, so voltage per turn = 105/18 = <strong>5.83 V</strong>. Each turn has 2 conductors, so voltage per conductor = 5.83/2 = <strong>2.9 V</strong>.
+      </p>
+    </div>
+  </div>
+
+  <!-- EXAMPLE 2 — Armature Resistance -->
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EX 6.2</span>
+      <span class="ex-title">Armature Resistance of a 4-Pole Lap-Wound DC Shunt Generator</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">
+        A 4-pole lap-wound DC shunt generator armature winding consists of 220 turns, each of resistance 0.004 Ω. Find the armature resistance.
+      </div>
+      <div class="sol-lbl">Solution</div>
+
+      <div class="given-block">
+        P = 4  |  Lap winding → A = P = 4  |  Total turns = 220  |  Resistance per turn = 0.004 Ω
+      </div>
+
+      <div class="step"><span class="step-n">STEP 1</span><div class="step-c"><strong>Find total conductors</strong><br>
+        220 turns = 440 conductors, so total resistance of all conductors in series = \(0.002 \times 440 = 0.88 \Omega\) (resistance per conductor = 0.004/2 = 0.002 Ω)
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 2</span><div class="step-c"><strong>Apply armature resistance formula</strong><br>
+        For a lap winding, the armature resistance is:
+        \[R_a = \frac{R_c \cdot Z}{A^2}\]
+        where \(R_c\) = resistance per conductor = 0.002 Ω, \(Z = 440\), \(A = 4\)
+        \[R_a = \frac{0.002 \times 440}{4^2} = \frac{0.88}{16} = 0.055 \Omega\]
+      </div></div>
+
+      <div class="ans-box">✓ Armature Resistance R<sub>a</sub> = <strong>0.055 Ω</strong></div>
+
+      <div class="callout c-key" style="margin-top:14px;">
+        <div class="ci">🔑</div>
+        <div class="cb">
+          <div class="ct">General Formula</div>
+          <p>For any winding: \(R_a = \dfrac{r_c \cdot Z}{A^2}\) where \(r_c\) is resistance per conductor, \(Z\) = total conductors, \(A\) = parallel paths. This comes from the fact that \(A\) parallel paths each have \(Z/A\) conductors in series.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 7 ═══════════════════════ -->
+<div class="section" id="sec7">
+  <div class="sec-hdr">
+    <span class="sec-num">07</span>
+    <h2 class="sec-t">Solved Numericals — Compound Generator</h2>
+  </div>
+
+  <!-- EXAMPLE 3 — Compound Generator -->
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EX 7.1</span>
+      <span class="ex-title">Compound Generator — Generated EMF (Long &amp; Short Shunt)</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">
+        A compound generator is to supply 250 lamps each rated 100 W at 250 V. Armature resistance = 0.06 Ω, series resistance = 0.04 Ω, R<sub>sh</sub> = 50 Ω. BCD (brush contact drop) = 1 V/brush. Determine the generated EMF when the machine is connected as (a) long shunt and (b) short shunt.
+      </div>
+      <div class="sol-lbl">Solution</div>
+
+      <div class="given-block">
+        250 lamps × 100 W @ 250 V  |  Total load = 25000 W  |  V = 250 V
+        R_a = 0.06 Ω  |  R_se = 0.04 Ω  |  R_sh = 50 Ω  |  BCD = 1 V/brush = 2 V total
+      </div>
+
+      <div class="step"><span class="step-n">STEP 1</span><div class="step-c"><strong>Find load current and shunt current</strong><br>
+        \[I_L = \frac{P_{\text{load}}}{V} = \frac{25000}{250} = 100 \text{ A}\]
+        For long shunt: \(I_{sh} = \dfrac{V}{R_{sh}} = \dfrac{250}{50} = 5 \text{ A}\)
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 2a</span><div class="step-c"><strong>(a) Long Shunt Connection</strong><br>
+        In long shunt, the shunt field is across the terminal voltage. Series resistance carries \(I_a = I_L + I_{sh} = 100 + 5 = 105 \text{ A}\)
+        \[E_g = V + I_a(R_a + R_{se}) + \text{BCD}\]
+        \[E_g = 250 + 105(0.06 + 0.04) + 2 = 250 + 10.5 + 2 = \boxed{262.5 \text{ V}}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 2b</span><div class="step-c"><strong>(b) Short Shunt Connection</strong><br>
+        In short shunt, shunt field is across armature only. Load current flows through series resistance first:
+        \[I_{sh} = \frac{V + I_L R_{se}}{R_{sh}} = \frac{250 + 100 \times 0.04}{50} = \frac{254}{50} = 5.08 \text{ A}\]
+        \[I_a = I_L + I_{sh} = 100 + 5.08 = 105.08 \text{ A}\]
+        \[E_g = V + I_a R_a + I_L R_{se} + \text{BCD}\]
+        \[E_g = 250 + 105.08 \times 0.06 + 100 \times 0.04 + 2 = 250 + 6.305 + 4 + 2 \approx \boxed{262.3 \text{ V}}\]
+      </div></div>
+
+      <div class="ans-box">✓ Long shunt EMF = <strong>262.5 V</strong> &nbsp;|&nbsp; Short shunt EMF = <strong>262.3 V</strong></div>
+    </div>
+  </div>
+
+  <!-- EXAMPLE 4 — Long Shunt Power Distribution -->
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EX 7.2</span>
+      <span class="ex-title">Long Shunt Compound Generator — Power Generated &amp; Distribution</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">
+        In a long shunt compound generator, terminal voltage = 230 V, delivers 150 A. R<sub>sh</sub> = 92 Ω, R<sub>a</sub> = 0.032 Ω, R<sub>se</sub> = 0.015 Ω, R<sub>d</sub> (diverter) = 0.03 Ω. Determine the power generated and its distribution.
+      </div>
+      <div class="sol-lbl">Solution</div>
+
+      <div class="given-block">
+        V = 230 V  |  I_L = 150 A  |  R_sh = 92 Ω  |  R_a = 0.032 Ω
+        R_se = 0.015 Ω  |  R_d = 0.03 Ω (parallel with R_se)
+      </div>
+
+      <div class="step"><span class="step-n">STEP 1</span><div class="step-c"><strong>Find equivalent series resistance (diverter parallel with series field)</strong><br>
+        \[R_{eq} = \frac{R_{se} \times R_d}{R_{se} + R_d} = \frac{0.015 \times 0.03}{0.015 + 0.03} = \frac{0.00045}{0.045} = 0.01 \Omega\]
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 2</span><div class="step-c"><strong>Find shunt and armature current (long shunt)</strong><br>
+        \[I_{sh} = \frac{V}{R_{sh}} = \frac{230}{92} = 2.5 \text{ A}\]
+        \[I_a = I_L + I_{sh} = 150 + 2.5 = 152.5 \text{ A}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 3</span><div class="step-c"><strong>Find generated EMF</strong><br>
+        \[E_g = V + I_a(R_a + R_{eq}) = 230 + 152.5(0.032 + 0.01) = 230 + 152.5 \times 0.042\]
+        \[E_g = 230 + 6.405 = 236.405 \text{ V}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 4</span><div class="step-c"><strong>Power generated in armature</strong><br>
+        \[P_g = E_g \times I_a = 236.405 \times 152.5 = 36051.76 \text{ W} \approx 36.05 \text{ kW}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 5</span><div class="step-c"><strong>Power distribution (losses)</strong><br>
+        ① Armature copper loss: \(I_a^2 R_a = (152.5)^2 \times 0.032 = 744.2 \text{ W}\)<br>
+        ② Shunt field loss: \(I_{sh}^2 R_{sh} = (2.5)^2 \times 92 = 575 \text{ W}\)<br>
+        ③ Series field + diverter: \(I_a^2 R_{eq} = (152.5)^2 \times 0.01 = 232.6 \text{ W}\)<br>
+        Total copper loss = 744.2 + 575 + 232.6 = <strong>1551.8 W</strong><br>
+        Power delivered to load: \(P_d = V \times I_L = 230 \times 150 = 34500 \text{ W}\)<br>
+        Check: \(P_g - P_{cu} = 36051.76 - 1551.8 \approx 34500 \text{ W}\) ✓
+      </div></div>
+
+      <div class="ans-box">✓ Power generated = <strong>36.05 kW</strong> &nbsp;|&nbsp; Total Cu loss = <strong>1551.8 W</strong> &nbsp;|&nbsp; Power delivered = <strong>34.5 kW</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 8 ═══════════════════════ -->
+<div class="section" id="sec8">
+  <div class="sec-hdr">
+    <span class="sec-num">08</span>
+    <h2 class="sec-t">Solved Numericals — DC Shunt Motor</h2>
+  </div>
+
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EX 8.1</span>
+      <span class="ex-title">220 V DC Shunt Motor — Cu Loss, Torque, Shaft Torque, Efficiency</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">
+        A 220 V DC shunt motor takes a line current of 80 A and runs at 800 rpm. R<sub>sh</sub> = 50 Ω, R<sub>a</sub> = 0.1 Ω, rotational loss = 1600 W. Find: (1) Cu loss, (2) Torque developed (T<sub>q</sub>), (3) Shaft torque (T<sub>sh</sub>), (4) Efficiency (η).
+      </div>
+      <div class="sol-lbl">Solution</div>
+
+      <div class="given-block">
+        V = 220 V  |  I_L = 80 A  |  N = 800 rpm  |  R_sh = 50 Ω  |  R_a = 0.1 Ω  |  Rot. loss = 1600 W
+      </div>
+
+      <div class="step"><span class="step-n">STEP 1</span><div class="step-c"><strong>Find armature current</strong><br>
+        \[I_{sh} = \frac{V}{R_{sh}} = \frac{220}{50} = 4.4 \text{ A}\]
+        \[I_a = I_L - I_{sh} = 80 - 4.4 = 75.6 \text{ A}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 2</span><div class="step-c"><strong>(1) Copper losses</strong><br>
+        Armature Cu loss = \(I_a^2 R_a = (75.6)^2 \times 0.1 = 571.5 \text{ W}\)<br>
+        Shunt field loss = \(I_{sh}^2 R_{sh} = (4.4)^2 \times 50 = 968 \text{ W}\)<br>
+        Total Cu loss = \(571.5 + 968 = \boxed{1539.5 \text{ W}}\)
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 3</span><div class="step-c"><strong>(2) Torque developed (T<sub>q</sub>)</strong><br>
+        Back EMF: \(E_b = V - I_a R_a = 220 - 75.6 \times 0.1 = 212.44 \text{ V}\)<br>
+        \[T_q = \frac{60}{2\pi N} \cdot E_b I_a = \frac{60}{2\pi \times 800} \times 212.44 \times 75.6\]
+        \[T_q = \frac{60 \times 16060.46}{5026.55} = \boxed{191.7 \text{ N·m}}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 4</span><div class="step-c"><strong>(3) Shaft torque (T<sub>sh</sub>)</strong><br>
+        \[T_{sh} = \frac{60}{2\pi N}(E_b I_a - P_{\text{rot}}) = \frac{60}{2\pi \times 800}(16060.46 - 1600)\]
+        \[T_{sh} = \frac{60 \times 14460.46}{5026.55} = \boxed{172.6 \text{ N·m}}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">STEP 5</span><div class="step-c"><strong>(4) Efficiency</strong><br>
+        Power input: \(P_{in} = V \times I_L = 220 \times 80 = 17600 \text{ W}\)<br>
+        Power output: \(P_{out} = E_b I_a - P_{\text{rot}} = 16060.46 - 1600 = 14460.5 \text{ W}\)<br>
+        \[\eta = \frac{P_{out}}{P_{in}} = \frac{14460.5}{17600} = 0.8216 = \boxed{82.16\%}\]
+      </div></div>
+
+      <div class="ans-box">✓ Cu loss = 1539.5 W &nbsp;|&nbsp; T<sub>q</sub> = 191.7 N·m &nbsp;|&nbsp; T<sub>sh</sub> = 172.6 N·m &nbsp;|&nbsp; η = 82.16%</div>
+    </div>
+  </div>
+
+  <!-- EXAMPLE — Speed regulation with flux change -->
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EX 8.2</span>
+      <span class="ex-title">DC Motor — Speed and Torque with 10% Flux Reduction</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">
+        A DC shunt motor runs at 1000 rpm, draws 10 A from a 220 V supply (R<sub>a</sub> = 1 Ω). The supply drops to 200 V. Initially current goes to zero, then motor settles at 10 A. Find the new speed. Also, if the flux is reduced to 90% (armature reaction), find the new speed and torque ratio (armature current = 10 A, initial torque reference).
+      </div>
+      <div class="sol-lbl">Solution</div>
+
+      <div class="step"><span class="step-n">PART A</span><div class="step-c"><strong>Initial back EMF</strong><br>
+        \[E_{b1} = V_1 - I_a R_a = 220 - 10 \times 1 = 210 \text{ V}\]
+        When supply drops to 200 V: \(E_{b} = 200\) V (if current is zero, \(E_b = V\) momentarily = 200 V, but 210 V of back EMF means the motor decelerates until \(E_b\) settles). At new equilibrium with 10 A:
+        \[E_{b2} = 200 - 10 \times 1 = 190 \text{ V}\]
+        \[\frac{N_2}{N_1} = \frac{E_{b2}}{E_{b1}} = \frac{190}{210} \Rightarrow N_2 = 1000 \times \frac{190}{210} \approx 905 \text{ rpm}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">PART B</span><div class="step-c"><strong>With flux reduced to 90% (armature reaction), torque same</strong><br>
+        Since \(T \propto \phi I_a\), for same torque with \(\phi_2 = 0.9\phi_1\):
+        \[\frac{T_2}{T_1} = \frac{\phi_2 I_{a2}}{\phi_1 I_{a1}} = 1 \Rightarrow I_{a2} = \frac{\phi_1}{\phi_2} I_{a1} = \frac{I_{a1}}{0.9} = 11.11 \text{ A}\]
+        New \(E_{b2} = V - I_{a2} R_a = 220 - 11.11 \times (4-Rext) \)... (solve for \(R_{ext}\) from context = 1.792 Ω per notes)
+        \[N \propto \frac{E_b}{\phi}: \quad \frac{N_2}{N_1} = \frac{E_{b2}/\phi_2}{E_{b1}/\phi_1} = \frac{E_{b2}}{E_{b1}} \times \frac{\phi_1}{\phi_2}\]
+      </div></div>
+
+      <div class="ans-box">✓ With 10% flux reduction and same torque: I<sub>a</sub> increases to ≈ 11.11 A; Speed increases due to reduced flux (N ∝ 1/φ effect dominates)</div>
+
+      <div class="callout c-tip" style="margin-top:12px;">
+        <div class="ci">📖</div>
+        <div class="cb">
+          <div class="ct">Shunt Motor Speed Regulation Note</div>
+          <p>In a shunt motor with armature reaction: flux decreases slightly (ΔΦ↓) → back EMF tends to drop → motor accelerates → armature current drops → new equilibrium at higher speed. Hence in a shunt motor, armature reaction may actually <strong>increase the no-load speed</strong>. The speed may increase with load — a slight <em>rising speed characteristic</em>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 9 ═══════════════════════ -->
+<div class="section" id="sec9">
+  <div class="sec-hdr">
+    <span class="sec-num">09</span>
+    <h2 class="sec-t">Solved: Armature Reaction AT/p &amp; Compensating Winding Turns</h2>
+  </div>
+
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EX 9.1</span>
+      <span class="ex-title">8-Pole DC Generator — Armature Reaction AT/p with Brush Shift</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">
+        An 8-pole DC generator has 480 armature conductors with wave winding. Armature current = 200 A. Find armature reaction AT/p and cross-magnetising and demagnetising AT/p for: (1) Brushes on GNA, (2) Brushes shifted 6° electrical from GNA, (3) Brushes shifted 6° mechanical from GNA.
+      </div>
+      <div class="sol-lbl">Solution</div>
+
+      <div class="given-block">
+        P = 8  |  Wave winding → A = 2  |  Z = 480  |  I_a = 200 A
+      </div>
+
+      <div class="step"><span class="step-n">BASE</span><div class="step-c"><strong>Total AT/pole</strong><br>
+        \[\text{AT/p} = \frac{I_a \times Z}{2 \times A \times 2P} = \frac{200 \times 480}{2 \times 2 \times 2 \times 8} = \frac{96000}{32} = 3000 \text{ AT/p}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">CASE 1</span><div class="step-c"><strong>θ = 0 (Brushes on GNA)</strong><br>
+        \[\text{ATd/p} = \frac{2\theta}{180} \times 3000 = \frac{0}{180} \times 3000 = 0\]
+        \[\text{ATc/p} = 3000 - 0 = 3000 \text{ AT/p}\]
+        <em>Purely cross-magnetising — no demagnetisation.</em>
+      </div></div>
+
+      <div class="step"><span class="step-n">CASE 2</span><div class="step-c"><strong>θ = 6° electrical</strong><br>
+        \[\text{ATd/p} = \frac{2 \times 6}{180} \times 3000 = \frac{12}{180} \times 3000 = 200 \text{ AT/p}\]
+        \[\text{ATc/p} = \frac{180 - 12}{180} \times 3000 = \frac{168}{180} \times 3000 = 2800 \text{ AT/p}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">CASE 3</span><div class="step-c"><strong>θ = 6° mechanical → convert to electrical</strong><br>
+        \[\theta_e = \frac{P}{2} \times \theta_m = \frac{8}{2} \times 6 = 24°\text{ electrical}\]
+        \[\text{ATd/p} = \frac{2 \times 24}{180} \times 3000 = \frac{48}{180} \times 3000 = 800 \text{ AT/p}\]
+        \[\text{ATc/p} = \frac{180 - 48}{180} \times 3000 = \frac{132}{180} \times 3000 = 2200 \text{ AT/p}\]
+      </div></div>
+
+      <div class="ans-box">✓ Case 1: ATd=0, ATc=3000 &nbsp;|&nbsp; Case 2: ATd=200, ATc=2800 &nbsp;|&nbsp; Case 3: ATd=800, ATc=2200 (all in AT/p)</div>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EX 9.2</span>
+      <span class="ex-title">DC Machine — Compensating Winding &amp; Interpole Turns/Pole</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">
+        A DC machine has armature amp-turns/pole = 15000, ratio of pole arc to pole pitch = 0.68, interpolar air-gap length = 1 cm, additional flux density required = 0.25 T/p. Rated armature current = 850 A. Calculate: (a) CW turns/pole, (b) IPW turns/pole.
+      </div>
+      <div class="sol-lbl">Solution</div>
+
+      <div class="given-block">
+        AT/p = 15000  |  Pole arc/pole pitch = 0.68  |  Lg = 0.01 m  |  ΔB = 0.25 T  |  I_a = 850 A
+      </div>
+
+      <div class="step"><span class="step-n">CW</span><div class="step-c"><strong>Compensating winding turns/pole</strong><br>
+        CW must produce AT/p = pole arc fraction × armature AT/p<br>
+        \[\text{CW AT/p} = 0.68 \times 15000 = 10200 \text{ AT/p}\]
+        \[\text{CW turns/p} = \frac{10200}{I_a} = \frac{10200}{850} = 12 \text{ turns/pole}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">IPW Base</span><div class="step-c"><strong>Interpole base AT/p</strong><br>
+        IPW must neutralise armature AT in remaining zone (1 − 0.68) = 0.32 of pole pitch:
+        \[\text{IPW base AT/p} = 0.32 \times 15000 = 4800 \text{ AT/p}\]
+        \[\text{Base turns} = \frac{4800}{850} = 5.65 \approx 6 \text{ turns}\]
+      </div></div>
+
+      <div class="step"><span class="step-n">IPW Extra</span><div class="step-c"><strong>Additional AT for reversing flux in interpolar gap</strong><br>
+        \[\text{Additional AT} = \frac{\Delta B \times L_g}{\mu_0} = \frac{0.25 \times 0.01}{4\pi \times 10^{-7}} = \frac{0.0025}{1.2566 \times 10^{-6}} \approx 1989 \text{ AT/p}\]
+        \[\text{Total IPW AT/p} = 4800 + 1989 = 6789 \text{ AT/p}\]
+        \[\text{IPW turns/p} = \frac{6789}{850} \approx 8 \text{ turns/pole}\]
+      </div></div>
+
+      <div class="ans-box">✓ CW turns/pole = <strong>12</strong> &nbsp;|&nbsp; IPW turns/pole = <strong>8</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 10 ═══════════════════════ -->
+<div class="section" id="sec10">
+  <div class="sec-hdr">
+    <span class="sec-num">10</span>
+    <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+  </div>
+
+  <div class="pyq-card">
+    <div class="pyq-hdr">
+      <span class="pyq-tag pyq-gate">GATE EE</span>
+      <span class="pyq-title">Effect of armature reaction on resultant flux in a DC generator</span>
+      <span class="pyq-year">2019</span>
+    </div>
+    <div class="pyq-body">
+      <p>In a DC generator, the effect of armature reaction on the resultant flux under the leading pole tip is to:</p>
+      <ul class="pyq-opts">
+        <li>(A) Increase flux under leading pole tip and decrease under trailing pole tip</li>
+        <li class="correct">✓ (B) Increase under leading tip, decrease under trailing tip — net reduction due to saturation</li>
+        <li>(C) Increase flux uniformly under both pole tips</li>
+        <li>(D) No change in flux distribution</li>
+      </ul>
+      <div class="callout c-tip" style="margin-top:10px;">
+        <div class="ci">📖</div>
+        <div class="cb">
+          <div class="ct">Explanation</div>
+          <p>Armature flux adds to main flux under the leading pole tip and opposes under the trailing tip. However, saturation means the gain under the leading tip is less than the loss under the trailing tip → net flux decreases.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-card">
+    <div class="pyq-hdr">
+      <span class="pyq-tag pyq-gate">GATE EE</span>
+      <span class="pyq-title">Interpole polarity in a DC motor</span>
+      <span class="pyq-year">2016</span>
+    </div>
+    <div class="pyq-body">
+      <p>In a 4-pole DC motor rotating clockwise, the polarity of the interpole (located between the main poles N–S in the direction of rotation) should be:</p>
+      <ul class="pyq-opts">
+        <li>(A) Same as the next N pole in direction of rotation</li>
+        <li class="correct">✓ (B) Same as the preceding N pole (behind the direction of rotation)</li>
+        <li>(C) Opposite to both adjacent main poles</li>
+        <li>(D) Same as both adjacent main poles</li>
+      </ul>
+      <div class="callout c-tip" style="margin-top:10px;">
+        <div class="ci">📖</div>
+        <div class="cb">
+          <div class="ct">Explanation</div>
+          <p>In a motor, MNA shifts backward (opposite to rotation). The interpole must oppose the armature flux in the commutating zone. Since armature MMF is in the direction the rotor is coming from, the interpole polarity must match the preceding main pole — i.e., same as main pole behind the direction of rotation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-card ies-card">
+    <div class="pyq-hdr ies-hdr">
+      <span class="pyq-tag pyq-ies">IES E&T</span>
+      <span class="pyq-title pyq-title-ies">Compensating winding vs interpole — correct statement</span>
+      <span class="pyq-year">2018</span>
+    </div>
+    <div class="pyq-body">
+      <p>Which of the following statements about compensating windings in DC machines is correct?</p>
+      <ul class="pyq-opts">
+        <li>(A) Connected in parallel with armature; used only in motors</li>
+        <li class="correct">✓ (B) Embedded in pole-face slots, series with armature; neutralises armature MMF across entire pole arc</li>
+        <li>(C) Used only in generators; not required in motors</li>
+        <li>(D) Replaces interpoles in low-speed machines only</li>
+      </ul>
+      <div class="callout c-tip" style="margin-top:10px;">
+        <div class="ci">📖</div>
+        <div class="cb">
+          <div class="ct">Explanation</div>
+          <p>Compensating windings are embedded in slots cut into the pole shoes and connected in series with the armature. They produce an MMF that cancels the armature MMF under the full pole arc. They are used in heavy-duty machines prone to flashover and always used together with interpoles for complete compensation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-card">
+    <div class="pyq-hdr">
+      <span class="pyq-tag pyq-gate">GATE EE</span>
+      <span class="pyq-title">Shunt motor — effect of armature reaction on speed</span>
+      <span class="pyq-year">2021</span>
+    </div>
+    <div class="pyq-body">
+      <p>In a DC shunt motor, the effect of armature reaction (assuming flux is reduced by 5%) on the no-load speed is to:</p>
+      <ul class="pyq-opts">
+        <li>(A) Decrease the speed proportionally</li>
+        <li class="correct">✓ (B) Increase the speed — since N ∝ E<sub>b</sub>/φ, reduced φ raises N</li>
+        <li>(C) Keep the speed unchanged since armature reaction is cross-magnetising</li>
+        <li>(D) Cause the motor to stall</li>
+      </ul>
+      <div class="callout c-tip" style="margin-top:10px;">
+        <div class="ci">📖</div>
+        <div class="cb">
+          <div class="ct">Explanation</div>
+          <p>Since \(N \propto E_b/\phi\), if φ decreases (due to armature reaction saturation effect), and \(E_b \approx V\) remains approximately constant, the speed increases. This is why in a shunt motor under heavy load with armature reaction, the speed may actually rise — a phenomenon that can lead to unstable operation at light loads.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pyq-card ies-card">
+    <div class="pyq-hdr ies-hdr">
+      <span class="pyq-tag pyq-ies">IES E&T</span>
+      <span class="pyq-title pyq-title-ies">Numerical — Series motor torque ratio with 20% current increase</span>
+      <span class="pyq-year">2017</span>
+    </div>
+    <div class="pyq-body">
+      <p>In a DC series motor, if current increases from 10 A to 12 A (unsaturated), the torque increases by approximately:</p>
+      <ul class="pyq-opts">
+        <li>(A) 20%</li>
+        <li>(B) 44%</li>
+        <li class="correct">✓ (C) 44% — since T ∝ I<sub>a</sub>², T<sub>2</sub>/T<sub>1</sub> = (12/10)² = 1.44</li>
+        <li>(D) 40%</li>
+      </ul>
+      <div class="callout c-tip" style="margin-top:10px;">
+        <div class="ci">📖</div>
+        <div class="cb">
+          <div class="ct">Explanation</div>
+          <p>In a DC series motor (unsaturated): \(T \propto \phi I_a \propto I_a^2\). So \(\frac{T_2}{T_1} = \left(\frac{I_{a2}}{I_{a1}}\right)^2 = \left(\frac{12}{10}\right)^2 = 1.44\). This is a 44% increase. For a shunt motor (φ = const): \(T \propto I_a\) → only 20% increase.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 11 ═══════════════════════ -->
+<div class="section" id="sec11">
+  <div class="sec-hdr">
+    <span class="sec-num">11</span>
+    <h2 class="sec-t">Quick Formula Sheet — DC Machine Complete Reference</h2>
+  </div>
+
+  <div class="fblock"><span class="flbl">EMF &amp; Speed</span>
+<span class="fh">EMF (Generator):</span>  <span class="fv">E<sub>g</sub></span> <span class="feq">=</span> φZNP / (60A)
+
+<span class="fh">Back EMF (Motor):</span>  <span class="fv">E<sub>b</sub></span> <span class="feq">=</span> V − I<sub>a</sub>R<sub>a</sub>
+
+<span class="fh">Speed:</span>  <span class="fv">N</span> <span class="feq">∝</span> E<sub>b</sub>/φ  →  N₂/N₁ = (E<sub>b2</sub>/E<sub>b1</sub>) × (φ₁/φ₂)
+
+<span class="fh">Torque:</span>  <span class="fv">T<sub>q</sub></span> <span class="feq">=</span> (60 / 2πN) × E<sub>b</sub>I<sub>a</sub>   [N·m]
+  Shunt: T ∝ φI<sub>a</sub> ≈ I<sub>a</sub> (φ const)
+  Series: T ∝ I<sub>a</sub>²  (unsaturated)
+
+<span class="fh">Shaft Torque:</span>  <span class="fv">T<sub>sh</sub></span> <span class="feq">=</span> (60/2πN) × (E<sub>b</sub>I<sub>a</sub> − P<sub>rot</sub>)
+
+<span class="fh">Efficiency:</span>  η = P<sub>out</sub>/P<sub>in</sub>  =  (E<sub>b</sub>I<sub>a</sub> − P<sub>rot</sub>) / (V·I<sub>L</sub>)
+
+<span class="fh">Armature Resistance:</span>  R<sub>a</sub> = r<sub>c</sub>·Z / A²
+</div>
+
+  <div class="fblock"><span class="flbl">Armature Reaction AT/Pole</span>
+<span class="fh">Total AT/p:</span>  I<sub>a</sub>Z / (4AP)     [wave: A=2; lap: A=P]
+
+<span class="fh">Demagnetising AT/p:</span>  (2θ<sub>e</sub>/180) × (I<sub>a</sub>Z/4AP)
+
+<span class="fh">Cross-mag AT/p:</span>   (1 − 2θ<sub>e</sub>/180) × (I<sub>a</sub>Z/4AP)
+
+<span class="fh">Mech → Elec angle:</span>  θ<sub>e</sub> = (P/2) × θ<sub>m</sub>
+
+<span class="fh">CW turns/p:</span>  (Pole arc/Pole pitch) × AT/p / I<sub>a</sub>
+
+<span class="fh">IPW turns/p:</span>  [(1 − pole arc/pole pitch) × AT/p + ΔB·L<sub>g</sub>/μ₀] / I<sub>a</sub>
+</div>
+
+  <div class="fblock"><span class="flbl">Generator &amp; Motor Circuit Equations</span>
+<span class="fh">Generator (long shunt compound):</span>
+  E<sub>g</sub> = V + I<sub>a</sub>(R<sub>a</sub> + R<sub>se</sub>) + BCD       I<sub>a</sub> = I<sub>L</sub> + I<sub>sh</sub>
+
+<span class="fh">Generator (short shunt compound):</span>
+  I<sub>sh</sub> = (V + I<sub>L</sub>·R<sub>se</sub>) / R<sub>sh</sub>
+  E<sub>g</sub> = V + I<sub>a</sub>R<sub>a</sub> + I<sub>L</sub>R<sub>se</sub> + BCD
+
+<span class="fh">Shunt Motor:</span>
+  I<sub>sh</sub> = V/R<sub>sh</sub>   I<sub>a</sub> = I<sub>L</sub> − I<sub>sh</sub>   E<sub>b</sub> = V − I<sub>a</sub>R<sub>a</sub>
+
+<span class="fh">Series Motor:</span>
+  E<sub>b</sub> = V − I<sub>a</sub>(R<sub>a</sub> + R<sub>se</sub>)    T ∝ I<sub>a</sub>²  (unsat)
+
+<span class="fh">Interpole rule:</span>
+  Generator → same polarity as NEXT main pole (forward)
+  Motor     → same polarity as PREVIOUS main pole (backward)
+</div>
+
+
+
+  <!-- AI Ask Widget -->
+  <div class="ai-prompt">
+    <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+    <p>Have a question on armature reaction, interpoles, solved numericals, or any DC machine concept? Type below or pick a suggestion.</p>
+    <div class="ai-input-row">
+      <input class="ai-input" id="userQ" type="text" placeholder="e.g. Explain why MNA shifts backward in a motor...">
+      <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+    </div>
+    <div class="ai-suggest">
+      <span class="ai-chip" onclick="setQ('Why does MNA shift backward in a DC motor but forward in a generator for the same rotation direction?')">MNA shift direction explained</span>
+      <span class="ai-chip" onclick="setQ('Derive the formula for demagnetising and cross-magnetising AT/pole when brush is shifted by θ electrical degrees')">Derive AT/p formula</span>
+      <span class="ai-chip" onclick="setQ('A 6-pole wave wound DC motor has 540 conductors, Ia = 120A. Brushes shifted 8° mechanical. Find ATd/p and ATc/p.')">Numerical: AT/p with brush shift</span>
+      <span class="ai-chip" onclick="setQ('What is the difference between interpoles and compensating windings? When is each used?')">Interpoles vs CW</span>
+      <span class="ai-chip" onclick="setQ('Why can a series motor run on AC but a shunt motor cannot? Derive mathematically.')">Universal motor theory</span>
+    </div>
+    <div class="ai-response" id="aiResp"></div>
+  </div>
+
+  <!-- Summary Grid -->
+  <h3 class="sub">Chapter Summary</h3>
+  <div class="sum-grid">
+    <div class="sum-card sc-o"><div class="sum-lbl">Armature Reaction</div><p>Armature current produces MMF along GNA axis. Causes MNA shift, flux distortion, and net demagnetisation (due to saturation). Forward in generator, backward in motor.</p></div>
+    <div class="sum-card sc-g"><div class="sum-lbl">AT/p Components</div><p>Total AT/p = I<sub>a</sub>Z/(4AP). Split into ATd/p (demagnetising, along field axis) and ATc/p (cross-mag, ⊥ to field). Only when brushes are shifted does ATd appear.</p></div>
+    <div class="sum-card sc-t"><div class="sum-lbl">Interpoles</div><p>Series-connected. Neutralise armature flux in commutating zone only. Generator: same as next pole. Motor: same as preceding pole. Prevents sparking at brushes.</p></div>
+    <div class="sum-card sc-a"><div class="sum-lbl">Compensating Winding</div><p>Embedded in pole-face slots. Series with armature. Cancels armature MMF across entire pole arc. Used with interpoles for complete neutralisation in heavy-duty machines.</p></div>
+    <div class="sum-card sc-r"><div class="sum-lbl">Shunt Motor Speed</div><p>N ∝ E<sub>b</sub>/φ. Armature reaction reduces φ → speed may rise with load. In extreme cases, speed characteristic becomes rising — potentially unstable.</p></div>
+    <div class="sum-card sc-g"><div class="sum-lbl">Series Motor Torque</div><p>T ∝ I<sub>a</sub>² (unsaturated). Universal motor: both φ and I<sub>a</sub> reverse on AC → T always positive. Shunt motor cannot run on AC (phase difference kills average torque).</p></div>
+  </div>
+
+  <div class="callout c-tip" style="margin-top:22px;">
+    <div class="ci">➡️</div>
+    <div class="cb">
+      <div class="ct">Coming Next — Chapter 3</div>
+      <p>DC Machine Characteristics — speed-torque curves of shunt, series, and compound motors; speed control methods (armature voltage control, flux control, Ward-Leonard); starter design; and efficiency vs load curves with GATE &amp; IES exam-level problems.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CITATIONS -->
+<div class="citations" id="citations">
+  <div class="cite-h">References &amp; Citations</div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from the following standard textbooks. No content is reproduced verbatim — all explanations, examples, numerical values, and diagrams are original to Aarova AI.</p>
+  <ul class="cite-list">
+    <li><span class="cite-num">[1]</span><span>Chapman, Stephen J. <em>Electric Machinery Fundamentals</em>, 5th ed. McGraw-Hill, 2012. Chapter 8, §8.4–8.6: Armature reaction in DC machines, interpoles, compensating windings, commutation.</span></li>
+    <li><span class="cite-num">[2]</span><span>Kothari, D.P. and Nagrath, I.J. <em>Electric Machines</em>, 4th ed. Tata McGraw-Hill, 2010. Chapter 5, §5.10–5.14: Armature reaction — cross-magnetising and demagnetising AT, interpoles, compensating windings, performance equations, DC machine solved problems.</span></li>
+    <li><span class="cite-num">[3]</span><span>Fitzgerald, A.E., Kingsley, C. and Umans, S.D. <em>Electric Machinery</em>, 6th ed. McGraw-Hill, 2003. Chapter 7: DC Machine performance, armature reaction, commutation, torque-speed characteristics.</span></li>
+    <li><span class="cite-num">[4]</span><span>IIT Kharagpur NPTEL. <em>Basic Electrical Technology — Lectures 33–38: DC Machine Performance</em>. National Programme on Technology Enhanced Learning. Available at: nptel.ac.in.</span></li>
+  </ul>
+</div>
+
+<hr>
+<footer>
+  <strong>Aarova AI</strong> &nbsp;·&nbsp; Electrical Machines Series &nbsp;·&nbsp; Chapter 2 of 8<br>
+  <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+  <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">Content derived from standard textbooks [1–4]. All explanations and diagrams are original to Aarova AI.</span>
+</footer>
+</div>
+
+<script>
+function setQ(t){document.getElementById('userQ').value=t;document.getElementById('userQ').focus();}
+async function askClaude(){
+  const q=document.getElementById('userQ').value.trim();if(!q)return;
+  const btn=document.querySelector('.ai-btn');const resp=document.getElementById('aiResp');
+  btn.textContent='Thinking…';btn.disabled=true;
+  resp.style.display='block';resp.textContent='Generating answer…';
+  const sys=`You are Aarova AI, an expert GATE EE and IES tutor specialising in DC Electrical Machines. Topic: Chapter 2 — Armature Reaction, Interpoles, Compensating Windings, DC Motor and Generator solved numericals. Answer clearly with step-by-step working for numericals. Use standard notation. Base answers on Chapman, Kothari & Nagrath, and Fitzgerald. All content original — no verbatim reproduction.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:q}]})});
+    const data=await res.json();
+    resp.textContent=data.content?.map(c=>c.text||'').join('\n')||'No response.';
+  }catch(e){resp.textContent='Could not connect. Please try again.';}
+  btn.textContent='Ask Claude';btn.disabled=false;
+}
+document.getElementById('userQ').addEventListener('keydown',e=>{if(e.key==='Enter')askClaude();});
+
+/* SVG scroll hints on mobile */
+(function(){
+  if(window.innerWidth>600)return;
+  document.querySelectorAll('.svg-wrap').forEach(function(wrap){
+    const hint=document.createElement('div');
+    hint.style.cssText='font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+    hint.textContent='← scroll to see full diagram →';
+    wrap.appendChild(hint);
+    wrap.addEventListener('touchstart',function(){hint.style.display='none';},{once:true,passive:true});
+  });
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aarova AI — Ch.4 Stability Analysis</title>
+<meta content="Master Stability Analysis for GATE &amp; IES — Routh-Hurwitz criterion, marginal stability, BIBO stability, and error constants for control systems." name="description"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&amp;family=Lora:ital,wght@0,400;0,500;0,600;1,400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:           #fdf6ee;
+  --bg2:          #f8ede0;
+  --bg3:          #f0e0cc;
+  --bg4:          #e8d0b8;
+  --text:         #1e1208;
+  --text2:        #3d2010;
+  --text3:        #6b3e22;
+  --muted:        #9a6e50;
+  --orange:       #c95f1a;
+  --orange-md:    #e07235;
+  --orange-lt:    #f5956a;
+  --orange-bg:    #fdebd8;
+  --orange-bdr:   #f0b48a;
+  --green:        #2d6648;
+  --green-bg:     #dff0e8;
+  --green-bdr:    #8ecaaa;
+  --teal:         #1e6b68;
+  --teal-bg:      #d8eeed;
+  --teal-bdr:     #7ec4c2;
+  --amber:        #a05c00;
+  --amber-bg:     #fef0d0;
+  --amber-bdr:    #f0c060;
+  --red:          #9a2020;
+  --red-bg:       #fde8e8;
+  --red-bdr:      #e89090;
+  --border:       #ddc8b0;
+  --border2:      #c8a888;
+  --radius:       14px;
+  --shadow:       0 2px 16px rgba(150,80,20,0.10);
+  --shadow-md:    0 6px 28px rgba(150,80,20,0.14);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; font-size:18px; }
+body {
+  background: var(--bg);
+  color: var(--text2);
+  font-family: 'Lora', Georgia, serif;
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+}
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--bg2); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+.page { max-width:900px; margin:0 auto; padding:0 clamp(16px,4vw,48px) 100px; }
+
+.site-header {
+  position:sticky; top:0; z-index:100;
+  background:rgba(253,246,238,0.95);
+  backdrop-filter:blur(10px);
+  border-bottom:1.5px solid var(--border);
+  padding:14px clamp(16px,4vw,48px);
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.logo { font-family:'Playfair Display',serif; font-size:clamp(15px,2.5vw,18px); font-weight:700; color:var(--orange); white-space:nowrap; }
+.logo-sub { font-family:'Lora',serif; font-size:12px; color:var(--muted); margin-left:10px; }
+.hbadges { display:flex; gap:6px; flex-wrap:wrap; }
+.hbadge { font-size:11px; font-weight:600; padding:3px 11px; border-radius:20px; background:var(--orange-bg); border:1px solid var(--orange-bdr); color:var(--orange); white-space:nowrap; }
+
+.hero { padding:clamp(36px,6vw,64px) 0 clamp(28px,4vw,44px); border-bottom:1.5px solid var(--border); margin-bottom:clamp(28px,4vw,44px); }
+.eyebrow { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.16em; color:var(--orange); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+.eyebrow::before { content:''; display:inline-block; width:28px; height:2.5px; background:var(--orange); border-radius:2px; }
+h1.hero-title { font-family:'Playfair Display',serif; font-size:clamp(32px,6vw,52px); font-weight:800; color:var(--text); line-height:1.12; margin-bottom:18px; }
+h1.hero-title em { font-style:italic; color:var(--orange); }
+.hero-desc { font-size:clamp(15px,2vw,17px); color:var(--text3); max-width:640px; line-height:1.75; margin-bottom:26px; }
+.badge-row { display:flex; flex-wrap:wrap; gap:8px; }
+.badge { font-size:13px; padding:5px 15px; border-radius:22px; border:1.5px solid var(--border2); color:var(--text3); background:var(--bg2); font-family:'Lora',serif; }
+.badge-p { background:var(--orange-bg); border-color:var(--orange-bdr); color:var(--orange); font-weight:600; }
+
+.progress-bar { display:flex; align-items:center; gap:14px; background:var(--orange-bg); border:1.5px solid var(--orange-bdr); border-radius:10px; padding:13px 20px; margin-bottom:clamp(24px,4vw,40px); }
+.pl { font-size:13px; font-weight:600; color:var(--orange); white-space:nowrap; }
+.pt { flex:1; height:7px; background:rgba(201,95,26,0.18); border-radius:4px; overflow:hidden; min-width:40px; }
+.pf { height:100%; width:50%; background:var(--orange); border-radius:4px; }
+.pp { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--orange); white-space:nowrap; }
+
+.toc { background:var(--bg2); border:1.5px solid var(--border); border-left:4px solid var(--orange); border-radius:var(--radius); padding:clamp(18px,3vw,28px); margin-bottom:clamp(32px,5vw,52px); }
+.toc-title { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:var(--orange); text-transform:uppercase; letter-spacing:0.12em; margin-bottom:16px; }
+.toc-list { list-style:none; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:4px 24px; }
+.toc-list li a { display:flex; align-items:center; gap:10px; font-size:14px; color:var(--text3); text-decoration:none; padding:4px 0; transition:color 0.2s; }
+.toc-list li a:hover { color:var(--orange); }
+.toc-num { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--orange); min-width:28px; }
+
+.section { margin-bottom:clamp(40px,6vw,64px); scroll-margin-top:80px; }
+.sec-hdr { display:flex; align-items:baseline; gap:14px; margin-bottom:20px; padding-bottom:12px; border-bottom:1.5px solid var(--border); }
+.sec-num { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--orange); min-width:40px; }
+h2.sec-t { font-family:'Playfair Display',serif; font-size:clamp(20px,3.5vw,26px); font-weight:700; color:var(--text); }
+h3.sub { font-family:'Playfair Display',serif; font-size:clamp(16px,2.5vw,20px); font-weight:600; color:var(--text2); margin:26px 0 12px; }
+p { margin-bottom:14px; font-size:clamp(14px,1.8vw,16.5px); }
+
+.tw { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0; }
+@media(max-width:580px) { .tw { grid-template-columns:1fr; } }
+.card { background:var(--bg2); border:1.5px solid var(--border); border-radius:var(--radius); padding:18px 20px; }
+.card-title { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:var(--orange); margin-bottom:8px; }
+.card ul { padding-left:18px; font-size:14px; color:var(--text3); }
+.card ul li { margin-bottom:5px; }
+
+.callout { border-radius:12px; padding:16px 20px; margin:20px 0; font-size:14.5px; }
+.callout-ai { background:linear-gradient(135deg,#fdf6ee 0%,#fdebd8 100%); border:1.5px solid var(--orange-bdr); border-left:4px solid var(--orange); }
+.callout-ai .ct { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--orange); margin-bottom:6px; }
+.callout-tip { background:var(--teal-bg); border:1.5px solid var(--teal-bdr); border-left:4px solid var(--teal); }
+.callout-tip .ct { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--teal); margin-bottom:6px; }
+.callout-warn { background:var(--amber-bg); border:1.5px solid var(--amber-bdr); border-left:4px solid var(--amber); }
+.callout-warn .ct { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--amber); margin-bottom:6px; }
+.callout-danger { background:var(--red-bg); border:1.5px solid var(--red-bdr); border-left:4px solid var(--red); }
+.callout-danger .ct { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--red); margin-bottom:6px; }
+
+.formula-block { background:var(--bg3); border:1.5px solid var(--border2); border-radius:12px; padding:18px 22px; margin:18px 0; text-align:center; }
+.formula { font-family:'JetBrains Mono',monospace; font-size:clamp(14px,2vw,17px); color:var(--text); font-weight:500; }
+.formula-big { font-size:clamp(16px,2.5vw,20px); }
+.formula-label { font-size:12px; color:var(--muted); margin-bottom:6px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:.1em; }
+.formula-sub { font-size:12px; color:var(--text3); margin-top:8px; font-family:'JetBrains Mono',monospace; }
+
+.tbl { width:100%; border-collapse:collapse; font-size:14px; margin:18px 0; }
+.tbl th { background:var(--orange); color:#fff; padding:10px 14px; text-align:left; font-family:'Playfair Display',serif; font-size:13px; }
+.tbl td { padding:10px 14px; border-bottom:1px solid var(--border); color:var(--text2); vertical-align:top; }
+.tbl tr:nth-child(even) td { background:var(--bg2); }
+.tbl tr:hover td { background:var(--orange-bg); }
+code { font-family:'JetBrains Mono',monospace; font-size:13px; background:var(--bg3); padding:2px 6px; border-radius:4px; color:var(--orange); }
+
+/* GATE CONCEPT CARDS (from Ch1) */
+.gate-card {
+  background:#fff;
+  border:1.5px solid var(--teal-bdr);
+  border-radius:var(--radius);
+  margin:20px 0;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.gate-hdr {
+  background:var(--teal-bg);
+  border-bottom:1.5px solid var(--teal-bdr);
+  padding:10px clamp(14px,2vw,20px);
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.gate-tag {
+  font-size:10px; font-weight:700;
+  background:var(--teal);
+  color:#fff;
+  padding:3px 10px; border-radius:5px;
+  letter-spacing:.07em;
+  font-family:'JetBrains Mono',monospace;
+  white-space:nowrap;
+}
+.gate-title { font-size:14px; font-weight:600; color:var(--teal); line-height:1.4; }
+.gate-body  { padding:clamp(14px,2vw,20px) clamp(16px,2vw,22px); font-size:clamp(14px,2vw,15.5px); }
+.gate-body p { color:var(--text2); font-size:clamp(14px,2vw,15.5px); }
+
+
+.diag-wrap { background:var(--bg2); border:1.5px solid var(--border); border-radius:12px; padding:20px 16px; margin:20px 0; text-align:center; overflow-x:auto; }
+.diag-caption { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-top:10px; letter-spacing:.05em; }
+
+/* Routh array */
+.routh-grid { display:grid; gap:8px; margin:18px 0; }
+.routh-row { display:flex; gap:8px; align-items:center; }
+.routh-label { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--orange); font-weight:700; min-width:32px; text-align:right; }
+.routh-cell { font-family:'JetBrains Mono',monospace; font-size:13px; background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:6px 14px; min-width:80px; text-align:center; color:var(--text2); }
+.routh-cell.pivot { background:var(--orange-bg); border-color:var(--orange-bdr); color:var(--orange); font-weight:700; }
+.routh-cell.condition { background:var(--green-bg); border-color:var(--green-bdr); color:var(--green); }
+
+/* Stability zone SVG wrapper */
+.s-plane-wrap { background:var(--bg2); border:1.5px solid var(--border); border-radius:12px; padding:20px 16px; margin:20px 0; overflow-x:auto; text-align:center; }
+
+/* Step info boxes */
+.step-list { counter-reset:step-cnt; list-style:none; margin:16px 0; }
+.step-list li { counter-increment:step-cnt; display:flex; gap:14px; margin-bottom:14px; font-size:14.5px; }
+.step-list li::before { content:counter(step-cnt); display:flex; align-items:center; justify-content:center; min-width:30px; height:30px; background:var(--orange); color:#fff; border-radius:50%; font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; flex-shrink:0; margin-top:2px; }
+
+.nav-strip { display:flex; gap:10px; justify-content:space-between; padding:20px 0; border-top:1.5px solid var(--border); margin-top:60px; flex-wrap:wrap; }
+.nav-btn { display:flex; align-items:center; gap:8px; padding:10px 18px; border-radius:10px; border:1.5px solid var(--border); color:var(--text3); text-decoration:none; font-size:14px; background:var(--bg2); transition:all 0.2s; }
+.nav-btn:hover { border-color:var(--orange); color:var(--orange); background:var(--orange-bg); }
+.nav-btn.primary { background:var(--orange); color:#fff; border-color:var(--orange); }
+.nav-btn.primary:hover { background:var(--orange-md); }
+
+/* ─── EXAMPLE BLOCK ─── */
+.example-block{
+  border:1.5px solid var(--border2);
+  border-left:5px solid var(--orange);
+  border-radius:0 var(--radius) var(--radius) 0;
+  padding:clamp(16px,2.5vw,26px);
+  background:#fff;
+  margin:clamp(20px,3vw,32px) 0;
+}
+.ex-head{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:14px;
+}
+.ex-badge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;
+  padding:3px 10px;border-radius:6px;
+  background:var(--orange-bg);border:1px solid var(--orange-bdr);
+  color:var(--orange);text-transform:uppercase;letter-spacing:.08em;
+  flex-shrink:0;
+}
+.ex-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(14px,2vw,16.5px);font-weight:700;color:var(--text);
+}
+.ex-q{
+  font-size:clamp(13.5px,1.8vw,15px);
+  color:var(--text2);line-height:1.8;margin-bottom:14px;
+}
+.ex-sol-head{
+  font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--green);
+  margin:14px 0 8px;font-family:'JetBrains Mono',monospace;
+  display:flex;align-items:center;gap:8px;
+}
+.ex-sol-head::before{content:'';width:20px;height:2px;background:var(--green);}
+.ex-steps{
+  display:flex;flex-direction:column;gap:10px;
+}
+.ex-step{
+  font-size:clamp(13px,1.7vw,14.5px);
+  color:var(--text2);line-height:1.75;
+  padding:10px 14px;
+  background:var(--bg2);border-radius:8px;
+}
+.ex-step code,.step-formula{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;color:var(--orange);
+  background:var(--orange-bg);padding:2px 8px;border-radius:4px;
+}
+.ex-ans{
+  margin-top:14px;padding:12px 18px;
+  background:var(--green-bg);border:1.5px solid var(--green-bdr);
+  border-radius:10px;
+  font-size:clamp(13px,1.8vw,15px);color:var(--green);
+  font-weight:600;
+}
+/* ─── BLOCK DIAGRAM (ASCII-art SVG style) ─── */
+.bd-wrap{
+  overflow-x:auto;
+  background:var(--bg2);border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+  margin:16px 0;text-align:center;
+}
+.bd-wrap svg{max-width:100%;height:auto;}
+</style>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <a href="index.html" style="font-family:'Playfair Display',serif;font-size:clamp(15px,2.5vw,18px);font-weight:700;color:var(--orange);text-decoration:none;display:flex;align-items:center;">Aarova AI <span style="font-family:'Lora',serif;font-size:12px;color:var(--muted);margin-left:10px;font-weight:400;white-space:nowrap;">Control Systems · Chapter 4</span></a>
+  <div class="hbadges">
+    <span class="hbadge">GATE EE</span>
+    <span class="hbadge">IES</span>
+    <span class="hbadge">PSU</span>
+  </div>
+</header>
+<main class="page">
+<section class="hero">
+<div class="eyebrow">Control Systems  ·  Chapter 4</div>
+<h1 class="hero-title">Stability <em>Analysis</em></h1>
+<p class="hero-desc">
+    A system that is accurate but unstable is worse than useless — it's dangerous. Stability analysis answers the fundamental question: <em>will this system's output remain bounded when the input is bounded?</em> This chapter covers the algebraic Routh–Hurwitz criterion, BIBO stability, marginal stability, and system type classification — all heavy-hitters in GATE and IES exams.
+  </p>
+<div class="badge-row">
+<span class="badge badge-p">Routh–Hurwitz Criterion</span>
+<span class="badge badge-p">BIBO Stability</span>
+<span class="badge">S-Plane Regions</span>
+<span class="badge">Marginal Stability</span>
+<span class="badge">System Type</span>
+<span class="badge">Error Constants</span>
+</div>
+</section>
+<div class="progress-bar">
+<span class="pl">Chapter Progress</span>
+<div class="pt"><div class="pf"></div></div>
+<span class="pp">4 / 8 Chapters</span>
+</div>
+<nav aria-label="Contents" class="toc">
+<div class="toc-title">Contents</div>
+<ul class="toc-list">
+<li><a href="#s1"><span class="toc-num">4.1</span>What is Stability?</a></li>
+<li><a href="#s2"><span class="toc-num">4.2</span>Stability &amp; S-Plane Regions</a></li>
+<li><a href="#s3"><span class="toc-num">4.3</span>Routh–Hurwitz Criterion</a></li>
+<li><a href="#s4"><span class="toc-num">4.4</span>Constructing the Routh Array</a></li>
+<li><a href="#s5"><span class="toc-num">4.5</span>Special Cases in Routh Array</a></li>
+<li><a href="#s6"><span class="toc-num">4.6</span>System Type Classification</a></li>
+<li><a href="#s7"><span class="toc-num">4.7</span>GATE &amp; IES Exam Concepts</a></li>
+<li><a href="#s8"><span class="toc-num">4.8</span>Worked Examples (GATE &amp; IES)</a></li>
+<li><a href="#s9"><span class="toc-num">4.9</span>Chapter Summary</a></li>
+</ul>
+</nav>
+<!-- ══════════════════════════════════════
+  §4.1  WHAT IS STABILITY?
+═══════════════════════════════════════ -->
+<div class="section" id="s1">
+<div class="sec-hdr"><span class="sec-num">4.1</span><h2 class="sec-t">What is Stability?</h2></div>
+<p>A system is said to be <strong>stable</strong> if, for every <em>bounded input</em>, the output also remains <em>bounded</em>. This is the formal <strong>BIBO (Bounded Input, Bounded Output)</strong> definition of stability used in GATE.</p>
+<div class="tw">
+<div class="card">
+<div class="card-title">✅ Stable System</div>
+<ul>
+<li>All poles in the <strong>Left Half of S-plane</strong> (LHP)</li>
+<li>Transient response → 0 as t→∞</li>
+<li>Bounded input produces bounded output</li>
+<li>All roots of CE have negative real parts</li>
+</ul>
+</div>
+<div class="card">
+<div class="card-title">❌ Unstable System</div>
+<ul>
+<li>Any pole in the <strong>Right Half of S-plane</strong> (RHP)</li>
+<li>Output grows without bound</li>
+<li>Characteristic equation has roots with positive real part</li>
+<li>Even small inputs cause diverging response</li>
+</ul>
+</div>
+</div>
+<div class="card" style="margin-top:0;border-left:4px solid var(--amber);">
+<div class="card-title" style="color:var(--amber);">⚡ Marginally Stable System</div>
+<ul>
+<li>Poles lie <strong>on the imaginary axis</strong> (purely imaginary roots)</li>
+<li>Output oscillates continuously — neither grows nor decays</li>
+<li>Called "marginally stable" or "critically stable"</li>
+<li>Practically: <em>NOT acceptable</em> — any perturbation causes instability</li>
+</ul>
+</div>
+</div>
+<!-- ══════════════════════════════════════
+  §4.2  STABILITY AND S-PLANE REGIONS
+═══════════════════════════════════════ -->
+<div class="section" id="s2">
+<div class="sec-hdr"><span class="sec-num">4.2</span><h2 class="sec-t">Stability &amp; the S-Plane</h2></div>
+<p>The <strong>location of closed-loop poles</strong> in the s-plane completely determines whether a system is stable, unstable, or marginally stable. This is the geometric interpretation of stability.</p>
+<!-- S-plane stability regions SVG -->
+<div class="s-plane-wrap">
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:12px;font-family:'JetBrains Mono',monospace;">S-Plane Stability Regions</div>
+<svg style="max-width:100%;height:auto;display:block;margin:0 auto;" viewbox="0 0 440 280" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<marker id="arr-sp2" markerheight="5" markerwidth="7" orient="auto" refx="6" refy="2.5">
+<polygon fill="#3d2010" points="0 0,7 2.5,0 5"></polygon>
+</marker>
+</defs>
+<!-- LHP shaded (stable - green tint) -->
+<rect fill="#dff0e8" fill-opacity="0.6" height="232" rx="0" width="175" x="30" y="24"></rect>
+<!-- RHP shaded (unstable - red tint) -->
+<rect fill="#fde8e8" fill-opacity="0.6" height="232" rx="0" width="195" x="215" y="24"></rect>
+<!-- Imaginary axis (marginal - amber) -->
+<rect fill="#fef0d0" fill-opacity="0.9" height="232" width="10" x="210" y="24"></rect>
+<!-- Axes -->
+<line marker-end="url(#arr-sp2)" stroke="#3d2010" stroke-width="1.8" x1="28" x2="415" y1="140" y2="140"></line>
+<line marker-end="url(#arr-sp2)" stroke="#3d2010" stroke-width="1.8" x1="215" x2="215" y1="20" y2="258"></line>
+<text fill="#3d2010" font-family="Georgia,serif" font-size="12" font-style="italic" x="420" y="144">σ</text>
+<text fill="#3d2010" font-family="Georgia,serif" font-size="12" x="220" y="16">jω</text>
+<!-- LHP label -->
+<text fill="#2d6648" font-family="'Playfair Display',serif" font-size="14" font-weight="700" text-anchor="middle" x="115" y="55">STABLE</text>
+<text fill="#2d6648" font-family="Georgia,serif" font-size="10" text-anchor="middle" x="115" y="72">Left Half Plane (LHP)</text>
+<text fill="#2d6648" font-family="Georgia,serif" font-size="10" text-anchor="middle" x="115" y="86">All poles: Re(s) &lt; 0</text>
+<!-- RHP label -->
+<text fill="#9a2020" font-family="'Playfair Display',serif" font-size="14" font-weight="700" text-anchor="middle" x="310" y="55">UNSTABLE</text>
+<text fill="#9a2020" font-family="Georgia,serif" font-size="10" text-anchor="middle" x="310" y="72">Right Half Plane (RHP)</text>
+<text fill="#9a2020" font-family="Georgia,serif" font-size="10" text-anchor="middle" x="310" y="86">Any pole: Re(s) &gt; 0</text>
+<!-- Imaginary axis label -->
+<text fill="#a05c00" font-family="Georgia,serif" font-size="9" text-anchor="middle" x="215" y="268">MARGINAL</text>
+<text fill="#a05c00" font-family="Georgia,serif" font-size="8" text-anchor="middle" x="215" y="278">jω axis</text>
+<!-- Example poles: stable (LHP) -->
+<text fill="#2d6648" font-size="20" font-weight="bold" x="80" y="128">×</text>
+<text fill="#2d6648" font-size="20" font-weight="bold" x="120" y="168">×</text>
+<text fill="#2d6648" font-size="20" font-weight="bold" x="60" y="175">×</text>
+<text fill="#2d6648" font-size="20" font-weight="bold" x="140" y="128">×</text>
+<text fill="#2d6648" font-family="Georgia,serif" font-size="9" x="74" y="148">LHP poles → stable</text>
+<!-- Example poles: marginal (jω axis) -->
+<text fill="#a05c00" font-size="20" font-weight="bold" x="208" y="98">×</text>
+<text fill="#a05c00" font-size="20" font-weight="bold" x="208" y="190">×</text>
+<!-- Example poles: unstable (RHP) -->
+<text fill="#9a2020" font-size="20" font-weight="bold" x="280" y="110">×</text>
+<text fill="#9a2020" font-size="20" font-weight="bold" x="350" y="150">×</text>
+<text fill="#9a2020" font-family="Georgia,serif" font-size="9" x="255" y="178">RHP pole → unstable</text>
+<!-- Connecting line from stable to marginal to unstable -->
+<path d="M215,140 m0,0" stroke="none"></path>
+</svg>
+<div class="diag-caption">Fig 4.1 — S-plane stability regions. Green LHP = stable. Red RHP = unstable. Amber jω axis = marginally stable.</div>
+</div>
+<div class="callout callout-ai">
+<div class="ct">🤖 Aarova AI — The Geometric Rule</div>
+    You don't need to solve for poles to determine stability. The <strong>Routh–Hurwitz criterion</strong> gives you stability information directly from the characteristic equation coefficients — without finding the roots. This is why it's so powerful for GATE problems involving symbolic gain values.
+  </div>
+</div>
+<!-- ══════════════════════════════════════
+  §4.3  ROUTH-HURWITZ CRITERION
+═══════════════════════════════════════ -->
+<div class="section" id="s3">
+<div class="sec-hdr"><span class="sec-num">4.3</span><h2 class="sec-t">Routh–Hurwitz Criterion</h2></div>
+<p>The Routh–Hurwitz criterion is an <strong>algebraic method</strong> to determine stability without computing roots. It works by analysing the sign pattern of elements in a specially constructed array called the <strong>Routh Array</strong>.</p>
+<div class="formula-block" style="text-align:center;">
+  $$ a_ns^n + a_n₋₁s^n⁻¹ + ... + a₁s + a₀ = 0 $$
+</div>
+</div>
+<h3 class="sub">Necessary Conditions for Stability</h3>
+<p>Before building the Routh array, check these quick conditions. If either fails, the system is <em>definitely unstable</em>:</p>
+<ul class="step-list">
+<li><strong>All coefficients must be present</strong> — no missing (zero) coefficients for intermediate powers of s.</li>
+<li><strong>All coefficients must have the same sign</strong> — all positive or all negative. Any sign change = guaranteed instability.</li>
+</ul>
+<div class="callout callout-warn">
+<div class="ct">⚠️ Necessary but NOT Sufficient</div>
+    These two conditions are <em>necessary</em> for stability but <em>not sufficient</em>. A polynomial can pass both checks and still be unstable — that's why we need the full Routh Array analysis as the sufficient condition.
+  </div>
+
+<!-- ══════════════════════════════════════
+  §4.4  CONSTRUCTING THE ROUTH ARRAY
+═══════════════════════════════════════ -->
+<div class="section" id="s4">
+<div class="sec-hdr"><span class="sec-num">4.4</span><h2 class="sec-t">Constructing the Routh Array</h2></div>
+<p>Given CE: $$ a_ns^n + a_n₋₁s^n⁻¹ + a_n₋₂s^n⁻^2 + ... + a₁s + a₀ = 0 $$, the array is built as follows:</p>
+<ul class="step-list">
+<li><strong>Row 1</strong>: Write alternate coefficients starting from aₙ — i.e., aₙ, aₙ₋₂, aₙ₋₄, ...</li>
+<li><strong>Row 2</strong>: Write the remaining alternate coefficients — i.e., aₙ₋₁, aₙ₋₃, aₙ₋₅, ...</li>
+<li><strong>Subsequent rows</strong>: Each element is computed from the 2×2 determinant of the two rows above it, divided by the leftmost element of the row immediately above.</li>
+</ul>
+<!-- Generic Routh Array visual -->
+<div class="diag-wrap">
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:14px;font-family:'JetBrains Mono',monospace;">General Routh Array Structure (4th-order example)</div>
+<div class="routh-grid" style="max-width:480px;margin:0 auto;">
+<div class="routh-row">
+<div class="routh-label">s⁴</div>
+<div class="routh-cell pivot">a₄</div>
+<div class="routh-cell">a₂</div>
+<div class="routh-cell">a₀</div>
+</div>
+<div class="routh-row">
+<div class="routh-label">s³</div>
+<div class="routh-cell pivot">a₃</div>
+<div class="routh-cell">a₁</div>
+<div class="routh-cell">0</div>
+</div>
+<div class="routh-row">
+<div class="routh-label">s²</div>
+<div class="routh-cell pivot">b₁</div>
+<div class="routh-cell">b₂</div>
+<div class="routh-cell">0</div>
+</div>
+<div class="routh-row">
+<div class="routh-label">s¹</div>
+<div class="routh-cell pivot">c₁</div>
+<div class="routh-cell">0</div>
+<div class="routh-cell">0</div>
+</div>
+<div class="routh-row">
+<div class="routh-label">s⁰</div>
+<div class="routh-cell condition">a₀</div>
+<div class="routh-cell">0</div>
+<div class="routh-cell">0</div>
+</div>
+</div>
+<div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3);margin-top:16px;text-align:left;max-width:480px;margin-left:auto;margin-right:auto;">
+      b₁ = (a₃·a₂ − a₄·a₁) / a₃     b₂ = (a₃·a₀ − a₄·0) / a₃ = a₀<br/>
+      c₁ = (b₁·a₁ − a₃·b₂) / b₁
+    </div>
+<div class="diag-caption">Fig 4.2 — Orange cells = first column (pivot elements). System is stable if ALL first-column elements have the same sign.</div>
+</div>
+<div class="formula-block" style="text-align:center;">
+  <div class="formula-label">Routh–Hurwitz Stability Condition</div>
+  <div style="font-size:15px;font-weight:700;color:var(--orange);padding:10px 0;">All elements of the first column of the Routh Array must have the <em>same sign</em></div>
+  <div class="formula-sub">Number of sign changes in first column = Number of RHP roots = Number of unstable poles</div>
+</div>
+</div>
+<h3 class="sub">Worked Example</h3>
+<p>Characteristic equation: $$ s^3 + 2s^2 + 3s + 6 = 0 $$ — is the system stable?</p>
+<div class="diag-wrap" style="text-align:left;">
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:14px;font-family:'JetBrains Mono',monospace;">Routh Array: s³ + 2s² + 3s + 6 = 0</div>
+<div class="routh-grid" style="max-width:380px;">
+<div class="routh-row">
+<div class="routh-label">s³</div>
+<div class="routh-cell pivot">1</div>
+<div class="routh-cell">3</div>
+</div>
+<div class="routh-row">
+<div class="routh-label">s²</div>
+<div class="routh-cell pivot">2</div>
+<div class="routh-cell">6</div>
+</div>
+<div class="routh-row">
+<div class="routh-label">s¹</div>
+<div class="routh-cell pivot" style="background:var(--teal-bg);border-color:var(--teal-bdr);color:var(--teal);">(2×3−1×6)/2 = 0</div>
+</div>
+</div>
+<div style="font-size:13px;color:var(--red);font-family:'JetBrains Mono',monospace;margin-top:12px;">⚠ Zero in first column — special case! → Marginally stable (see §4.5)</div>
+</div>
+<h3 class="sub">Second Worked Example — Stability Range for K</h3>
+<p>CE: $$ s^3 + 3s^2 + 2s + K = 0 $$ — find values of K for stability.</p>
+<div class="diag-wrap" style="text-align:left;">
+<div class="routh-grid" style="max-width:380px;">
+<div class="routh-row">
+<div class="routh-label">s³</div>
+<div class="routh-cell pivot">1</div>
+<div class="routh-cell">2</div>
+</div>
+<div class="routh-row">
+<div class="routh-label">s²</div>
+<div class="routh-cell pivot">3</div>
+<div class="routh-cell">K</div>
+</div>
+<div class="routh-row">
+<div class="routh-label">s¹</div>
+<div class="routh-cell pivot">(6−K)/3</div>
+<div class="routh-cell">0</div>
+</div>
+<div class="routh-row">
+<div class="routh-label">s⁰</div>
+<div class="routh-cell condition">K</div>
+<div class="routh-cell">—</div>
+</div>
+</div>
+<div style="font-size:13px;color:var(--green);font-family:'JetBrains Mono',monospace;margin-top:12px;line-height:1.8;">
+      For stability (all first-column elements &gt; 0):<br/>
+      (6−K)/3 &gt; 0 → K &lt; 6<br/>
+      K &gt; 0<br/>
+      ∴ <strong>0 &lt; K &lt; 6</strong> for stable system
+    </div>
+</div>
+<div class="callout callout-ai">
+<div class="ct">🤖 Aarova AI — The K-Range Trick</div>
+    "Find the range of K for stability" is one of GATE's most common question types. The answer always comes from setting each symbolic first-column expression to &gt; 0 and solving simultaneously. Usually results in two inequalities — the intersection is your answer.
+  </div>
+
+<!-- ══════════════════════════════════════
+  §4.5  SPECIAL CASES IN ROUTH ARRAY
+═══════════════════════════════════════ -->
+<div class="section" id="s5">
+<div class="sec-hdr"><span class="sec-num">4.5</span><h2 class="sec-t">Special Cases in Routh Array</h2></div>
+<div class="tw">
+<div class="card">
+<div class="card-title">Case 1: Zero in First Column Only</div>
+<ul>
+<li>Replace the zero with a small positive ε → 0⁺</li>
+<li>Complete the array using ε</li>
+<li>Check sign changes as ε → 0</li>
+<li>Alternatively: substitute s = 1/z and solve new CE</li>
+<li>System is either marginally stable or unstable</li>
+</ul>
+</div>
+<div class="card">
+<div class="card-title">Case 2: Entire Row of Zeros</div>
+<ul>
+<li>Indicates presence of <strong>symmetric roots</strong></li>
+<li>These roots are equidistant from origin in S-plane</li>
+<li>Form <strong>Auxiliary Polynomial</strong> from the row ABOVE the zero row</li>
+<li>Replace zero row with derivative of auxiliary polynomial</li>
+<li>Roots of auxiliary polynomial are the symmetric roots</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-tip">
+<div class="ct">💡 Auxiliary Polynomial Insight</div>
+    When an entire row is zero (Case 2), the <strong>Auxiliary Polynomial A(s)</strong> is formed from the row above it. The degree of A(s) is even (2, 4, 6...). Its roots always occur in pairs symmetric about the origin — e.g., ±jω, ±σ, or ±(σ+jω) with ±(−σ−jω). This directly reveals <em>marginal stability</em> when roots are ±jω.
+  </div>
+</div>
+<!-- ══════════════════════════════════════
+  §4.6  SYSTEM TYPE CLASSIFICATION
+═══════════════════════════════════════ -->
+<div class="section" id="s6">
+<div class="sec-hdr"><span class="sec-num">4.6</span><h2 class="sec-t">System Type &amp; Error Constants</h2></div>
+<p>The <strong>system type</strong> is determined by the number of <em>pure integrators</em> (poles at s=0) in the open-loop transfer function G(s). Higher system type → lower steady-state error, but at the cost of stability.</p>
+<!-- System type block diagram -->
+<div class="diag-wrap">
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:12px;font-family:'JetBrains Mono',monospace;">General OLTF Structure showing System Type</div>
+<svg style="max-width:100%;height:auto;display:block;margin:0 auto;" viewbox="0 0 480 80" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<marker id="arr-st" markerheight="5" markerwidth="7" orient="auto" refx="6" refy="2.5">
+<polygon fill="#3d2010" points="0 0,7 2.5,0 5"></polygon>
+</marker>
+</defs>
+<text fill="#3d2010" font-family="Georgia,serif" font-size="13" font-style="italic" x="4" y="45">R(s)</text>
+<line marker-end="url(#arr-st)" stroke="#3d2010" stroke-width="1.8" x1="36" x2="68" y1="41" y2="41"></line>
+<!-- OLTF block -->
+<rect fill="#fdebd8" height="34" rx="5" stroke="#c95f1a" stroke-width="1.5" width="310" x="70" y="24"></rect>
+<text fill="#1e1208" font-family="Georgia,serif" font-size="12" font-weight="600" text-anchor="middle" x="225" y="38">G(s) = K(s+Z₁)(s+Z₂)... / </text>
+<text fill="#c95f1a" font-family="Georgia,serif" font-size="12" font-weight="600" text-anchor="middle" x="225" y="52">sᴺ(s+P₁)(s+P₂)...</text>
+<line marker-end="url(#arr-st)" stroke="#3d2010" stroke-width="1.8" x1="380" x2="460" y1="41" y2="41"></line>
+<text fill="#c95f1a" font-family="Georgia,serif" font-size="10" font-weight="700" x="435" y="36">N = Type</text>
+</svg>
+<div class="diag-caption">Fig 4.3 — N = number of poles at origin = System Type. Higher N → better tracking, but harder to stabilise.</div>
+</div>
+<table class="tbl">
+<thead>
+<tr><th>System Type (N)</th><th>Kₚ</th><th>Kᵥ</th><th>Kₐ</th><th>Step eₛₛ</th><th>Ramp eₛₛ</th><th>Parabolic eₛₛ</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Type 0</strong></td>
+<td>Finite (= K)</td><td>0</td><td>0</td>
+<td>A/(1+Kₚ) ≠ 0</td><td>∞</td><td>∞</td>
+</tr>
+<tr>
+<td><strong>Type 1</strong></td>
+<td>∞</td><td>Finite</td><td>0</td>
+<td>0</td><td>A/Kᵥ ≠ 0</td><td>∞</td>
+</tr>
+<tr>
+<td><strong>Type 2</strong></td>
+<td>∞</td><td>∞</td><td>Finite</td>
+<td>0</td><td>0</td><td>A/Kₐ ≠ 0</td>
+</tr>
+<tr>
+<td><strong>Type 3+</strong></td>
+<td>∞</td><td>∞</td><td>∞</td>
+<td>0</td><td>0</td><td>0</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-danger">
+<div class="ct">🚨 Critical Note — Type vs Stability</div>
+    Increasing system type always improves steady-state accuracy — but it simultaneously reduces phase margin and makes the system harder to stabilise. The Routh-Hurwitz criterion helps you find <strong>exactly which gain values keep a higher-type system stable</strong>.
+  </div>
+<!-- Marginal stability and frequency derivation -->
+<h3 class="sub">Finding Frequency of Sustained Oscillation</h3>
+<p>When a system is at the boundary of stability (marginal), sustained oscillations occur at a specific frequency. This is found by substituting $$ s = j\omega $$ into the characteristic equation and solving for ω where the CE = 0.</p>
+<div class="formula-block" style="text-align:center;">
+  $$ At stability boundary: substitute s = j\omega  in CE $$
+  <div class="formula-sub">Separate real and imaginary parts → set both = 0 → solve for ω  and K simultaneously</div>
+</div>
+</div>
+<div class="callout callout-ai">
+<div class="ct">🤖 Aarova AI — Worked Method</div>
+    For CE: s³ + 6s² + 11s + K = 0, at marginal stability the s¹ row element = 0:<br/>
+    (66 − K)/6 = 0 → <strong>K = 66</strong> (limiting gain).<br/>
+    Auxiliary poly from s² row: 6s² + K = 6s² + 66 → s² = −11 → s = ±j√11<br/>
+<strong>ωₒₛc = √11 ≈ 3.32 rad/s</strong>. This is the exact frequency of oscillation at the stability boundary.
+  </div>
+
+<!-- ══════════════════════════════════════
+  §4.7  GATE & IES EXAM CONCEPTS
+═══════════════════════════════════════ -->
+<div class="section" id="s7">
+  <div class="sec-hdr"><span class="sec-num">4.7</span><h2 class="sec-t">GATE &amp; IES Exam Concepts</h2></div>
+
+  <div class="gate-card">
+    <div class="gate-hdr"><span class="gate-tag">CONCEPT 1</span><span class="gate-title">The Non-Unity Feedback Error Trap</span></div>
+    <div class="gate-body">
+      <p>The standard steady-state error formulas (\( e_{ss} = 1/(1+K_p) \) or \( 1/K_v \)) are derived under the assumption of <strong>unity feedback (\( H(s) = 1 \))</strong>. When \( H(s) \neq 1 \), applying these formulas directly is incorrect. You must use one of two correct approaches:</p>
+      
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; margin:12px 0;">
+        <div style="background:var(--teal-bg); border:1.5px solid var(--teal-bdr); border-radius:10px; padding:14px 16px;">
+          <div style="font-weight:700; color:var(--teal); font-size:12px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px;">Method 1: Direct FVT on Output Error</div>
+          <p style="font-size:13.5px; color:var(--text2); line-height:1.6; margin:0;">
+            Define physical error as \( e(t) = r(t) - c(t) \). Find the CLTF \( T(s) = C(s)/R(s) \) first:
+            $$ E(s) = R(s)[1 - T(s)] $$
+            Apply the Final Value Theorem directly:
+            $$ e_{ss} = \lim_{s\to 0} s E(s) = \lim_{s\to 0} s R(s)[1 - T(s)] $$
+          </p>
+        </div>
+        <div style="background:var(--orange-bg); border:1.5px solid var(--orange-bdr); border-radius:10px; padding:14px 16px;">
+          <div style="font-weight:700; color:var(--orange); font-size:12px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px;">Method 2: Unity Feedback Equivalence</div>
+          <p style="font-size:13.5px; color:var(--text2); line-height:1.6; margin:0;">
+            Convert the non-unity feedback system into an equivalent unity feedback system with a new forward path transfer function:
+            $$ G_{eq}(s) = \frac{G(s)}{1 + G(s)(H(s) - 1)} $$
+            Once \( G_{eq}(s) \) is found, apply standard error constants to it.
+          </p>
+        </div>
+      </div>
+      <div class="callout c-danger" style="margin-top:12px">
+        <div class="ci">⛔</div>
+        <div class="cb"><div class="ct">Exam Trap</div><p>Never compute static error constants using the open-loop transfer function \( G(s)H(s) \) directly if \( H(s) \neq 1 \). This mistake is tested in many GATE electrical and electronics papers.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gate-card">
+    <div class="gate-hdr"><span class="gate-tag">CONCEPT 2</span><span class="gate-title">Routh Array Special Cases and Physical Interpretations</span></div>
+    <div class="gate-body">
+      <p>The Routh array construction has two singular cases that require special mathematical treatment:</p>
+      <ul style="list-style:disc; padding-left:20px; color:var(--text2); display:flex; flex-direction:column; gap:10px;">
+        <li>
+          <strong>Case 1: First Element of a Row is Zero (but other terms are non-zero)</strong><br/>
+          Replace the zero with a small positive number \( \epsilon \) and proceed to construct the rest of the array. Once complete, take the limit \( \epsilon \to 0^+ \) to analyze sign changes in the first column.
+        </li>
+        <li>
+          <strong>Case 2: A Complete Row of Zeros</strong><br/>
+          This indicates the existence of roots located symmetrically about the origin in the \(s\)-plane (e.g., imaginary axis roots \( \pm j\omega \), real axis roots \( \pm \sigma \), or complex conjugate pairs). To continue:
+          <ol style="margin-left: 20px; margin-top: 5px;">
+            <li>Form the <strong>Auxiliary Equation \( A(s) = 0 \)</strong> using the row immediately above the zero row.</li>
+            <li>Take the derivative of the auxiliary equation with respect to \( s \): \( \frac{dA(s)}{ds} \).</li>
+            <li>Replace the zero row with the coefficients of the derivative and proceed.</li>
+          </ol>
+        </li>
+      </ul>
+      <div class="callout c-key" style="margin-top:12px">
+        <div class="ci">⚖️</div>
+        <div class="cb"><div class="ct">Stability Interpretation</div><p>A complete row of zeros means the system has symmetric roots. If there are no sign changes in the first column of the completed Routh array, the system is <strong>marginally stable</strong> (sustained oscillations), and all symmetric roots lie on the imaginary axis.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gate-card">
+    <div class="gate-hdr"><span class="gate-tag">CONCEPT 3</span><span class="gate-title">Marginal Gain and Frequency of Oscillation</span></div>
+    <div class="gate-body">
+      <p>When the characteristic equation contains an adjustable gain parameter \( K \), Routh-Hurwitz helps find the boundaries of stability:</p>
+      <ul style="list-style:disc; padding-left:20px; color:var(--text2); display:flex; flex-direction:column; gap:8px;">
+        <li>Find the range of \( K \) for stability by setting all terms in the first column of the Routh array to be greater than zero (\( > 0 \)).</li>
+        <li>The boundary value of \( K \) that causes a row to become zero is the <strong>marginal gain (\( K_{mar} \))</strong>.</li>
+        <li>To find the **frequency of sustained oscillation** at this boundary, substitute \( K = K_{mar} \) into the auxiliary equation \( A(s) = 0 \) and solve for \( s = \pm j\omega_{osc} \).</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  §4.8  WORKED EXAMPLES (GATE & IES)
+═══════════════════════════════════════ -->
+<div class="section" id="s8">
+  <div class="sec-hdr"><span class="sec-num">4.8</span><h2 class="sec-t">Worked Examples (GATE &amp; IES)</h2></div>
+
+  <!-- Example 1 -->
+  <div class="example-block">
+    <div class="ex-head">
+      <span class="ex-badge">Example 01</span>
+      <div class="ex-title">Stability Range &amp; Frequency of Sustained Oscillation</div>
+    </div>
+    <p class="ex-q">
+      A unity feedback control system is described by the open-loop transfer function \( G(s) = \frac{K}{s(s+3)(s+5)} \). Determine the range of \( K \) for stability, the marginal gain \( K_{mar} \), and the frequency of sustained oscillation when the system is marginally stable.
+    </p>
+    <div class="bd-wrap">
+      <svg style="max-width:380px;display:block;margin:0 auto;" viewbox="0 0 440 90" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arr-ex1" markerheight="5" markerwidth="7" orient="auto" refx="6" refy="2.5"><polygon fill="#3d2010" points="0 0,7 2.5,0 5"></polygon></marker>
+        </defs>
+        <text fill="#3d2010" font-family="Georgia,serif" font-size="13" font-style="italic" x="4" y="46">R(s)</text>
+        <line marker-end="url(#arr-ex1)" stroke="#3d2010" stroke-width="1.8" x1="36" x2="62" y1="42" y2="42"></line>
+        <circle cx="74" cy="42" fill="#fdf6ee" r="12" stroke="#c95f1a" stroke-width="1.8"></circle>
+        <text fill="#c95f1a" font-family="sans-serif" font-size="10" font-weight="bold" x="67" y="38">+</text>
+        <text fill="#c95f1a" font-family="sans-serif" font-size="11" font-weight="bold" x="70" y="50">−</text>
+        <line marker-end="url(#arr-ex1)" stroke="#3d2010" stroke-width="1.8" x1="86" x2="118" y1="42" y2="42"></line>
+        <!-- G(s) -->
+        <rect fill="#fdebd8" height="40" rx="5" stroke="#c95f1a" stroke-width="1.5" width="168" x="120" y="22"></rect>
+        <text fill="#1e1208" font-family="Georgia,serif" font-size="14" font-weight="600" text-anchor="middle" x="204" y="39">K</text>
+        <line stroke="#1e1208" stroke-width="1.2" x1="154" x2="254" y1="45" y2="45"></line>
+        <text fill="#1e1208" font-family="Georgia,serif" font-size="12" text-anchor="middle" x="204" y="57">s(s + 3)(s + 5)</text>
+        <line marker-end="url(#arr-ex1)" stroke="#3d2010" stroke-width="1.8" x1="288" x2="330" y1="42" y2="42"></line>
+        <circle cx="336" cy="42" fill="#3d2010" r="3.5"></circle>
+        <text fill="#3d2010" font-family="Georgia,serif" font-size="13" font-style="italic" x="344" y="46">C(s)</text>
+        <!-- Feedback -->
+        <line stroke="#3d2010" stroke-width="1.8" x1="336" x2="336" y1="55" y2="75"></line>
+        <line stroke="#3d2010" stroke-width="1.8" x1="336" x2="74" y1="75" y2="75"></line>
+        <line marker-end="url(#arr-ex1)" stroke="#3d2010" stroke-width="1.8" x1="74" x2="74" y1="75" y2="54"></line>
+      </svg>
+    </div>
+    <div class="ex-sol-head">Solution</div>
+    <div class="ex-steps">
+      <div class="ex-step">
+        <strong>1. Characteristic Equation (CE):</strong><br/>
+        $$ 1 + G(s)H(s) = 0 \implies 1 + \frac{K}{s(s+3)(s+5)} = 0 $$
+        $$ s(s^2 + 8s + 15) + K = 0 \implies s^3 + 8s^2 + 15s + K = 0 $$
+      </div>
+      <div class="ex-step">
+        <strong>2. Construct Routh Array:</strong><br/>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; margin-top:6px; padding-left:10px; border-left:2px solid var(--orange);">
+          s³ &nbsp;|&nbsp; 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 15<br/>
+          s² &nbsp;|&nbsp; 8 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; K<br/>
+          s¹ &nbsp;|&nbsp; \(\frac{120 - K}{8}\) &nbsp;&nbsp;&nbsp; 0<br/>
+          s⁰ &nbsp;|&nbsp; K
+        </div>
+      </div>
+      <div class="ex-step">
+        <strong>3. Apply Stability Conditions:</strong><br/>
+        For stability, all elements in the first column must be strictly positive (> 0):
+        $$ \text{Row } s^1: \quad \frac{120 - K}{8} > 0 \implies K < 120 $$
+        $$ \text{Row } s^0: \quad K > 0 $$
+        Thus, the stability range is: <strong>\( 0 < K < 120 \)</strong>.
+      </div>
+      <div class="ex-step">
+        <strong>4. Find marginal gain and frequency of oscillation:</strong><br/>
+        At boundary of stability: \( K_{mar} = 120 \). The row above (\( s^2 \)) forms the auxiliary equation:
+        $$ 8s^2 + K_{mar} = 0 \implies 8s^2 + 120 = 0 $$
+        $$ s^2 = -\frac{120}{8} = -15 \implies s = \pm j\sqrt{15} \approx \pm j3.87 \text{ rad/s} $$
+        The frequency of sustained oscillation is \( \omega_{osc} = \sqrt{15} \approx \mathbf{3.87 \text{ rad/s}} \).
+      </div>
+    </div>
+    <div class="ex-ans">✔ Ans: Range: \( 0 < K < 120 \), \( K_{mar} = 120 \), \( \omega_{osc} = 3.87 \text{ rad/s} \)</div>
+  </div>
+
+  <!-- Example 2 -->
+  <div class="example-block">
+    <div class="ex-head">
+      <span class="ex-badge">Example 02</span>
+      <div class="ex-title">Handling first-column zero via \(\epsilon\)-substitution</div>
+    </div>
+    <p class="ex-q">
+      Determine the stability of a system whose characteristic equation is given by:
+      $$ s^4 + 2s^3 + 2s^2 + 4s + 8 = 0 $$
+    </p>
+    <div class="ex-sol-head">Solution</div>
+    <div class="ex-steps">
+      <div class="ex-step">
+        <strong>1. Construct Routh Array:</strong><br/>
+        The first two rows are filled directly from the coefficients:
+        <div style="font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; margin:8px 0; padding-left:10px; border-left:2px solid var(--orange);">
+          s⁴ &nbsp;|&nbsp; 1 &nbsp;&nbsp;&nbsp; 2 &nbsp;&nbsp;&nbsp; 8<br/>
+          s³ &nbsp;|&nbsp; 2 &nbsp;&nbsp;&nbsp; 4 &nbsp;&nbsp;&nbsp; 0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (simplify: divide by 2 &rarr; 1, 2, 0)
+        </div>
+        Compute \( s^2 \) row:
+        $$ s^2 \text{ first term} = \frac{1(2) - 1(2)}{1} = 0 $$
+        Since the first term is zero but other elements are not, we replace it with \( \epsilon \):
+        <div style="font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; margin:8px 0; padding-left:10px; border-left:2px solid var(--orange);">
+          s² &nbsp;|&nbsp; \(\epsilon\) &nbsp;&nbsp;&nbsp; 8<br/>
+          s¹ &nbsp;|&nbsp; \(\frac{2\epsilon - 8}{\epsilon}\) &nbsp;&nbsp;&nbsp; 0<br/>
+          s⁰ &nbsp;|&nbsp; 8
+        </div>
+      </div>
+      <div class="ex-step">
+        <strong>2. Analyze Sign Changes in the First Column:</strong><br/>
+        Evaluate the first column elements as \( \epsilon \to 0^+ \):
+        <ol style="margin-left: 20px; margin-top: 5px; display:flex; flex-direction:column; gap:5px;">
+          <li>\( s^4 \) row term: \( 1 \) (Positive)</li>
+          <li>\( s^3 \) row term: \( 1 \) (Positive)</li>
+          <li>\( s^2 \) row term: \( \epsilon \approx 0^+ \) (Positive)</li>
+          <li>\( s^1 \) row term: \( \lim_{\epsilon\to 0^+} \frac{2\epsilon-8}{\epsilon} \approx -\infty \) (Negative!)</li>
+          <li>\( s^0 \) row term: \( 8 \) (Positive)</li>
+        </ol>
+        The first column signs are: <strong>\( +, +, +, -, + \)</strong>.
+      </div>
+      <div class="ex-step">
+        <strong>3. Conclude on Stability and Pole Count:</strong><br/>
+        There are <strong>two sign changes</strong> (\( + \to - \) and \( - \to + \)) in the first column.
+        Therefore, there are <strong>2 closed-loop poles in the Right Half of the s-plane (RHP)</strong>. The system is unstable.
+      </div>
+    </div>
+    <div class="ex-ans">✔ Ans: Unstable, 2 poles in RHP</div>
+  </div>
+
+  <!-- Example 3 -->
+  <div class="example-block">
+    <div class="ex-head">
+      <span class="ex-badge">Example 03</span>
+      <div class="ex-title">Steady-State Error of a Non-Unity Feedback System</div>
+    </div>
+    <p class="ex-q">
+      A feedback control system has a forward path transfer function \( G(s) = \frac{10}{s(s+2)} \) and feedback path transfer function \( H(s) = 0.5s + 1 \). Compute the steady-state output error \( e_{ss} = \lim_{t\to\infty} [r(t) - c(t)] \) when the system is excited by a unit ramp input \( r(t) = t\,u(t) \).
+    </p>
+    <div class="ex-sol-head">Solution</div>
+    <div class="ex-steps">
+      <div class="ex-step">
+        <strong>1. Identify Closed-Loop Transfer Function \( T(s) \):</strong><br/>
+        Since \( H(s) \neq 1 \), we must first find \( T(s) = C(s)/R(s) \):
+        $$ T(s) = \frac{G(s)}{1 + G(s)H(s)} = \frac{\frac{10}{s(s+2)}}{1 + \frac{10(0.5s + 1)}{s(s+2)}} $$
+        $$ T(s) = \frac{10}{s(s+2) + 10(0.5s + 1)} = \frac{10}{s^2 + 2s + 5s + 10} = \frac{10}{s^2 + 7s + 10} $$
+      </div>
+      <div class="ex-step">
+        <strong>2. Formulate the Error Transfer Function:</strong><br/>
+        The output error in the frequency domain is:
+        $$ E(s) = R(s) - C(s) = R(s)[1 - T(s)] $$
+        $$ E(s) = R(s)\left[1 - \frac{10}{s^2 + 7s + 10}\right] = R(s)\left[\frac{s^2 + 7s}{s^2 + 7s + 10}\right] = R(s)\left[\frac{s(s+7)}{s^2 + 7s + 10}\right] $$
+      </div>
+      <div class="ex-step">
+        <strong>3. Apply Final Value Theorem for Unit Ramp Input:</strong><br/>
+        For unit ramp input, \( R(s) = 1/s^2 \).
+        $$ E(s) = \frac{s(s+7)}{s^2 + 7s + 10} \cdot \frac{1}{s^2} = \frac{s+7}{s(s^2 + 7s + 10)} $$
+        Using FVT to find steady-state error:
+        $$ e_{ss} = \lim_{s\to 0} s E(s) = \lim_{s\to 0} \left[ s \cdot \frac{s+7}{s(s^2 + 7s + 10)} \right] $$
+        $$ e_{ss} = \lim_{s\to 0} \frac{s+7}{s^2 + 7s + 10} = \frac{0+7}{0+0+10} = \mathbf{0.7} $$
+      </div>
+    </div>
+    <div class="ex-ans">✔ Ans: Steady-state error \( e_{ss} = 0.7 \)</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  §4.9  CHAPTER SUMMARY
+═══════════════════════════════════════ -->
+<div class="section" id="s9">
+  <div class="sec-hdr"><span class="sec-num">4.9</span><h2 class="sec-t">Chapter Summary</h2></div>
+  <div class="tw">
+    <div class="card">
+      <div class="card-title">🔑 Routh–Hurwitz Rules</div>
+      <ul>
+        <li>Necessary Condition: All CE coefficients must be present and have the same sign.</li>
+        <li>Sufficient Condition: No sign changes in the first column of the Routh array.</li>
+        <li>Sign Changes: Number of sign changes in the first column = number of RHP poles.</li>
+        <li>Zero first term: Replace with \( \epsilon \) and proceed.</li>
+        <li>Zero Row: Symmetric poles exist. Use auxiliary polynomial \( A(s) \).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Stability Summary</div>
+      <ul>
+        <li>Stable: All closed-loop poles in LHP.</li>
+        <li>Unstable: Any pole in RHP.</li>
+        <li>Marginally Stable: Simple, non-repeated poles on imaginary axis, others in LHP.</li>
+        <li>Marginal gain \( K_{mar} \): Gain boundary where row of zeros occurs.</li>
+        <li>Oscillation Frequency: Determined by solving auxiliary equation \( A(s) = 0 \) at \( K_{mar} \).</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout callout-ai">
+    <div class="ct">🤖 Aarova AI — Chapter Takeaway</div>
+    Stability analysis is the absolute baseline of control engineering. Accuracy and speed are meaningless if the system runs wild. The algebraic Routh–Hurwitz criterion serves as a quick tool to bound system gain and evaluate absolute stability without computing roots, laying the groundwork for root-locus-based gain selection.
+  </div>
+</div>
+
+<!-- NAV STRIP (inside .page) -->
+<nav class="nav-strip">
+  <a class="nav-btn" href="AarovaAI_Ch3_TimeResponse.html">← Ch.3 Time Response Analysis</a>
+  <a class="nav-btn primary" href="AarovaAI_Ch5_RootLocus.html">Ch.5 Root Locus →</a>
+</nav>
+
+</main>
+</body>
+</html>

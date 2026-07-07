@@ -1,0 +1,2994 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Transducers Ch.6 Intermediate Quantity Measurements</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 75%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* SECTIONS */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px
+        }
+
+        /* CALLOUTS */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* FORMULA BLOCK */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* MATH (KaTeX) */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* SVG DIAGRAMS */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* GATE/PYQ CARDS */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* TWO COLUMN */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        /* SUMMARY GRID */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* PROBABILITY TAG */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* ASK CLAUDE */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12)
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none
+        }
+
+        .ai-btn:hover {
+            background: #155250
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg)
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto
+        }
+
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border)
+        }
+
+        footer strong {
+            color: var(--orange)
+        }
+
+        /* TABLET */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .svg-wrap {
+                padding: 12px 10px
+            }
+
+            .svg-wrap svg {
+                min-width: 480px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px
+            }
+
+            .pyq-year {
+                margin-left: 0
+            }
+        }
+
+        /* MOBILE */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .hbadges {
+                display: none
+            }
+
+            .site-header {
+                padding: 10px 14px
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px)
+            }
+
+            .hero-desc {
+                font-size: 14px
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px
+            }
+
+            .pl {
+                font-size: 11px
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0
+            }
+
+            .toc {
+                padding: 14px 16px
+            }
+
+            .sec-hdr {
+                gap: 9px
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px)
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px)
+            }
+
+            p {
+                font-size: 15px
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%
+            }
+
+            .svg-cap {
+                font-size: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px
+            }
+
+            .tw {
+                border-radius: 8px
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px
+            }
+
+            .mini-card {
+                padding: 13px 14px
+            }
+
+            .sum-card {
+                padding: 14px 16px
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px
+            }
+
+            .ci {
+                font-size: 16px
+            }
+
+            .cb p {
+                font-size: 13.5px
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px
+            }
+
+            .pyq-year {
+                display: none
+            }
+
+            .ai-prompt {
+                padding: 14px 14px
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-input {
+                font-size: 15px
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px
+            }
+
+            .ai-chip {
+                font-size: 11px
+            }
+
+            .ai-suggest {
+                gap: 5px
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px
+            }
+
+            .citations {
+                padding: 14px 14px
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px
+            }
+
+            .math-block {
+                padding: 10px 12px
+            }
+        }
+
+        /* LARGE DESKTOP */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow)
+            }
+
+            .ai-btn:hover {
+                background: var(--teal)
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none
+            }
+
+            .svg-wrap {
+                break-inside: avoid
+            }
+
+            body {
+                font-size: 12pt
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Transducers & Measurements Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+
+    <div class="page">
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 06 &nbsp;·&nbsp; Transducers &amp; Measurements</div>
+            <h1 class="hero-title">Intermediate Quantity <em>Measurements</em></h1>
+            <p class="hero-desc">Comprehensive GATE &amp; IES coverage of rotational velocity, acceleration, and
+                vibration measurement — contactless tachometers, inductive &amp; capacitive pick-ups, piezoelectric
+                &amp; seismic accelerometers, with full theory, SVG diagrams, and LaTeX equations derived from standard
+                textbooks.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE / IN</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Instrumentation</span>
+                <span class="badge">Follows Ch.5 — Displacement &amp; Force</span>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Chapter 6 of 8</span>
+        </div>
+
+        <!-- TOC -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">6.1</span>Why Measure These Quantities?</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">6.5</span>Capacitive Pick-up Tachometer</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">6.2</span>Measurement of Rotational Velocity</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">6.6</span>Measurement of Acceleration</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">6.3</span>Inductive Pick-up Tachometer</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">6.7</span>Piezoelectric Accelerometer</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">6.4</span>Core Theory &amp; Derivation</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">6.8</span>Seismic (Displacement) Accelerometer</a>
+                <a href="#sg" class="toc-item"><span class="toc-n">6.9</span>GATE &amp; IES Questions</a>
+                <a href="#sr" class="toc-item"><span class="toc-n">6.10</span>Quick Revision Sheet</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: BIG PICTURE ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">6.1</span>
+                <h2 class="sec-t">Why Measure Rotational Velocity &amp; Acceleration?</h2>
+            </div>
+
+            <p>Every rotating machine — from a turbine in a thermal power station to the spindle of a CNC lathe — must
+                be monitored continuously for speed and vibration. Too slow, and you lose efficiency; too fast, and you
+                risk catastrophic mechanical failure. In electrical engineering, <strong>speed feedback</strong> is the
+                backbone of closed-loop motor control, while <strong>vibration measurement</strong> is central to
+                condition monitoring and predictive maintenance.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight — Why "Intermediate" Quantities?</div>
+                    <p>These quantities sit between primary quantities (displacement, force) and final electrical
+                        output. Velocity is the first derivative of displacement; acceleration is the second. The
+                        measurement chain is: <strong>mechanical motion → transducer → electrical signal →
+                            display/control</strong>. Understanding this chain is essential for GATE IN and EE students.
+                    </p>
+                </div>
+            </div>
+
+            <!-- System overview SVG -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 680 170" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <text x="340" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Measurement Chain — Intermediate Quantities</text>
+                    <!-- Boxes -->
+                    <rect x="10" y="35" width="110" height="50" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="65" y="57" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="600">Rotating</text>
+                    <text x="65" y="72" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="600">Machine</text>
+
+                    <rect x="155" y="35" width="110" height="50" rx="8" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="210" y="57" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648"
+                        font-weight="600">Transducer</text>
+                    <text x="210" y="72" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#2d6648">(Tachometer/Accel)</text>
+
+                    <rect x="300" y="35" width="110" height="50" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="355" y="57" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="600">Signal</text>
+                    <text x="355" y="72" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">Conditioning</text>
+
+                    <rect x="445" y="35" width="110" height="50" rx="8" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="500" y="57" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#a05c00"
+                        font-weight="600">Counter /</text>
+                    <text x="500" y="72" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">Freq. Meter</text>
+
+                    <rect x="590" y="35" width="80" height="50" rx="8" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.5" />
+                    <text x="630" y="57" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a2020"
+                        font-weight="600">Speed /</text>
+                    <text x="630" y="72" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a2020">Accel. Value</text>
+
+                    <!-- Arrows -->
+                    <line x1="120" y1="60" x2="153" y2="60" stroke="#c95f1a" stroke-width="2" marker-end="url(#arr)" />
+                    <line x1="265" y1="60" x2="298" y2="60" stroke="#c95f1a" stroke-width="2" marker-end="url(#arr)" />
+                    <line x1="410" y1="60" x2="443" y2="60" stroke="#c95f1a" stroke-width="2" marker-end="url(#arr)" />
+                    <line x1="555" y1="60" x2="588" y2="60" stroke="#c95f1a" stroke-width="2" marker-end="url(#arr)" />
+
+                    <!-- Bottom labels -->
+                    <rect x="10" y="110" width="660" height="48" rx="8" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1" />
+                    <text x="340" y="128" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#3d2010"
+                        font-weight="600">Applications of Speed &amp; Acceleration Measurement</text>
+                    <text x="30" y="148" font-family="JetBrains Mono,monospace" font-size="9.5" fill="#c95f1a">Motor
+                        speed control</text>
+                    <text x="190" y="148" font-family="JetBrains Mono,monospace" font-size="9.5" fill="#1e6b68">Turbine
+                        protection</text>
+                    <text x="340" y="148" font-family="JetBrains Mono,monospace" font-size="9.5"
+                        fill="#2d6648">Vibration monitoring</text>
+                    <text x="490" y="148" font-family="JetBrains Mono,monospace" font-size="9.5" fill="#a05c00">Seismic
+                        sensing</text>
+                </svg>
+                <div class="svg-cap">Fig 6.1 — Measurement chain for intermediate quantities: rotating shaft →
+                    transducer → signal conditioning → display. (Original diagram, Aarova AI)</div>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Velocity Measurement Uses</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Closed-loop speed control of DC/AC drives</li>
+                        <li><span class="dot">▸</span>Turbine speed monitoring in power plants</li>
+                        <li><span class="dot">▸</span>Process control in paper/textile mills</li>
+                        <li><span class="dot">▸</span>Automotive tachometers and engine management</li>
+                        <li><span class="dot">▸</span>Frequency regulation in synchronous machines</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Acceleration Measurement Uses</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Vibration analysis of bearings and gearboxes</li>
+                        <li><span class="dot">▸</span>Seismic detection and earthquake monitoring</li>
+                        <li><span class="dot">▸</span>Inertial navigation systems (INS)</li>
+                        <li><span class="dot">▸</span>Crash detection in automotive airbags</li>
+                        <li><span class="dot">▸</span>Structural health monitoring of bridges/buildings</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: ROTATIONAL VELOCITY ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">6.2</span>
+                <h2 class="sec-t">Measurement of Rotational Velocity — Overview</h2>
+            </div>
+
+            <p>Rotational velocity (speed) is most commonly expressed in <strong>revolutions per minute (rpm)</strong>
+                or <strong>radians per second (rad/s)</strong>. The fundamental challenge is converting continuous
+                rotary motion into a measurable electrical signal. The family of devices that accomplish this are called
+                <strong>tachometers</strong>.<sup class="cite">[1]</sup></p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Principle</th>
+                            <th>Output</th>
+                            <th>Contact?</th>
+                            <th>Typical Range</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>DC Tachogenerator</td>
+                            <td>EMF ∝ speed (Faraday's law)</td>
+                            <td>DC voltage</td>
+                            <td>Yes (brush)</td>
+                            <td>0 – 10,000 rpm</td>
+                        </tr>
+                        <tr>
+                            <td>AC Tachogenerator</td>
+                            <td>Frequency ∝ speed</td>
+                            <td>AC voltage</td>
+                            <td>Yes</td>
+                            <td>0 – 10,000 rpm</td>
+                        </tr>
+                        <tr>
+                            <td class="t-org">Inductive Pick-up</td>
+                            <td>Reluctance change → pulse</td>
+                            <td>Pulse train</td>
+                            <td class="t-grn">No</td>
+                            <td>Very wide</td>
+                        </tr>
+                        <tr>
+                            <td class="t-org">Capacitive Pick-up</td>
+                            <td>Capacitance change → pulse</td>
+                            <td>Pulse train</td>
+                            <td class="t-grn">No</td>
+                            <td>Very wide</td>
+                        </tr>
+                        <tr>
+                            <td>Photo-electric</td>
+                            <td>Light interruption → pulse</td>
+                            <td>Pulse train</td>
+                            <td class="t-grn">No</td>
+                            <td>Any</td>
+                        </tr>
+                        <tr>
+                            <td>Stroboscope</td>
+                            <td>Flash frequency = speed</td>
+                            <td>Visual/optical</td>
+                            <td class="t-grn">No</td>
+                            <td>100–25,000 rpm</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">GATE Key Point — Contactless vs Contact Tachometers</div>
+                    <p>Contact tachometers apply a small mechanical load to the shaft (friction), which can alter the
+                        very speed being measured. <strong>Contactless types</strong> (inductive, capacitive,
+                        photoelectric) eliminate this error completely — a major advantage in precision metrology and
+                        high-speed machinery. GATE frequently tests this concept.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: INDUCTIVE PICK-UP TACHOMETER ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">6.3</span>
+                <h2 class="sec-t">Inductive Pick-up Tachometer <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>The inductive pick-up tachometer is the most widely used contactless speed sensor in industrial practice.
+                Its principle exploits the change in <strong>magnetic reluctance</strong> caused by the passing teeth of
+                a ferromagnetic toothed rotor.<sup class="cite">[1][2]</sup></p>
+
+            <h3 class="sub">Construction &amp; Working Principle</h3>
+
+            <p>The sensor consists of a small <strong>permanent magnet</strong> wound with a sensing coil. This assembly
+                is positioned close to — but not touching — a toothed ferromagnetic wheel (rotor) mounted on the shaft
+                whose speed is to be measured.</p>
+
+            <p>As the shaft rotates, the teeth alternately pass in front of the pick-up head. When a tooth is aligned
+                with the magnet, the air gap is minimum and the magnetic flux through the coil is maximum. As the tooth
+                moves away, the air gap increases and flux decreases. This cyclical change in flux induces a voltage in
+                the coil according to Faraday's law:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Faraday's Law — Induced EMF</div>
+                $$e = -N \frac{d\Phi}{dt}$$
+                <p style="font-size:13px;color:var(--text3);margin:8px 0 0;text-align:left;">where \(N\) = number of
+                    turns, \(\Phi\) = instantaneous magnetic flux (Wb)</p>
+            </div>
+
+            <p>The result is a <strong>sinusoidal-like pulse train</strong> whose frequency is directly proportional to
+                both the number of teeth and the rotational speed. After amplification and pulse shaping (squaring), the
+                pulses are fed to a frequency counter or timer/counter unit.</p>
+
+            <!-- Inductive pick-up SVG diagram -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arr2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                        <marker id="arr3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#1e6b68" />
+                        </marker>
+                    </defs>
+                    <text x="340" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Inductive Pick-up Tachometer — Working Principle</text>
+
+                    <!-- Toothed rotor (partial circle with teeth) -->
+                    <circle cx="130" cy="165" r="75" fill="none" stroke="#3d2010" stroke-width="2" />
+                    <circle cx="130" cy="165" r="60" fill="#f0e0cc" stroke="#c8a888" stroke-width="1" />
+                    <!-- Teeth on rotor (8 rectangular teeth around outer edge) -->
+                    <rect x="118" y="88" width="24" height="14" rx="2" fill="#6b3e22" stroke="#3d2010"
+                        stroke-width="1" />
+                    <rect x="181" y="108" width="14" height="24" rx="2" fill="#6b3e22" stroke="#3d2010" stroke-width="1"
+                        transform="rotate(45,188,120)" />
+                    <rect x="194" y="153" width="14" height="24" rx="2" fill="#6b3e22" stroke="#3d2010"
+                        stroke-width="1" />
+                    <rect x="172" y="208" width="24" height="14" rx="2" fill="#6b3e22" stroke="#3d2010" stroke-width="1"
+                        transform="rotate(45,184,215)" />
+                    <rect x="118" y="228" width="24" height="14" rx="2" fill="#6b3e22" stroke="#3d2010"
+                        stroke-width="1" />
+                    <rect x="63" y="208" width="14" height="24" rx="2" fill="#6b3e22" stroke="#3d2010" stroke-width="1"
+                        transform="rotate(-45,70,220)" />
+                    <rect x="52" y="153" width="14" height="24" rx="2" fill="#6b3e22" stroke="#3d2010"
+                        stroke-width="1" />
+                    <rect x="63" y="108" width="24" height="14" rx="2" fill="#6b3e22" stroke="#3d2010" stroke-width="1"
+                        transform="rotate(-45,75,115)" />
+                    <!-- Shaft -->
+                    <circle cx="130" cy="165" r="10" fill="#9a6e50" stroke="#6b3e22" stroke-width="2" />
+                    <text x="130" y="215" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#6b3e22"
+                        font-style="italic">Toothed Rotor (T teeth)</text>
+                    <!-- Rotation arrow -->
+                    <path d="M 155 95 A 70 70 0 0 1 200 155" fill="none" stroke="#c95f1a" stroke-width="2"
+                        marker-end="url(#arr2)" />
+                    <text x="185" y="115" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">ω</text>
+
+                    <!-- Pick-up head -->
+                    <rect x="220" y="145" width="60" height="40" rx="6" fill="#dff0e8" stroke="#2d6648"
+                        stroke-width="2" />
+                    <text x="250" y="162" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        font-weight="600">Perm.</text>
+                    <text x="250" y="175" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        font-weight="600">Magnet</text>
+                    <!-- Coil windings symbol -->
+                    <path
+                        d="M 222 155 Q 228 148 234 155 Q 240 162 246 155 Q 252 148 258 155 Q 264 162 270 155 Q 276 148 280 155"
+                        fill="none" stroke="#c95f1a" stroke-width="1.5" />
+                    <text x="250" y="200" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#c95f1a"
+                        font-style="italic">Sensing coil</text>
+
+                    <!-- Small air gap label -->
+                    <line x1="208" y1="163" x2="220" y2="163" stroke="#a05c00" stroke-width="1.5"
+                        stroke-dasharray="3,2" />
+                    <text x="214" y="157" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">gap</text>
+
+                    <!-- Signal flow boxes -->
+                    <rect x="310" y="80" width="80" height="36" rx="6" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="350" y="102" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a">Amplifier</text>
+
+                    <rect x="310" y="130" width="80" height="36" rx="6" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="350" y="152" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a">Shaper</text>
+
+                    <rect x="310" y="180" width="80" height="36" rx="6" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="350" y="202" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#1e6b68">Counter /</text>
+                    <text x="350" y="214" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#1e6b68">Freq. Meter</text>
+
+                    <rect x="420" y="130" width="100" height="50" rx="6" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="2" />
+                    <text x="470" y="152" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#2d6648" font-weight="700">SPEED</text>
+                    <text x="470" y="170" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#2d6648">N (rpm)</text>
+
+                    <!-- Arrows connecting boxes -->
+                    <line x1="280" y1="165" x2="308" y2="98" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+                    <line x1="350" y1="116" x2="350" y2="128" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+                    <line x1="350" y1="166" x2="350" y2="178" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+                    <line x1="390" y1="193" x2="418" y2="155" stroke="#1e6b68" stroke-width="1.5"
+                        marker-end="url(#arr3)" />
+
+                    <!-- Pulse waveform (simplified) -->
+                    <rect x="540" y="70" width="130" height="80" rx="6" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1" />
+                    <text x="605" y="86" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Induced pulse train</text>
+                    <polyline
+                        points="548,140 548,110 558,110 558,140 568,140 568,110 578,110 578,140 588,140 588,110 598,110 598,140 608,140 608,110 618,110 618,140 628,140 628,110 638,110 638,140 660,140"
+                        fill="none" stroke="#c95f1a" stroke-width="2" />
+                    <line x1="548" y1="140" x2="660" y2="140" stroke="#9a6e50" stroke-width="1"
+                        stroke-dasharray="2,2" />
+                    <text x="605" y="155" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#c95f1a">f = T × N/60</text>
+
+                    <!-- Labels -->
+                    <text x="340" y="270" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#3d2010"
+                        font-style="italic">Pulse frequency ∝ (Teeth × rpm) — no mechanical contact</text>
+                </svg>
+                <div class="svg-cap">Fig 6.2 — Inductive pick-up tachometer: permanent magnet + coil near toothed rotor
+                    → induced pulse train → amplified → shaped → counted. Speed = pulses per second ÷ teeth. (Original,
+                    Aarova AI)</div>
+            </div>
+
+            <h3 class="sub">Mathematical Analysis <span class="prob prob-h">🟢 HIGH</span></h3>
+
+            <p>Let the toothed rotor have <strong>T teeth</strong> and rotate at <strong>N revolutions per
+                    second</strong>. Then in one second, the number of pulses generated equals:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Pulse frequency generated by toothed rotor</div>
+                $$f = T \times N \quad \text{(pulses per second)}$$
+            </div>
+
+            <p>Since \(N\) is in rev/s, the speed in rpm is \(N_{\text{rpm}} = 60 N\). If the frequency meter measures
+                \(f\) pulses per second, then:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Speed from pulse frequency — fundamental relation</div>
+                $$\boxed{N_{\text{rpm}} = \frac{f \times 60}{T}}$$
+                <p style="font-size:13px;color:var(--text3);margin:8px 0 0;text-align:left;">where \(f\) = measured
+                    pulse frequency (Hz = pulses/second), \(T\) = number of teeth on rotor</p>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Special Case — T = 60</div>
+                    <p>If the rotor has exactly <strong>60 teeth</strong> and the counter counts pulses over exactly
+                        <strong>1 second</strong>, then the counter display <em>directly</em> reads speed in rpm. This
+                        is a popular instrument design choice and a classic GATE conceptual question.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Measurement Accuracy &amp; Error Analysis</h3>
+
+            <p>The accuracy of the inductive pick-up tachometer depends on the <strong>accuracy of the frequency
+                    counter</strong> and the <strong>stability of the timing gate</strong>. If the frequency meter has
+                an accuracy of ±Δf Hz, the corresponding speed error is:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Speed error due to frequency meter accuracy</div>
+                $$\Delta N_{\text{rpm}} = \frac{\Delta f \times 60}{T}$$
+            </div>
+
+            <p>For example, with T = 60 teeth and a frequency meter accuracy of ±5 Hz, the speed error is ±5 rpm. This
+                is an important exam concept — the error in speed measurement scales inversely with the number of teeth.
+                <strong>More teeth → better resolution and smaller error.</strong><sup class="cite">[1]</sup></p>
+
+            <div class="fblock"><span class="flbl">Summary of Key Relations — Inductive Pick-up Tachometer</span><span
+                    class="fh">Pulse frequency:</span> <span class="fv">f</span> = T × N (Hz, where N in rev/s)
+                <span class="fh">Speed in rpm:</span> <span class="fv">N_rpm</span> = (f × 60) / T
+                <span class="fh">Special case T=60:</span> <span class="fv">N_rpm</span> = f (counter reads rpm
+                directly)
+                <span class="fh">Speed error:</span> ΔN_rpm = (Δf × 60) / T (rpm)
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Memory Trick — "TAP" Formula</div>
+                    <p><strong>T</strong>eeth × <strong>A</strong>ngular velocity = <strong>P</strong>ulse frequency.
+                        Think of each tooth "tapping" the sensor as it passes — total taps per second = f. Speed =
+                        (total taps ÷ teeth per revolution) × 60.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Advantages &amp; Limitations</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Advantages</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>No physical contact → no load on machine → no wear</li>
+                        <li><span class="dot">▸</span>Robust and reliable for harsh industrial environments</li>
+                        <li><span class="dot">▸</span>Digital output — directly compatible with microcontrollers</li>
+                        <li><span class="dot">▸</span>High resolution possible with many teeth (T large)</li>
+                        <li><span class="dot">▸</span>Works across wide speed range including very low speeds</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Limitations</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Requires ferromagnetic (metallic) toothed rotor</li>
+                        <li><span class="dot">▸</span>Air gap must be precisely controlled (typically 0.5–2 mm)</li>
+                        <li><span class="dot">▸</span>Output voltage depends on speed — very low voltage at low rpm</li>
+                        <li><span class="dot">▸</span>Minimum speed threshold exists (below which pulse amplitude is too
+                            low)</li>
+                        <li><span class="dot">▸</span>Sensitive to mechanical vibration and tooth irregularities</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S4: CORE THEORY ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">6.4</span>
+                <h2 class="sec-t">Core Theory — Reluctance, Flux &amp; Induced EMF</h2>
+            </div>
+
+            <p>To deeply understand inductive pick-up tachometers, we must examine the <strong>magnetic circuit</strong>
+                formed by the permanent magnet, coil, air gap, and toothed rotor. The key concept is
+                <strong>reluctance</strong> — the magnetic analogue of electrical resistance.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Magnetic Reluctance</div>
+                $$\mathcal{R} = \frac{l}{\mu_0 \mu_r A}$$
+                <p style="font-size:13px;color:var(--text3);margin:8px 0 0;text-align:left;">\(l\) = length of magnetic
+                    path (m), \(A\) = cross-sectional area (m²), \(\mu_0 = 4\pi \times 10^{-7}\) H/m, \(\mu_r\) =
+                    relative permeability</p>
+            </div>
+
+            <p>When a tooth aligns with the pick-up, the air gap \(l_g\) is minimum → \(\mathcal{R}\) is minimum → flux
+                \(\Phi\) is maximum. Between teeth, \(l_g\) is maximum → \(\mathcal{R}\) is maximum → \(\Phi\) is
+                minimum. Since \(\Phi = \mathcal{F}/\mathcal{R}\) (where \(\mathcal{F} = NI\) is the magnetomotive
+                force):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Flux variation with tooth position</div>
+                $$\Phi(\theta) \approx \Phi_{\max} \cos\!\left(\frac{2\pi T \theta}{2\pi}\right) = \Phi_{\max}
+                \cos(T\theta)$$
+                <p style="font-size:13px;color:var(--text3);margin:8px 0 0;text-align:left;">\(\theta\) = angular
+                    position of rotor (rad), \(T\) = number of teeth. This is an approximation assuming sinusoidal
+                    variation.</p>
+            </div>
+
+            <p>The induced EMF in the coil of N<sub>c</sub> turns is:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Induced EMF — general form</div>
+                $$e = -N_c \frac{d\Phi}{dt} = N_c \Phi_{\max} T \omega \sin(T\omega t)$$
+                <p style="font-size:13px;color:var(--text3);margin:8px 0 0;text-align:left;">\(\omega\) = angular
+                    velocity of shaft (rad/s), \(T\omega\) = angular frequency of the induced EMF. Note: EMF amplitude ∝
+                    ω (speed).</p>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Misconception — EMF Amplitude vs Frequency</div>
+                    <p>In the inductive pick-up tachometer, <strong>both the amplitude and frequency</strong> of the
+                        induced EMF increase with speed. This is different from a photoelectric sensor where only
+                        frequency changes. At very low speeds, the amplitude may be too small for reliable detection —
+                        this defines the <strong>minimum speed threshold</strong> of the device.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S5: CAPACITIVE TACHOMETER ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">6.5</span>
+                <h2 class="sec-t">Capacitive Pick-up Tachometer <span class="prob prob-m">🟡 MEDIUM</span></h2>
+            </div>
+
+            <p>The capacitive pick-up tachometer operates on the principle that a rotating vane passing between fixed
+                capacitor plates causes a <strong>periodic change in capacitance</strong>, which is converted to a
+                frequency signal proportional to shaft speed.<sup class="cite">[1][3]</sup></p>
+
+            <h3 class="sub">Construction &amp; Working Principle</h3>
+
+            <p>A metallic or dielectric <strong>vane</strong> is attached to the rotating shaft. As it rotates, the vane
+                periodically passes between two fixed parallel plates, altering the effective area of the capacitor. The
+                capacitor forms part of an <strong>LC oscillator tank circuit</strong>, and the change in capacitance
+                shifts the oscillator frequency. This frequency shift — occurring periodically with each pass of the
+                vane — is sensed, amplified, shaped, and counted.</p>
+
+            <!-- Capacitive pick-up SVG -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arrc" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <text x="340" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Capacitive Pick-up Tachometer — Principle</text>
+
+                    <!-- Rotating shaft -->
+                    <rect x="60" y="120" width="14" height="120" rx="4" fill="#9a6e50" stroke="#6b3e22"
+                        stroke-width="1.5" />
+                    <text x="67" y="255" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        font-style="italic">Shaft</text>
+
+                    <!-- Vane (rotated slightly) -->
+                    <rect x="44" y="100" width="46" height="12" rx="3" fill="#c95f1a" stroke="#9a2020"
+                        stroke-width="1.5" transform="rotate(15,67,150)" />
+                    <text x="95" y="105" font-family="Lora,serif" font-size="10" fill="#c95f1a"
+                        font-weight="600">Vane</text>
+
+                    <!-- Fixed capacitor plates -->
+                    <rect x="115" y="115" width="8" height="50" rx="2" fill="#2d6648" stroke="#1a4030"
+                        stroke-width="1.5" />
+                    <rect x="115" y="175" width="8" height="50" rx="2" fill="#2d6648" stroke="#1a4030"
+                        stroke-width="1.5" />
+                    <text x="130" y="145" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        font-weight="600">Fixed</text>
+                    <text x="130" y="158" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        font-weight="600">Plates</text>
+                    <!-- Dashed connection lines for capacitor -->
+                    <line x1="123" y1="165" x2="123" y2="175" stroke="#2d6648" stroke-width="1.5"
+                        stroke-dasharray="3,2" />
+
+                    <!-- Oscillator block -->
+                    <rect x="170" y="120" width="100" height="50" rx="8" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="220" y="142" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#a05c00"
+                        font-weight="600">LC Oscillator</text>
+                    <text x="220" y="158" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">Tank Circuit</text>
+
+                    <!-- Amplifier -->
+                    <rect x="300" y="120" width="80" height="50" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="340" y="150" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11"
+                        fill="#c95f1a">Amplifier</text>
+
+                    <!-- Shaper -->
+                    <rect x="410" y="120" width="80" height="50" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="450" y="142" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11"
+                        fill="#c95f1a">Shaper/</text>
+                    <text x="450" y="158" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#c95f1a">Squarer</text>
+
+                    <!-- Counter -->
+                    <rect x="520" y="120" width="90" height="50" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="2" />
+                    <text x="565" y="142" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#1e6b68">Counter /</text>
+                    <text x="565" y="158" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">Freq. Meter</text>
+
+                    <!-- Arrows -->
+                    <line x1="123" y1="145" x2="168" y2="145" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arrc)" />
+                    <line x1="270" y1="145" x2="298" y2="145" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arrc)" />
+                    <line x1="380" y1="145" x2="408" y2="145" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arrc)" />
+                    <line x1="490" y1="145" x2="518" y2="145" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arrc)" />
+
+                    <!-- Capacitance variation graph -->
+                    <rect x="60" y="210" width="200" height="60" rx="6" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1" />
+                    <text x="160" y="226" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#3d2010"
+                        font-weight="600">Capacitance vs Angle</text>
+                    <!-- Sine-like wave -->
+                    <polyline
+                        points="68,255 80,235 92,255 104,235 116,255 128,235 140,255 152,235 164,255 176,235 188,255 200,235 212,255 224,235 252,255"
+                        fill="none" stroke="#c95f1a" stroke-width="2" />
+                    <line x1="68" y1="255" x2="252" y2="255" stroke="#9a6e50" stroke-width="1" stroke-dasharray="2,2" />
+                    <text x="160" y="268" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#9a6e50">θ (rotation angle)</text>
+
+                    <text x="270" y="245" text-anchor="start" font-family="Lora,serif" font-size="11" fill="#3d2010"
+                        font-style="italic">Frequency of oscillator changes with C</text>
+                    <text x="270" y="260" text-anchor="start" font-family="Lora,serif" font-size="11" fill="#3d2010"
+                        font-style="italic">→ speed encoded in frequency</text>
+                </svg>
+                <div class="svg-cap">Fig 6.3 — Capacitive pick-up tachometer: rotating vane changes capacitance of LC
+                    oscillator tank → frequency shifts → amplified, shaped, counted. (Original, Aarova AI)</div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">LC Oscillator Frequency</div>
+                $$f_{\text{osc}} = \frac{1}{2\pi\sqrt{LC}}$$
+                <p style="font-size:13px;color:var(--text3);margin:8px 0 0;text-align:left;">As vane enters: \(C\)
+                    increases → \(f_{\text{osc}}\) decreases. As vane exits: \(C\) decreases → \(f_{\text{osc}}\)
+                    increases. The modulation rate of this frequency equals the vane pass rate, which is proportional to
+                    shaft speed.</p>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Advantages over Inductive</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Works with non-metallic (dielectric) rotating parts</li>
+                        <li><span class="dot">▸</span>No minimum speed threshold (unlike inductive)</li>
+                        <li><span class="dot">▸</span>Consistent output amplitude independent of speed</li>
+                        <li><span class="dot">▸</span>Suitable for plastic or composite rotors</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Limitations</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Sensitive to humidity and contamination on plates</li>
+                        <li><span class="dot">▸</span>More complex circuit than inductive type</li>
+                        <li><span class="dot">▸</span>Temperature drift in oscillator affects accuracy</li>
+                        <li><span class="dot">▸</span>Stray capacitance can cause errors</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: MEASUREMENT OF ACCELERATION ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">6.6</span>
+                <h2 class="sec-t">Measurement of Acceleration — Introduction</h2>
+            </div>
+
+            <p>Acceleration is defined as the rate of change of velocity with respect to time: \(a = dv/dt =
+                d^2x/dt^2\). In engineering, we measure acceleration for two main purposes: <strong>vibration
+                    analysis</strong> and <strong>inertial navigation</strong>. Devices that measure acceleration are
+                called <strong>accelerometers</strong>.<sup class="cite">[1][4]</sup></p>
+
+            <p>Newton's second law provides the physical foundation: for a seismic mass \(m\), a force \(F = ma\) acts
+                on it when the system accelerates. If we can measure this force — or the displacement it produces — we
+                can deduce the acceleration. This is the operational principle of all accelerometers.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Key Classification of Accelerometers</div>
+                    <p>The two main categories in GATE/IES syllabus are: <strong>(1) Piezoelectric
+                            accelerometers</strong> — use the piezoelectric effect of crystals to generate charge
+                        proportional to applied force; and <strong>(2) Seismic (displacement) accelerometers</strong> —
+                        measure the displacement of a seismic mass against a spring and damper system. Piezoelectric
+                        types are preferred for high-frequency vibration; seismic types suit low-frequency applications.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: PIEZOELECTRIC ACCELEROMETER ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">6.7</span>
+                <h2 class="sec-t">Piezoelectric Accelerometer <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>The piezoelectric accelerometer is among the most widely used vibration sensors in engineering. It
+                exploits the <strong>direct piezoelectric effect</strong> — certain crystalline materials (quartz,
+                barium titanate, PZT) generate an electric charge when mechanically stressed.<sup
+                    class="cite">[1][4]</sup></p>
+
+            <h3 class="sub">Construction</h3>
+
+            <p>The device consists of a <strong>piezoelectric crystal disc</strong> sandwiched between two electrodes. A
+                <strong>seismic mass</strong> (proof mass) is placed on top of the crystal assembly, and the whole unit
+                is enclosed in a protective metal housing. The base of the sensor is rigidly bolted to the machine or
+                structure whose acceleration is to be measured.</p>
+
+            <!-- Piezoelectric accelerometer SVG -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 580 320" xmlns="http://www.w3.org/2000/svg">
+                    <text x="290" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Piezoelectric Accelerometer — Cross Section</text>
+
+                    <!-- Housing (outer can) -->
+                    <rect x="160" y="40" width="180" height="210" rx="8" fill="none" stroke="#6b3e22" stroke-width="2.5"
+                        stroke-dasharray="none" />
+                    <!-- Housing top -->
+                    <rect x="160" y="40" width="180" height="12" rx="4" fill="#c8a888" stroke="#6b3e22"
+                        stroke-width="2" />
+                    <!-- Housing walls -->
+                    <rect x="160" y="52" width="12" height="198" fill="#c8a888" stroke="#6b3e22" stroke-width="1" />
+                    <rect x="328" y="52" width="12" height="198" fill="#c8a888" stroke="#6b3e22" stroke-width="1" />
+                    <text x="145" y="148" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        transform="rotate(-90,145,148)">Housing</text>
+
+                    <!-- Base (rigid mounting) -->
+                    <rect x="155" y="230" width="190" height="20" rx="4" fill="#9a6e50" stroke="#6b3e22"
+                        stroke-width="2" />
+                    <text x="250" y="244" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#fff"
+                        font-weight="600">Base (rigid mount)</text>
+
+                    <!-- Base electrode -->
+                    <rect x="172" y="205" width="156" height="10" rx="2" fill="#3d2010" stroke="#1e1208"
+                        stroke-width="1" />
+                    <text x="335" y="218" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#3d2010">Electrode</text>
+
+                    <!-- Piezoelectric crystal (hatched) -->
+                    <rect x="172" y="155" width="156" height="50" rx="2" fill="#d8eeed" stroke="#1e6b68"
+                        stroke-width="2" />
+                    <!-- Cross-hatch pattern for crystal -->
+                    <line x1="172" y1="165" x2="222" y2="155" stroke="#7ec4c2" stroke-width="0.8" />
+                    <line x1="172" y1="175" x2="252" y2="155" stroke="#7ec4c2" stroke-width="0.8" />
+                    <line x1="172" y1="185" x2="282" y2="155" stroke="#7ec4c2" stroke-width="0.8" />
+                    <line x1="172" y1="195" x2="312" y2="155" stroke="#7ec4c2" stroke-width="0.8" />
+                    <line x1="172" y1="205" x2="328" y2="169" stroke="#7ec4c2" stroke-width="0.8" />
+                    <line x1="182" y1="205" x2="328" y2="179" stroke="#7ec4c2" stroke-width="0.8" />
+                    <line x1="212" y1="205" x2="328" y2="189" stroke="#7ec4c2" stroke-width="0.8" />
+                    <line x1="242" y1="205" x2="328" y2="199" stroke="#7ec4c2" stroke-width="0.8" />
+                    <text x="250" y="184" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="600">Piezoelectric Crystal</text>
+                    <text x="335" y="184" font-family="JetBrains Mono,monospace" font-size="9" fill="#1e6b68">(Quartz /
+                        PZT)</text>
+
+                    <!-- Top electrode -->
+                    <rect x="172" y="140" width="156" height="10" rx="2" fill="#3d2010" stroke="#1e1208"
+                        stroke-width="1" />
+                    <text x="335" y="136" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#3d2010">Electrode</text>
+
+                    <!-- Mass -->
+                    <rect x="172" y="80" width="156" height="60" rx="4" fill="#fef0d0" stroke="#a05c00"
+                        stroke-width="2" />
+                    <text x="250" y="115" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#a05c00" font-weight="700">Mass m</text>
+                    <text x="335" y="115" font-family="JetBrains Mono,monospace" font-size="9" fill="#a05c00">Seismic
+                        mass</text>
+
+                    <!-- Output voltage terminal -->
+                    <polyline points="328,145 410,145 410,175 430,175" fill="none" stroke="#c95f1a" stroke-width="2" />
+                    <line x1="328" y1="210" x2="430" y2="210" stroke="#c95f1a" stroke-width="2" />
+                    <!-- Output symbol -->
+                    <rect x="430" y="163" width="80" height="58" rx="6" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="470" y="185" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a">Output</text>
+                    <text x="470" y="200" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a">Voltage</text>
+                    <text x="470" y="215" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">V ∝ a</text>
+                    <circle cx="430" cy="175" r="3" fill="#c95f1a" />
+                    <circle cx="430" cy="210" r="3" fill="#c95f1a" />
+
+                    <!-- Acceleration arrow at base -->
+                    <defs>
+                        <marker id="arra" markerWidth="8" markerHeight="6" refX="1" refY="3" orient="auto">
+                            <polygon points="8 0,0 3,8 6" fill="#2d6648" />
+                        </marker>
+                    </defs>
+                    <line x1="250" y1="280" x2="250" y2="256" stroke="#2d6648" stroke-width="2.5"
+                        marker-end="url(#arra)" />
+                    <text x="250" y="296" text-anchor="middle" font-family="Playfair Display,serif" font-size="11"
+                        fill="#2d6648" font-weight="600">Acceleration a</text>
+
+                    <!-- Force label inside crystal -->
+                    <text x="250" y="136" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">F = ma acts on crystal</text>
+                </svg>
+                <div class="svg-cap">Fig 6.4 — Piezoelectric accelerometer cross-section: seismic mass compresses
+                    crystal when base accelerates upward → crystal generates charge → output voltage ∝ acceleration.
+                    (Original, Aarova AI)</div>
+            </div>
+
+            <h3 class="sub">Working Principle &amp; Theory</h3>
+
+            <p>When the base (attached to the vibrating machine) accelerates upward with acceleration \(a\), Newton's
+                second law requires a force \(F = ma\) to act on the seismic mass. This force compresses (or stretches)
+                the piezoelectric crystal. By the <strong>direct piezoelectric effect</strong>, the crystal generates an
+                electric charge \(Q\) proportional to the applied force:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Piezoelectric Effect — Charge Generated</div>
+                $$Q = d_{33} \cdot F = d_{33} \cdot m \cdot a$$
+                <p style="font-size:13px;color:var(--text3);margin:8px 0 0;text-align:left;">\(d_{33}\) = piezoelectric
+                    charge constant (C/N) — a material property, \(m\) = seismic mass (kg), \(a\) = acceleration (m/s²)
+                </p>
+            </div>
+
+            <p>The crystal acts as a capacitor \(C_p\). The open-circuit voltage across the electrodes is:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Output Voltage of Piezoelectric Accelerometer</div>
+                $$V_{\text{out}} = \frac{Q}{C_p} = \frac{d_{33} \cdot m \cdot a}{C_p}$$
+                <p style="font-size:13px;color:var(--text3);margin:8px 0 0;text-align:left;">Since \(d_{33}\), \(m\),
+                    and \(C_p\) are constants for a given sensor, \(V_{\text{out}} \propto a\). This makes the output
+                    directly proportional to acceleration — <strong>the fundamental measurement principle</strong>.</p>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">Newton's Second Law — Physical Interpretation</div>
+                    <p>From \(F = ma\): when acceleration is <em>upward</em>, inertial reaction force on mass is
+                        <em>downward</em>, compressing the crystal → stress increases → charge increases → voltage
+                        increases. When acceleration is <em>downward</em>, mass tends to lift off → crystal is relieved
+                        of stress → voltage decreases. This explains why acceleration in both directions produces
+                        measurable output.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Sensitivity &amp; Frequency Response</h3>
+
+            <div class="math-block">
+                <div class="math-lbl">Sensitivity of Piezoelectric Accelerometer</div>
+                $$S_v = \frac{V_{\text{out}}}{a} = \frac{d_{33} \cdot m}{C_p} \quad (\text{V}\cdot\text{s}^2/\text{m})$$
+            </div>
+
+            <p>The frequency response of a piezoelectric accelerometer spans from approximately <strong>10 Hz to 50
+                    kHz</strong>, making it ideal for high-frequency vibration measurement. The lower frequency limit is
+                set by the charge amplifier's time constant; the upper limit by the sensor's resonant frequency.</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Typical Value</th>
+                            <th>Engineering Significance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Frequency range</td>
+                            <td class="t-grn">10 Hz – 50 kHz</td>
+                            <td>Wide — covers most mechanical vibrations</td>
+                        </tr>
+                        <tr>
+                            <td>Sensitivity</td>
+                            <td>10 – 100 mV/g</td>
+                            <td>Where g = 9.807 m/s²</td>
+                        </tr>
+                        <tr>
+                            <td>Measurable range</td>
+                            <td>Fraction of g to 1000g</td>
+                            <td>Very large dynamic range</td>
+                        </tr>
+                        <tr>
+                            <td>Output impedance</td>
+                            <td class="t-amb">High</td>
+                            <td>Requires charge amplifier (high Zin)</td>
+                        </tr>
+                        <tr>
+                            <td>Temperature sensitivity</td>
+                            <td class="t-red">Moderate</td>
+                            <td>Subject to pyroelectric effect changes</td>
+                        </tr>
+                        <tr>
+                            <td>Hysteresis error</td>
+                            <td class="t-red">Present</td>
+                            <td>Due to crystal domain effects</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Advantages</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Rugged and compact — can withstand high shock levels</li>
+                        <li><span class="dot">▸</span>Wide frequency range (10 Hz to 50 kHz)</li>
+                        <li><span class="dot">▸</span>High sensitivity (10–100 mV/g)</li>
+                        <li><span class="dot">▸</span>Self-generating — no external excitation needed</li>
+                        <li><span class="dot">▸</span>Wide dynamic range from fraction of g to 1000g</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Limitations</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>High output impedance → needs charge amplifier</li>
+                        <li><span class="dot">▸</span>Sensitive to temperature changes (pyroelectric noise)</li>
+                        <li><span class="dot">▸</span>Cannot measure static (DC) acceleration</li>
+                        <li><span class="dot">▸</span>Subject to hysteresis errors</li>
+                        <li><span class="dot">▸</span>Cable noise can be a problem at high sensitivity</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S8: SEISMIC ACCELEROMETER ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">6.8</span>
+                <h2 class="sec-t">Seismic (Displacement Sensing) Accelerometer <span class="prob prob-m">🟡
+                        MEDIUM</span></h2>
+            </div>
+
+            <p>The seismic accelerometer converts acceleration into a <strong>measurable relative displacement</strong>
+                of a seismic mass mounted within a spring-mass-damper system. Unlike the piezoelectric type, it can
+                measure static or slowly varying acceleration (including steady-state gravitational field).<sup
+                    class="cite">[1][4]</sup></p>
+
+            <h3 class="sub">Construction &amp; Mathematical Model</h3>
+
+            <p>The device consists of a <strong>seismic mass \(m\)</strong> suspended by a spring of stiffness \(k\) and
+                a damper with damping coefficient \(b\). The housing (frame) is rigidly attached to the vibrating
+                structure. An internal <strong>displacement transducer</strong> (LVDT, potentiometer, or capacitive)
+                measures the relative motion between the mass and frame.</p>
+
+            <!-- Seismic accelerometer SVG -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 580 290" xmlns="http://www.w3.org/2000/svg">
+                    <text x="290" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Seismic Accelerometer — Spring-Mass-Damper Model</text>
+
+                    <!-- Housing frame -->
+                    <rect x="140" y="40" width="220" height="220" rx="8" fill="none" stroke="#6b3e22"
+                        stroke-width="2.5" />
+                    <!-- Hatching for rigid frame -->
+                    <line x1="140" y1="40" x2="120" y2="60" stroke="#6b3e22" stroke-width="1.2" />
+                    <line x1="160" y1="40" x2="140" y2="60" stroke="#6b3e22" stroke-width="1.2" />
+                    <line x1="180" y1="40" x2="160" y2="60" stroke="#6b3e22" stroke-width="1.2" />
+                    <line x1="200" y1="40" x2="180" y2="60" stroke="#6b3e22" stroke-width="1.2" />
+                    <line x1="220" y1="40" x2="200" y2="60" stroke="#6b3e22" stroke-width="1.2" />
+                    <line x1="240" y1="40" x2="220" y2="60" stroke="#6b3e22" stroke-width="1.2" />
+                    <line x1="260" y1="40" x2="240" y2="60" stroke="#6b3e22" stroke-width="1.2" />
+                    <line x1="280" y1="40" x2="260" y2="60" stroke="#6b3e22" stroke-width="1.2" />
+                    <line x1="300" y1="40" x2="280" y2="60" stroke="#6b3e22" stroke-width="1.2" />
+                    <line x1="320" y1="40" x2="300" y2="60" stroke="#6b3e22" stroke-width="1.2" />
+                    <line x1="340" y1="40" x2="320" y2="60" stroke="#6b3e22" stroke-width="1.2" />
+                    <line x1="360" y1="40" x2="340" y2="60" stroke="#6b3e22" stroke-width="1.2" />
+                    <text x="100" y="155" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        transform="rotate(-90,100,155)">Rigid Housing Frame</text>
+
+                    <!-- Spring (zigzag) at top -->
+                    <polyline points="250,55 250,70 240,78 260,86 240,94 260,102 240,110 250,118" fill="none"
+                        stroke="#2d6648" stroke-width="2.5" />
+                    <text x="300" y="90" font-family="Lora,serif" font-size="11" fill="#2d6648" font-weight="600">Spring
+                        k</text>
+
+                    <!-- Mass -->
+                    <rect x="200" y="120" width="100" height="60" rx="6" fill="#fef0d0" stroke="#a05c00"
+                        stroke-width="2" />
+                    <text x="250" y="153" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+                        fill="#a05c00" font-weight="700">Mass m</text>
+                    <text x="250" y="168" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">x₂(t)</text>
+
+                    <!-- Damper (parallel lines) at bottom of mass -->
+                    <line x1="230" y1="180" x2="230" y2="210" stroke="#9a2020" stroke-width="2" />
+                    <line x1="270" y1="180" x2="270" y2="210" stroke="#9a2020" stroke-width="2" />
+                    <rect x="220" y="192" width="60" height="14" fill="#fde8e8" stroke="#9a2020" stroke-width="1.5" />
+                    <text x="340" y="202" font-family="Lora,serif" font-size="11" fill="#9a2020"
+                        font-weight="600">Damper b</text>
+                    <line x1="230" y1="206" x2="230" y2="225" stroke="#9a2020" stroke-width="2" />
+                    <line x1="270" y1="206" x2="270" y2="225" stroke="#9a2020" stroke-width="2" />
+                    <line x1="220" y1="225" x2="280" y2="225" stroke="#9a2020" stroke-width="2" />
+
+                    <!-- LVDT / Displacement transducer symbol -->
+                    <rect x="340" y="118" width="14" height="64" rx="3" fill="#d8eeed" stroke="#1e6b68"
+                        stroke-width="1.5" />
+                    <line x1="306" y1="150" x2="340" y2="150" stroke="#1e6b68" stroke-width="1.5"
+                        stroke-dasharray="3,2" />
+                    <text x="355" y="155" font-family="Lora,serif" font-size="10" fill="#1e6b68"
+                        font-weight="600">Displacement</text>
+                    <text x="355" y="167" font-family="Lora,serif" font-size="10" fill="#1e6b68"
+                        font-weight="600">Transducer</text>
+                    <text x="355" y="180" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">(LVDT)</text>
+
+                    <!-- Workpiece (excitation base) -->
+                    <rect x="130" y="256" width="240" height="20" rx="4" fill="#9a6e50" stroke="#6b3e22"
+                        stroke-width="2" />
+                    <text x="250" y="270" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#fff"
+                        font-weight="600">Workpiece/Machine x₁ = x₀ cos ωt</text>
+
+                    <!-- Relative displacement label -->
+                    <line x1="425" y1="150" x2="425" y2="260" stroke="#c95f1a" stroke-width="1.5"
+                        stroke-dasharray="3,2" />
+                    <line x1="418" y1="150" x2="432" y2="150" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="418" y1="260" x2="432" y2="260" stroke="#c95f1a" stroke-width="1.5" />
+                    <text x="430" y="210" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">z = x₂ −
+                        x₁</text>
+                    <text x="430" y="224" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">(relative
+                        disp.)</text>
+                </svg>
+                <div class="svg-cap">Fig 6.5 — Seismic accelerometer: spring-mass-damper inside housing frame. Relative
+                    displacement z = x₂ − x₁ is measured by LVDT. For low ω/ω_n ratio, z is proportional to
+                    acceleration. (Original, Aarova AI)</div>
+            </div>
+
+            <h3 class="sub">Mathematical Analysis <span class="prob prob-h">🟢 HIGH — IES Favourite</span></h3>
+
+            <p>Let \(x_1(t)\) be the absolute displacement of the housing (attached to vibrating machine) and \(x_2(t)\)
+                be the absolute displacement of the seismic mass. Define the <strong>relative displacement</strong>:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Equation of motion — seismic mass</div>
+                $$m\ddot{x}_2 + b(\dot{x}_2 - \dot{x}_1) + k(x_2 - x_1) = 0$$
+            </div>
+
+            <p>Substituting \(z = x_2 - x_1\) (relative displacement) and rearranging:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Equation in terms of relative displacement z</div>
+                $$m\ddot{z} + b\dot{z} + kz = -m\ddot{x}_1 = -ma(t)$$
+                <p style="font-size:13px;color:var(--text3);margin:8px 0 0;text-align:left;">The right-hand side is the
+                    inertial excitation force. Note: the mass is "driven" by the negative of the base acceleration.</p>
+            </div>
+
+            <p>For sinusoidal base motion \(x_1 = X_0 \sin(\omega t)\), steady-state solution gives:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Transfer function — Seismic Accelerometer</div>
+                $$\frac{Z}{X_0} = \frac{(\omega/\omega_n)^2}{\sqrt{\left[1-(\omega/\omega_n)^2\right]^2 +
+                \left[2\zeta(\omega/\omega_n)\right]^2}}$$
+                <p style="font-size:13px;color:var(--text3);margin:8px 0 0;text-align:left;">where \(\omega_n =
+                    \sqrt{k/m}\) = natural frequency, \(\zeta = b/(2\sqrt{km})\) = damping ratio</p>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">Key Operating Condition — When Does z ∝ Acceleration?</div>
+                    <p>For \(\omega \ll \omega_n\) (exciting frequency much less than natural frequency), the above
+                        expression simplifies to:</p>
+                    <p style="margin-top:8px;">\(Z \approx \dfrac{X_0 \omega^2}{\omega_n^2} = \dfrac{a}{\omega_n^2} =
+                        \dfrac{a \cdot m}{k}\)</p>
+                    <p style="margin-top:8px;">Therefore \(z = a/\omega_n^2\) — the relative displacement is directly
+                        proportional to acceleration. This is the <strong>accelerometer operating regime</strong>. To
+                        measure acceleration accurately, the natural frequency must be much higher than the vibration
+                        frequencies of interest.</p>
+                </div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Condition</th>
+                            <th>\(\omega\) vs \(\omega_n\)</th>
+                            <th>z proportional to</th>
+                            <th>Device type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="t-grn">Accelerometer mode</td>
+                            <td>\(\omega \ll \omega_n\)</td>
+                            <td>Acceleration \(a = \ddot{x}_1\)</td>
+                            <td class="t-grn">Accelerometer</td>
+                        </tr>
+                        <tr>
+                            <td class="t-tel">Vibrometer mode</td>
+                            <td>\(\omega \gg \omega_n\)</td>
+                            <td>Displacement \(x_1\)</td>
+                            <td class="t-tel">Seismic Vibrometer</td>
+                        </tr>
+                        <tr>
+                            <td class="t-amb">Velometer mode</td>
+                            <td>\(\omega \approx \omega_n\) with \(\zeta = 0.5\)</td>
+                            <td>Velocity \(\dot{x}_1\)</td>
+                            <td class="t-amb">Velocity pick-up</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Seismic Accelerometer Advantages</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Can measure static (DC) and slowly varying acceleration</li>
+                        <li><span class="dot">▸</span>High sensitivity at low frequencies</li>
+                        <li><span class="dot">▸</span>Lower cost than piezoelectric types for low-freq applications</li>
+                        <li><span class="dot">▸</span>Multiple transducer options (LVDT, capacitive, piezoresistive)
+                        </li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Limitations</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Limited upper frequency (must satisfy ω ≪ ω_n)</li>
+                        <li><span class="dot">▸</span>Larger and heavier than piezoelectric types</li>
+                        <li><span class="dot">▸</span>Complex spring-mass design prone to resonance damage</li>
+                        <li><span class="dot">▸</span>Cross-axis sensitivity if mass is not properly guided</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S9: GATE & IES QUESTIONS ═══ -->
+        <div class="section" id="sg">
+            <div class="sec-hdr"><span class="sec-num">6.9</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Concepts</h2>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE IN</span>
+                    <span class="pyq-title">Inductive pick-up tachometer — Speed calculation</span>
+                    <span class="pyq-year">Concept Type</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A toothed-rotor inductive pick-up tachometer has a rotor with 120 teeth. The frequency counter
+                        registers 3600 pulses per second. What is the rotational speed in rpm?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 1200 rpm</li>
+                        <li>(B) 3600 rpm</li>
+                        <li class="correct">(C) 1800 rpm ✓</li>
+                        <li>(D) 7200 rpm</li>
+                    </ul>
+                    <p><strong>Solution:</strong> \(N_{\text{rpm}} = \dfrac{f \times 60}{T} = \dfrac{3600 \times
+                        60}{120} = \dfrac{216000}{120} = 1800\) rpm.</p>
+                    <p><strong>Key concept:</strong> Always use \(N_{\text{rpm}} = (f \times 60)/T\). Do not confuse
+                        \(f\) (pulses/second) with rpm directly.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Piezoelectric accelerometer — Which statement is correct?</span>
+                    <span class="pyq-year">Concept Type</span>
+                </div>
+                <div class="pyq-body">
+                    <p>Which of the following is NOT a characteristic of a piezoelectric accelerometer?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) High output impedance requiring charge amplifier</li>
+                        <li>(B) Wide frequency range (10 Hz to 50 kHz)</li>
+                        <li class="correct">(C) Can measure static (DC) acceleration ✓</li>
+                        <li>(D) Subject to hysteresis error</li>
+                    </ul>
+                    <p><strong>Solution:</strong> Piezoelectric sensors are <em>dynamic</em> sensors — they respond to
+                        changing forces only. A static force produces a constant charge which leaks away through the
+                        finite resistance of the crystal and amplifier. Therefore, piezoelectric accelerometers
+                        <strong>cannot</strong> measure static (DC) acceleration. This is a fundamental and
+                        frequently-tested limitation.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 3 -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Contactless tachometer — Advantage</span>
+                    <span class="pyq-year">Concept Type</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The main advantage of a contactless electrical tachometer over a contact-type tachometer is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Lower cost of instrument</li>
+                        <li>(B) Higher output voltage</li>
+                        <li class="correct">(C) No load is applied to the machine being measured ✓</li>
+                        <li>(D) Can measure higher speeds</li>
+                    </ul>
+                    <p><strong>Solution:</strong> The absence of mechanical contact means no friction load is imposed on
+                        the shaft. This is critical in precision speed measurement where even a tiny torque load would
+                        change the speed. For high-speed machines and servo systems, contactless measurement is
+                        mandatory for accuracy.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 4 -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Seismic accelerometer — Operating condition</span>
+                    <span class="pyq-year">Concept Type</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A seismic instrument with natural frequency \(\omega_n\) is used as an accelerometer. The
+                        condition that must be satisfied is:</p>
+                    <ul class="pyq-opts">
+                        <li class="correct">(A) \(\omega \ll \omega_n\) — exciting frequency much less than natural
+                            frequency ✓</li>
+                        <li>(B) \(\omega \gg \omega_n\) — exciting frequency much greater than natural frequency</li>
+                        <li>(C) \(\omega = \omega_n\) — resonance condition</li>
+                        <li>(D) \(\omega_n = 0\)</li>
+                    </ul>
+                    <p><strong>Solution:</strong> When \(\omega \ll \omega_n\), the relative displacement \(z \approx
+                        a/\omega_n^2 \propto a\). The instrument measures acceleration. When \(\omega \gg \omega_n\),
+                        \(z \approx x_1\) — it becomes a vibrometer. The accelerometer regime requires a <em>stiff</em>
+                        spring (high \(\omega_n\)) to keep the operating frequencies well below resonance.</p>
+                </div>
+            </div>
+
+            <!-- GATE Insights Summary -->
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE / IES INSIGHTS</span>
+                    <span class="gate-title">Most Tested Concepts in This Chapter</span>
+                </div>
+                <div class="gate-body">
+                    <p><strong>🟢 High Probability:</strong> Speed calculation from toothed rotor (\(N = f \times 60 /
+                        T\)); Special case T=60 (counter reads rpm directly); Contactless = no load on machine;
+                        Piezoelectric \(V \propto a\); Q = d₃₃ × F; Cannot measure DC acceleration.</p>
+                    <p style="margin-top:10px;"><strong>🟡 Medium Probability:</strong> Capacitive pick-up tachometer
+                        principle; Seismic accelerometer transfer function; \(\omega \ll \omega_n\) for accelerometer
+                        operation; Comparison of piezoelectric vs seismic types.</p>
+                    <p style="margin-top:10px;"><strong>🔴 Lower Probability:</strong> Detailed reluctance derivation;
+                        Full mathematical model of seismic system; Oscillator circuit details of capacitive tachometer.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S10: QUICK REVISION ═══ -->
+        <div class="section" id="sr">
+            <div class="sec-hdr"><span class="sec-num">6.10</span>
+                <h2 class="sec-t">Quick Revision Sheet</h2>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Inductive Pick-up — Key Formulae</div>
+                    <p>\(f = T \times N\) (Hz) | \(N_{\rm rpm} = \frac{f \times 60}{T}\) | If T=60: \(N_{\rm rpm} = f\)
+                        | Error: \(\Delta N = \frac{\Delta f \times 60}{T}\) | EMF amplitude ∝ speed</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Contactless Tachometers</div>
+                    <p>No mechanical load on shaft → no friction error. Inductive: reluctance change → EMF. Capacitive:
+                        capacitance change → frequency shift in LC oscillator. Both use amplifier + shaper + counter.
+                    </p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Piezoelectric Accelerometer</div>
+                    <p>\(Q = d_{33} \cdot F = d_{33} \cdot m \cdot a\) | \(V = Q/C_p\) | \(V \propto a\) | Range: 10 Hz
+                        – 50 kHz | Sensitivity: 10–100 mV/g | Cannot measure DC (static) acceleration</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Seismic Accelerometer</div>
+                    <p>\(m\ddot{z} + b\dot{z} + kz = -ma(t)\) | Accelerometer: \(\omega \ll \omega_n\), then \(z \propto
+                        a\) | Vibrometer: \(\omega \gg \omega_n\), \(z \propto x_1\) | Measures DC acceleration ✓</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Natural Frequency</div>
+                    <p>\(\omega_n = \sqrt{k/m}\) | Damping ratio \(\zeta = b/(2\sqrt{km})\) | Optimal damping for flat
+                        response: \(\zeta \approx 0.6\)–0.7 | High \(\omega_n\) → wider accelerometer frequency range
+                    </p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Memory Tricks</div>
+                    <p>"TAP": Teeth × Angular velocity = Pulses. "SPICE": Seismic → Position (z) → Inertial → Current →
+                        Estimate acceleration. Piezo: Crystal Charges when Compressed (CCC).</p>
+                </div>
+            </div>
+
+            <!-- Ask Claude Widget -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI — Transducers Tutor</div>
+                <p>Ask any question about Chapter 6 — speed measurement, accelerometers, GATE problems, or derivations.
+                </p>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="userQ" type="text"
+                        placeholder="e.g. Derive the transfer function of a seismic accelerometer…" autocomplete="off">
+                    <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('A toothed rotor has 90 teeth and generates 4500 pulses per second. Find the shaft speed in rpm and the speed error if the counter has ±3 Hz accuracy.')">Speed
+                        from 90-tooth rotor</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain why a piezoelectric accelerometer cannot measure static acceleration. What physical property causes this limitation?')">Why
+                        piezo can't measure DC?</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Derive the condition ω ≪ ω_n for a seismic mass-spring-damper accelerometer from first principles. When does z become proportional to acceleration?')">Seismic
+                        accelerometer derivation</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Compare inductive and capacitive pick-up tachometers: which works better at very low speeds and why?')">Inductive
+                        vs Capacitive at low speed</span>
+                    <span class="ai-chip"
+                        onclick="setQ('What is the significance of the piezoelectric charge constant d33? How does it appear in the sensitivity formula?')">Piezoelectric
+                        d₃₃ constant</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <!-- Coming next -->
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 7</div>
+                    <p>Temperature Measurement — Resistance Temperature Detectors (RTDs), thermistors, thermocouples
+                        (Seebeck, Peltier, Thomson effects), radiation pyrometers, and optical temperature sensors with
+                        full GATE &amp; IES coverage and derivations.</p>
+                </div>
+            </div>
+
+            <!-- Citations -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                    the following standard textbooks. All explanations, derivations, diagrams, and SVG figures are
+                    original to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Doebelin, E.O. <em>Measurement Systems — Application and
+                                Design</em>, 5th ed. McGraw-Hill, 2004. Chapter 4 — Motion and dimensional measurement:
+                            tachometers, accelerometers, seismic instruments.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Golding, E.W. and Widdis, F.C. <em>Electrical
+                                Measurements and Measuring Instruments</em>, 5th ed. Wheeler Publishing, 1993. Chapter
+                            18 — Speed measurement, magnetic pick-ups, and pulse-counting methods.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Helfrick, A.D. and Cooper, W.D. <em>Modern Electronic
+                                Instrumentation and Measurement Techniques</em>, 5th ed. Prentice Hall of India, 2008.
+                            Chapter 12 — Transducers for intermediate quantity measurement.</span></li>
+                    <li><span class="cite-num">[4]</span><span>Bentley, J.P. <em>Principles of Measurement Systems</em>,
+                            4th ed. Pearson Education, 2005. Chapter 8 — Measurement of velocity and acceleration;
+                            piezoelectric and seismic sensors.</span></li>
+                    <li><span class="cite-num">[5]</span><span>IIT Kharagpur NPTEL. <em>Instrumentation Engineering —
+                                Lectures 20–24: Velocity, Acceleration and Vibration Measurement</em>. National
+                            Programme on Technology Enhanced Learning. nptel.ac.in.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Transducers &amp; Measurements Series &nbsp;·&nbsp; Chapter 6
+                of 8<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE / IN &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Instrumentation Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                    diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+        </div>
+
+    </div><!-- /.page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE/IN and IES tutor specialising in Transducers and Measurement Systems. Topic: Chapter 6 — Intermediate Quantity Measurements. Cover inductive and capacitive pick-up tachometers, speed calculation from toothed rotor (N_rpm = f×60/T), piezoelectric accelerometers (Q = d33 × m × a, V ∝ a, cannot measure DC), seismic accelerometers (spring-mass-damper, ω ≪ ω_n condition for accelerometer mode). Base answers on Doebelin, Helfrick & Cooper, Bentley, Golding & Widdis. All content is original. Answer with step-by-step working for numericals.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

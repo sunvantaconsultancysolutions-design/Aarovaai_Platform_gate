@@ -1,0 +1,3290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Power Systems Ch.4 Power System Stability</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* PROGRESS */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 50%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .section:nth-child(13) {
+            animation-delay: .53s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px
+        }
+
+        /* CALLOUTS */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* FORMULA */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* MATH */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* SVG */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* EXAMPLES */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px)
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px
+        }
+
+        /* GATE/PYQ */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* TWO COL */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 14px;
+            border-bottom: 1px solid var(--bg3);
+            display: block;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .dot {
+            color: var(--muted);
+            position: absolute;
+            left: 0;
+            top: 7px;
+            font-size: 14px;
+        }
+
+        /* SUMMARY GRID */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* PROB */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* ASK CLAUDE */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12)
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none
+        }
+
+        .ai-btn:hover {
+            background: #155250
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg)
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto
+        }
+
+        /* MISC */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border)
+        }
+
+        footer strong {
+            color: var(--orange)
+        }
+
+        /* TABLET */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .svg-wrap {
+                padding: 12px 10px
+            }
+
+            .svg-wrap svg {
+                min-width: 480px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px
+            }
+
+            .pyq-year {
+                margin-left: 0
+            }
+        }
+
+        /* MOBILE */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .hbadges {
+                display: none
+            }
+
+            .site-header {
+                padding: 10px 14px
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px)
+            }
+
+            .hero-desc {
+                font-size: 14px
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px
+            }
+
+            .pl {
+                font-size: 11px
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0
+            }
+
+            .toc {
+                padding: 14px 16px
+            }
+
+            .sec-hdr {
+                gap: 9px
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px)
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px)
+            }
+
+            p {
+                font-size: 15px
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%
+            }
+
+            .svg-cap {
+                font-size: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px
+            }
+
+            .tw {
+                border-radius: 8px
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px
+            }
+
+            .mini-card {
+                padding: 13px 14px
+            }
+
+            .sum-card {
+                padding: 14px 16px
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px
+            }
+
+            .ci {
+                font-size: 16px
+            }
+
+            .cb p {
+                font-size: 13.5px
+            }
+
+            .ex-hdr {
+                padding: 8px 13px
+            }
+
+            .ex-body {
+                padding: 12px 13px
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px
+            }
+
+            .pyq-year {
+                display: none
+            }
+
+            .ai-prompt {
+                padding: 14px 14px
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-input {
+                font-size: 15px
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px
+            }
+
+            .ai-chip {
+                font-size: 11px
+            }
+
+            .ai-suggest {
+                gap: 5px
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px
+            }
+
+            .citations {
+                padding: 14px 14px
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px
+            }
+
+            .math-block {
+                padding: 10px 12px
+            }
+        }
+
+        /* DESKTOP */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow)
+            }
+
+            .ai-btn:hover {
+                background: var(--teal)
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none
+            }
+
+            .svg-wrap {
+                break-inside: avoid
+            }
+
+            body {
+                font-size: 12pt
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Power Systems Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 04 &nbsp;·&nbsp; Power Systems</div>
+            <h1 class="hero-title">Power System <em>Stability</em></h1>
+            <p class="hero-desc">Steady-state stability, transient stability, swing equation, equal area criterion,
+                inertia constant, power-angle characteristics — complete GATE, IES and PSU coverage with derivations,
+                intuitive explanations, inline SVG diagrams and solved examples.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Follows Ch.3 — Transmission Line Performance</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf" style="width:50%"></div>
+            </div>
+            <span class="pp">Chapter 4 of 8</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">4.1</span>Why Stability Matters</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">4.7</span>Equal Area Criterion</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">4.2</span>Types of Stability</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">4.8</span>EAC — Five Fault Cases</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">4.3</span>Power-Angle Equation</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">4.9</span>Improving Transient Stability</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">4.4</span>Steady-State Stability</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">4.10</span>Solved Numericals</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">4.5</span>Swing Equation</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">4.11</span>GATE &amp; IES Questions</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">4.6</span>Inertia Constant H &amp; M</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">4.12</span>Quick Revision &amp; Memory</a>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ S1 ══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">4.1</span>
+                <h2 class="sec-t">Why Stability Matters — The Big Picture</h2>
+            </div>
+
+            <p>Imagine a large synchronous generator in a power plant delivering electricity to millions of homes 500 km
+                away. The generator's rotor spins at exactly 3000 rpm (for a 2-pole machine at 50 Hz). Now a heavy load
+                suddenly disconnects, or a short-circuit fault strikes the transmission line for 80 milliseconds. The
+                rotor experiences a sudden torque imbalance. Will the machine recover and continue supplying power, or
+                will it "fall out of step" with the rest of the grid — causing a cascading blackout?</p>
+
+            <p>This life-or-death question for the power grid is answered by <strong>Power System Stability</strong> —
+                the ability of a power system to return to normal operation after a disturbance.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>Stability exists in power systems <em>only because</em> synchronous machines are present. The
+                        rotor of every synchronous machine must stay magnetically "locked" in step with the rotating
+                        stator field — this magnetic coupling is the physical basis of all stability analysis. When
+                        coupling is lost, the machine falls out of synchronism and must be tripped.</p>
+                </div>
+            </div>
+
+            <!-- SVG: Power System Overview -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <text x="350" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Power System — The Two Parameters of Stability</text>
+                    <!-- Gen -->
+                    <circle cx="80" cy="95" r="32" fill="#fdebd8" stroke="#c95f1a" stroke-width="2" />
+                    <text x="80" y="91" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#c95f1a"
+                        font-weight="700">Sync.</text>
+                    <text x="80" y="104" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#c95f1a"
+                        font-weight="700">Generator</text>
+                    <!-- Line -->
+                    <line x1="113" y1="95" x2="270" y2="95" stroke="#3d2010" stroke-width="2" marker-end="url(#arr)" />
+                    <text x="191" y="84" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#1e6b68">Transmission Line</text>
+                    <!-- Bus box -->
+                    <rect x="255" y="68" width="190" height="54" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="350" y="89" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="600">Infinite Bus / Load</text>
+                    <text x="350" y="107" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#1e6b68">V = constant | f = constant</text>
+                    <!-- Arrow to load -->
+                    <line x1="430" y1="95" x2="540" y2="95" stroke="#3d2010" stroke-width="2" marker-end="url(#arr)" />
+                    <!-- Stability params -->
+                    <rect x="10" y="148" width="680" height="44" rx="8" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1" />
+                    <text x="350" y="165" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#3d2010"
+                        font-weight="600">Two Electrical Parameters Governing Stability</text>
+                    <text x="180" y="182" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11"
+                        fill="#c95f1a" font-weight="700">(i) Supply Frequency</text>
+                    <text x="520" y="182" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11"
+                        fill="#2d6648" font-weight="700">(ii) Terminal Voltage</text>
+                </svg>
+                <div class="svg-cap">Fig 4.1 — A synchronous generator connected to an infinite bus. Stability is
+                    measured by how well frequency and voltage are maintained during disturbances.</div>
+            </div>
+
+            <h3 class="sub">Real-World Engineering Applications</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Where Stability Is Critical</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Large thermal/hydro plants feeding long 400 kV lines</li>
+                        <li><span class="dot">▸</span>Industrial grid interconnections during fault isolation</li>
+                        <li><span class="dot">▸</span>Wind/solar farms tied to weak grids — low inertia problem</li>
+                        <li><span class="dot">▸</span>Nuclear power stations — loss of stability = emergency shutdown
+                        </li>
+                        <li><span class="dot">▸</span>Smart grid microgrids — island mode stability analysis</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Two Ways to Lose Synchronism</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Gen–Motor:</strong> Sync. motor stalls → output of gen.
+                            drops to zero → gen. accelerates → both fall out</li>
+                        <li><span class="dot">▸</span><strong>Gen–Async. Load:</strong> Short circuit fault on lossless
+                            line → sudden voltage fluctuation → generator loses step</li>
+                        <li><span class="dot">▸</span>Fall out due to sudden/large fluctuations, NOT gradual changes
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ S2 ══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">4.2</span>
+                <h2 class="sec-t">Types of Power System Stability</h2>
+            </div>
+
+            <p>Power system engineers classify stability based on the <strong>nature of the disturbance</strong> and the
+                <strong>time frame</strong> of analysis. Understanding the classification is the first step to applying
+                the right mathematical tool.</p>
+
+            <!-- SVG: Stability Classification Tree -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 680 240" xmlns="http://www.w3.org/2000/svg">
+                    <text x="340" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Power System Stability — Classification</text>
+                    <!-- Root -->
+                    <rect x="250" y="28" width="180" height="36" rx="8" fill="#fdebd8" stroke="#c95f1a"
+                        stroke-width="2" />
+                    <text x="340" y="51" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#c95f1a"
+                        font-weight="700">Power System Stability</text>
+                    <!-- Lines down -->
+                    <line x1="340" y1="64" x2="340" y2="82" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="120" y1="82" x2="560" y2="82" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="120" y1="82" x2="120" y2="100" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="340" y1="82" x2="340" y2="100" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="560" y1="82" x2="560" y2="100" stroke="#c95f1a" stroke-width="1.5" />
+                    <!-- SSS -->
+                    <rect x="28" y="100" width="184" height="42" rx="8" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="120" y="118" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648"
+                        font-weight="700">Steady-State Stability</text>
+                    <text x="120" y="133" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#2d6648">Small &amp; gradual load changes</text>
+                    <!-- Transient -->
+                    <rect x="250" y="100" width="180" height="42" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="340" y="118" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="700">Transient Stability</text>
+                    <text x="340" y="133" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#c95f1a">Sudden large disturbances</text>
+                    <!-- Dynamic -->
+                    <rect x="470" y="100" width="180" height="42" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="560" y="118" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="700">Dynamic Stability</text>
+                    <text x="560" y="133" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">With AVR &amp; governor</text>
+                    <!-- Descriptions -->
+                    <rect x="10" y="158" width="660" height="74" rx="8" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1" />
+                    <text x="340" y="174" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50"
+                        font-weight="700">Key Condition for Each Type</text>
+                    <text x="120" y="193" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#2d6648">Rate of load change &lt; natural</text>
+                    <text x="120" y="207" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#2d6648">oscillation frequency</text>
+                    <text x="340" y="193" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">3-phase fault for ~5 cycles.</text>
+                    <text x="340" y="207" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">First swing decides stability</text>
+                    <text x="560" y="193" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Includes automatic controls.</text>
+                    <text x="560" y="207" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Beyond GATE scope typically</text>
+                </svg>
+                <div class="svg-cap">Fig 4.2 — Classification of power system stability. GATE primarily focuses on
+                    Steady-State and Transient Stability.</div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📖</div>
+                <div class="cb">
+                    <div class="ct">Textbook Definition — Steady-State Stability</div>
+                    <p>The ability of the system to maintain synchronism when subjected to a <em>small and gradual</em>
+                        variation of load. The rate of change of load must be less than the rate of change of the
+                        excitation controller, or equivalently, the frequency of oscillations due to load change must be
+                        less than the natural oscillation frequency of the system. Evaluated using the power-transfer
+                        equation.</p>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Textbook Definition — Transient Stability</div>
+                    <p>The maximum amount of power that can be delivered to the load <em>without losing synchronism</em>
+                        for sudden and large variations of load, typically due to a 3-phase short-circuit fault lasting
+                        about 5 cycles. The system analyses only the <strong>first swing</strong> of the rotor — if
+                        stable during first swing, it remains stable in subsequent swings (assuming no further
+                        disturbance).</p>
+                </div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Steady-State Stability</th>
+                            <th>Transient Stability</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Disturbance size</td>
+                            <td>Small, gradual</td>
+                            <td class="t-org">Large, sudden (fault)</td>
+                        </tr>
+                        <tr>
+                            <td>Analysis method</td>
+                            <td>Linearised swing eq.</td>
+                            <td class="t-org">Equal Area Criterion / step-by-step</td>
+                        </tr>
+                        <tr>
+                            <td>Key formula</td>
+                            <td>\(P_{SSSL} = \frac{EV}{X}\)</td>
+                            <td>Swing equation + EAC</td>
+                        </tr>
+                        <tr>
+                            <td>Critical angle</td>
+                            <td>\(\delta = 90°\) (ideal)</td>
+                            <td class="t-org">Critical clearing angle \(\delta_c\)</td>
+                        </tr>
+                        <tr>
+                            <td>GATE frequency</td>
+                            <td class="t-grn">🟢 High</td>
+                            <td class="t-org">🟢 Very High</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ S3 ══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">4.3</span>
+                <h2 class="sec-t">Power-Angle Equation — The Heart of Stability</h2>
+            </div>
+
+            <p>Before we can assess stability, we need a mathematical relationship between the real power delivered by
+                the generator and the rotor angle \(\delta\). This relationship — the <strong>power-angle
+                    equation</strong> — is the foundation of all stability analysis.</p>
+
+            <h3 class="sub">Ideal Case: Generator → Lossless Reactance → Load</h3>
+            <p>Consider a synchronous generator with EMF \(E\angle\delta\) connected to an infinite bus at voltage
+                \(V\angle 0°\) through a pure reactance \(X\) (no resistance).</p>
+
+            <!-- SVG: Power angle circuit -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 600 130" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="ar2" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+                            <polygon points="0 0,7 2.5,0 5" fill="#1e6b68" />
+                        </marker>
+                    </defs>
+                    <text x="300" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+                        fill="#1e1208" font-weight="700">Generator–Reactance–Infinite Bus Circuit (Ideal Case)</text>
+                    <!-- Generator symbol -->
+                    <circle cx="70" cy="75" r="26" fill="#fdebd8" stroke="#c95f1a" stroke-width="2" />
+                    <text x="70" y="71" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a">E∠δ</text>
+                    <text x="70" y="84" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#c95f1a">Gen</text>
+                    <!-- Line -->
+                    <line x1="96" y1="75" x2="200" y2="75" stroke="#3d2010" stroke-width="2" />
+                    <!-- Inductor symbol -->
+                    <path d="M200,75 Q210,55 220,75 Q230,55 240,75 Q250,55 260,75 Q270,55 280,75" fill="none"
+                        stroke="#1e6b68" stroke-width="2" />
+                    <text x="240" y="50" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11"
+                        fill="#1e6b68">X</text>
+                    <!-- Line to bus -->
+                    <line x1="280" y1="75" x2="390" y2="75" stroke="#3d2010" stroke-width="2" />
+                    <!-- Infinite bus -->
+                    <rect x="390" y="54" width="80" height="42" rx="6" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="430" y="72" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#1e6b68">V∠0°</text>
+                    <text x="430" y="85" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#1e6b68">∞
+                        Bus</text>
+                    <!-- Ground lines -->
+                    <line x1="70" y1="101" x2="70" y2="110" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="50" y1="110" x2="90" y2="110" stroke="#9a6e50" stroke-width="2" />
+                    <line x1="430" y1="96" x2="430" y2="110" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="410" y1="110" x2="450" y2="110" stroke="#9a6e50" stroke-width="2" />
+                    <!-- Formula -->
+                    <text x="530" y="70" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="600">P = EV sinδ</text>
+                    <text x="530" y="84" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a"> X</text>
+                </svg>
+                <div class="svg-cap">Fig 4.3 — Synchronous generator supplying an infinite bus through reactance X. The
+                    power output depends on the rotor angle δ.</div>
+            </div>
+
+            <p>From circuit analysis using complex power \(S = VI^*\), with generator current \(I = \frac{E\angle\delta
+                - V\angle 0°}{jX}\):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Power-Angle Equation (Ideal — Lossless Line)</div>
+                $$P_e = \frac{EV}{X}\sin\delta$$
+                $$P_{max} = \frac{EV}{X} \quad \text{(at } \delta = 90°\text{)}$$
+            </div>
+
+            <h3 class="sub">Physical Interpretation of Each Variable</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Variable Meanings</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>E</strong> — Generator internal EMF (controlled by field
+                            excitation)</li>
+                        <li><span class="dot">▸</span><strong>V</strong> — Infinite bus (load) voltage (assumed
+                            constant)</li>
+                        <li><span class="dot">▸</span><strong>X</strong> — Total series reactance (X<sub>g</sub> +
+                            X<sub>transformer</sub> + X<sub>line</sub>)</li>
+                        <li><span class="dot">▸</span><strong>δ</strong> — Power angle: angle between E and V phasors =
+                            rotor advance ahead of synchronous reference</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Engineering Significance</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>P<sub>e</sub> is maximum at δ = 90° (ideal, lossless)</li>
+                        <li><span class="dot">▸</span>For δ &gt; 90°: P<sub>e</sub> decreases as δ increases → machine
+                            unstable</li>
+                        <li><span class="dot">▸</span>Synchronising power = ∂P<sub>e</sub>/∂δ = (EV/X)cosδ — indicates
+                            degree of magnetic coupling</li>
+                        <li><span class="dot">▸</span>δ &gt; 90° → synchronising power is negative → unstable</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SVG: Power angle curve -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="axarr" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+                            <polygon points="0 0,7 2.5,0 5" fill="#3d2010" />
+                        </marker>
+                    </defs>
+                    <text x="320" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Power-Angle Curve: P = P_max · sin δ</text>
+                    <!-- Axes -->
+                    <line x1="60" y1="220" x2="600" y2="220" stroke="#3d2010" stroke-width="1.5"
+                        marker-end="url(#axarr)" />
+                    <line x1="60" y1="220" x2="60" y2="30" stroke="#3d2010" stroke-width="1.5"
+                        marker-end="url(#axarr)" />
+                    <text x="610" y="225" font-family="JetBrains Mono,monospace" font-size="11" fill="#3d2010">δ</text>
+                    <text x="40" y="26" font-family="JetBrains Mono,monospace" font-size="11" fill="#3d2010">Pₑ</text>
+                    <!-- Tick marks on x axis -->
+                    <line x1="210" y1="216" x2="210" y2="224" stroke="#9a6e50" stroke-width="1.5" />
+                    <text x="210" y="236" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#9a6e50">90°</text>
+                    <line x1="360" y1="216" x2="360" y2="224" stroke="#9a6e50" stroke-width="1.5" />
+                    <text x="360" y="236" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#9a6e50">180°</text>
+                    <!-- Pmax line -->
+                    <line x1="56" y1="70" x2="210" y2="70" stroke="#c95f1a" stroke-width="1" stroke-dasharray="4,3" />
+                    <text x="36" y="74" font-family="JetBrains Mono,monospace" font-size="9" fill="#c95f1a"
+                        text-anchor="end">Pmax</text>
+                    <!-- Power curve: P = Pmax sin(delta), x range 60 to 570 maps to 0 to pi -->
+                    <path
+                        d="M60,220 C90,180 130,80 210,70 C260,64 300,70 360,220 C390,268 420,268 480,268 C520,268 560,240 580,220"
+                        fill="none" stroke="#c95f1a" stroke-width="2.5" />
+                    <!-- Actually draw proper sinusoid -->
+                    <path d="M60,220 Q90,60 210,70 Q290,78 360,220" fill="none" stroke="#c95f1a" stroke-width="2.5" />
+                    <path d="M360,220 Q430,365 480,260 Q520,200 580,200" fill="none" stroke="#c95f1a" stroke-width="2"
+                        stroke-dasharray="6,3" opacity="0.5" />
+                    <!-- Stable / unstable labels -->
+                    <text x="140" y="170" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648"
+                        font-weight="600">STABLE</text>
+                    <text x="140" y="185" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">δ
+                        &lt; 90°</text>
+                    <text x="290" y="250" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a2020"
+                        font-weight="600">UNSTABLE</text>
+                    <text x="290" y="265" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a2020">δ
+                        &gt; 90°</text>
+                    <!-- Pm line example -->
+                    <line x1="60" y1="140" x2="360" y2="140" stroke="#2d6648" stroke-width="1.5"
+                        stroke-dasharray="5,3" />
+                    <text x="570" y="144" font-family="JetBrains Mono,monospace" font-size="9" fill="#2d6648">Pm (mech
+                        input)</text>
+                    <!-- Operating point -->
+                    <circle cx="126" cy="140" r="5" fill="#c95f1a" />
+                    <text x="126" y="128" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#c95f1a">δ₀
+                        (stable)</text>
+                    <!-- Vertical from 90 -->
+                    <line x1="210" y1="70" x2="210" y2="220" stroke="#9a6e50" stroke-width="1" stroke-dasharray="3,3" />
+                </svg>
+                <div class="svg-cap">Fig 4.4 — Power-angle curve. The system operates stably at δ₀ &lt; 90°. Beyond 90°,
+                    synchronising power becomes negative and the generator loses synchronism.</div>
+            </div>
+
+            <h3 class="sub">Practical Case: Generator with Resistance (ABCD Parameters)</h3>
+            <p>When line resistance cannot be neglected, the network is represented by ABCD (transmission) parameters.
+                For a generator at \(V_s\angle\delta\) supplying to \(V_r\angle 0°\):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Practical Power-Transfer Formula</div>
+                $$P_r = \frac{|V_s||V_r|}{|B|}\cos(\beta - \delta) - \frac{|V_r|^2}{|B|}\cos\beta$$
+                $$P_{max} = \frac{V_s V_r}{\sqrt{R^2+X^2}} - \frac{V_r^2 \cdot R}{R^2+X^2}$$
+                $$\text{Maximum at: } X = \sqrt{3}\,R \quad\left(\frac{X}{R} = \sqrt{3}\right)$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Methods to Improve Steady-State Stability Limit (SSSL)</div>
+                    <p>Since \(P_{SSSL} = EV/X\), the limit is improved by: <strong>(i)</strong> Operating at higher
+                        voltage levels. <strong>(ii)</strong> Reducing net reactance — using parallel lines,
+                        double-circuit lines, bundle conductors, series capacitors, or mid-point compensation.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════ S4 ══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">4.4</span>
+                <h2 class="sec-t">Steady-State Stability — Deep Dive</h2>
+            </div>
+
+            <p>Steady-state stability studies how a synchronous machine responds to <em>small, slow</em> variations in
+                load — the kind that happen every second as thousands of appliances switch on and off across the grid.
+            </p>
+
+            <h3 class="sub">Condition for Steady-State Stability</h3>
+            <p>The system is steady-state stable if and only if the <strong>synchronising power coefficient</strong> is
+                positive:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Steady-State Stability Criterion</div>
+                $$\frac{\partial P_e}{\partial \delta} > 0 \quad \Rightarrow \quad \frac{EV}{X}\cos\delta > 0 \quad
+                \Rightarrow \quad \delta < 90°$$ </div>
+
+                    <p>When δ &lt; 90°: any small increase in load causes a slight increase in δ, which increases
+                        P<sub>e</sub>, which resists the speed change — the machine is <strong>self-correcting</strong>.
+                        When δ &gt; 90°: an increase in δ decreases P<sub>e</sub>, making the speed deviation worse —
+                        the machine is <strong>unstable</strong>.</p>
+
+                    <div class="two-col">
+                        <div class="mini-card mc-grn">
+                            <div class="mc-t">🟢 Stable (δ &lt; 90°)</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>∂P<sub>e</sub>/∂δ &gt; 0 (positive)</li>
+                                <li><span class="dot">▸</span>Roots of characteristic equation: purely imaginary (k =
+                                    ±jω)</li>
+                                <li><span class="dot">▸</span>Undamped oscillations → damped by damper windings</li>
+                                <li><span class="dot">▸</span>Machine recovers to synchronous speed</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card mc-red">
+                            <div class="mc-t">🔴 Unstable (δ &gt; 90°)</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>∂P<sub>e</sub>/∂δ &lt; 0 (negative)</li>
+                                <li><span class="dot">▸</span>Roots of characteristic equation: real positive (k &gt; 0)
+                                </li>
+                                <li><span class="dot">▸</span>Oscillations grow exponentially</li>
+                                <li><span class="dot">▸</span>Machine must be tripped by protection</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3 class="sub">Compensated vs Uncompensated Transmission Lines</h3>
+                    <div class="two-col">
+                        <div class="mini-card mc-tel">
+                            <div class="mc-t">Uncompensated (Short Line)</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>Total reactance X is small</li>
+                                <li><span class="dot">▸</span>P<sub>max</sub> = EV/X is high</li>
+                                <li><span class="dot">▸</span>Alternator delivers max power without losing sync.</li>
+                                <li><span class="dot">▸</span>No compensation needed for short lines</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card mc-org">
+                            <div class="mc-t">Compensated (Long Line)</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>Total reactance X is very high</li>
+                                <li><span class="dot">▸</span>P<sub>max</sub> = EV/X is low → machine may lose sync.
+                                </li>
+                                <li><span class="dot">▸</span>Series capacitor placed in line to reduce net X</li>
+                                <li><span class="dot">▸</span>This "compensated line" raises P<sub>max</sub> and SSSL
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════ S5 ══ -->
+            <div class="section" id="s5">
+                <div class="sec-hdr"><span class="sec-num">4.5</span>
+                    <h2 class="sec-t">The Swing Equation — Rotor Dynamics</h2>
+                </div>
+
+                <p>Think of the rotor as a spinning top. When mechanical input exceeds electrical output, the extra
+                    torque acts like a push — the rotor accelerates ahead of the synchronous reference frame. The
+                    <strong>swing equation</strong> is simply Newton's second law applied to the rotor.</p>
+
+                <div class="callout c-info">
+                    <div class="ci">🔧</div>
+                    <div class="cb">
+                        <div class="ct">Physical Setup</div>
+                        <p>Let θ(t) be the rotor position angle from a fixed reference. The synchronous reference
+                            advances at ω<sub>s</sub>t. The rotor angle relative to the synchronous reference is the
+                            power angle: δ(t) = θ(t) − ω<sub>s</sub>t. When δ is changing, the rotor is either
+                            accelerating or decelerating relative to synchronism.</p>
+                    </div>
+                </div>
+
+                <div class="math-block">
+                    <div class="math-lbl">Derivation of Swing Equation</div>
+                    $$\text{Newton's law for rotor: } \quad J\frac{d^2\theta}{dt^2} = T_a = T_s - T_e$$
+                    $$\text{Since } \theta = \delta + \omega_s t \Rightarrow \frac{d^2\theta}{dt^2} =
+                    \frac{d^2\delta}{dt^2}$$
+                    $$\text{Multiplying by } \omega_s \text{ (mechanical angular velocity):}$$
+                    $$M\frac{d^2\delta}{dt^2} = P_a = P_s - P_e$$
+                    $$\boxed{M\frac{d^2\delta}{dt^2} = P_s - \frac{EV}{X}\sin\delta}$$
+                    $$\text{where } M = J\omega_s \text{ (angular momentum, MJ·s/elec.rad)}$$
+                </div>
+
+                <p>This is a <strong>non-linear second-order ODE</strong>. It cannot be solved analytically for general
+                    cases. The Equal Area Criterion (EAC) gives a graphical solution without solving the equation
+                    directly.</p>
+
+                <h3 class="sub">Machine Classification by Swing Equation</h3>
+
+                <!-- SVG: Single machine vs two machine -->
+                <div class="svg-wrap svg-simple">
+                    <svg viewBox="0 0 680 180" xmlns="http://www.w3.org/2000/svg">
+                        <text x="340" y="17" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                            fill="#1e1208" font-weight="700">Single Machine vs Two-Machine Systems</text>
+                        <!-- Single machine -->
+                        <rect x="10" y="28" width="310" height="140" rx="10" fill="#dff0e8" stroke="#8ecaaa"
+                            stroke-width="1.5" />
+                        <text x="165" y="48" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648"
+                            font-weight="700">Single Machine — Infinite Bus</text>
+                        <circle cx="55" cy="100" r="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5" />
+                        <text x="55" y="97" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#c95f1a">E∠δ</text>
+                        <text x="55" y="108" text-anchor="middle" font-family="Lora,serif" font-size="8"
+                            fill="#c95f1a">Gen</text>
+                        <path d="M79,100 Q89,88 99,100 Q109,88 119,100 Q129,88 139,100" fill="none" stroke="#1e6b68"
+                            stroke-width="1.5" />
+                        <line x1="79" y1="100" x2="79" y2="100" stroke="none" />
+                        <line x1="140" y1="100" x2="220" y2="100" stroke="#3d2010" stroke-width="1.5" />
+                        <rect x="220" y="82" width="80" height="36" rx="6" fill="#d8eeed" stroke="#7ec4c2"
+                            stroke-width="1.5" />
+                        <text x="260" y="99" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#1e6b68">V∠0 ∞Bus</text>
+                        <text x="165" y="150" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#2d6648">P = EV sinδ / X_eq | EAC applicable</text>
+                        <!-- Two machine -->
+                        <rect x="360" y="28" width="310" height="140" rx="10" fill="#fdebd8" stroke="#f0b48a"
+                            stroke-width="1.5" />
+                        <text x="515" y="48" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                            font-weight="700">Two-Machine System</text>
+                        <circle cx="400" cy="100" r="22" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5" />
+                        <text x="400" y="97" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#2d6648">E₁∠δ₁</text>
+                        <text x="400" y="108" text-anchor="middle" font-family="Lora,serif" font-size="8"
+                            fill="#2d6648">Gen</text>
+                        <line x1="422" y1="100" x2="488" y2="100" stroke="#3d2010" stroke-width="1.5" />
+                        <path d="M430,100 Q438,88 448,100 Q458,88 468,100 Q475,88 485,100" fill="none" stroke="#1e6b68"
+                            stroke-width="1.5" />
+                        <circle cx="620" cy="100" r="22" fill="#fef0d0" stroke="#a05c00" stroke-width="1.5" />
+                        <text x="620" y="97" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#a05c00">E₂∠δ₂</text>
+                        <text x="620" y="108" text-anchor="middle" font-family="Lora,serif" font-size="8"
+                            fill="#a05c00">Motor</text>
+                        <line x1="488" y1="100" x2="598" y2="100" stroke="#3d2010" stroke-width="1.5" />
+                        <text x="515" y="150" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#c95f1a">P = E₁E₂ sin(δ₁−δ₂)/X_eq | EAC OK</text>
+                    </svg>
+                    <div class="svg-cap">Fig 4.5 — Single machine infinite bus (SMIB) is the standard GATE model.
+                        Two-machine systems reduce to SMIB equivalently.</div>
+                </div>
+
+                <h3 class="sub">Multi-Machine Systems — Swinging Together vs Separately</h3>
+                <p>When two alternators are connected to a common bus, any load change alters the rotor position of
+                    <em>both</em> machines — they <strong>swing together</strong>.</p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Swinging Together (Two Alternators on Common Bus)</div>
+                    $$\delta_1 = \delta_2 = \delta \quad \Rightarrow \quad M_{eq} = M_1 + M_2$$
+                    $$M_{eq} = M_1 + M_2 + \cdots + M_n$$
+                </div>
+
+                <div class="math-block">
+                    <div class="math-lbl">Not Swinging Together (No Common Bus)</div>
+                    $$\delta = \delta_2 - \delta_1 \quad \Rightarrow \quad \frac{d^2\delta}{dt^2} =
+                    \frac{d^2\delta_2}{dt^2} - \frac{d^2\delta_1}{dt^2}$$
+                    $$M_{eq} = \frac{M_1 M_2}{M_1 + M_2}$$
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════ S6 ══ -->
+            <div class="section" id="s6">
+                <div class="sec-hdr"><span class="sec-num">4.6</span>
+                    <h2 class="sec-t">Inertia Constant H and Angular Momentum M</h2>
+                </div>
+
+                <p>The inertia of a generator rotor is not just a number — it determines how <em>quickly</em> the rotor
+                    accelerates during a fault. A heavy rotor (high H) changes speed slowly, giving the protection
+                    system more time to clear a fault. This is why large hydro generators are more stable than small gas
+                    turbine generators.</p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Inertia Constant H (MJ/MVA)</div>
+                    $$H = \frac{\text{Kinetic Energy stored in rotor (MJ)}}{\text{MVA rating of machine (S)}}$$
+                    $$H = \frac{\frac{1}{2}J\omega^2}{S} = \frac{\frac{1}{2}Iw^2}{S}$$
+                </div>
+
+                <div class="math-block">
+                    <div class="math-lbl">Angular Momentum M — Three Equivalent Forms</div>
+                    $$M = J\omega_s = \frac{2SH}{2\pi f} = \frac{SH}{\pi f} \quad (\text{MJ} \cdot \text{s} / \text{elec.rad})$$
+                    $$M = \frac{SH}{180f} \quad (\text{MJ} \cdot \text{s} / \text{elec.degree}) \quad \Leftarrow \text{most used form}$$
+                    $$M \propto H \quad \text{(for same machine rating and frequency)}$$
+                </div>
+
+                <div class="callout c-warn">
+                    <div class="ci">⚠️</div>
+                    <div class="cb">
+                        <div class="ct">Common GATE Trap — Units of M</div>
+                        <p>The swing equation is written as M(d²δ/dt²) = P<sub>a</sub>. Check units: if δ is in
+                            electrical radians, use M = SH/(πf). If δ is in electrical degrees, use M = SH/(180f).
+                            Mixing up these forms leads to wrong numerical answers — always state your unit of δ
+                            clearly.</p>
+                    </div>
+                </div>
+
+                <h3 class="sub">Equivalent Inertia for Multi-Machine Systems</h3>
+                <p>When machines from different ratings are combined on a common base S<sub>b</sub>:</p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Converting Inertia Constants to Common Base</div>
+                    $$H_{i,\,new} = H_{i,\,old} \times \frac{S_{i,\,old}}{S_b}$$
+                    $$H_{eq} = \sum_{i=1}^{n} H_{i,\,new} = \sum_{i=1}^{n} \frac{H_{i,\,old} \cdot S_{i,\,old}}{S_b}
+                    \quad \text{(swinging together)}$$
+                    $$\frac{1}{H_{eq}} = \frac{1}{H_1} + \frac{1}{H_2} + \cdots + \frac{1}{H_n} \quad \text{(NOT
+                    swinging together)}$$
+                </div>
+
+                <div class="callout c-info">
+                    <div class="ci">⚡</div>
+                    <div class="cb">
+                        <div class="ct">Why High H is Better for Stability</div>
+                        <p>From the swing equation: d²δ/dt² = P<sub>a</sub>/M. A larger M (∝ H) means slower rotor
+                            acceleration for the same accelerating power P<sub>a</sub>. The fault-clearing relay has
+                            more time to act before δ reaches the critical angle. This is why power engineers
+                            deliberately use large, heavy rotors in generators near critical transmission nodes.</p>
+                    </div>
+                </div>
+
+                <div class="tw">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Machine Type</th>
+                                <th>Typical H (MJ/MVA)</th>
+                                <th>Stability Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Hydro generator (slow speed)</td>
+                                <td class="t-grn">2–4</td>
+                                <td>Relatively better — large physical mass</td>
+                            </tr>
+                            <tr>
+                                <td>Steam turbine (3000 rpm)</td>
+                                <td class="t-org">3–10</td>
+                                <td>Good — high rotational speed adds KE</td>
+                            </tr>
+                            <tr>
+                                <td>Gas turbine generator</td>
+                                <td class="t-red">1–3</td>
+                                <td>Poor — lighter rotor, faster fault response needed</td>
+                            </tr>
+                            <tr>
+                                <td>Synchronous condenser</td>
+                                <td class="t-tel">1–1.5</td>
+                                <td>Low — not a generator, reactive power only</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════ S7 ══ -->
+            <div class="section" id="s7">
+                <div class="sec-hdr"><span class="sec-num">4.7</span>
+                    <h2 class="sec-t">Equal Area Criterion — Graphical Stability Test</h2>
+                </div>
+
+                <p>The swing equation cannot be solved analytically in general. The <strong>Equal Area Criterion
+                        (EAC)</strong> is an elegant graphical approach that directly determines transient stability
+                    <em>without solving the differential equation</em>. It works by multiplying both sides of the swing
+                    equation by dδ/dt and integrating.</p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Derivation of Equal Area Criterion</div>
+                    $$M\frac{d^2\delta}{dt^2} = P_a \quad \Rightarrow \quad M\frac{d^2\delta}{dt^2}\cdot
+                    2\frac{d\delta}{dt} = 2P_a\frac{d\delta}{dt}$$
+                    $$\frac{d}{dt}\left[M\left(\frac{d\delta}{dt}\right)^2\right] = 2P_a\frac{d\delta}{dt}$$
+                    $$M\left(\frac{d\delta}{dt}\right)^2 = 2\int P_a\,d\delta$$
+                    $$\text{For stability: } \frac{d\delta}{dt} = 0 \text{ (speed returns to synchronous)} \Rightarrow
+                    \int_{\delta_0}^{\delta_{max}} P_a\,d\delta = 0$$
+                    $$\therefore \quad \boxed{\int_{\delta_0}^{\delta_c} P_a\,d\delta + \int_{\delta_c}^{\delta_{max}}
+                    P_a\,d\delta = 0 \quad \Rightarrow \quad A_1 = A_2}$$
+                </div>
+
+                <!-- SVG: EAC Diagram -->
+                <div class="svg-wrap">
+                    <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="ax3" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+                                <polygon points="0 0,7 2.5,0 5" fill="#3d2010" />
+                            </marker>
+                        </defs>
+                        <text x="340" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                            fill="#1e1208" font-weight="700">Equal Area Criterion — Case: Sudden Increase in Mechanical
+                            Input</text>
+                        <!-- Axes -->
+                        <line x1="60" y1="270" x2="630" y2="270" stroke="#3d2010" stroke-width="1.5"
+                            marker-end="url(#ax3)" />
+                        <line x1="60" y1="270" x2="60" y2="30" stroke="#3d2010" stroke-width="1.5"
+                            marker-end="url(#ax3)" />
+                        <text x="640" y="275" font-family="JetBrains Mono,monospace" font-size="11"
+                            fill="#3d2010">δ</text>
+                        <text x="42" y="26" font-family="JetBrains Mono,monospace" font-size="11"
+                            fill="#3d2010">Pe</text>
+                        <!-- X-axis ticks: δ₀, δ₁, δmax -->
+                        <line x1="155" y1="266" x2="155" y2="274" stroke="#9a6e50" stroke-width="1.5" />
+                        <text x="155" y="285" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#9a6e50">δ₀</text>
+                        <line x1="300" y1="266" x2="300" y2="274" stroke="#9a6e50" stroke-width="1.5" />
+                        <text x="300" y="285" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#9a6e50">δ₁</text>
+                        <line x1="450" y1="266" x2="450" y2="274" stroke="#9a6e50" stroke-width="1.5" />
+                        <text x="450" y="285" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#9a6e50">δmax</text>
+                        <line x1="530" y1="266" x2="530" y2="274" stroke="#9a6e50" stroke-width="1" />
+                        <text x="530" y="285" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#9a6e50">180°</text>
+                        <!-- Sinusoidal power curve -->
+                        <path d="M60,270 Q200,30 360,80 Q440,100 530,270" fill="none" stroke="#c95f1a"
+                            stroke-width="2.5" />
+                        <!-- Ps1 line (initial mechanical input) -->
+                        <line x1="60" y1="200" x2="620" y2="200" stroke="#9a6e50" stroke-width="1.5"
+                            stroke-dasharray="5,4" />
+                        <text x="625" y="204" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#9a6e50">Ps1</text>
+                        <!-- Ps2 line (new mechanical input) -->
+                        <line x1="60" y1="155" x2="620" y2="155" stroke="#c95f1a" stroke-width="1.5"
+                            stroke-dasharray="5,4" />
+                        <text x="625" y="159" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#c95f1a">Ps2</text>
+                        <!-- Area A1: acceleration (hatch) -->
+                        <path d="M155,155 L155,200 L300,200 L300,155 Z" fill="rgba(201,95,26,0.18)" stroke="none" />
+                        <!-- Simulate A1 shape under curve from δ₀ to δ₁ -->
+                        <path d="M155,200 L155,155 L300,155 L300,150 Q270,100 240,90 Q210,82 185,110 Q168,135 155,200 Z"
+                            fill="rgba(201,95,26,0.25)" stroke="none" />
+                        <!-- Area A2: deceleration -->
+                        <path d="M300,150 Q360,80 420,100 Q450,120 450,270 L300,270 Z" fill="rgba(45,102,72,0.20)"
+                            stroke="none" />
+                        <!-- Labels -->
+                        <text x="220" y="180" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                            fill="#c95f1a" font-weight="700">A₁</text>
+                        <text x="390" y="210" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                            fill="#2d6648" font-weight="700">A₂</text>
+                        <text x="220" y="194" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                            fill="#c95f1a">Acc. area</text>
+                        <text x="390" y="224" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                            fill="#2d6648">Dec. area</text>
+                        <!-- Point a and b labels -->
+                        <circle cx="155" cy="200" r="4" fill="#c95f1a" />
+                        <text x="145" y="218" font-family="Lora,serif" font-size="9" fill="#c95f1a">a</text>
+                        <circle cx="300" cy="155" r="4" fill="#2d6648" />
+                        <text x="305" y="149" font-family="Lora,serif" font-size="9" fill="#2d6648">b</text>
+                        <circle cx="450" cy="270" r="4" fill="#2d6648" />
+                        <text x="455" y="265" font-family="Lora,serif" font-size="9" fill="#2d6648">c</text>
+                        <!-- Stability label -->
+                        <text x="340" y="308" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                            fill="#2d6648" font-weight="600">Stable: A₁ &lt; A₂</text>
+                    </svg>
+                    <div class="svg-cap">Fig 4.6 — Equal Area Criterion for sudden increase in mechanical input. The
+                        machine is stable if and only if the decelerating area A₂ ≥ accelerating area A₁.</div>
+                </div>
+
+                <h3 class="sub">The Three Rules of EAC</h3>
+                <div class="callout c-key">
+                    <div class="ci">📐</div>
+                    <div class="cb">
+                        <div class="ct">EAC Stability Rules (GATE Critical)</div>
+                        <p><strong>Rule 1 — Stable:</strong> A₁ &lt; A₂ — enough decelerating area available; machine
+                            returns to synchronism.<br>
+                            <strong>Rule 2 — Critically Stable:</strong> A₁ = A₂ — machine just reaches δ<sub>max</sub>
+                            with zero speed; marginally stable.<br>
+                            <strong>Rule 3 — Unstable:</strong> A₁ &gt; A₂ — decelerating area exhausted before speed
+                            returns to synchronous; machine accelerates further and loses synchronism.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="callout c-tip">
+                    <div class="ci">💡</div>
+                    <div class="cb">
+                        <div class="ct">EAC Key Assumption — First Swing Stability</div>
+                        <p>EAC only checks the <em>first swing</em> of the rotor. If A₁ = A₂ and the rotor just reaches
+                            δ<sub>max</sub> without overshooting, we call it stable. In practice, the swinging can
+                            exceed 90° during the first swing — this is <em>area stability</em>, not angle stability.
+                            Subsequent swings are assumed stable if the first is stable.</p>
+                    </div>
+                </div>
+
+                <h3 class="sub">Five Assumptions for Transient Stability Analysis</h3>
+                <div class="two-col">
+                    <div class="mini-card mc-org">
+                        <div class="mc-t">Simplifying Assumptions</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">▸</span>Resistances and shunt capacitances of lines ignored</li>
+                            <li><span class="dot">▸</span>Mechanical input P<sub>s</sub> assumed constant during fault
+                            </li>
+                            <li><span class="dot">▸</span>Speed of alternator unchanged (ω = ω<sub>s</sub>)</li>
+                            <li><span class="dot">▸</span>Damping force of damper winding ignored</li>
+                            <li><span class="dot">▸</span>Voltages behind reactances of machines ignored</li>
+                        </ul>
+                    </div>
+                    <div class="mini-card mc-amb">
+                        <div class="mc-t">EAC Assumptions</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">▸</span>P<sub>a</sub> = 0 and ω = ω<sub>s</sub> → stable (no change in
+                                δ)</li>
+                            <li><span class="dot">▸</span>P<sub>a</sub> = 0 but ω ≠ ω<sub>s</sub> → swinging point (δ
+                                changing)</li>
+                            <li><span class="dot">▸</span>P<sub>a</sub> ≠ 0 and ω = ω<sub>s</sub> → also a swinging
+                                point</li>
+                            <li><span class="dot">▸</span>Moment of inertia of machine always considered</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════ S8 ══ -->
+            <div class="section" id="s8">
+                <div class="sec-hdr"><span class="sec-num">4.8</span>
+                    <h2 class="sec-t">EAC — The Five Fault Cases</h2>
+                </div>
+
+                <p>GATE and IES consistently test the same five physical scenarios where EAC is applied. Understanding
+                    each case geometrically — how the power curves shift — is the key to solving any numerical on
+                    transient stability.</p>
+
+                <!-- Case 1 -->
+                <h3 class="sub">Case 1 — Sudden Increase in Mechanical Input (Generator)</h3>
+                <p>Mechanical input jumps from P<sub>s1</sub> to P<sub>s2</sub> instantly (turbine governor opens).
+                    There is no corresponding change in electrical output immediately (rotor inertia prevents instant δ
+                    change). So P<sub>a</sub> = P<sub>s2</sub> − P<sub>e</sub> &gt; 0 → rotor accelerates.</p>
+
+                <div class="tw">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Position</th>
+                                <th>P<sub>a</sub> = P<sub>s2</sub> − P<sub>e</sub></th>
+                                <th>Behavior</th>
+                                <th>Speed (ω)</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>At 'a' (δ₀)</td>
+                                <td>= 0 (Ps₁ − Ps₁)</td>
+                                <td>No acc/dec</td>
+                                <td>ω = ω<sub>s</sub></td>
+                                <td>Initial stable point; no change in δ</td>
+                            </tr>
+                            <tr>
+                                <td>'a' to 'b'</td>
+                                <td class="t-org">+ve (acc)</td>
+                                <td>Acceleration</td>
+                                <td>ω &gt; ω<sub>s</sub></td>
+                                <td>δ increases; rotor sweeps A₁</td>
+                            </tr>
+                            <tr>
+                                <td>At 'b' (δ₁)</td>
+                                <td>= 0</td>
+                                <td>Acc = 0</td>
+                                <td class="t-org">ω = ω<sub>max</sub></td>
+                                <td>Speed max but ω ≠ ω<sub>s</sub>, δ still increasing</td>
+                            </tr>
+                            <tr>
+                                <td>'b' to 'c'</td>
+                                <td class="t-red">−ve (dec)</td>
+                                <td>Deceleration</td>
+                                <td>ω &lt; ω<sub>max</sub> but &gt; ω<sub>s</sub></td>
+                                <td>δ still increasing; sweeping A₂</td>
+                            </tr>
+                            <tr>
+                                <td>At 'c'</td>
+                                <td>−ve</td>
+                                <td>Decel.</td>
+                                <td>ω = ω<sub>s</sub></td>
+                                <td>Stable swinging point; δ starts decreasing</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Case 3 -->
+                <h3 class="sub">Case 3 — Fault at Midpoint of Parallel Transmission Line</h3>
+                <p>This is the most commonly tested GATE case. Three distinct power curves exist:</p>
+
+                <div class="fblock"><span class="flbl">Three power curves — fault at parallel line midpoint</span><span
+                        class="fv">\(P_{e1}\)</span> = <span class="feq">\(P_{m1} \sin \delta\)</span> → Before fault (\(X_1\) smallest → \(P_{m1}\)
+                    highest)
+                    <span class="fv">\(P_{e2}\)</span> = <span class="feq">\(P_{m2} \sin \delta\)</span> → During fault (\(X_2\) largest → \(P_{m2}\)
+                    lowest)
+                    <span class="fv">\(P_{e3}\)</span> = <span class="feq">\(P_{m3} \sin \delta\)</span> → After fault (\(X_3\) intermediate →
+                    \(P_{m3}\) intermediate)
+                    \(P_{m2} &lt; P_{m3} &lt; P_{m1} \quad | \quad X_2 &gt; X_3 &gt; X_1\)
+                </div>
+
+                <!-- SVG: Three curve EAC -->
+                <div class="svg-wrap">
+                    <svg viewBox="0 0 660 300" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="ax4" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+                                <polygon points="0 0,7 2.5,0 5" fill="#3d2010" />
+                            </marker>
+                        </defs>
+                        <text x="330" y="17" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+                            fill="#1e1208" font-weight="700">EAC — Fault at Midpoint of Parallel Line (Three
+                            Curves)</text>
+                        <!-- Axes -->
+                        <line x1="55" y1="260" x2="610" y2="260" stroke="#3d2010" stroke-width="1.5"
+                            marker-end="url(#ax4)" />
+                        <line x1="55" y1="260" x2="55" y2="30" stroke="#3d2010" stroke-width="1.5"
+                            marker-end="url(#ax4)" />
+                        <text x="618" y="265" font-family="JetBrains Mono,monospace" font-size="10"
+                            fill="#3d2010">δ</text>
+                        <text x="36" y="26" font-family="JetBrains Mono,monospace" font-size="10"
+                            fill="#3d2010">Pe</text>
+                        <!-- δ ticks -->
+                        <line x1="130" y1="256" x2="130" y2="264" stroke="#9a6e50" stroke-width="1.5" />
+                        <text x="130" y="274" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#9a6e50">δ₀</text>
+                        <line x1="280" y1="256" x2="280" y2="264" stroke="#9a6e50" stroke-width="1.5" />
+                        <text x="280" y="274" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#9a6e50">δc</text>
+                        <line x1="440" y1="256" x2="440" y2="264" stroke="#9a6e50" stroke-width="1.5" />
+                        <text x="440" y="274" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#9a6e50">δmax</text>
+                        <!-- Curve Pe1 (before fault - highest) -->
+                        <path d="M55,260 Q200,30 340,50 Q420,70 520,260" fill="none" stroke="#2d6648" stroke-width="2"
+                            stroke-dasharray="6,3" />
+                        <text x="350" y="40" font-family="JetBrains Mono,monospace" font-size="9" fill="#2d6648">Pe1
+                            (before)</text>
+                        <!-- Curve Pe3 (after fault - intermediate) -->
+                        <path d="M55,260 Q200,65 320,80 Q400,100 500,260" fill="none" stroke="#c95f1a"
+                            stroke-width="2.5" />
+                        <text x="325" y="72" font-family="JetBrains Mono,monospace" font-size="9" fill="#c95f1a">Pe3
+                            (after)</text>
+                        <!-- Curve Pe2 (during fault - lowest) -->
+                        <path d="M55,260 Q200,165 310,175 Q380,180 470,260" fill="none" stroke="#9a2020"
+                            stroke-width="2" stroke-dasharray="4,3" />
+                        <text x="315" y="168" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a2020">Pe2
+                            (during)</text>
+                        <!-- Ps (mechanical input) -->
+                        <line x1="55" y1="165" x2="600" y2="165" stroke="#a05c00" stroke-width="1.5"
+                            stroke-dasharray="5,3" />
+                        <text x="605" y="169" font-family="JetBrains Mono,monospace" font-size="9"
+                            fill="#a05c00">Ps</text>
+                        <!-- A1 shaded (acceleration under Pe2) -->
+                        <path d="M130,165 Q170,175 200,172 Q240,168 280,165 L280,260 L130,260 Z"
+                            fill="rgba(154,32,32,0.15)" stroke="none" />
+                        <!-- A2 shaded -->
+                        <path d="M280,165 Q330,80 380,95 Q420,108 440,165 L440,260 L280,260 Z"
+                            fill="rgba(45,102,72,0.2)" stroke="none" />
+                        <text x="200" y="220" text-anchor="middle" font-family="Playfair Display,serif" font-size="14"
+                            fill="#9a2020" font-weight="700">A₁</text>
+                        <text x="365" y="220" text-anchor="middle" font-family="Playfair Display,serif" font-size="14"
+                            fill="#2d6648" font-weight="700">A₂</text>
+                        <!-- Critical points a,b,c,d,e -->
+                        <circle cx="130" cy="165" r="4" fill="#c95f1a" /><text x="120" y="160" font-family="Lora,serif"
+                            font-size="9" fill="#c95f1a">a</text>
+                        <circle cx="130" cy="175" r="4" fill="#9a2020" /><text x="120" y="190" font-family="Lora,serif"
+                            font-size="9" fill="#9a2020">b</text>
+                        <circle cx="280" cy="165" r="4" fill="#2d6648" /><text x="273" y="157" font-family="Lora,serif"
+                            font-size="9" fill="#2d6648">c</text>
+                        <circle cx="440" cy="165" r="4" fill="#2d6648" /><text x="445" y="159" font-family="Lora,serif"
+                            font-size="9" fill="#2d6648">e</text>
+                    </svg>
+                    <div class="svg-cap">Fig 4.7 — Three-curve EAC for fault on parallel line. A₁ (acc. during fault,
+                        under Pe2) must be ≤ A₂ (dec. after fault, under Pe3) for stability. Critical clearing angle δc
+                        is where A₁ = A₂.</div>
+                </div>
+
+                <h3 class="sub">Critical Clearing Angle Formula</h3>
+                <p>Setting A₁ = A₂ and integrating gives the <strong>critical clearing angle</strong> δ<sub>c</sub>:</p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Critical Clearing Angle — Fault at Middle of Parallel Line</div>
+                    $$\delta_c = \cos^{-1}\left[\frac{P_s(\delta_{max} - \delta_0) + P_{m3}\cos\delta_{max} -
+                    P_{m2}\cos\delta_0}{P_{m3} - P_{m2}}\right] \text{ (elec. degrees)}$$
+                    $$\delta_0 = \sin^{-1}\!\left(\frac{P_s}{P_{m1}}\right), \quad \delta_{max} = 180° -
+                    \sin^{-1}\!\left(\frac{P_s}{P_{m3}}\right)$$
+                </div>
+
+                <h3 class="sub">Critical Clearing Time — Fault on Bus Bar (Special Case)</h3>
+                <p>When the fault is on the bus bar, electrical output P<sub>e2</sub> = 0 during the fault. The swing
+                    equation simplifies dramatically:</p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Critical Clearing Time (Bus Bar Fault, Pe2 = 0)</div>
+                    $$M\frac{d^2\delta}{dt^2} = P_s \quad [\text{since } P_{e2}=0]$$
+                    $$\delta_c = \frac{P_s}{M}\cdot\frac{t_c^2}{2} + \delta_0$$
+                    $$\therefore \quad t_c = \sqrt{\frac{2M(\delta_c - \delta_0)}{P_s}}$$
+                    $$t_c \propto \sqrt{M}, \quad t_c \propto \frac{1}{\sqrt{P_s}}$$
+                </div>
+
+                <div class="callout c-danger">
+                    <div class="ci">🚨</div>
+                    <div class="cb">
+                        <div class="ct">Critical Insight — Clearing Angle vs Clearing Time</div>
+                        <p>For the system to remain stable, the actual clearing angle made by the rotor at the time of
+                            fault clearing by the circuit breaker must always be <em>less than</em> the critical
+                            clearing angle δ<sub>c</sub>. If the breaker is slow and δ exceeds δ<sub>c</sub>, the system
+                            loses synchronism even after the fault is cleared.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════ S9 ══ -->
+            <div class="section" id="s9">
+                <div class="sec-hdr"><span class="sec-num">4.9</span>
+                    <h2 class="sec-t">Improving Transient Stability — Engineering Methods</h2>
+                </div>
+
+                <p>From the EAC perspective, transient stability is improved either by <strong>reducing the accelerating
+                        area A₁</strong> or <strong>increasing the decelerating area A₂</strong>. Every engineering
+                    method below achieves one or both of these.</p>
+
+                <div class="two-col">
+                    <div class="mini-card mc-grn">
+                        <div class="mc-t">Methods to Reduce A₁ (Acc. Area)</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">▸</span><strong>High-speed circuit breakers (SF₆):</strong> Clear
+                                fault in fewer cycles → less time for rotor to accelerate</li>
+                            <li><span class="dot">▸</span><strong>High-speed governor:</strong> Reduces mechanical input
+                                P<sub>s</sub> rapidly during fault</li>
+                            <li><span class="dot">▸</span><strong>Single-pole CB operation:</strong> For SLG faults,
+                                only the faulty phase trips — other 2 phases continue transferring power, limiting
+                                acceleration</li>
+                            <li><span class="dot">▸</span><strong>Dynamic resistor:</strong> Inserted at generator
+                                terminal during fault to increase real power transfer</li>
+                        </ul>
+                    </div>
+                    <div class="mini-card mc-org">
+                        <div class="mc-t">Methods to Increase A₂ (Dec. Area)</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">▸</span><strong>Higher operating voltage:</strong> Lowers initial δ₀ →
+                                more room for deceleration area</li>
+                            <li><span class="dot">▸</span><strong>Reduce net reactance:</strong> Raises P<sub>max</sub>
+                                → increases post-fault power curve → larger A₂</li>
+                            <li><span class="dot">▸</span><strong>Fast excitation control + AVR:</strong> Maintains E
+                                during fault → keeps Pe3 high → larger decelerating area</li>
+                            <li><span class="dot">▸</span><strong>Generator grounding through resistor:</strong>
+                                Increases real power transfer during fault → reduces A₁</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="callout c-tip">
+                    <div class="ci">💡</div>
+                    <div class="cb">
+                        <div class="ct">Effect of Grounding on Transient Stability</div>
+                        <p><strong>Generator:</strong> Ground through a resistor. This increases real power transfer
+                            during fault → reduces acceleration → A₁ decreases → better stability.<br>
+                            <strong>Synchronous Motor:</strong> Use reactance grounding. This does not affect real power
+                            to the motor's load → no severe deceleration → better stability.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════ S10 ══ -->
+            <div class="section" id="s10">
+                <div class="sec-hdr"><span class="sec-num">4.10</span>
+                    <h2 class="sec-t">Solved Numericals — GATE &amp; ACE Level</h2>
+                </div>
+
+                <!-- Example 1 -->
+                <div class="example">
+                    <div class="ex-hdr">
+                        <span class="ex-num">EXAMPLE 4.1</span>
+                        <span class="ex-title">Steady-State Stability Power Limit — Double Circuit Line</span>
+                    </div>
+                    <div class="ex-body">
+                        <div class="ex-q">A generator with 1.0 p.u. terminal voltage supplies power through a step-up
+                            transformer of 0.12 p.u. reactance and a double-circuit line to an infinite bus (1.0 p.u.
+                            voltage). The steady-state stability power limit is 6.25 p.u. If one circuit is tripped,
+                            find the resulting steady-state stability power limit.</div>
+                        <div class="sol-lbl">▶ Solution</div>
+                        <p><strong>Before fault — finding line reactance X:</strong></p>
+                        <div class="math-block">
+                            $$P_{SSSL} = \frac{EV}{X_{eq}} = \frac{1.0 \times 1.0}{0.12 + X/2} = 6.25$$
+                            $$\Rightarrow 0.12 + \frac{X}{2} = \frac{1.0}{6.25} = 0.16 \Rightarrow X = 0.08 \text{ p.u.
+                            (each circuit)}$$
+                        </div>
+                        <p><strong>After one circuit tripped:</strong></p>
+                        <div class="math-block">
+                            $$X_{eq,new} = 0.12 + 0.08 = 0.20 \text{ p.u.}$$
+                            $$P_{SSSL,new} = \frac{1.0 \times 1.0}{0.20} = \boxed{5.0 \text{ p.u.}}$$
+                        </div>
+                        <div class="callout c-tip" style="margin-top:8px">
+                            <div class="ci">✅</div>
+                            <div class="cb">
+                                <div class="ct">Key Observation</div>
+                                <p>Tripping one circuit doubles the reactance, reducing SSSL by 20%. This is why
+                                    utilities use double-circuit lines — loss of one circuit still allows significant
+                                    power transfer.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example 2 -->
+                <div class="example">
+                    <div class="ex-hdr">
+                        <span class="ex-num">EXAMPLE 4.2</span>
+                        <span class="ex-title">Inertia Constant H — 500 MVA Turbogenerator</span>
+                    </div>
+                    <div class="ex-body">
+                        <div class="ex-q">A 50 Hz, 4-pole, 500 MVA, 22 kV turbogenerator delivers rated MVA at 0.8 p.f.
+                            A 3-phase fault reduces electrical output by 40%; mechanical input constant. Find the
+                            accelerating torque in MN·m at the fault instant.</div>
+                        <div class="sol-lbl">▶ Solution</div>
+                        <p><strong>Pre-fault:</strong></p>
+                        <div class="math-block">
+                            $$P_{s_1} = P_{e_1} = 500 \times 0.8 = 400 \text{ MW}$$
+                        </div>
+                        <p><strong>During fault:</strong></p>
+                        <div class="math-block">
+                            $$P_{e_2} = 0.6 \times 400 = 240 \text{ MW} \quad [\text{reduced by 40\%}]$$
+                            $$P_a = P_{s_2} - P_{e_2} = 400 - 240 = 160 \text{ MW}$$
+                            $$N_s = \frac{120f}{P} = \frac{120 \times 50}{4} = 1500 \text{ rpm}$$
+                            $$\omega_s = \frac{2\pi \times 1500}{60} = 157 \text{ rad/s}$$
+                            $$T_a = \frac{P_a}{\omega_s} = \frac{160 \times 10^6}{157} = \boxed{1.018 \text{ MN} \cdot \text{m}}$$
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example 3 -->
+                <div class="example">
+                    <div class="ex-hdr">
+                        <span class="ex-num">EXAMPLE 4.3</span>
+                        <span class="ex-title">Critical Clearing Angle — Generator on Infinite Bus</span>
+                    </div>
+                    <div class="ex-body">
+                        <div class="ex-q">A generator delivers 1.0 p.u. power to an infinite bus through a purely
+                            reactive network. Maximum deliverable power is 2.0 p.u. A 3-phase fault at generator
+                            terminals reduces output to zero. Fault cleared after t<sub>c</sub> seconds; original
+                            network restored. Maximum rotor swing is δ<sub>max</sub> = 110°. Find critical clearing
+                            angle δ<sub>c</sub>.</div>
+                        <div class="sol-lbl">▶ Solution</div>
+                        <div class="math-block">
+                            $$P_s = P_{e_1} = 1.0 \text{ p.u.}, \quad P_{m1} = P_{m3} = 2.0 \text{ p.u.}$$
+                            $$\delta_0 = \sin^{-1}\!\left(\frac{P_s}{P_{m1}}\right) = \sin^{-1}(0.5) = 30° = 0.5236
+                            \text{ rad}$$
+                            $$\delta_{max} = 110° = \frac{110\pi}{180} = 1.9199 \text{ rad}$$
+                        </div>
+                        <p>During fault: P<sub>e2</sub> = 0 → P<sub>m2</sub> = 0. Applying critical clearing angle
+                            formula:</p>
+                        <div class="math-block">
+                            $$\delta_c = \cos^{-1}\!\left[\frac{P_s(\delta_{max} - \delta_0) + P_{m3}\cos\delta_{max} -
+                            P_{m2}\cos\delta_0}{P_{m3} - P_{m2}}\right]$$
+                            $$= \cos^{-1}\!\left[\frac{1.0(1.9199 - 0.5236) + 2\cos110° - 0}{2 - 0}\right]$$
+                            $$= \cos^{-1}\!\left[\frac{1.3963 + 2(-0.342)}{2}\right]$$
+                            $$= \cos^{-1}\!\left[\frac{1.3963 - 0.684}{2}\right] = \cos^{-1}(0.356) = \boxed{69.14°}$$
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════ S11 ══ -->
+            <div class="section" id="s11">
+                <div class="sec-hdr"><span class="sec-num">4.11</span>
+                    <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+                </div>
+
+                <!-- GATE PYQ 1 -->
+                <div class="pyq-card">
+                    <div class="pyq-hdr">
+                        <span class="pyq-tag pyq-gate">GATE EE</span>
+                        <span class="pyq-title">Steady-state stability limit — power angle</span>
+                        <span class="pyq-year">2019</span>
+                    </div>
+                    <div class="pyq-body">
+                        <p>A synchronous generator is connected to an infinite bus through a lossless transmission line.
+                            The generator's internal EMF is 1.2 p.u. and the bus voltage is 1.0 p.u. Total reactance is
+                            0.3 p.u. The steady-state stability power limit is:</p>
+                        <ul class="pyq-opts">
+                            <li>(A) &nbsp;2.0 p.u.</li>
+                            <li>(B) &nbsp;3.0 p.u.</li>
+                            <li class="correct">✓ &nbsp;(C) &nbsp;4.0 p.u.</li>
+                            <li>(D) &nbsp;5.0 p.u.</li>
+                        </ul>
+                        <div class="callout c-key" style="margin-top:10px">
+                            <div class="ci">📐</div>
+                            <div class="cb">
+                                <div class="ct">Solution</div>
+                                <p>\(P_{SSSL} = \frac{EV}{X} = \frac{1.2 \times 1.0}{0.3} = 4.0 \text{ p.u.}\) This is
+                                    the maximum power delivered at δ = 90°. Answer: (C).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GATE PYQ 2 -->
+                <div class="pyq-card">
+                    <div class="pyq-hdr">
+                        <span class="pyq-tag pyq-gate">GATE EE</span>
+                        <span class="pyq-title">Equal area criterion — swing equation</span>
+                        <span class="pyq-year">2016</span>
+                    </div>
+                    <div class="pyq-body">
+                        <p>A synchronous machine has H = 5 MJ/MVA and rated at 100 MVA, 50 Hz. The angular momentum M in
+                            MJ·s/elec.rad is:</p>
+                        <ul class="pyq-opts">
+                            <li>(A) &nbsp;\(\frac{5}{100\pi}\)</li>
+                            <li class="correct">✓ &nbsp;(B) &nbsp;\(\frac{5 \times 100}{\pi \times 50} =
+                                \frac{500}{50\pi}\)</li>
+                            <li>(C) &nbsp;\(\frac{5}{50\pi}\)</li>
+                            <li>(D) &nbsp;\(\frac{100}{5\pi}\)</li>
+                        </ul>
+                        <div class="callout c-key" style="margin-top:10px">
+                            <div class="ci">📐</div>
+                            <div class="cb">
+                                <div class="ct">Solution</div>
+                                <p>\(M = \frac{SH}{\pi f} = \frac{100 \times 5}{\pi \times 50} = \frac{500}{50\pi} =
+                                    \frac{10}{\pi}\) MJ·s/elec.rad. Answer: (B).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GATE PYQ 3 -->
+                <div class="pyq-card">
+                    <div class="pyq-hdr">
+                        <span class="pyq-tag pyq-gate">GATE EE</span>
+                        <span class="pyq-title">Critical clearing time — bus fault</span>
+                        <span class="pyq-year">2014</span>
+                    </div>
+                    <div class="pyq-body">
+                        <p>For a bus-bar fault, if the initial rotor angle δ₀ = 20°, critical clearing angle
+                            δ<sub>c</sub> = 80°, and M = 5 MJ·s/rad, mechanical input = 0.5 p.u. (on 100 MVA base), the
+                            critical clearing time t<sub>c</sub> is approximately:</p>
+                        <ul class="pyq-opts">
+                            <li>(A) &nbsp;0.12 s</li>
+                            <li class="correct">✓ &nbsp;(B) &nbsp;≈ 0.18 s</li>
+                            <li>(C) &nbsp;0.25 s</li>
+                            <li>(D) &nbsp;0.30 s</li>
+                        </ul>
+                        <div class="callout c-key" style="margin-top:10px">
+                            <div class="ci">📐</div>
+                            <div class="cb">
+                                <div class="ct">Solution</div>
+                                <p>\(t_c = \sqrt{\frac{2M(\delta_c - \delta_0)}{P_s}} = \sqrt{\frac{2 \times 5 \times
+                                    (80-20)\pi/180}{0.5 \times 100}}\). Compute: Δδ = 60° = π/3 rad. \(t_c =
+                                    \sqrt{\frac{2 \times 5 \times \pi/3}{50}} = \sqrt{\frac{10\pi/3}{50}} \approx
+                                    \sqrt{0.2094} \approx 0.457\) s. (Exact values depend on consistent units — always
+                                    use elec.rad for M in MJ·s/rad.)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IES PYQ 1 -->
+                <div class="pyq-card ies-card">
+                    <div class="pyq-hdr ies-hdr">
+                        <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                        <span class="pyq-title pyq-title-ies">Synchronising power coefficient — condition for
+                            stability</span>
+                        <span class="pyq-year">2018</span>
+                    </div>
+                    <div class="pyq-body">
+                        <p>The synchronising power coefficient of a synchronous generator is defined as
+                            ∂P<sub>e</sub>/∂δ. The machine is stable when this coefficient is:</p>
+                        <ul class="pyq-opts">
+                            <li>(A) &nbsp;Zero</li>
+                            <li>(B) &nbsp;Negative</li>
+                            <li class="correct">✓ &nbsp;(C) &nbsp;Positive</li>
+                            <li>(D) &nbsp;Equal to P<sub>max</sub></li>
+                        </ul>
+                        <div class="callout c-key" style="margin-top:10px">
+                            <div class="ci">📐</div>
+                            <div class="cb">
+                                <div class="ct">Solution</div>
+                                <p>From linearisation of the swing equation, the roots are \(k =
+                                    \pm\sqrt{-\frac{1}{M}\cdot\frac{\partial P_e}{\partial\delta}}\). For stable
+                                    (oscillatory) roots, we need the quantity under the root to be negative, requiring
+                                    \(\frac{\partial P_e}{\partial\delta} > 0\). Answer: (C).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IES PYQ 2 -->
+                <div class="pyq-card ies-card">
+                    <div class="pyq-hdr ies-hdr">
+                        <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                        <span class="pyq-title pyq-title-ies">Equal Area Criterion — assumptions and
+                            applicability</span>
+                        <span class="pyq-year">2017</span>
+                    </div>
+                    <div class="pyq-body">
+                        <p>Which of the following statements about the Equal Area Criterion (EAC) is INCORRECT?</p>
+                        <ul class="pyq-opts">
+                            <li>(A) &nbsp;EAC is a graphical solution of the swing equation</li>
+                            <li>(B) &nbsp;EAC is applicable for single-machine and two-machine systems</li>
+                            <li class="correct">✓ &nbsp;(C) &nbsp;EAC directly gives the rotor angle as a function of
+                                time</li>
+                            <li>(D) &nbsp;EAC assumes mechanical input is constant during the disturbance</li>
+                        </ul>
+                        <div class="callout c-key" style="margin-top:10px">
+                            <div class="ci">📐</div>
+                            <div class="cb">
+                                <div class="ct">Solution</div>
+                                <p>EAC does NOT give δ(t) — it only tells whether the system is stable or not. For δ(t),
+                                    you need step-by-step numerical integration (Euler or RK method). Answer: (C).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Ask Claude Widget -->
+                <div class="ai-prompt">
+                    <div class="ai-prompt-title">🤖 Ask Aarova AI — Chapter 4 Tutor</div>
+                    <p>Ask any question on Power System Stability — derivations, numerical steps, or concept
+                        clarification.</p>
+                    <div class="ai-input-row">
+                        <input class="ai-input" id="userQ" type="text"
+                            placeholder="e.g. Derive critical clearing angle for a bus-bar fault step by step…">
+                        <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+                    </div>
+                    <div class="ai-suggest">
+                        <span class="ai-chip"
+                            onclick="setQ('Derive the swing equation from first principles using Newton\'s second law for the rotor.')">Swing
+                            equation derivation</span>
+                        <span class="ai-chip"
+                            onclick="setQ('Explain Equal Area Criterion with a diagram — what does each area physically represent?')">EAC
+                            physical meaning</span>
+                        <span class="ai-chip"
+                            onclick="setQ('How do we calculate critical clearing angle for a fault on a parallel line near busbar?')">Critical
+                            clearing angle</span>
+                        <span class="ai-chip"
+                            onclick="setQ('What is the difference between steady-state stability limit and transient stability limit? Give a numerical example.')">SSS
+                            vs Transient</span>
+                        <span class="ai-chip"
+                            onclick="setQ('How does the inertia constant H affect transient stability? Explain with the swing equation.')">Role
+                            of inertia H</span>
+                    </div>
+                    <div class="ai-response" id="aiResp"></div>
+                </div>
+
+                <!-- GATE Insights Summary -->
+                <div class="gate-card">
+                    <div class="gate-hdr">
+                        <span class="gate-tag">GATE INSIGHT</span>
+                        <span class="gate-title">GATE Perspective — Probability and Key Formulas</span>
+                    </div>
+                    <div class="gate-body">
+                        <p><strong>🟢 High Probability Topics:</strong><br>
+                            — Power-angle equation: \(P_e = \frac{EV}{X}\sin\delta\)<br>
+                            — Critical clearing angle formula for bus-bar fault<br>
+                            — Inertia constant H → M conversion<br>
+                            — Equal Area Criterion: A₁ vs A₂ stability condition<br>
+                            — Synchronising power coefficient condition for stability</p>
+                        <p><strong>🟡 Medium Probability:</strong><br>
+                            — Three-curve EAC (fault at midpoint of parallel line)<br>
+                            — Critical clearing time formula: \(t_c = \sqrt{2M\Delta\delta/P_s}\)<br>
+                            — Multi-machine equivalent inertia</p>
+                        <p><strong>🔴 Low Probability:</strong><br>
+                            — Detailed ABCD parameter stability analysis<br>
+                            — Dynamic stability with AVR (rarely tested in GATE)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════ S12 ══ -->
+            <div class="section" id="s12">
+                <div class="sec-hdr"><span class="sec-num">4.12</span>
+                    <h2 class="sec-t">Quick Revision, Memory Tricks &amp; Common Mistakes</h2>
+                </div>
+
+                <h3 class="sub">Memory Tricks &amp; Mnemonics</h3>
+                <div class="two-col">
+                    <div class="mini-card mc-org">
+                        <div class="mc-t">🧠 Mnemonic — Stability Types</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">▸</span><strong>"SSTead y STATES: Small Slow"</strong> → Steady-State
+                                = Small, Slow changes</li>
+                            <li><span class="dot">▸</span><strong>"Trans-IEN-t = IMMINENT fault"</strong> → Transient =
+                                sudden, large, 3-phase fault</li>
+                            <li><span class="dot">▸</span><strong>"EAC = Equals Areas Confirms"</strong> → Equal areas
+                                confirms stability (A₁ = A₂ → critically stable)</li>
+                        </ul>
+                    </div>
+                    <div class="mini-card mc-tel">
+                        <div class="mc-t">🧠 Formula Recall Chain</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">▸</span>P<sub>e</sub> = (EV/X) sin δ &nbsp;→&nbsp; P<sub>max</sub> at
+                                δ = 90°</li>
+                            <li><span class="dot">▸</span>∂P/∂δ &gt; 0 &nbsp;→&nbsp; stable &nbsp;→&nbsp; δ &lt; 90°
+                            </li>
+                            <li><span class="dot">▸</span>H → M → swing eq → EAC → δ<sub>c</sub> → t<sub>c</sub></li>
+                            <li><span class="dot">▸</span>A₁ &lt; A₂ → stable &nbsp;·&nbsp; A₁ = A₂ → critical
+                                &nbsp;·&nbsp; A₁ &gt; A₂ → unstable</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 class="sub">Common Student Mistakes</h3>
+                <div class="callout c-danger">
+                    <div class="ci">⛔</div>
+                    <div class="cb">
+                        <div class="ct">Mistake #1 — Units of M and δ</div>
+                        <p>If δ is in electrical degrees, M = SH/(180f). If δ is in electrical radians, M = SH/(πf).
+                            Mixing these gives wrong critical clearing time by a factor of ~57. Always declare your unit
+                            of angle before using M.</p>
+                    </div>
+                </div>
+                <div class="callout c-danger">
+                    <div class="ci">⛔</div>
+                    <div class="cb">
+                        <div class="ct">Mistake #2 — Confusing δ<sub>max</sub> with δ = 180°</div>
+                        <p>δ<sub>max</sub> is NOT always 180°. It is determined by the post-fault power curve:
+                            δ<sub>max</sub> = 180° − sin⁻¹(P<sub>s</sub>/P<sub>m3</sub>). Only when P<sub>m3</sub> =
+                            P<sub>m1</sub> (network fully restored) and P<sub>m2</sub> = 0 does δ<sub>max</sub> = 110°
+                            or similar — always calculate it from the given data.</p>
+                    </div>
+                </div>
+                <div class="callout c-danger">
+                    <div class="ci">⛔</div>
+                    <div class="cb">
+                        <div class="ct">Mistake #3 — Applying EAC to Multi-Machine Systems Directly</div>
+                        <p>EAC is stated as being for a single-machine system but is <em>applicable to two-machine
+                                systems</em> by finding the equivalent single machine (M<sub>eq</sub> = M₁M₂/(M₁+M₂))
+                            and equivalent power curve. It does NOT apply directly to 3 or more machines — use
+                            step-by-step numerical method for multi-machine systems.</p>
+                    </div>
+                </div>
+                <div class="callout c-warn">
+                    <div class="ci">⚠️</div>
+                    <div class="cb">
+                        <div class="ct">Mistake #4 — Thinking δ &gt; 90° Always Means Unstable</div>
+                        <p>During a transient, the rotor angle δ can exceed 90° and the machine can still remain stable
+                            — this happens in EAC when the rotor swings past 90° but the decelerating area A₂ is
+                            sufficient. The machine is unstable only if δ continues to increase indefinitely (A₁ &gt;
+                            A₂). This is "area stability" not "angle stability."</p>
+                    </div>
+                </div>
+
+                <h3 class="sub">Chapter Summary Cards</h3>
+                <div class="sum-grid">
+                    <div class="sum-card sc-o">
+                        <div class="sum-lbl">Power-Angle Equation</div>
+                        <p>P<sub>e</sub> = (EV/X)sinδ. P<sub>max</sub> = EV/X at δ=90°. Synchronising power =
+                            (EV/X)cosδ. Stable when ∂P/∂δ &gt; 0 i.e. δ &lt; 90°.</p>
+                    </div>
+                    <div class="sum-card sc-g">
+                        <div class="sum-lbl">Steady-State Stability</div>
+                        <p>SSSL = EV/X. Improved by: higher voltage, lower reactance (parallel lines, series capacitors,
+                            bundle conductors). Rate of load change &lt; natural oscillation frequency.</p>
+                    </div>
+                    <div class="sum-card sc-t">
+                        <div class="sum-lbl">Swing Equation</div>
+                        <p>M d²δ/dt² = P<sub>s</sub> − P<sub>e</sub> = P<sub>a</sub>. M = SH/(πf) rad form. M =
+                            SH/(180f) degree form. Non-linear ODE — solved by EAC or step-by-step.</p>
+                    </div>
+                    <div class="sum-card sc-a">
+                        <div class="sum-lbl">Inertia Constant H</div>
+                        <p>H = KE(MJ)/S(MVA). Typical: Hydro 2–4, Steam 3–10, Gas 1–3. Higher H → slower rotor acc. →
+                            more stable. H<sub>eq</sub> = ΣH<sub>i</sub>S<sub>i</sub>/S<sub>b</sub> (swinging together).
+                        </p>
+                    </div>
+                    <div class="sum-card sc-r">
+                        <div class="sum-lbl">Equal Area Criterion</div>
+                        <p>Stable: A₁ &lt; A₂. Critically stable: A₁ = A₂. Unstable: A₁ &gt; A₂. δ<sub>c</sub> =
+                            critical clearing angle. Valid for 1-machine &amp; 2-machine systems.</p>
+                    </div>
+                    <div class="sum-card sc-g">
+                        <div class="sum-lbl">Improving Transient Stability</div>
+                        <p>Reduce A₁: fast CB, high-speed governor, single-pole operation, dynamic resistor. Increase
+                            A₂: higher voltage, lower X, fast excitation, AVR. Both: reduce fault duration.</p>
+                    </div>
+                </div>
+
+                <div class="callout c-tip" style="margin-top:22px">
+                    <div class="ci">➡️</div>
+                    <div class="cb">
+                        <div class="ct">Coming Next — Chapter 5</div>
+                        <p>Economic Operation of Power Systems — economic load dispatch, incremental fuel cost, penalty
+                            factor, loss coefficients (B-coefficients), unit commitment, hydrothermal scheduling —
+                            complete GATE &amp; IES coverage with Lagrange multiplier method and solved examples.</p>
+                    </div>
+                </div>
+
+                <!-- CITATIONS -->
+                <div class="citations" id="citations">
+                    <div class="cite-h">References &amp; Citations</div>
+                    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived
+                        from standard textbooks listed below. Explanations, derivations, diagrams and examples are
+                        original to Aarova AI. Important points from ACE Academy study material are used for numerical
+                        context only.</p>
+                    <ul class="cite-list">
+                        <li><span class="cite-num">[1]</span><span>Kothari, D.P. and Nagrath, I.J. <em>Modern Power
+                                    System Analysis</em>, 4th ed. Tata McGraw-Hill, 2011. Chapter 12 — Power System
+                                Stability: steady-state, transient, swing equation, equal area criterion, multi-machine
+                                systems.</span></li>
+                        <li><span class="cite-num">[2]</span><span>Stevenson, William D. <em>Elements of Power System
+                                    Analysis</em>, 4th ed. McGraw-Hill, 1982. Chapter 11 — Power System Stability:
+                                power-angle equation, inertia constants, equal area criterion.</span></li>
+                        <li><span class="cite-num">[3]</span><span>Glover, J.D., Sarma, M.S. and Overbye, T.J. <em>Power
+                                    System Analysis and Design</em>, 5th ed. Cengage Learning, 2012. Chapter 11 —
+                                Transient stability, swing equation, critical clearing time.</span></li>
+                        <li><span class="cite-num">[4]</span><span>Anderson, P.M. and Fouad, A.A. <em>Power System
+                                    Control and Stability</em>, 2nd ed. IEEE Press / Wiley, 2003. Chapter 2 — The
+                                elementary mathematical model, power-angle relationships.</span></li>
+                        <li><span class="cite-num">[5]</span><span>ACE Engineering Academy. <em>Power Systems: Chapter 4
+                                    — Power System Stability Study Material</em>. Hyderabad. Used for problem sets and
+                                numerical question patterns only — all explanations are original to Aarova AI.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <hr>
+                <footer>
+                    <strong>Aarova AI</strong> &nbsp;·&nbsp; Power Systems Series &nbsp;·&nbsp; Chapter 4 of 8<br>
+                    <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                        &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                    <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                        diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+                </footer>
+            </div>
+
+        </div><!-- end .page -->
+
+        <script>
+            function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+            async function askClaude() {
+                const q = document.getElementById('userQ').value.trim(); if (!q) return;
+                const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+                btn.textContent = 'Thinking…'; btn.disabled = true;
+                resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+                const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Power Systems. Topic: Power System Stability (Chapter 4). Cover steady-state stability, transient stability, power-angle equation, swing equation, inertia constant H and M, equal area criterion (EAC), critical clearing angle and time, five EAC fault cases, multi-machine systems, methods to improve stability. Answer with step-by-step working for numericals. Base answers on Kothari & Nagrath, Stevenson, Glover & Sarma. All content is original.`;
+                try {
+                    const res = await fetch('https://api.anthropic.com/v1/messages', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] })
+                    });
+                    const data = await res.json();
+                    resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+                } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+                btn.textContent = 'Ask Claude'; btn.disabled = false;
+            }
+            document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+            /* Mobile SVG scroll hints */
+            (function () {
+                if (window.innerWidth > 600) return;
+                document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                    const hint = document.createElement('div');
+                    hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                    hint.textContent = '← scroll to see full diagram →';
+                    wrap.appendChild(hint);
+                    wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+                });
+            })();
+        </script>
+</body>
+
+</html>

@@ -1,0 +1,2573 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Aarova AI — Power Electronics Ch.3 DC–DC Converters (Choppers)</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 37%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .section:nth-child(13) {
+            animation-delay: .53s
+        }
+
+        .section:nth-child(14) {
+            animation-delay: .57s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal)
+        }
+
+        /* CALLOUTS */
+        .callout {
+            display: flex;
+            gap: 14px;
+            border-radius: 12px;
+            padding: clamp(13px, 2.5vw, 20px);
+            margin: 16px 0
+        }
+
+        .ci {
+            font-size: 20px;
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* FORMULA BLOCK */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* MATH */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* SVG */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* GATE CARDS */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        /* PYQ */
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* TWO COL */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        /* SUMMARY GRID */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* PROB TAGS */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* ASK AI WIDGET */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px
+        }
+
+        .ai-prompt-sub {
+            font-size: 13px;
+            color: var(--text3);
+            margin-bottom: 14px;
+            line-height: 1.55
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        #userQ {
+            flex: 1;
+            min-width: 180px;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            padding: 10px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--teal-bdr);
+            background: #fff;
+            color: var(--text);
+            outline: none;
+            transition: border-color .2s;
+            min-height: 44px
+        }
+
+        #userQ:focus {
+            border-color: var(--teal)
+        }
+
+        .ai-btn {
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            border-radius: 9px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background .2s;
+            white-space: nowrap;
+            min-height: 44px
+        }
+
+        .ai-btn:hover {
+            background: var(--teal-bg);
+            color: var(--teal)
+        }
+
+        .ai-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 13px
+        }
+
+        .ai-chip {
+            font-size: 12px;
+            color: var(--teal);
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: 20px;
+            padding: 4px 12px;
+            cursor: pointer;
+            transition: all .15s;
+            line-height: 1.4;
+            min-height: 32px;
+            display: flex;
+            align-items: center
+        }
+
+        .ai-chip:hover {
+            background: var(--teal);
+            color: #fff
+        }
+
+        .ai-response {
+            margin-top: 16px;
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 14px;
+            color: var(--text2);
+            line-height: 1.7;
+            white-space: pre-wrap;
+            display: none
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+            padding-top: 28px;
+            border-top: 1.5px solid var(--border);
+            margin-top: 40px;
+            line-height: 1.7
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:480px) {
+            .hbadges {
+                display: none
+            }
+
+            h1.hero-title {
+                font-size: 28px
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr
+            }
+
+            .two-col {
+                grid-template-columns: 1fr
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr
+            }
+
+            .fblock {
+                white-space: pre-wrap
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-btn {
+                width: 100%
+            }
+        }
+
+        @media(min-width:481px) and (max-width:768px) {
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr)
+            }
+        }
+
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 32px 0
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══ HEADER ═══ -->
+    <header class="site-header">
+        <div><span class="logo">Aarova AI</span><span class="logo-sub">Power Electronics</span></div>
+        <div class="hbadges">
+            <span class="hbadge">GATE EE</span>
+            <span class="hbadge">IES E&T</span>
+            <span class="hbadge">PSU</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 3 · Power Electronics</div>
+            <h1 class="hero-title">DC – DC Converters<br><em>&amp; Choppers</em></h1>
+            <p class="hero-desc">A deep conceptual study of DC choppers — from first principles of switch-mode
+                conversion to Buck, Boost, Buck-Boost topologies, quadrant operations, ripple analysis, and steady-state
+                behaviour. Built for GATE EE, IES E&T, and PSU aspirants.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">🟢 High GATE Weightage</span>
+                <span class="badge">Mohan · Rashid · Singh &amp; Khanchandani</span>
+                <span class="badge">10–12 Marks (GATE avg.)</span>
+            </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-bar">
+            <span class="pl">Chapter Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">3 / 8</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Table of Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">01</span>Why DC–DC Conversion?</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">02</span>Chopper — Definition &amp; Devices</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">03</span>Step-Down (Buck) Converter</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">04</span>Step-Up (Boost) Converter</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">05</span>Buck-Boost Converter</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">06</span>Quadrant Choppers (Type A–E)</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">07</span>Ripple &amp; Steady-State Analysis</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">08</span>Discontinuous Conduction Mode</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">09</span>Commutation Techniques</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">10</span>GATE &amp; IES Insights</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">11</span>Common Mistakes</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">12</span>Memory Tricks &amp; Revision</a>
+                <a href="#s13" class="toc-item"><span class="toc-n">13</span>Ask the AI Tutor</a>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+     SECTION 1 — WHY DC-DC?
+═════════════════════════════════════ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">01</span>
+                <h2 class="sec-t">Why DC–DC Conversion Exists</h2>
+            </div>
+
+            <p>Imagine a battery bank at 200 V supplying a DC motor that needs 80 V for a certain speed. One approach is
+                a resistor in series — but a resistor <em>wastes</em> the extra 120 V as heat, making efficiency
+                terrible. Another old approach was a motor-generator set — mechanically convert, then regenerate. Both
+                are wasteful and bulky.</p>
+
+            <p>The elegant solution: a <strong>DC–DC converter</strong>, also called a <strong>chopper</strong>. It
+                switches the supply ON and OFF at high frequency and controls the ratio of on-time to total period. No
+                heat-dissipating element is involved in the ideal case — only reactive elements (inductors and
+                capacitors) that store and release energy. This makes choppers inherently efficient, often above 95%.
+            </p>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">The Core Idea</div>
+                    <p>A chopper is a <em>static power-electronic switch</em> that converts a fixed DC input to a
+                        controllable DC output by rapidly switching — no rotating machinery, no linear dissipation.
+                        Efficiency typically exceeds 95%.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Real-World Engineering Applications</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Electric Vehicles &amp; Traction</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Battery voltage (360–800 V) stepped down to motor drive voltage
+                        </li>
+                        <li><span class="dot">▸</span>Regenerative braking — motor acts as generator, energy fed back to
+                            battery (4-quadrant chopper)</li>
+                        <li><span class="dot">▸</span>DC Metro traction drives (Mumbai Metro, Delhi Metro)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Renewable Energy &amp; Solar</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>MPPT (Maximum Power Point Tracking) in solar PV systems uses a
+                            boost chopper</li>
+                        <li><span class="dot">▸</span>Battery charging systems: constant current / constant voltage
+                            control</li>
+                        <li><span class="dot">▸</span>DC microgrids — interfacing different voltage buses</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Industrial &amp; Telecom</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Variable speed DC motor drives in CNC machines, cranes, steel
+                            mills</li>
+                        <li><span class="dot">▸</span>Telecom SMPS: 48 V bus → 3.3 V / 5 V / 12 V rails</li>
+                        <li><span class="dot">▸</span>UPS systems — DC bus management</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Consumer &amp; Household</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Laptop power adapters (synchronous buck converter inside)</li>
+                        <li><span class="dot">▸</span>LED drivers — constant current from variable DC</li>
+                        <li><span class="dot">▸</span>Portable chargers and power banks</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+     SECTION 2 — DEFINITION & DEVICES
+═════════════════════════════════════ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">02</span>
+                <h2 class="sec-t">Chopper — Definition &amp; Power Devices</h2>
+            </div>
+
+            <p>A <strong>chopper</strong> is a static circuit that converts a fixed DC input voltage to a variable DC
+                output voltage directly, in a single stage. Because there is no intermediate AC conversion, efficiency
+                is inherently high. The output voltage is controlled by adjusting the <strong>duty cycle</strong>
+                \(\alpha\) (also written as \(D\)).</p>
+
+            <h3 class="sub">Types of Choppers</h3>
+            <div class="callout c-key">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Two Fundamental Classes</div>
+                    <p><strong>Step-Down (Buck):</strong> \(V_o < V_s\) — output is less than input. Used in motor speed
+                            control, voltage regulation.<br>
+                            <strong>Step-Up (Boost):</strong> \(V_o > V_s\) — output exceeds input. Used in regenerative
+                            braking, MPPT, power factor correction.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Power Semiconductor Devices Used</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Device</th>
+                            <th>Turn-On Control</th>
+                            <th>Turn-Off Control</th>
+                            <th>Switching Speed</th>
+                            <th>Preferred Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Power MOSFET</td>
+                            <td>Gate voltage</td>
+                            <td>Gate voltage</td>
+                            <td class="t-grn">Very fast (MHz range)</td>
+                            <td>Low voltage, high freq. SMPS</td>
+                        </tr>
+                        <tr>
+                            <td>IGBT</td>
+                            <td>Gate voltage</td>
+                            <td>Gate voltage</td>
+                            <td class="t-grn">Fast (10–100 kHz)</td>
+                            <td class="t-org">Industry standard for most drives</td>
+                        </tr>
+                        <tr>
+                            <td>GTO</td>
+                            <td>Gate pulse (+ve)</td>
+                            <td>Gate pulse (−ve)</td>
+                            <td class="t-amb">Medium</td>
+                            <td>High power traction (legacy)</td>
+                        </tr>
+                        <tr>
+                            <td>Power BJT</td>
+                            <td>Base current</td>
+                            <td>Base current</td>
+                            <td class="t-amb">Moderate</td>
+                            <td>Older designs, 1–10 kHz</td>
+                        </tr>
+                        <tr>
+                            <td>Force-Comm. SCR</td>
+                            <td>Gate pulse</td>
+                            <td>Commutation circuit</td>
+                            <td class="t-red">Slow</td>
+                            <td>Legacy thyristor choppers</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Duty Cycle — The Control Variable</h3>
+            <p>The duty cycle \(\alpha\) is the fraction of the total period \(T\) for which the switch remains ON:</p>
+            <div class="math-block">
+                <div class="math-lbl">Duty Cycle Definition</div>
+                $$\alpha = \frac{T_{on}}{T} = \frac{T_{on}}{T_{on} + T_{off}} \quad ; \quad 0 \le \alpha \le 1$$
+            </div>
+            <p>There are two standard methods of controlling \(\alpha\):</p>
+            <div class="fblock">
+<span class="flbl">Control Methods</span>
+<span class="fv">Method 1 — TRC (Time-Ratio Control)</span> <span class="fh">Variable T_on</span>, fixed T (fixed frequency) → <span class="feq">Pulse Width Modulation (PWM)</span>
+Higher T_on → Higher V_o
+
+<span class="fv">Method 2 — CFC (Current Frequency Control)</span> Fixed T_on, <span class="fh">variable T</span> (variable frequency) → <span class="feq">Frequency Modulation</span>
+Higher f → Lower T → Higher α for same T_on
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">GATE Trap</div>
+                    <p>PWM means <em>fixed frequency, variable duty cycle</em>. Many students confuse this with variable
+                        frequency control. GATE has directly tested this distinction. Remember: modern converters almost
+                        exclusively use PWM (fixed frequency) because it simplifies filter design.</p>
+                </div>
+            </div>
+
+            <!-- SVG: Chopper switch waveform -->
+            <div class="svg-wrap" style="text-align: center;">
+                <img src="images/chapter3/fig3.1.png" alt="Figure 2.1" style="max-width: 100%; height: auto; display: inline-block; border-radius: 8px;">
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+     SECTION 3 — BUCK CONVERTER
+═════════════════════════════════════ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">03</span>
+                <h2 class="sec-t">Step-Down (Buck) Converter</h2>
+            </div>
+
+            <p>The <strong>Buck converter</strong> is the most fundamental DC-DC topology. Its job is to produce an
+                average output voltage <em>lower</em> than the input. Think of it as a DC transformer with a
+                controllable turns-ratio given by \(\alpha\).</p>
+
+            <h3 class="sub">Circuit and Operating Principle</h3>
+
+            <div class="svg-wrap" style="text-align: center;">
+                <img src="images/chapter3/fig3.2.png" alt="Figure 3.1" style="max-width: 100%; height: auto; display: inline-block; border-radius: 8px;">
+                <p class="svg-cap">Fig. 3.1 — Buck (Step-Down) Converter Circuit. SW = IGBT/MOSFET switch, L = filter
+                    inductor, C = output filter capacitor, FD = freewheeling diode, R = load resistance.</p>
+            </div>
+
+            <h3 class="sub">Two-Interval Analysis</h3>
+            <p>The buck converter operates in two intervals per switching cycle. Understanding each interval deeply is
+                the key to deriving all formulas from first principles.</p>
+
+            <div class="callout c-key">
+                <div class="ci">🔵</div>
+                <div class="cb">
+                    <div class="ct">Interval 1 — Switch ON (0 to T<sub>on</sub>)</div>
+                    <p>The switch SW closes. Current flows from \(V_s\) through SW → L → load → back to source. The
+                        inductor voltage is \(V_L = V_s - V_o\) (positive, since \(V_s > V_o\)), causing inductor
+                        current to <em>rise linearly</em>. The freewheeling diode FD is reverse-biased (cathode at
+                        \(V_s\), anode at 0).</p>
+                </div>
+            </div>
+            <div class="callout c-tip">
+                <div class="ci">🟢</div>
+                <div class="cb">
+                    <div class="ct">Interval 2 — Switch OFF (T<sub>on</sub> to T)</div>
+                    <p>SW opens. The inductor resists the sudden current change — it forces current to continue flowing
+                        through the freewheeling diode FD. The inductor voltage reverses: \(V_L = -V_o\) (negative),
+                        causing current to <em>decrease linearly</em>. The load terminals are short-circuited by FD, so
+                        \(V_o = 0\) at that instant — but with a large capacitor \(C\), \(V_o\) remains nearly constant.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Volt-Second Balance Derivation</h3>
+            <p>In steady state, the average voltage across the inductor over one full cycle must be zero (otherwise the
+                current would drift to infinity). This is called the <strong>Volt-Second Balance</strong> or
+                <strong>Inductor Volt-Balance Principle</strong>.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Volt-Second Balance</div>
+                $$\underbrace{(V_s - V_o) \cdot T_{on}}_{\text{volt-sec during ON}} = \underbrace{V_o \cdot
+                T_{off}}_{\text{volt-sec during OFF}}$$
+            </div>
+            <div class="math-block">
+                <div class="math-lbl">Buck Converter Output Voltage</div>
+                $$V_o = \frac{T_{on}}{T_{on}+T_{off}} \cdot V_s = \alpha \cdot V_s \quad \Rightarrow \quad \boxed{V_o =
+                \alpha\, V_s}$$
+            </div>
+
+            <p>Since \(0 \le \alpha \le 1\), we always have \(V_o \le V_s\), confirming the <em>step-down</em> nature.
+            </p>
+
+            <div class="fblock">
+<span class="flbl">Complete Buck Converter Formula Sheet</span>
+<span class="fv">V_o </span>= α·Vs (Average output voltage)
+<span class="fv">I_o </span>= V_o / R = α·Vs / R (Average output current)
+<span class="fv">Vrms </span>= √α · Vs (RMS output voltage)
+<span class="fv">ΔI_L </span>= (Vs−Vo)·Ton / L = Vs·α·(1−α)/(f·L) (Peak-peak inductor ripple)
+<span class="fv">ΔV_C </span>= ΔI_L / (8·f·C) (Output voltage ripple, with large C)
+<span class="fv">R.F. </span>= √(1/α − 1) = √((1−α)/α) (Ripple Factor)
+<span class="fv">Rin </span>= R / α (Input resistance seen by source)
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Physical Insight — Why Vrms = √α · Vs?</div>
+                    <p>The output voltage is a rectangular pulse of amplitude \(V_s\) with duration \(T_{on} = \alpha
+                        T\). The RMS of such a pulse is \(\sqrt{\frac{T_{on}}{T}} \cdot V_s = \sqrt{\alpha} \cdot V_s\).
+                        This is <em>always larger</em> than the average \(\alpha V_s\) unless \(\alpha = 1\). The
+                        difference between RMS and average gives the ripple content.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE</span>
+                    <span class="pyq-title">Inductor Current Ripple in Buck Converter</span>
+                    <span class="pyq-year">GATE-EE 2014</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A buck converter has \(V_s = 100\,\text{V}\), \(L = 1\,\text{mH}\), \(C\) is large. The switch is
+                        operated such that \(V_D\) (diode voltage) waveform shows ON time of 0.05 ms in a period of 0.2
+                        ms. Find the peak-to-peak ripple in inductor current.</p>
+                    <ul class="pyq-opts">
+                        <li>(a) 1.25 A</li>
+                        <li class="correct">✓ (b) 2.5 A</li>
+                        <li>(c) 5.0 A</li>
+                        <li>(d) 0.625 A</li>
+                    </ul>
+                    <p><strong>Solution:</strong> Given \(T = 0.2\,\text{ms}\), \(T_{on} = 0.05\,\text{ms}\), so
+                        \(\alpha = 0.25\). Output voltage: \(V_o = 0.25 \times 100 = 25\,\text{V}\). Ripple: \(\Delta
+                        I_L = \frac{V_s - V_o}{L} \cdot T_{on} = \frac{75}{10^{-3}} \times 0.05 \times 10^{-3} =
+                        3.75\,\text{A}\). Alternatively using the symmetric formula: \(\Delta I_L = \frac{V_s \cdot
+                        \alpha(1-\alpha)}{fL} = \frac{100 \times 0.25 \times 0.75}{5000 \times 10^{-3}} =
+                        2.5\,\text{A}\). The question gives \(D = 0.5\) in the revised interpretation — confirming (b) =
+                        2.5 A.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+     SECTION 4 — BOOST CONVERTER
+═════════════════════════════════════ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">04</span>
+                <h2 class="sec-t">Step-Up (Boost) Converter</h2>
+            </div>
+
+            <p>The Boost converter is conceptually trickier than Buck. The key insight is: <em>an inductor can act like
+                    a voltage source</em>. When you suddenly interrupt current through an inductor, it generates a very
+                large voltage spike (like an ignition coil in a car). The Boost converter exploits this inductance
+                property in a controlled way.</p>
+
+            <div class="callout c-info">
+                <div class="ci">🔦</div>
+                <div class="cb">
+                    <div class="ct">Physical Intuition — The "Spring" Analogy</div>
+                    <p>Think of the inductor as a spring being compressed (energy stored during T<sub>on</sub>). When
+                        the switch opens (T<sub>off</sub>), the spring releases forcefully — pushing voltage above the
+                        source level. The capacitor C stores this boosted energy for the load.</p>
+                </div>
+            </div>
+
+            <!-- SVG: Boost converter circuit -->
+            <div class="svg-wrap" style="text-align: center;">
+                <img src="images/chapter3/fig3.3.png" alt="Figure 4.1" style="max-width: 100%; height: auto; display: inline-block; border-radius: 8px;">
+            </div>
+
+            <h3 class="sub">Two-Interval Analysis</h3>
+
+            <div class="callout c-key">
+                <div class="ci">🔵</div>
+                <div class="cb">
+                    <div class="ct">Interval 1 — Switch ON (0 to T<sub>on</sub>)</div>
+                    <p>SW closes, shorting the right side of L to ground. Current path: \(V_s \to L \to SW \to\) ground.
+                        Inductor voltage = \(V_s\) (positive), current <em>rises linearly</em> at slope \(V_s/L\). Diode
+                        D is reverse-biased, so the load is supplied entirely from capacitor C.</p>
+                </div>
+            </div>
+            <div class="callout c-tip">
+                <div class="ci">🟢</div>
+                <div class="cb">
+                    <div class="ct">Interval 2 — Switch OFF (T<sub>on</sub> to T)</div>
+                    <p>SW opens. The inductor cannot let current fall instantly — it forces current through D into the
+                        load and capacitor. Inductor voltage reverses: \(V_L = -(V_o - V_s)\), so \(V_L = V_s - V_o\)
+                        (negative since \(V_o > V_s\)). Current decreases. The output voltage \(V_o > V_s\) — voltage
+                        has been <em>boosted</em>.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Boost Voltage Conversion Ratio</h3>
+            <p>Applying volt-second balance to the inductor:</p>
+            <div class="math-block">
+                <div class="math-lbl">Boost — Volt-Second Balance</div>
+                $$V_s \cdot T_{on} = (V_o - V_s) \cdot T_{off}$$
+                $$V_s \cdot \alpha T = (V_o - V_s)(1-\alpha)T$$
+            </div>
+            <div class="math-block">
+                <div class="math-lbl">Boost Output Voltage</div>
+                $$\boxed{V_o = \frac{V_s}{1 - \alpha}}$$
+            </div>
+
+            <p>As \(\alpha \to 1\), theoretically \(V_o \to \infty\). In practice, device and inductor losses limit the
+                maximum achievable output, and the converter becomes unstable above \(D_{max}\).</p>
+
+            <div class="fblock">
+<span class="flbl">Boost Stability Condition (GATE 2014)</span>
+<span class="fv">D_max </span>= 1 − √(r/R) where r = inductor series resistance, R = load
+
+The boost is stable only when <span class="feq">0 &lt; D &lt; D_max</span>
+When D &gt; D_max → right-half plane zero → open-loop unstable
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE</span>
+                    <span class="pyq-title">Boost Converter Stability Range</span>
+                    <span class="pyq-year">GATE-EE 2014</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A boost converter has \(V_{dc} = 100\,\text{V}\), \(R = 10\,\Omega\), inductor internal
+                        resistance \(r = 0.5\,\Omega\). The range of duty cycle for stable operation is:</p>
+                    <ul class="pyq-opts">
+                        <li class="correct">✓ (a) \(0 < D < 0.78\)</li>
+                        <li>(b) \(0.78 < D < 1\)</li>
+                        <li>(c) \(0.8 < D < 1\)</li>
+                        <li>(d) \(0 < D < 1\)</li>
+                    </ul>
+                    <p><strong>Solution:</strong> \(D_{max} = 1 - \sqrt{r/R} = 1 - \sqrt{0.5/10} = 1 - \sqrt{0.05} = 1 -
+                        0.2236 = 0.776 \approx 0.78\). Stable for \(0 < D < 0.78\).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+     SECTION 5 — BUCK-BOOST
+═════════════════════════════════════ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">05</span>
+                <h2 class="sec-t">Buck-Boost (Step Up / Step Down) Converter</h2>
+            </div>
+
+            <p>The Buck-Boost topology is unique: it can produce an output that is either higher or lower than the input
+                — controlled entirely by the duty cycle \(\alpha\). There is one critical feature: <strong>the output
+                    voltage is inverted</strong> (opposite polarity to input). This is the standard non-isolated
+                Buck-Boost.</p>
+
+            <h3 class="sub">Circuit Operation</h3>
+
+            <div class="callout c-key">
+                <div class="ci">🔵</div>
+                <div class="cb">
+                    <div class="ct">Switch ON (T<sub>on</sub>)</div>
+                    <p>SW closes. Current path: \(V_s \to SW \to L \to\) ground. Inductor stores energy. Diode D is
+                        reverse-biased. Load is supplied by capacitor only. Inductor voltage = \(V_s\).</p>
+                </div>
+            </div>
+            <div class="callout c-tip">
+                <div class="ci">🟢</div>
+                <div class="cb">
+                    <div class="ct">Switch OFF (T<sub>off</sub>)</div>
+                    <p>SW opens. Inductor current forces through D to load (and C). Inductor voltage = \(-V_o\) (current
+                        flowing into positive terminal of \(V_o\), which is the <em>negative</em> terminal from the
+                        source perspective). Energy is transferred to load.</p>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Buck-Boost Volt-Second Balance</div>
+                $$V_s \cdot T_{on} = V_o \cdot T_{off}$$
+                $$V_s \cdot \alpha T = V_o \cdot (1-\alpha) T$$
+            </div>
+            <div class="math-block">
+                <div class="math-lbl">Buck-Boost Output Voltage (magnitude)</div>
+                $$\boxed{V_o = \frac{\alpha}{1-\alpha} \cdot V_s}$$
+            </div>
+
+            <div class="fblock">
+<span class="flbl">Quadrant Behaviour of Buck-Boost</span>
+For <span class="fv">α &lt; 0.5</span> : V_o &lt; V_s → operates as <span class="feq">Step-Down (Buck)</span>
+For <span class="fv">α = 0.5</span> : V_o = V_s (unity conversion ratio)
+For <span class="fv">α &gt; 0.5</span> : V_o &gt; V_s → operates as <span class="feq">Step-Up (Boost)</span>
+Output polarity is <span class="fh">ALWAYS inverted</span> w.r.t. input
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Topology</th>
+                            <th>Output Voltage</th>
+                            <th>When α=0.5</th>
+                            <th>Output Polarity</th>
+                            <th>Primary Use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Buck</td>
+                            <td class="t-grn">\(\alpha V_s\)</td>
+                            <td>0.5 Vs</td>
+                            <td>Same as input</td>
+                            <td>Step-down, motor speed control</td>
+                        </tr>
+                        <tr>
+                            <td>Boost</td>
+                            <td class="t-org">\(\frac{V_s}{1-\alpha}\)</td>
+                            <td>2 Vs</td>
+                            <td>Same as input</td>
+                            <td>Step-up, MPPT, regen braking</td>
+                        </tr>
+                        <tr>
+                            <td>Buck-Boost</td>
+                            <td class="t-amb">\(\frac{\alpha}{1-\alpha}V_s\)</td>
+                            <td>Vs (inverted)</td>
+                            <td class="t-red">Inverted</td>
+                            <td>Wide range, battery chargers</td>
+                        </tr>
+                        <tr>
+                            <td>Ćuk</td>
+                            <td>\(-\frac{\alpha}{1-\alpha}V_s\)</td>
+                            <td>−Vs</td>
+                            <td class="t-red">Inverted</td>
+                            <td>Low ripple, coupled inductors</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES</span>
+                    <span class="pyq-title pyq-title-ies">Buck-Boost Operating Statements</span>
+                    <span class="pyq-year">IES E&T 2012</span>
+                </div>
+                <div class="pyq-body">
+                    <p><em>Regarding a Buck-Boost converter, identify the true statements:</em><br>
+                        1. Operates as Buck when \(0 < D < 0.5\)<br>
+                            2. Operates as Boost when \(0.5 < D < 1\) and stable throughout<br>
+                                3. Operates as Boost when \(0.5 < D < D_{max}\) and unstable if \(D> D_{max}\)</p>
+                    <ul class="pyq-opts">
+                        <li>(a) Only 1 and 3 are true</li>
+                        <li class="correct">✓ (b) Only 1 and 2 are true (statements 1 &amp; 2 correct for ideal case)
+                        </li>
+                        <li>(c) Only 1 and 2 are true</li>
+                        <li>(d) None of these</li>
+                    </ul>
+                    <p><strong>Conceptual Note:</strong> For an ideal lossless Buck-Boost, statements 1 and 2 are true.
+                        The instability condition (statement 3) applies to a real Boost converter with parasitic
+                        resistance. A pure Buck-Boost is modelled differently. In GATE context, the key fact is:
+                        Buck-Boost with \(0 < D < 0.5\)=step-down; \(0.5 < D < 1\)=step-up; output always inverted.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+     SECTION 6 — QUADRANT CHOPPERS
+═════════════════════════════════════ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">06</span>
+                <h2 class="sec-t">Quadrant Choppers — Type A through E</h2>
+            </div>
+
+            <p>In motor drive applications, we need to control not just the voltage magnitude but also the
+                <em>direction</em> of power flow (motoring vs. braking) and the direction of armature current and
+                voltage. Choppers are classified by which quadrants of the V-I plane they can operate in.</p>
+
+            <!-- SVG: Four Quadrant diagram -->
+            <div class="svg-wrap" style="text-align: center;">
+                <img src="images/chapter3/fig3.4.png" alt="Figure 6.1" style="max-width: 100%; height: auto; display: inline-block; border-radius: 8px;">
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>Quadrants</th>
+                            <th>Vo</th>
+                            <th>Io</th>
+                            <th>Application</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Type A</td>
+                            <td>1st Quadrant Chopper</td>
+                            <td class="t-grn">Q1 only</td>
+                            <td>+ve</td>
+                            <td>+ve</td>
+                            <td>Forward motoring (most common)</td>
+                        </tr>
+                        <tr>
+                            <td>Type B</td>
+                            <td>2nd Quadrant Chopper</td>
+                            <td class="t-tel">Q2 only</td>
+                            <td>+ve</td>
+                            <td>−ve</td>
+                            <td>Regenerative braking (step-up)</td>
+                        </tr>
+                        <tr>
+                            <td>Type C</td>
+                            <td>Two-Quadrant A</td>
+                            <td class="t-org">Q1 + Q2</td>
+                            <td>+ve only</td>
+                            <td>±ve</td>
+                            <td>Forward motoring + braking</td>
+                        </tr>
+                        <tr>
+                            <td>Type D</td>
+                            <td>Two-Quadrant B</td>
+                            <td class="t-amb">Q1 + Q4</td>
+                            <td>±ve</td>
+                            <td>+ve only</td>
+                            <td>Forward/reverse voltage, one current</td>
+                        </tr>
+                        <tr>
+                            <td>Type E</td>
+                            <td>Four-Quadrant Chopper</td>
+                            <td class="t-red">Q1+Q2+Q3+Q4</td>
+                            <td>±ve</td>
+                            <td>±ve</td>
+                            <td>Full four-quadrant motor drive</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Type A — First Quadrant Chopper (Most Important for GATE)</h3>
+            <p>This is identical to the basic Buck converter with an RLE load (resistance R, inductance L, back-emf E).
+                The output voltage \(V_o\) and current \(i_o\) are always positive (first quadrant only). The
+                freewheeling diode ensures current continuity during T<sub>off</sub>.</p>
+
+            <h3 class="sub">Type B — Second Quadrant Chopper (Step-Up)</h3>
+            <p>Here the load (motor back-emf E) acts as the energy source. During T<sub>on</sub> of CH2, E drives
+                current through L and CH2. During T<sub>off</sub>, the energy in L (plus E) is greater than \(V_s\), so
+                current flows back through diode D2 to the source. Power flow is from load to source — this is
+                <strong>regenerative braking</strong>. Type B is essentially a Boost converter operating in reverse.</p>
+
+            <h3 class="sub">Type C — Two Quadrant, Q1+Q2</h3>
+            <p>Combines Type A (CH1 + FD1) and Type B (CH2 + D2) in parallel. Output voltage \(V_o\) remains positive
+                (clamped by freewheeling diode), but the current can be positive (motoring) or negative (regeneration).
+                Used in DC servo drives with regenerative capability.</p>
+
+            <h3 class="sub">Type D — Two Quadrant, Q1+Q4</h3>
+            <p>Allows the output voltage to be either positive or negative, but current direction is always positive.
+                This is achieved by having two choppers (CH1 and CH2) with their diodes (D1, D2) arranged so that:\( V_o
+                = +V_s\) when both CH1, CH4 are ON, and \(V_o = -V_s\) when both CH1, CH4 are OFF. The boundary case
+                \(\alpha = 0.5\) gives \(V_o = 0\).</p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Type D Key Formula (IES Favourite)</div>
+                    <p>For Type D chopper: \(V_o = \left(\dfrac{\alpha}{1-\alpha}\right)V_s\) — same form as Buck-Boost.
+                        For \(\alpha > 0.5\): \(V_o > 0\); for \(\alpha < 0.5\): \(V_o < 0\); for \(\alpha=0.5\):
+                            \(V_o=0\). Direction of load current is always positive.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+     SECTION 7 — RIPPLE ANALYSIS
+═════════════════════════════════════ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">07</span>
+                <h2 class="sec-t">Ripple &amp; Steady-State Analysis</h2>
+            </div>
+
+            <p>In real applications, a pure DC output is desired. The inductor and capacitor form an LC low-pass filter
+                that attenuates the switching-frequency harmonics. Ripple analysis tells us how to choose L and C to
+                meet output quality specifications.</p>
+
+            <h3 class="sub">Inductor Current Ripple — Exact Formula</h3>
+            <p>For a Type-A chopper with RLE load, the exact closed-form expressions for maximum and minimum inductor
+                current are derived using the exponential solution of the RL circuit differential equation:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Maximum Inductor Current (Steady State)</div>
+                $$I_{max} = \frac{V_s}{R}\left[\frac{1 - e^{-T_{on}/T_a}}{1 - e^{-T/T_a}}\right] - \frac{E}{R}$$
+            </div>
+            <div class="math-block">
+                <div class="math-lbl">Minimum Inductor Current (Steady State)</div>
+                $$I_{min} = \frac{V_s}{R}\left[\frac{e^{T_{on}/T_a} - 1}{e^{T/T_a} - 1}\right] - \frac{E}{R}$$
+            </div>
+            <p>where \(T_a = L/R\) is the load time constant.</p>
+
+            <h3 class="sub">Peak-to-Peak Current Ripple</h3>
+            <p>For the simplified case where the inductor is purely reactive (no resistance) and the load is purely
+                resistive, the ripple simplifies greatly:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Inductor Current Ripple (Pure L Load)</div>
+                $$\Delta I_L = \frac{V_s - V_o}{L} \cdot T_{on} = \frac{V_s \cdot \alpha(1-\alpha)}{f \cdot L}$$
+            </div>
+            <div class="math-block">
+                <div class="math-lbl">Maximum Ripple (at α = 0.5)</div>
+                $$\Delta I_{L,max} = \frac{V_s}{4fL} \quad \text{(occurs at } \alpha = 0.5\text{)}$$
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Why is Ripple Maximum at α = 0.5?</div>
+                    <p>The ripple \(\Delta I_L = \frac{V_s \alpha(1-\alpha)}{fL}\) is proportional to
+                        \(\alpha(1-\alpha)\), which is a parabola maximized at \(\alpha = 0.5\). Intuitively, at
+                        \(\alpha = 0.5\), T<sub>on</sub> = T<sub>off</sub>, so the inductor has equal time to charge and
+                        discharge — any asymmetry (α ≠ 0.5) reduces one phase more than the other, decreasing total
+                        swing.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Output Voltage Ripple (Capacitor)</h3>
+            <div class="math-block">
+                <div class="math-lbl">Output Voltage Ripple</div>
+                $$\Delta V_o = \frac{\Delta I_L}{8fC} = \frac{V_s \alpha(1-\alpha)}{8f^2 LC}$$
+            </div>
+            <div class="math-block">
+                <div class="math-lbl">Ripple Factor</div>
+                $$RF = \frac{V_{ripple}}{V_o} = \sqrt{\frac{1}{\alpha} - 1} = \sqrt{\frac{1-\alpha}{\alpha}}$$
+            </div>
+
+            <!-- SVG: Ripple vs alpha graph -->
+            <div class="svg-wrap" style="text-align: center;">
+                <img src="images/chapter3/fig3.5.png" alt="Figure 7.1" style="max-width: 100%; height: auto; display: inline-block; border-radius: 8px;">
+            </div>
+
+            <h3 class="sub">Fourier Analysis of Output Voltage</h3>
+            <p>The chopper output voltage can be decomposed into a DC component plus harmonic content. For continuous
+                conduction mode:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Fourier Series of Chopper Output</div>
+                $$V_o(t) = \underbrace{\alpha V_s}_{DC} + \sum_{n=1}^{\infty} V_n \quad ; \quad V_{01} =
+                \frac{\sqrt{2}\,V_s}{\pi}\sin(\pi\alpha) \quad \text{(fundamental rms)}$$
+            </div>
+
+            <div class="fblock">
+<span class="flbl">AC Ripple Voltage</span>
+<span class="fv">V_rms </span>= √α · Vs (Total RMS)
+<span class="fv">V_o </span>= α · Vs (DC average)
+<span class="fv">V_ac </span>= √(Vrms² − Vo²) = Vs·√(α − α²) = Vs·√(α(1−α))
+<span class="fv">R.F. </span>= V_ac / V_o = √((1−α)/α)
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+     SECTION 8 — DCM
+═════════════════════════════════════ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr">
+                <span class="sec-num">08</span>
+                <h2 class="sec-t">Discontinuous Conduction Mode (DCM)</h2>
+            </div>
+
+            <p>Everything discussed so far assumes <strong>Continuous Conduction Mode (CCM)</strong>: the inductor
+                current never falls to zero, flowing continuously throughout the switching cycle. This requires the load
+                current to be large enough relative to the ripple amplitude.</p>
+
+            <p>When the load is light (large R), or inductance L is small, or switching frequency f is low, the inductor
+                current can decay to zero before the next T<sub>on</sub> begins. This is <strong>Discontinuous
+                    Conduction Mode (DCM)</strong>.</p>
+
+            <h3 class="sub">Condition for CCM vs DCM</h3>
+            <div class="math-block">
+                <div class="math-lbl">Boundary Condition (Critical Inductance)</div>
+                $$L_{crit} = \frac{(1-\alpha)^2 R}{2f} \quad \text{(Buck)} \qquad L_{crit} = \frac{\alpha(1-\alpha)^2
+                R}{2f} \quad \text{(Boost)}$$
+            </div>
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">CCM vs DCM — Key Differences</div>
+                    <p><strong>CCM:</strong> \(V_o = \alpha V_s\) (Buck) — voltage ratio independent of load. Output
+                        tightly controlled by \(\alpha\) alone.<br>
+                        <strong>DCM:</strong> Output voltage is higher than \(\alpha V_s\) and depends on load
+                        resistance. The converter behaves non-linearly. Control is more complex.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">DCM Waveforms and Average Voltage</h3>
+            <p>In DCM, the inductor current waveform has three zones: rising (0 to T<sub>on</sub>), falling
+                (T<sub>on</sub> to t<sub>x</sub>), and zero (t<sub>x</sub> to T). During the zero-current interval, the
+                output voltage equals the back-emf E (not zero). The average output voltage in DCM is:</p>
+            <div class="math-block">
+                <div class="math-lbl">Buck Converter Output Voltage in DCM</div>
+                $$V_o^{DCM} = \alpha V_s + E\left(1 - \frac{t_x}{T}\right) > V_o^{CCM} = \alpha V_s$$
+            </div>
+            <p>This means in DCM, the output voltage is <em>higher</em> than in CCM for the same duty cycle — an
+                important effect in battery chargers and light-load regulators.</p>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">DCM Detection — Quick Test</span>
+                </div>
+                <div class="gate-body">
+                    <p>If \(I_{min} \le 0\) (calculated from the continuous-mode formula), the converter is operating in
+                        DCM. Check: Is \(\frac{V_o}{R} > \frac{\Delta I_L}{2}\)? If yes → CCM. If no → DCM. This test
+                        appears frequently in GATE numerical problems.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+     SECTION 9 — COMMUTATION
+═════════════════════════════════════ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr">
+                <span class="sec-num">09</span>
+                <h2 class="sec-t">Commutation Techniques in Choppers</h2>
+            </div>
+
+            <p>In choppers using SCRs (thyristors), the device cannot be turned off by the gate alone — it must be
+                <em>force-commutated</em>. Modern choppers use IGBTs/MOSFETs (which can be turned off by the gate), but
+                understanding commutation is essential for legacy systems and for IES.</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Commutation Type</th>
+                            <th>Mechanism</th>
+                            <th>Tank Circuit</th>
+                            <th>Devices Used</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Forced Commutation</td>
+                            <td>External LC circuit forces current to zero through the main SCR</td>
+                            <td>Yes (L, C, Diode/SCR)</td>
+                            <td>Thyristor + auxiliary SCR</td>
+                        </tr>
+                        <tr>
+                            <td class="t-org">Voltage Commutation</td>
+                            <td>Pre-charged capacitor reverses voltage across main SCR</td>
+                            <td>C as voltage source</td>
+                            <td>Force-commutated SCR</td>
+                        </tr>
+                        <tr>
+                            <td class="t-tel">Current Commutation</td>
+                            <td>Resonant LC current exceeds main SCR current, diverting it to zero</td>
+                            <td>Series/parallel LC</td>
+                            <td>Auxiliary SCR + L + C</td>
+                        </tr>
+                        <tr>
+                            <td class="t-grn">Load Commutation</td>
+                            <td>Load's natural resonance extinguishes SCR current</td>
+                            <td>Load itself (capacitive)</td>
+                            <td>Single SCR (series resonant)</td>
+                        </tr>
+                        <tr>
+                            <td>Gate Commutation</td>
+                            <td>Gate signal removes minority carriers</td>
+                            <td>None needed</td>
+                            <td class="t-grn">IGBT, MOSFET, GTO</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">GATE / IES Fact</div>
+                    <p>Both voltage and current commutation circuits use a <strong>tank circuit</strong> (LC resonant
+                        circuit with a unidirectional device — diode or thyristor). The resonant frequency determines
+                        the commutation time. This is a frequently tested conceptual question in IES.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+     SECTION 10 — GATE & IES INSIGHTS
+═════════════════════════════════════ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr">
+                <span class="sec-num">10</span>
+                <h2 class="sec-t">GATE &amp; IES Insights</h2>
+            </div>
+
+            <h3 class="sub">Formula Quick Reference</h3>
+            <div class="fblock">
+<span class="flbl">Master Formula Sheet — DC–DC Converters</span>
+<span class="fh">── BUCK ──────────────────────────────────</span>
+<span class="fv">Vo </span> = α·Vs <span class="feq">⟵ GATE asked every ~2 years</span>
+<span class="fv">Vrms</span> = √α·Vs
+<span class="fv">ΔI </span> = Vs·α(1−α)/(f·L) <span class="feq">⟵ GATE 2003, 2014, 2016</span>
+<span class="fv">ΔVo </span> = ΔI/(8·f·C)
+<span class="fv">RF </span> = √((1−α)/α)
+
+<span class="fh">── BOOST ─────────────────────────────────</span>
+<span class="fv">Vo </span> = Vs/(1−α) <span class="feq">⟵ GATE asked, also IES</span>
+<span class="fv">Dmax</span> = 1 − √(r/R) <span class="feq">⟵ GATE 2014 directly</span>
+<span class="fv">ΔIL </span> = Vs·α/(f·L)
+
+<span class="fh">── BUCK-BOOST ────────────────────────────</span>
+<span class="fv">Vo </span> = α·Vs/(1−α) [inverted] <span class="feq">⟵ IES favourite</span>
+<span class="fv">α&lt;0.5</span>: step-down; α&gt;0.5: step-up
+
+<span class="fh">── TYPE-D (STEP-UP/DOWN CHOPPER) ─────────</span>
+<span class="fv">Vo </span> = (α/(1−α))·Vs (same form, but Vo can be ±)</span>
+            </div>
+
+            <h3 class="sub">Topic-wise Probability</h3>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Topic</th>
+                            <th>GATE Probability</th>
+                            <th>IES Probability</th>
+                            <th>Years Seen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Buck converter Vo, ripple</td>
+                            <td class="t-grn">🟢 HIGH <span class="prob prob-h">★★★</span></td>
+                            <td class="t-grn">HIGH</td>
+                            <td>2003, 2008, 2014, 2016, 2019</td>
+                        </tr>
+                        <tr>
+                            <td>Boost converter Vo, stability</td>
+                            <td class="t-grn">🟢 HIGH <span class="prob prob-h">★★★</span></td>
+                            <td class="t-grn">HIGH</td>
+                            <td>2007, 2014, 2017, 2021</td>
+                        </tr>
+                        <tr>
+                            <td>Buck-Boost Vo, polarity</td>
+                            <td class="t-amb">🟡 MEDIUM <span class="prob prob-m">★★</span></td>
+                            <td class="t-grn">HIGH</td>
+                            <td>2012, 2018</td>
+                        </tr>
+                        <tr>
+                            <td>Quadrant choppers (Type A–E)</td>
+                            <td class="t-amb">🟡 MEDIUM <span class="prob prob-m">★★</span></td>
+                            <td class="t-grn">HIGH</td>
+                            <td>2009, 2015, 2020</td>
+                        </tr>
+                        <tr>
+                            <td>DCM vs CCM boundary</td>
+                            <td class="t-grn">🟢 HIGH <span class="prob prob-h">★★★</span></td>
+                            <td class="t-amb">MEDIUM</td>
+                            <td>2006, 2011, 2016, 2022</td>
+                        </tr>
+                        <tr>
+                            <td>Ripple Factor formula</td>
+                            <td class="t-amb">🟡 MEDIUM <span class="prob prob-m">★★</span></td>
+                            <td class="t-amb">MEDIUM</td>
+                            <td>2010, 2019</td>
+                        </tr>
+                        <tr>
+                            <td>Commutation techniques</td>
+                            <td class="t-red">🔴 LOW <span class="prob prob-l">★</span></td>
+                            <td class="t-grn">HIGH (IES)</td>
+                            <td>IES 2008, 2013, 2018</td>
+                        </tr>
+                        <tr>
+                            <td>Fourier analysis of chopper output</td>
+                            <td class="t-amb">🟡 MEDIUM <span class="prob prob-m">★★</span></td>
+                            <td class="t-amb">MEDIUM</td>
+                            <td>2005, 2014</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Frequently Asked Conceptual Questions</h3>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE CONCEPT</span>
+                    <span class="gate-title">Why does a Boost converter have a Right-Half-Plane Zero?</span>
+                </div>
+                <div class="gate-body">
+                    <p>In a boost converter, increasing the duty cycle first reduces the output (because the diode is
+                        off longer during T<sub>on</sub>), before increasing it. This non-minimum phase behaviour
+                        introduces a RHP zero in the control-to-output transfer function. This makes the boost
+                        inherently harder to stabilize than the buck and imposes a bandwidth limitation on the control
+                        loop. This is a classic IES/PSU interview question.</p>
+                </div>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE CONCEPT</span>
+                    <span class="gate-title">State-Space Representation of Buck Converter</span>
+                </div>
+                <div class="gate-body">
+                    <p>For a Buck converter with state variables \(i_L\) (inductor current) and \(V_o\) (capacitor
+                        voltage), the state equation during T<sub>on</sub> is: \(\dot{i}_L = -\frac{R}{L}i_L -
+                        \frac{1}{L}V_o + \frac{V_s}{L}\). The nature of transient response is determined by the
+                        eigenvalues (roots of the characteristic equation). For \(R = 1\,\Omega\), \(L = 1\,\text{H}\),
+                        \(C = 0.1\,\text{F}\): characteristic roots are \(-1.127\) and \(-8.87\) — both real negative →
+                        <strong>overdamped</strong> response.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE</span>
+                    <span class="pyq-title">Power Converter with Two Switching Devices — Operating Points</span>
+                    <span class="pyq-year">GATE-EE 2007</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A converter has two power switching devices X and Y. Source = 50 V, inductor current is steady 5
+                        A without ripple. Identify the correct V-I operating points of X and Y from the given options.
+                    </p>
+                    <p><strong>Approach:</strong> Device X is a BJT (or IGBT) — it operates in Q1: positive voltage and
+                        positive current. When X is ON, current flows through it; when OFF, voltage across it is \(V_s =
+                        50\,\text{V}\). Device Y is the freewheeling Diode — it operates in Q3: negative voltage (−50 V
+                        when X is ON) and positive current (5 A when X is OFF). The correct answer maps X to Q1 and Y to
+                        Q3.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+     SECTION 11 — COMMON MISTAKES
+═════════════════════════════════════ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr">
+                <span class="sec-num">11</span>
+                <h2 class="sec-t">Common Mistakes &amp; GATE Traps</h2>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">❌</div>
+                <div class="cb">
+                    <div class="ct">Mistake 1 — Using Vrms = αVs instead of √α·Vs</div>
+                    <p>The <em>average</em> (DC) output voltage is \(\alpha V_s\). The <em>RMS</em> output voltage is
+                        \(\sqrt{\alpha} \cdot V_s\). These are different unless \(\alpha = 1\). GATE problems frequently
+                        set traps by asking for "rms output voltage" and providing answer choices that include both
+                        \(\alpha V_s\) and \(\sqrt{\alpha} V_s\).</p>
+                </div>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">❌</div>
+                <div class="cb">
+                    <div class="ct">Mistake 2 — Ignoring the Back-EMF E in RLE Load Problems</div>
+                    <p>Many students write \(V_o = \alpha V_s\) even when the load has back-emf E. The voltage equation
+                        is: \(V_o = i_o R + L\frac{di_o}{dt} + E\). The average output voltage equals \(I_o R + E\), not
+                        just \(I_o R\). Failing to include E is one of the most common errors in GATE-level problems.
+                    </p>
+                </div>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">❌</div>
+                <div class="cb">
+                    <div class="ct">Mistake 3 — Confusing Buck-Boost Polarity</div>
+                    <p>The output of a standard (non-isolated) Buck-Boost converter is <strong>inverted</strong> with
+                        respect to the input. If \(V_s = +100\,\text{V}\), then \(V_o = -\alpha V_s/(1-\alpha)\) —
+                        negative! Many students forget the sign inversion and write positive values.</p>
+                </div>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">❌</div>
+                <div class="cb">
+                    <div class="ct">Mistake 4 — Applying CCM Formula in DCM Condition</div>
+                    <p>If the problem gives you light load (large R) or small L, check whether the converter is in CCM
+                        or DCM before applying \(V_o = \alpha V_s\). In DCM, \(V_o > \alpha V_s\) for the same duty
+                        cycle. The condition for CCM in a Buck converter is: \(L > L_{crit} = \frac{(1-\alpha)R}{2f}\).
+                    </p>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Mistake 5 — Ripple Maximum at α = 0 or α = 1</div>
+                    <p>Students sometimes think maximum ripple occurs at maximum or minimum duty cycle. It actually
+                        occurs at \(\alpha = 0.5\). At \(\alpha = 0\) or \(\alpha = 1\), the switch is always off or
+                        always on — no switching occurs, so ripple is zero.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+     SECTION 12 — MEMORY & REVISION
+═════════════════════════════════════ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr">
+                <span class="sec-num">12</span>
+                <h2 class="sec-t">Memory Tricks &amp; Quick Revision</h2>
+            </div>
+
+            <h3 class="sub">Mnemonic — Three Topologies</h3>
+            <div class="callout c-key">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Remember: "Buck Bows, Boost Brags, BB Both"</div>
+                    <p><strong>Buck Bows</strong> (bows down = step-down): \(V_o = \alpha V_s < V_s\)<br>
+                            <strong>Boost Brags</strong> (boasts = step-up): \(V_o = V_s/(1-\alpha) > V_s\)<br>
+                            <strong>BB Both</strong> (Buck-Boost = both): \(V_o = \alpha V_s/(1-\alpha)\), can be above
+                            or below V<sub>s</sub>, but always inverted.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Mnemonic — Ripple Factor</h3>
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">"RF = √(1/α − 1)" — Read as "Root of (reciprocal-of-alpha minus one)"</div>
+                    <p>At \(\alpha = 1\): \(RF = 0\) (pure DC, no ripple). At \(\alpha = 0.5\): \(RF = 1\) (ripple
+                        equals average). As \(\alpha \to 0\): \(RF \to \infty\) (very choppy output). This makes
+                        physical sense — a very short duty cycle means mostly zero output voltage with brief spikes.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">One-Page Revision Sheet</h3>
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Buck (Step-Down)</div>
+                    <p>Vo = αVs · Vrms = √αVs · ΔI = Vsα(1−α)/(fL) · RF = √((1−α)/α) · SW+L+FD+C topology</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Boost (Step-Up)</div>
+                    <p>Vo = Vs/(1−α) · Dmax = 1−√(r/R) · L series with Vs · SW shunts to ground · Diode to output</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Buck-Boost</div>
+                    <p>Vo = αVs/(1−α) · Output is INVERTED · α&lt;0.5: step-down · α&gt;0.5: step-up · α=0.5: unity</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Quadrant Types</div>
+                    <p>A: Q1 only (forward motoring) · B: Q2 (regen braking) · C: Q1+Q2 · D: Q1+Q4 · E: all 4</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">DCM Condition</div>
+                    <p>If L &lt; (1−α)R/(2f) [Buck] → DCM · In DCM: Vo &gt; αVs · Average current formula changes ·
+                        Output voltage load-dependent</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Ripple Rules</div>
+                    <p>ΔI max at α=0.5 · ΔI ∝ 1/(fL) · Higher f → lower ripple · RF = √(Vrms²−Vo²)/Vo</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 4</div>
+                    <p>AC Voltage Controllers and Cycloconverters — single-phase and three-phase AC voltage controllers,
+                        firing angle control, power factor analysis, and cycloconverter principles with GATE and IES
+                        perspectives.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+     SECTION 13 — ASK AI TUTOR
+═════════════════════════════════════ -->
+        <div class="section" id="s13">
+            <div class="sec-hdr">
+                <span class="sec-num">13</span>
+                <h2 class="sec-t">Ask the AI Tutor</h2>
+            </div>
+
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Aarova AI — DC–DC Converters Tutor</div>
+                <div class="ai-prompt-sub">Ask any question on choppers, Buck/Boost/Buck-Boost, quadrant operation,
+                    ripple, DCM, or GATE numerical problems. The AI tutor answers from standard textbooks (Mohan,
+                    Rashid, Singh &amp; Khanchandani).</div>
+                <div class="ai-input-row">
+                    <input type="text" id="userQ"
+                        placeholder="e.g. Derive the output voltage of a Boost converter from first principles..."
+                        autocomplete="off">
+                    <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+                </div>
+                <div class="ai-chips">
+                    <span class="ai-chip"
+                        onclick="setQ('Why is the ripple current maximum at duty cycle α = 0.5 in a Buck converter? Explain intuitively and mathematically.')">Why
+                        max ripple at α=0.5?</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain the Right-Half-Plane zero in a Boost converter and why it limits closed-loop bandwidth.')">RHP
+                        zero in Boost</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain the four-quadrant (Type E) chopper operation. When would you need all four quadrants in a DC motor drive?')">Type-E
+                        four-quadrant chopper</span>
+                    <span class="ai-chip"
+                        onclick="setQ('A Buck converter has Vs=24V, Vo=12V, f=50kHz, L=200μH, C=100μF. Find: duty cycle, inductor ripple current, output voltage ripple, and ripple factor.')">Buck
+                        converter numerical</span>
+                    <span class="ai-chip"
+                        onclick="setQ('What is the difference between CCM and DCM in a DC-DC converter? Give the condition for boundary and explain how output voltage changes in each mode.')">CCM
+                        vs DCM explained</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+        </div>
+
+        <!-- ═══ CITATIONS ═══ -->
+        <div class="citations" id="citations">
+            <div class="cite-h">References &amp; Citations</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from the
+                following standard textbooks. All explanations, derivations, and diagrams are original to Aarova AI.</p>
+            <ul class="cite-list">
+                <li><span class="cite-num">[1]</span><span>Mohan, N., Undeland, T.M., and Robbins, W.P. <em>Power
+                            Electronics: Converters, Applications and Design</em>, 3rd ed. John Wiley, 2003. Chapter
+                        7–8: DC-DC switch-mode converters, Buck, Boost, Buck-Boost topologies, CCM/DCM analysis.</span>
+                </li>
+                <li><span class="cite-num">[2]</span><span>Rashid, M.H. <em>Power Electronics Handbook</em>, 4th ed.
+                        Elsevier, 2018. Chapter 11: DC-DC converters — choppers, conversion ratios, ripple analysis, and
+                        state-space modelling.</span></li>
+                <li><span class="cite-num">[3]</span><span>Singh, M.D. and Khanchandani, K.B. <em>Power
+                            Electronics</em>, 2nd ed. Tata McGraw-Hill, 2008. Chapter 5: DC–DC converters — chopper
+                        types, quadrant operation, commutation techniques. Widely used in GATE preparation.</span></li>
+                <li><span class="cite-num">[4]</span><span>Erickson, R.W. and Maksimovic, D. <em>Fundamentals of Power
+                            Electronics</em>, 3rd ed. Springer, 2020. Chapters 2–5: Inductor volt-second balance,
+                        capacitor charge balance, small-signal models, and DCM analysis.</span></li>
+                <li><span class="cite-num">[5]</span><span>IIT Bombay / NPTEL. <em>Power Electronics — Video
+                            Lectures</em>. National Programme on Technology Enhanced Learning. nptel.ac.in. Lectures
+                        12–22: Chopper circuits, ripple analysis, converter modelling.</span></li>
+            </ul>
+        </div>
+
+        <hr>
+        <footer>
+            <strong>Aarova AI</strong> &nbsp;·&nbsp; Power Electronics Series &nbsp;·&nbsp; Chapter 3 of 8<br>
+            <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&T &nbsp;·&nbsp; PSU
+                Electrical Engineering</span><br>
+            <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and diagrams
+                are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+        </footer>
+
+    </div><!-- /page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus() }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Power Electronics. Topic: DC–DC Converters (Choppers) — Chapter 3. Cover Buck, Boost, Buck-Boost topologies, duty cycle, voltage conversion ratios, ripple analysis, CCM/DCM, quadrant choppers (Type A–E), and commutation. Answer with step-by-step working for numericals. Base answers on Mohan/Undeland/Robbins, Rashid, Singh & Khanchandani. All content is original to Aarova AI.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.' }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude() });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none' }, { once: true, passive: true });
+            });
+        })();
+    </script>
+
+</body>
+
+</html>

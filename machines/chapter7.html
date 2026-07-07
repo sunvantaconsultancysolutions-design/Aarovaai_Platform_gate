@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#fdf6ee">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Aarova AI — EM Speed Control of DC Motors</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+/* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+:root{
+  --bg:#fdf6ee;--bg2:#f8ede0;--bg3:#f0e0cc;--bg4:#e8d0b8;
+  --text:#1e1208;--text2:#3d2010;--text3:#6b3e22;--muted:#9a6e50;
+  --orange:#c95f1a;--orange-md:#e07235;--orange-lt:#f5956a;
+  --orange-bg:#fdebd8;--orange-bdr:#f0b48a;
+  --green:#2d6648;--green-bg:#dff0e8;--green-bdr:#8ecaaa;
+  --teal:#1e6b68;--teal-bg:#d8eeed;--teal-bdr:#7ec4c2;
+  --amber:#a05c00;--amber-bg:#fef0d0;--amber-bdr:#f0c060;
+  --red:#9a2020;--red-bg:#fde8e8;--red-bdr:#e89090;
+  --border:#ddc8b0;--border2:#c8a888;
+  --radius:14px;
+  --shadow:0 2px 16px rgba(150,80,20,0.10);
+  --shadow-md:0 6px 28px rgba(150,80,20,0.14);
+  --page-px:clamp(14px,4vw,48px);
+  --section-gap:clamp(36px,6vw,64px);
+  --card-px:clamp(14px,2.5vw,22px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;font-size:18px;-webkit-text-size-adjust:100%;}
+body{background:var(--bg);color:var(--text2);font-family:'Lora',Georgia,serif;line-height:1.85;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+img,svg{max-width:100%;display:block;}
+
+/* ── LAYOUT ── */
+.page{max-width:900px;margin:0 auto;padding:0 var(--page-px) 80px;}
+
+/* ── HEADER ── */
+.site-header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(253,246,238,0.96);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1.5px solid var(--border);
+  padding:12px var(--page-px);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.logo{font-family:'Playfair Display',serif;font-size:clamp(14px,2.5vw,18px);font-weight:700;color:var(--orange);white-space:nowrap;}
+.logo-sub{font-family:'Lora',serif;font-size:11px;color:var(--muted);margin-left:8px;font-weight:400;}
+.hbadges{display:flex;gap:5px;flex-wrap:wrap;}
+.hbadge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--orange-bg);border:1px solid var(--orange-bdr);color:var(--orange);white-space:nowrap;}
+
+/* ── HERO ── */
+.hero{padding:clamp(28px,6vw,64px) 0 clamp(22px,4vw,44px);border-bottom:1.5px solid var(--border);margin-bottom:clamp(24px,4vw,44px);}
+.eyebrow{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.15em;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:9px;}
+.eyebrow::before{content:'';display:inline-block;width:24px;height:2.5px;background:var(--orange);border-radius:2px;flex-shrink:0;}
+h1.hero-title{font-family:'Playfair Display',serif;font-size:clamp(28px,7vw,52px);font-weight:800;color:var(--text);line-height:1.1;margin-bottom:14px;}
+h1.hero-title em{font-style:italic;color:var(--orange);}
+.hero-desc{font-size:clamp(14px,2vw,17px);color:var(--text3);max-width:640px;line-height:1.75;font-weight:400;margin-bottom:22px;}
+.badge-row{display:flex;flex-wrap:wrap;gap:7px;}
+.badge{font-size:12px;padding:4px 13px;border-radius:22px;border:1.5px solid var(--border2);color:var(--text3);background:var(--bg2);font-family:'Lora',serif;}
+.badge-p{background:var(--orange-bg);border-color:var(--orange-bdr);color:var(--orange);font-weight:600;}
+
+/* ── PROGRESS BAR ── */
+.progress-bar{display:flex;align-items:center;gap:12px;background:var(--orange-bg);border:1.5px solid var(--orange-bdr);border-radius:10px;padding:11px 16px;margin-bottom:clamp(20px,4vw,40px);}
+.pl{font-size:12px;font-weight:600;color:var(--orange);white-space:nowrap;}
+.pt{flex:1;height:7px;background:rgba(201,95,26,0.18);border-radius:4px;overflow:hidden;min-width:30px;}
+.pf{height:100%;width:55%;background:var(--orange);border-radius:4px;}
+.pp{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--orange);white-space:nowrap;}
+
+/* ── TABLE OF CONTENTS ── */
+.toc{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--orange);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin-bottom:clamp(28px,5vw,52px);}
+.toc-h{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:14px;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0 24px;}
+.toc-item{display:flex;align-items:baseline;gap:9px;font-size:14px;color:var(--text3);text-decoration:none;padding:7px 0;border-bottom:1px dashed transparent;transition:color .2s,border-color .2s;line-height:1.5;}
+.toc-item:hover,.toc-item:focus{color:var(--orange);border-bottom-color:var(--orange-lt);}
+.toc-n{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--orange);min-width:28px;flex-shrink:0;}
+
+/* ── SECTION ── */
+.section{margin-bottom:var(--section-gap);opacity:0;transform:translateY(12px);animation:rise .42s forwards;}
+@keyframes rise{to{opacity:1;transform:none;}}
+.section:nth-child(1){animation-delay:.04s}.section:nth-child(2){animation-delay:.09s}
+.section:nth-child(3){animation-delay:.13s}.section:nth-child(4){animation-delay:.17s}
+.section:nth-child(5){animation-delay:.21s}.section:nth-child(6){animation-delay:.25s}
+.section:nth-child(7){animation-delay:.29s}.section:nth-child(8){animation-delay:.33s}
+.section:nth-child(9){animation-delay:.37s}.section:nth-child(10){animation-delay:.41s}
+.section:nth-child(11){animation-delay:.45s}.section:nth-child(12){animation-delay:.49s}
+.sec-hdr{display:flex;align-items:center;gap:12px;margin-bottom:clamp(14px,3vw,24px);padding-bottom:12px;border-bottom:1.5px solid var(--border);}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-bdr);padding:3px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+h2.sec-t{font-family:'Playfair Display',serif;font-size:clamp(18px,3.5vw,26px);font-weight:700;color:var(--text);line-height:1.2;}
+h3.sub{font-family:'Playfair Display',serif;font-size:clamp(15px,2.5vw,19px);font-weight:600;color:var(--text2);margin:clamp(20px,3vw,32px) 0 10px;display:flex;align-items:center;gap:9px;}
+h3.sub::before{content:'';display:inline-block;width:4px;height:16px;background:var(--orange-lt);border-radius:2px;flex-shrink:0;}
+p{margin-bottom:14px;color:var(--text2);font-size:clamp(14px,2vw,17px);line-height:1.85;}
+strong{font-weight:600;color:var(--text);}
+sup.cite{font-size:9px;color:var(--teal);font-weight:700;cursor:pointer;vertical-align:super;margin-left:1px;}
+
+/* ── CALLOUT BOXES ── */
+.callout{border-radius:10px;padding:clamp(11px,2vw,16px) clamp(13px,2vw,20px);margin:16px 0;display:flex;gap:11px;align-items:flex-start;}
+.ci{font-size:17px;flex-shrink:0;margin-top:2px;line-height:1;}
+.cb{flex:1;min-width:0;}
+.ct{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.cb p{margin:0;font-size:clamp(13px,1.8vw,15.5px);line-height:1.68;}
+.c-info{background:var(--orange-bg);border-left:4px solid var(--orange);}.c-info .ct{color:var(--orange);}.c-info p{color:var(--text2);}
+.c-tip{background:var(--green-bg);border-left:4px solid var(--green);}.c-tip .ct{color:var(--green);}.c-tip p{color:#1e4d38;}
+.c-key{background:var(--teal-bg);border-left:4px solid var(--teal);}.c-key .ct{color:var(--teal);}.c-key p{color:#154e4c;}
+.c-warn{background:var(--amber-bg);border-left:4px solid var(--amber);}.c-warn .ct{color:var(--amber);}.c-warn p{color:#6e3f00;}
+.c-danger{background:var(--red-bg);border-left:4px solid var(--red);}.c-danger .ct{color:var(--red);}.c-danger p{color:#6e1515;}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0;border-radius:10px;border:1.5px solid var(--border);box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:clamp(12px,1.8vw,15px);}
+thead tr{background:var(--bg3);}
+thead th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);border-bottom:1.5px solid var(--border);white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--bg3);transition:background .12s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg2);}
+tbody td{padding:10px 14px;color:var(--text2);vertical-align:top;line-height:1.55;}
+tbody td:first-child{font-weight:600;color:var(--text);}
+.t-org{color:var(--orange)!important;font-weight:600!important;}
+.t-grn{color:var(--green)!important;font-weight:600!important;}
+.t-red{color:var(--red)!important;font-weight:600!important;}
+.t-amb{color:var(--amber)!important;font-weight:600!important;}
+.t-tel{color:var(--teal)!important;font-weight:600!important;}
+
+/* ── FORMULA BLOCK ── */
+.fblock{
+  background:var(--bg3);border:1.5px solid var(--border2);border-left:4px solid var(--orange-lt);
+  border-radius:10px;padding:clamp(13px,2vw,20px) clamp(14px,2vw,24px);
+  margin:14px 0;
+  font-family:'JetBrains Mono',monospace;
+  font-size:clamp(11.5px,1.8vw,13.5px);
+  color:var(--text);line-height:2;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  white-space:pre;
+}
+.fblock .flbl{font-family:'Lora',serif;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px;white-space:normal;display:block;}
+.fv{color:var(--orange);}.feq{color:var(--green);font-weight:500;}.fh{color:var(--teal);}
+
+/* ── SVG DIAGRAMS ── */
+.svg-wrap{
+  background:var(--bg2);border:1.5px solid var(--border);
+  border-radius:12px;padding:clamp(12px,2.5vw,24px);
+  margin:16px 0;box-shadow:var(--shadow);
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.svg-wrap svg{width:100%;height:auto;min-width:300px;display:block;}
+.svg-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.svg-scroll svg{min-width:560px;width:100%;height:auto;display:block;}
+.svg-cap{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;font-style:italic;line-height:1.5;}
+.svg-cite{font-size:10.5px;color:var(--teal);text-align:center;margin-top:3px;}
+
+/* ── EXAMPLES ── */
+.example{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);margin:20px 0;box-shadow:var(--shadow);overflow:hidden;}
+.ex-hdr{background:var(--bg3);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;border-bottom:1.5px solid var(--border);flex-wrap:wrap;}
+.ex-num{font-size:9px;font-weight:700;background:var(--orange);color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.06em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.ex-title{font-size:13px;font-weight:600;color:var(--text2);line-height:1.4;}
+.ex-body{padding:clamp(13px,2vw,22px) var(--card-px);}
+.ex-q{font-size:clamp(13px,2vw,15.5px);color:var(--text);background:var(--orange-bg);border-left:4px solid var(--orange);padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:14px;line-height:1.62;}
+.sol-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--green);margin-bottom:9px;}
+
+/* ── GATE / PYQ CARDS ── */
+.gate-card{background:#fff;border:1.5px solid var(--teal-bdr);border-radius:var(--radius);margin:18px 0;box-shadow:var(--shadow);overflow:hidden;}
+.gate-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.gate-tag{font-size:9px;font-weight:700;background:var(--teal);color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.07em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.gate-title{font-size:13px;font-weight:600;color:var(--teal);line-height:1.4;}
+.gate-body{padding:clamp(13px,2vw,20px) var(--card-px);}
+.gate-body p{color:var(--text2);font-size:clamp(13px,2vw,15.5px);}
+.pyq-card{background:#fff;border:1.5px solid var(--teal-bdr);border-radius:var(--radius);margin:18px 0;box-shadow:var(--shadow);overflow:hidden;}
+.pyq-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.pyq-tag{font-size:9px;font-weight:700;color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.07em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.pyq-gate{background:var(--teal);}.pyq-ies{background:var(--green);}
+.pyq-hdr.ies-hdr{background:var(--green-bg);border-color:var(--green-bdr);}
+.pyq-card.ies-card{border-color:var(--green-bdr);}
+.pyq-title{font-size:13px;font-weight:600;color:var(--teal);line-height:1.4;flex:1;}
+.pyq-title-ies{color:var(--green);}
+.pyq-year{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;}
+.pyq-body{padding:clamp(13px,2vw,20px) var(--card-px);}
+.pyq-body p{color:var(--text2);font-size:clamp(13px,2vw,15.5px);}
+.pyq-opts{list-style:none;margin:10px 0;display:flex;flex-direction:column;gap:6px;}
+.pyq-opts li{
+  font-size:clamp(13px,1.8vw,15px);color:var(--text2);
+  padding:9px 13px;border-radius:8px;
+  border:1.5px solid var(--border);background:var(--bg2);
+  font-family:'Lora',serif;cursor:default;
+  min-height:44px;display:flex;align-items:center;line-height:1.45;
+}
+.pyq-opts li.correct{background:var(--green-bg);border-color:var(--green-bdr);color:var(--green);font-weight:600;}
+
+/* ── TWO COLUMN CARDS ── */
+.two-col{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0;}
+.mini-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:var(--card-px);box-shadow:var(--shadow);}
+.mc-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:11px;}
+.mc-grn .mc-t{color:var(--green);}.mc-red .mc-t{color:var(--red);}.mc-org .mc-t{color:var(--orange);}.mc-tel .mc-t{color:var(--teal);}.mc-amb .mc-t{color:var(--amber);}
+.mc-list{list-style:none;}
+.mc-list li{font-size:clamp(13px,1.8vw,15px);color:var(--text2);padding:6px 0;border-bottom:1px solid var(--bg3);display:flex;align-items:flex-start;gap:9px;line-height:1.5;}
+.mc-list li:last-child{border-bottom:none;}
+.dot{color:var(--muted);flex-shrink:0;margin-top:2px;}
+
+/* ── SUMMARY GRID ── */
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:16px 0;}
+.sum-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);transition:box-shadow .2s,transform .15s;}
+.sum-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.sum-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px;}
+.sum-card p{font-size:clamp(12px,1.7vw,14px);color:var(--text3);margin:0;line-height:1.62;}
+.sc-o .sum-lbl{color:var(--orange);}.sc-g .sum-lbl{color:var(--green);}.sc-t .sum-lbl{color:var(--teal);}.sc-a .sum-lbl{color:var(--amber);}.sc-r .sum-lbl{color:var(--red);}
+
+/* ── CITATIONS ── */
+.citations{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--teal);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin-top:36px;}
+.cite-h{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:16px;}
+.cite-list{list-style:none;}
+.cite-list li{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:clamp(12px,1.8vw,14px);color:var(--text2);line-height:1.62;}
+.cite-list li:last-child{border-bottom:none;}
+.cite-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--teal);background:var(--teal-bg);padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;height:fit-content;margin-top:2px;}
+.cite-list em{color:var(--orange-md);font-style:italic;}
+
+/* ── ASK CLAUDE WIDGET ── */
+.ai-prompt{background:linear-gradient(135deg,var(--teal-bg),var(--orange-bg));border:2px solid var(--teal-bdr);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin:28px 0;box-shadow:var(--shadow-md);}
+.ai-prompt-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:7px;}
+.ai-prompt>p{color:var(--text2);font-size:14px;margin-bottom:12px;}
+.ai-input-row{display:flex;gap:9px;flex-wrap:wrap;}
+.ai-input{
+  flex:1;min-width:0;width:100%;
+  padding:11px 14px;border-radius:9px;
+  border:1.5px solid var(--border2);background:var(--bg);
+  font-family:'Lora',serif;font-size:14px;color:var(--text);outline:none;
+  -webkit-appearance:none;
+}
+.ai-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(30,107,104,0.12);}
+.ai-btn{
+  padding:11px 20px;border-radius:9px;background:var(--teal);color:#fff;
+  border:none;font-family:'Lora',serif;font-size:14px;font-weight:600;
+  cursor:pointer;transition:background .18s;white-space:nowrap;
+  min-height:44px;
+  -webkit-appearance:none;
+}
+.ai-btn:hover{background:#155250;}
+.ai-btn:active{background:#0f3d3b;}
+.ai-suggest{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.ai-chip{
+  font-size:11px;padding:6px 12px;border-radius:20px;
+  border:1.5px solid var(--teal-bdr);color:var(--teal);
+  background:var(--bg);cursor:pointer;font-family:'Lora',serif;
+  transition:background .15s;
+  min-height:36px;display:flex;align-items:center;
+}
+.ai-chip:hover,.ai-chip:active{background:var(--teal-bg);}
+.ai-response{margin-top:14px;padding:13px 15px;background:#fff;border-radius:8px;border:1.5px solid var(--border);font-size:14px;color:var(--text2);display:none;line-height:1.72;white-space:pre-wrap;overflow-x:auto;}
+
+/* ── MISC ── */
+hr{border:none;border-top:1.5px solid var(--border);margin:40px 0;}
+footer{text-align:center;padding:26px 0;font-size:12px;color:var(--muted);border-top:1.5px solid var(--border);}
+footer strong{color:var(--orange);}
+
+/* ════════════════════════════════
+   TABLET — 481px to 768px
+════════════════════════════════ */
+@media(min-width:481px) and (max-width:768px){
+  html{font-size:16.5px;}
+  .logo-sub{display:none;}
+  .svg-wrap{padding:12px 10px;}
+  .svg-wrap svg{min-width:480px;}
+  .toc-grid{grid-template-columns:repeat(2,1fr);gap:0 20px;}
+  .two-col{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .sum-grid{grid-template-columns:repeat(2,1fr);gap:11px;}
+  .fblock{white-space:pre-wrap;word-break:break-word;font-size:12px;line-height:1.8;}
+  thead th,tbody td{padding:8px 10px;}
+  .pyq-year{margin-left:0;}
+}
+
+/* ════════════════════════════════
+   MOBILE — max 480px
+════════════════════════════════ */
+@media(max-width:480px){
+  html{font-size:15.5px;}
+  .logo-sub{display:none;}
+  .hbadges{display:none;}
+  .site-header{padding:10px 14px;}
+  h1.hero-title{font-size:clamp(26px,8vw,34px);}
+  .hero-desc{font-size:14px;}
+  .badge-row .badge{font-size:11px;padding:4px 10px;}
+  .progress-bar{padding:9px 12px;gap:8px;}
+  .pl{font-size:11px;}
+  .toc-grid{grid-template-columns:1fr;gap:0;}
+  .toc-item{font-size:14px;padding:9px 0;}
+  .toc{padding:14px 16px;}
+  .sec-hdr{gap:9px;}
+  h2.sec-t{font-size:clamp(16px,5vw,20px);}
+  h3.sub{font-size:clamp(14px,4.5vw,17px);}
+  p{font-size:15px;}
+  .svg-wrap{padding:10px 8px;border-radius:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .svg-wrap svg{min-width:520px;width:520px;height:auto;}
+  .svg-wrap.svg-simple svg{min-width:280px;width:100%;}
+  .svg-cap{font-size:11px;}
+  .fblock{white-space:pre-wrap;word-break:break-word;font-size:11.5px;line-height:1.75;padding:12px 12px;border-radius:8px;}
+  .tw{border-radius:8px;}
+  thead th{font-size:9px;padding:8px 10px;letter-spacing:.06em;}
+  tbody td{font-size:12px;padding:8px 10px;}
+  .two-col{grid-template-columns:1fr;gap:10px;}
+  .sum-grid{grid-template-columns:1fr;gap:9px;}
+  .mini-card{padding:13px 14px;}
+  .sum-card{padding:14px 16px;}
+  .callout{padding:11px 13px;gap:9px;}
+  .ci{font-size:16px;}
+  .cb p{font-size:13.5px;}
+  .ex-hdr{padding:8px 13px;}
+  .ex-body{padding:12px 13px;}
+  .ex-q{font-size:13.5px;padding:9px 12px;}
+  .gate-hdr,.pyq-hdr{padding:8px 13px;gap:7px;}
+  .gate-body,.pyq-body{padding:12px 13px;}
+  .pyq-opts li{font-size:13px;padding:9px 11px;}
+  .pyq-year{display:none;}
+  .ai-prompt{padding:14px 14px;}
+  .ai-input-row{flex-direction:column;}
+  .ai-input{font-size:15px;}
+  .ai-btn{width:100%;justify-content:center;font-size:15px;padding:13px;}
+  .ai-chip{font-size:11px;}
+  .ai-suggest{gap:5px;}
+  .cite-list li{font-size:12.5px;gap:9px;}
+  .citations{padding:14px 14px;}
+  footer{padding:20px 0;font-size:11.5px;}
+}
+
+/* ════════════════════════════════
+   LARGE DESKTOP — 1024px+
+════════════════════════════════ */
+@media(min-width:1024px){
+  .page{padding:0 48px 100px;}
+  .toc-grid{grid-template-columns:repeat(3,1fr);}
+  .two-col{grid-template-columns:repeat(2,1fr);}
+  .sum-grid{grid-template-columns:repeat(3,1fr);}
+  .svg-wrap svg{min-width:auto;width:100%;}
+}
+
+/* ── Touch ── */
+@media(hover:none){
+  .toc-item:hover{color:var(--text3);border-bottom-color:transparent;}
+  .sum-card:hover{transform:none;box-shadow:var(--shadow);}
+  .ai-btn:hover{background:var(--teal);}
+}
+
+/* ── Print ── */
+@media print{
+  .site-header,.ai-prompt,footer{display:none;}
+  .section{opacity:1;transform:none;animation:none;}
+  .svg-wrap{break-inside:avoid;}
+  body{font-size:12pt;}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">Aarova AI <span class="logo-sub">Electrical Machines Series</span></div>
+  <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span class="hbadge">PSU</span></div>
+</header>
+
+<div class="page">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="eyebrow">Chapter 02 &nbsp;·&nbsp; DC Motors</div>
+  <h1 class="hero-title">Speed Control of <em>DC Motors</em></h1>
+  <p class="hero-desc">Complete coverage of shunt motor speed control — field weakening, armature resistance rheostat, voltage control (Ward–Leonard), and series motor methods — field diverter, armature diverter, tapped field, paralleling field coils, armature resistance, and multiple voltage. Includes GATE &amp; IES previous year concepts.</p>
+  <div class="badge-row">
+    <span class="badge badge-p">GATE EE</span><span class="badge">IES E&amp;T</span><span class="badge">PSU Electrical</span><span class="badge">Follows DC Machines Ch.1</span>
+  </div>
+</div>
+
+<div class="progress-bar">
+  <span class="pl">Series Progress</span><div class="pt"><div class="pf"></div></div><span class="pp">Chapter 2 of 8</span>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <div class="toc-h">Contents</div>
+  <div class="toc-grid">
+    <a href="#s1"  class="toc-item"><span class="toc-n">2.1</span>Speed Equation</a>
+    <a href="#s5"  class="toc-item"><span class="toc-n">2.5</span>Series — Field Diverter</a>
+    <a href="#s2"  class="toc-item"><span class="toc-n">2.2</span>Shunt — Field Weakening</a>
+    <a href="#s6"  class="toc-item"><span class="toc-n">2.6</span>Series — Armature Diverter</a>
+    <a href="#s3"  class="toc-item"><span class="toc-n">2.3</span>Shunt — Arm. Resistance</a>
+    <a href="#s7"  class="toc-item"><span class="toc-n">2.7</span>Series — Tapped Field</a>
+    <a href="#s4"  class="toc-item"><span class="toc-n">2.4</span>Shunt — Voltage Control</a>
+    <a href="#s8"  class="toc-item"><span class="toc-n">2.8</span>Series — Paralleling / ARCC</a>
+    <a href="#s9"  class="toc-item"><span class="toc-n">2.9</span>Comparison Table</a>
+    <a href="#s10" class="toc-item"><span class="toc-n">2.10</span>GATE &amp; IES Concepts</a>
+  </div>
+</div>
+
+<!-- ═══ S1: SPEED EQUATION ═══ -->
+<div class="section" id="s1">
+  <div class="sec-hdr"><span class="sec-num">2.1</span><h2 class="sec-t">The Speed Equation — Foundation of Speed Control</h2></div>
+
+  <p>For any DC motor, the back-EMF (\( E_b \)) is given by <strong>\( E_b \) = V − \( I_a \)\( R_a \)</strong>, and the motor speed is directly proportional to the back-EMF and inversely proportional to the flux per pole. This fundamental relationship defines every speed control strategy available for DC motors.<sup class="cite">[1]</sup></p>
+
+  <div class="fblock"><div class="flbl">DC Motor Speed Equation — Master Formula</div>
+<span class="fv">Back-EMF:</span>         <span class="feq">\( E_b = V - I_a R_a \)</span>
+
+<span class="fv">Speed equation:</span>   <span class="feq">\( N \propto \frac{E_b}{\phi} \propto \frac{V - I_a R_a}{\phi} \)</span>
+
+<span class="fv">Three ways to vary \( N \):</span>
+  <span class="fh">(1) Flux control (\( \phi \)):</span>      Vary field current → flux → Field weakening
+  <span class="fh">(2) Resistance control (\( R_a \)):</span> Add external resistance in armature circuit
+  <span class="fh">(3) Voltage control (\( V \)):</span>    Change supply voltage to armature
+
+<span class="fv">Classification of motor:</span>
+  A → Differential  (unstable — not used in practice)
+  B → Shunt         (constant flux)
+  C → Cumulative    (most commonly used series/compound)</div>
+
+  <div class="callout c-info">
+    <div class="ci">📐</div>
+    <div class="cb">
+      <div class="ct">Key Insight — Three Handles on Speed</div>
+      <p>The speed equation gives exactly three independent variables that can be manipulated: flux (\( \phi \)), armature circuit resistance (\( R_a \) + \( R_{ext} \)), and terminal voltage (V). Each handle produces a different characteristic, suitable for different load types. GATE frequently asks which method gives speeds above rated and which below rated.</p>
+    </div>
+  </div>
+
+  <div class="svg-wrap svg-simple">
+    <svg viewBox="0 0 680 180" xmlns="http://www.w3.org/2000/svg">
+      <text x="340" y="22" text-anchor="middle" font-family="Playfair Display,serif" font-size="14" fill="#3d2010" font-weight="700">Three Speed Control Methods — Overview</text>
+      <!-- Box 1: Flux -->
+      <rect x="20" y="40" width="190" height="110" rx="10" fill="#fdebd8" stroke="#c95f1a" stroke-width="2"/>
+      <text x="115" y="65" text-anchor="middle" font-family="Playfair Display,serif" font-size="12" fill="#c95f1a" font-weight="700">① Flux Control</text>
+      <text x="115" y="87.3" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#3d2010">Vary ϕ by varying</text>
+      <text x="115" y="103.3" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a">R<tspan baseline-shift="sub" font-size="80%">sh</tspan> (field rheostat)</text>
+      <text x="115" y="121.5" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22">↑ R<tspan baseline-shift="sub" font-size="80%">sh</tspan> → ↓ I<tspan baseline-shift="sub" font-size="80%">sh</tspan> → ↓ ϕ → ↑ N</text>
+      <text x="115" y="136" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#9a2020">Speeds: Rated to ABOVE</text>
+      <!-- Box 2: Resistance -->
+      <rect x="245" y="40" width="190" height="110" rx="10" fill="#dff0e8" stroke="#2d6648" stroke-width="2"/>
+      <text x="340" y="65" text-anchor="middle" font-family="Playfair Display,serif" font-size="12" fill="#2d6648" font-weight="700">② Arm. Resistance</text>
+      <text x="340" y="87.3" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#3d2010">Add R<tspan baseline-shift="sub" font-size="80%">ext</tspan> in series</text>
+      <text x="340" y="100" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#2d6648">with armature</text>
+      <text x="340" y="121.5" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22">↑ R<tspan baseline-shift="sub" font-size="80%">ext</tspan> → ↓ E<tspan baseline-shift="sub" font-size="80%">b</tspan> → ↓ N</text>
+      <text x="340" y="136" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#9a2020">Speeds: BELOW rated</text>
+      <!-- Box 3: Voltage -->
+      <rect x="470" y="40" width="190" height="110" rx="10" fill="#d8eeed" stroke="#1e6b68" stroke-width="2"/>
+      <text x="565" y="65" text-anchor="middle" font-family="Playfair Display,serif" font-size="12" fill="#1e6b68" font-weight="700">③ Voltage Control</text>
+      <text x="565" y="84" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#3d2010">Vary supply V to</text>
+      <text x="565" y="100" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#1e6b68">armature</text>
+      <text x="565" y="121.5" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22">↑ V → ↑ E<tspan baseline-shift="sub" font-size="80%">b</tspan> → ↑ N</text>
+      <text x="565" y="136" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#9a2020">Both above &amp; below</text>
+    </svg>
+    <div class="svg-cap">Fig 2.1 — Three independent handles for DC motor speed control. Field weakening gives above-rated speeds; armature resistance gives below-rated; voltage control covers both ranges.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §7.7, p.354; Chapman [1], §8.4</div>
+  </div>
+</div>
+
+<!-- ═══ S2: SHUNT — FIELD WEAKENING ═══ -->
+<div class="section" id="s2">
+  <div class="sec-hdr"><span class="sec-num">2.2</span><h2 class="sec-t">Shunt Motor — Field Weakening (Field Current Control)</h2></div>
+
+  <p>In a shunt motor, the field winding is connected in parallel with the armature. The field current (\( I_{sh} \)) determines the flux (\( \phi \)). By connecting an external resistance (rheostat) in series with the field winding, the field current can be reduced, which weakens the flux and thereby <strong>increases the speed above rated value</strong>. This is the most efficient speed control method for shunt motors.<sup class="cite">[2]</sup></p>
+
+  <div class="fblock"><div class="flbl">Field Weakening — Circuit Equations</div>
+<span class="fv">Normal condition:</span>  \( I_{sh} = \frac{V}{R_{sh}} \)           \( \phi = \phi_{sh\_rated} \)
+<span class="fv">With added \( R_{ext} \):</span>   \( I_{sh} = \frac{V}{R_{sh} + R_{ext}} \)   \( \phi = \phi_{sh\_new} < \phi_{rated} \)
+
+<span class="fv">Speed relation:</span>  \( N \propto \frac{E_b}{\phi} \)
+                  Since \( E_b \approx V \) (\( I_a R_a \) is small),  \( N \propto \frac{1}{\phi} \)
+
+<span class="fv">Result:</span>    <span class="feq">↑ \( R_{ext} \) → ↓ \( I_{sh} \) → ↓ \( \phi \) → ↑ \( N \)</span>   (above rated)
+
+<span class="fv">Minimum speed:</span>  Rated speed  (at \( R_{ext} = 0 \))
+<span class="fv">Maximum speed:</span>  Limited by commutation &amp; mechanical stability</div>
+
+  <div class="svg-wrap">
+    <svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg">
+      <text x="340" y="22" text-anchor="middle" font-family="Playfair Display,serif" font-size="14" fill="#3d2010" font-weight="700">Shunt Motor — Field Weakening Circuit &amp; Characteristic</text>
+      <!-- Circuit diagram (left) -->
+      <!-- Supply rails -->
+      <line x1="30" y1="50" x2="30" y2="220" stroke="#c95f1a" stroke-width="2.5"/>
+      <line x1="280" y1="50" x2="280" y2="220" stroke="#1e6b68" stroke-width="2.5"/>
+      <line x1="30" y1="50" x2="280" y2="50" stroke="#c8a888" stroke-width="1.5"/>
+      <line x1="30" y1="220" x2="280" y2="220" stroke="#c8a888" stroke-width="1.5"/>
+      <!-- Supply label -->
+      <text x="155" y="44" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#9a6e50">V (Rated Supply)</text>
+      <!-- Armature branch -->
+      <!-- Ra box -->
+      <rect x="50" y="120" width="40" height="22" rx="4" fill="#fef0d0" stroke="#f0c060" stroke-width="1.5"/>
+      <text x="70" y="139.5" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#a05c00">R<tspan baseline-shift="sub" font-size="80%">a</tspan></text>
+      <!-- Motor circle -->
+      <circle cx="120" cy="180" r="26" fill="#f8ede0" stroke="#c95f1a" stroke-width="2"/>
+      <text x="120" y="178" text-anchor="middle" font-family="Playfair Display,serif" font-size="12" fill="#c95f1a" font-weight="700">M</text>
+      <text x="120" y="202.7" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">E<tspan baseline-shift="sub" font-size="80%">b</tspan></text>
+      <!-- Armature connections -->
+      <line x1="30" y1="131" x2="50" y2="131" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="90" y1="131" x2="120" y2="131" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="120" y1="131" x2="120" y2="154" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="120" y1="206" x2="120" y2="220" stroke="#1e6b68" stroke-width="1.5"/>
+      <line x1="120" y1="220" x2="280" y2="220" stroke="#1e6b68" stroke-width="1.5"/>
+      <!-- Field branch: Rsh + Rext -->
+      <text x="215" y="80" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22" font-weight="600">Field branch</text>
+      <!-- Rext (variable) -->
+      <rect x="188" y="88" width="52" height="20" rx="4" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5" stroke-dasharray="4 2"/>
+      <text x="214" y="105.5" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#2d6648">R<tspan baseline-shift="sub" font-size="80%">ext</tspan> ↕</text>
+      <!-- Rsh (fixed) -->
+      <rect x="188" y="120" width="52" height="20" rx="4" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+      <text x="214" y="137.5" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">R<tspan baseline-shift="sub" font-size="80%">sh</tspan></text>
+      <!-- Field winding (\( \phi \)sh) -->
+      <!-- Coil symbol -->
+      <path d="M195,155 Q200,145 205,155 Q210,165 215,155 Q220,145 225,155 Q230,165 235,155 Q240,145 245,155" fill="none" stroke="#c95f1a" stroke-width="1.8"/>
+      <text x="220" y="181.7" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#c95f1a">ϕ<tspan baseline-shift="sub" font-size="80%">sh</tspan></text>
+      <!-- Field branch connections -->
+      <line x1="214" y1="50" x2="214" y2="88" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="214" y1="108" x2="214" y2="120" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="214" y1="140" x2="214" y2="155" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="195" y1="155" x2="195" y2="192"/>
+      <line x1="214" y1="192" x2="214" y2="220" stroke="#1e6b68" stroke-width="1.5"/>
+      <!-- V_rated label -->
+      <rect x="50" y="160" width="55" height="18" rx="4" fill="#d8eeed" stroke="#1e6b68" stroke-width="1.2"/>
+      <text x="77" y="176.7" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#1e6b68">V<tspan baseline-shift="sub" font-size="80%">rated</tspan></text>
+      <!-- Eb_rated label -->
+      <rect x="148" y="168" width="58" height="18" rx="4" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.2"/>
+      <text x="177" y="181" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#c95f1a">Eb_rated</text>
+
+      <!-- Right: Speed-Torque characteristic -->
+      <!-- Axes -->
+      <line x1="360" y1="240" x2="660" y2="240" stroke="#3d2010" stroke-width="1.5"/>
+      <line x1="370" y1="60" x2="370" y2="248" stroke="#3d2010" stroke-width="1.5"/>
+      <polygon points="656,237 663,240 656,243" fill="#3d2010"/>
+      <polygon points="367,63 370,55 373,63" fill="#3d2010"/>
+      <text x="665" y="244" font-family="Lora,serif" font-size="11" fill="#3d2010">N →</text>
+      <text x="380" y="50" font-family="Lora,serif" font-size="11" fill="#3d2010">T,P</text>
+      <!-- Rated speed line -->
+      <line x1="420" y1="80" x2="420" y2="240" stroke="#ddc8b0" stroke-width="1" stroke-dasharray="4 3"/>
+      <text x="418" y="255" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">N_rated</text>
+      <!-- Torque curve (decreasing with speed) -->
+      <path d="M375,100 Q430,130 520,195 Q580,230 650,238" fill="none" stroke="#c95f1a" stroke-width="2.5"/>
+      <text x="542" y="205" font-family="Lora,serif" font-size="11" fill="#c95f1a" font-weight="600">Torque</text>
+      <!-- Power curve (rises then falls) -->
+      <path d="M375,240 Q430,180 490,140 Q560,110 650,118" fill="none" stroke="#2d6648" stroke-width="2.5"/>
+      <text x="610" y="112" font-family="Lora,serif" font-size="11" fill="#2d6648" font-weight="600">Power</text>
+      <!-- Labels -->
+      <text x="390" y="255" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">AR Rh.</text>
+      <!-- "FLOSC / Field weakening zone" labels -->
+      <rect x="425" y="63" width="225" height="16" rx="4" fill="#fdebd8" stroke="#f0b48a" stroke-width="1"/>
+      <text x="537" y="75" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#c95f1a" font-weight="600">Field Weakening Zone → Speeds above rated</text>
+      <rect x="365" y="63" width="45" height="16" rx="4" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1"/>
+      <text x="387" y="75" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648" font-weight="600">ARCC</text>
+    </svg>
+    <div class="svg-cap">Fig 2.2 — Field weakening circuit (left): \( R_{ext} \) in series with field winding reduces \( I_{sh} \) → \( \phi \) → raises speed above rated. Speed-torque curve (right): Field weakening = variable torque, constant power zone above rated speed.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §7.7 p.354; Chapman [1], §8.4</div>
+  </div>
+
+  <div class="two-col">
+    <div class="mini-card mc-grn">
+      <div class="mc-t">Advantages of Field Weakening</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span>Minimum speed is <strong>rated speed</strong> only</span></li>
+        <li><span class="dot">→</span><span>Highly efficient — field circuit current is small, so copper loss in \( R_{ext} \) is negligible</span></li>
+        <li><span class="dot">→</span><span>No need of large rheostat (field current ≈ 2–5% of armature current)</span></li>
+        <li><span class="dot">→</span><span>No need for additional cooling</span></li>
+        <li><span class="dot">→</span><span>Also called <strong>Variable Torque Constant Power</strong> speed control</span></li>
+      </ul>
+    </div>
+    <div class="mini-card mc-red">
+      <div class="mc-t">Limitations &amp; Precautions</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span>Speed control only <em>above</em> rated — cannot go below rated</span></li>
+        <li><span class="dot">→</span><span>Requires <strong>4-point starter</strong> for wide range speed control</span></li>
+        <li><span class="dot">→</span><span>Additional armature reaction as main flux is reduced → needs interpoles &amp; compensating winding</span></li>
+        <li><span class="dot">→</span><span>Field resistance must be at <strong>minimum position</strong> during starting</span></li>
+        <li><span class="dot">→</span><span>Excessive field weakening → dangerously high speed → mechanical failure</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout c-warn">
+    <div class="ci">⚠️</div>
+    <div class="cb">
+      <div class="ct">4-Point Starter — Why Required</div>
+      <p>In a standard 3-point starter, the hold-in coil is in series with the field circuit. If the field rheostat is increased to weaken the flux for speed control, the hold-in coil also loses current and may release the starter arm, disconnecting the supply — a dangerous situation. The <strong>4-point starter</strong> connects the hold-in coil directly across the supply (independent of the field circuit), preventing this problem.<sup class="cite">[2]</sup></p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S3: SHUNT — ARMATURE RESISTANCE ═══ -->
+<div class="section" id="s3">
+  <div class="sec-hdr"><span class="sec-num">2.3</span><h2 class="sec-t">Shunt Motor — Armature Resistance (Rheostatic) Control</h2></div>
+
+  <p>By inserting an external resistance (\( R_{ext} \)) in <em>series with the armature circuit</em>, the back-EMF drops, which reduces the speed. This method gives speeds only <strong>below rated</strong>. Because flux (\( \phi \)) remains constant (shunt field is unaffected), the torque equation T = k\( \phi \)\( I_a \) means torque capacity stays the same — this is essentially <em>voltage control without varying supply voltage</em>.<sup class="cite">[1]</sup></p>
+
+  <div class="fblock"><div class="flbl">Armature Resistance Control — Equations</div>
+<span class="fv">With \( R_{ext} \) in armature circuit:</span>
+  \( E_b = V - I_a(R_a + R_{ext}) \)   ↓  \( E_b \) ↓
+
+  \( N \propto \frac{E_b}{\phi} \)  →  since \( \phi = \text{const} \),   <span class="feq">\( N \propto [V - I_a(R_a + R_{ext})] \)</span>
+
+<span class="fv">Speed range:</span>  From rated speed (\( R_{ext}=0 \)) down to near zero
+<span class="fv">Torque:</span>     Constant torque (\( \phi = \text{constant} \))
+<span class="fv">Power:</span>     Variable (\( P = T \cdot \omega \) → power decreases with speed)
+<span class="fv">Efficiency:</span> Poor — large copper loss in \( R_{ext} = I_a^2 \times R_{ext} \)</div>
+
+  <div class="svg-wrap">
+    <svg viewBox="0 0 680 230" xmlns="http://www.w3.org/2000/svg">
+      <text x="340" y="22" text-anchor="middle" font-family="Playfair Display,serif" font-size="14" fill="#3d2010" font-weight="700">Shunt Motor — Armature Resistance Control Circuit</text>
+      <!-- Supply rails -->
+      <line x1="30" y1="55" x2="30" y2="210" stroke="#c95f1a" stroke-width="2.5"/>
+      <line x1="300" y1="55" x2="300" y2="210" stroke="#1e6b68" stroke-width="2.5"/>
+      <line x1="30" y1="55" x2="300" y2="55" stroke="#c8a888" stroke-width="1.5"/>
+      <line x1="30" y1="210" x2="300" y2="210" stroke="#c8a888" stroke-width="1.5"/>
+      <text x="165" y="51.4" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#9a6e50">V<tspan baseline-shift="sub" font-size="80%">rated</tspan> (const.)</text>
+      <!-- Rext variable -->
+      <rect x="40" y="100" width="60" height="22" rx="4" fill="#dff0e8" stroke="#2d6648" stroke-width="2" stroke-dasharray="5 2"/>
+      <text x="70" y="114.8" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#2d6648">R<tspan baseline-shift="sub" font-size="80%">ext</tspan> ↕</text>
+      <!-- Ra fixed -->
+      <rect x="118" y="100" width="44" height="22" rx="4" fill="#fef0d0" stroke="#f0c060" stroke-width="1.5"/>
+      <text x="140" y="119.5" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#a05c00">R<tspan baseline-shift="sub" font-size="80%">a</tspan></text>
+      <!-- Armature (motor) -->
+      <circle cx="200" cy="165" r="30" fill="#f8ede0" stroke="#c95f1a" stroke-width="2"/>
+      <text x="200" y="163" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" fill="#c95f1a" font-weight="700">M</text>
+      <text x="200" y="180.7" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">E<tspan baseline-shift="sub" font-size="80%">b</tspan> ↓</text>
+      <!-- Armature connections -->
+      <line x1="30" y1="111" x2="40" y2="111" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="100" y1="111" x2="118" y2="111" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="162" y1="111" x2="200" y2="111" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="200" y1="111" x2="200" y2="135" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="200" y1="195" x2="200" y2="210" stroke="#1e6b68" stroke-width="1.5"/>
+      <line x1="200" y1="210" x2="300" y2="210" stroke="#1e6b68" stroke-width="1.5"/>
+      <!-- Shunt field branch -->
+      <text x="270" y="86.5" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22" font-weight="600">ϕ<tspan baseline-shift="sub" font-size="80%">sh</tspan> (const.)</text>
+      <rect x="248" y="95" width="40" height="18" rx="3" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+      <text x="268" y="111.7" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#c95f1a">R<tspan baseline-shift="sub" font-size="80%">sh</tspan></text>
+      <path d="M248,130 Q253,120 258,130 Q263,140 268,130 Q273,120 278,130 Q283,140 288,130" fill="none" stroke="#c95f1a" stroke-width="1.8"/>
+      <line x1="268" y1="55" x2="268" y2="95" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="268" y1="113" x2="268" y2="130" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="268" y1="157" x2="268" y2="210" stroke="#1e6b68" stroke-width="1.5"/>
+      <!-- V_rated label on motor -->
+      <rect x="30" y="180" width="65" height="16" rx="3" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1"/>
+      <text x="62" y="191.7" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#1e6b68">V<tspan baseline-shift="sub" font-size="80%">rated</tspan></text>
+      <!-- Eb label -->
+      <rect x="220" y="148" width="52" height="16" rx="3" fill="#fdebd8" stroke="#f0b48a" stroke-width="1"/>
+      <text x="246" y="163.7" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#c95f1a">E<tspan baseline-shift="sub" font-size="80%">b</tspan> ↓ ∝ N ↓</text>
+
+      <!-- Annotations -->
+      <text x="70" y="143.5" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648" font-style="italic">↑ R<tspan baseline-shift="sub" font-size="80%">ext</tspan></text>
+      <text x="70" y="156.5" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648" font-style="italic">→ ↓ E<tspan baseline-shift="sub" font-size="80%">b</tspan></text>
+      <text x="70" y="166" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648" font-style="italic">→ ↓ N</text>
+
+      <!-- Info box right -->
+      <rect x="380" y="55" width="270" height="140" rx="10" fill="#fff" stroke="#ddc8b0" stroke-width="1.5"/>
+      <text x="515" y="78" text-anchor="middle" font-family="Playfair Display,serif" font-size="12" fill="#3d2010" font-weight="700">ARCC Comparison vs FLOSC</text>
+      <line x1="390" y1="85" x2="640" y2="85" stroke="#ddc8b0" stroke-width="1"/>
+      <text x="480" y="103.3" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a" font-weight="600">ARCC (R<tspan baseline-shift="sub" font-size="80%">ext</tspan> in arm.)</text>
+      <text x="600" y="100" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648" font-weight="600">FLOSC (Field weak.)</text>
+      <line x1="390" y1="107" x2="640" y2="107" stroke="#f0e0cc" stroke-width="1"/>
+      <text x="480" y="122" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#9a2020">Below rated</text>
+      <text x="600" y="122" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#2d6648">Above rated</text>
+      <line x1="390" y1="129" x2="640" y2="129" stroke="#f0e0cc" stroke-width="1"/>
+      <text x="480" y="144" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a2020">Const. torque</text>
+      <text x="600" y="144" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">Const. power</text>
+      <line x1="390" y1="151" x2="640" y2="151" stroke="#f0e0cc" stroke-width="1"/>
+      <text x="480" y="166" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a2020">Inefficient (Cu loss)</text>
+      <text x="600" y="166" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">Efficient</text>
+      <line x1="535" y1="85" x2="535" y2="185" stroke="#ddc8b0" stroke-width="1"/>
+    </svg>
+    <div class="svg-cap">Fig 2.3 — Armature resistance control: \( R_{ext} \) inserted in series with armature. Flux (\( \phi \)sh) remains constant. Speed decreases as \( R_{ext} \) increases — below rated only. Less efficient due to I²R loss in \( R_{ext} \).</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §7.7, p.356; Chapman [1], §8.4</div>
+  </div>
+
+  <div class="callout c-tip">
+    <div class="ci">💡</div>
+    <div class="cb">
+      <div class="ct">Why ARCC is Called Constant Torque / Variable Power</div>
+      <p>In armature resistance control, flux (\( \phi \)) remains constant at rated value (the shunt field is unaffected). Since torque T = k\( \phi \)\( I_a \), and if \( I_a \) is held constant (same load torque), the torque remains constant regardless of speed. Power = T × ω therefore decreases as speed decreases. This is why ARCC is called <strong>Constant Torque, Variable Power</strong> speed control. In contrast, field weakening (FLOSC) is Variable Torque, Constant Power.</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="mini-card mc-org">
+      <div class="mc-t">Advantages</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span>Simple — no need of 4-point starter</span></li>
+        <li><span class="dot">→</span><span>No additional armature reaction problem</span></li>
+        <li><span class="dot">→</span><span>Smooth control from rated speed down to zero</span></li>
+        <li><span class="dot">→</span><span>Suitable for traction-type loads</span></li>
+      </ul>
+    </div>
+    <div class="mini-card mc-red">
+      <div class="mc-t">Disadvantages</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span>Large copper loss in external resistance → poor efficiency</span></li>
+        <li><span class="dot">→</span><span>Requires <strong>additional cooling</strong> for external resistor</span></li>
+        <li><span class="dot">→</span><span>Voltage regulation poor — speed varies with load</span></li>
+        <li><span class="dot">→</span><span>Arm. rheostat must be at <strong>maximum position</strong> during starting</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S4: VOLTAGE CONTROL (WARD–LEONARD) ═══ -->
+<div class="section" id="s4">
+  <div class="sec-hdr"><span class="sec-num">2.4</span><h2 class="sec-t">Shunt Motor — Voltage Control &amp; Ward–Leonard Method</h2></div>
+
+  <p>In voltage control, the terminal voltage supplied to the armature is varied while maintaining the field excitation (and flux) at rated value. Since N ∝ \( E_b \) ∝ V (when \( I_a \)\( R_a \) is small), varying V gives smooth, stepless speed control in <strong>both directions</strong> — above and below rated — without the losses associated with armature resistance control.<sup class="cite">[2]</sup></p>
+
+  <p>The most important practical implementation is the <strong>Ward–Leonard method</strong> (also called the Ward–Leonard–Ilgner method when a flywheel is added). A separately excited DC generator driven by an AC or DC motor provides a variable DC voltage to the main motor. This method is used in steel rolling mills, paper mills, and mine hoists where precise bidirectional speed control is essential.<sup class="cite">[3]</sup></p>
+
+  <div class="fblock"><div class="flbl">Multiple Voltage Control &amp; Ward–Leonard — Key Points</div>
+<span class="fv">Principle:</span>    \( N \propto \frac{V}{\phi} \)  →  vary \( V \) while \( \phi = \phi_{rated} \) (constant)
+                 → <span class="feq">Speed proportional to supply voltage</span>
+
+<span class="fv">Requirements:</span> Self-excited shunt motor must be <em>separately excited</em>
+               Requires a multiple-voltage DC source
+               OR: a variable-output DC generator (Ward–Leonard)
+
+<span class="fv">Ward–Leonard system components:</span>
+  1. AC/DC motor (prime mover) — drives the DC generator
+  2. Separately excited DC generator (G) — variable voltage output
+  3. Cross-over switch + variable resistance — controls generator excitation
+  4. DC main motor (M) — whose speed is to be controlled
+  5. Flywheel (optional, Ilgner method) — smooths speed fluctuations
+
+<span class="fv">Advantages:</span>
+  - Smooth speed control from rated to below AND above rated
+  - Control in both directions (motoring &amp; braking)
+  - No resistance losses in armature circuit — highly efficient
+  - Used for large drives: steel rolling, mine winding, cranes
+
+<span class="fv">Disadvantages:</span>
+  - Very expensive (3 machines: prime mover + gen + motor)
+  - Large floor space &amp; maintenance required
+  - Low overall efficiency due to cascaded machines</div>
+
+  <div class="svg-wrap">
+    <svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
+      <text x="340" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="14" fill="#3d2010" font-weight="700">Ward–Leonard Speed Control System</text>
+      <!-- AC/DC Motor block -->
+      <rect x="20" y="60" width="95" height="50" rx="8" fill="#fef0d0" stroke="#f0c060" stroke-width="2"/>
+      <text x="67" y="82" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#a05c00" font-weight="600">AC/DC</text>
+      <text x="67" y="96" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#a05c00" font-weight="600">Motor</text>
+      <text x="67" y="126" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">(Prime mover)</text>
+      <!-- Mechanical coupling arrow -->
+      <line x1="115" y1="85" x2="155" y2="85" stroke="#3d2010" stroke-width="2"/>
+      <polygon points="152,81 161,85 152,89" fill="#3d2010"/>
+      <text x="135" y="79" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a6e50">Mech.</text>
+      <!-- Sep. exc. Generator block -->
+      <rect x="160" y="60" width="95" height="50" rx="8" fill="#d8eeed" stroke="#1e6b68" stroke-width="2"/>
+      <text x="207" y="82" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68" font-weight="600">Sep. Exc.</text>
+      <text x="207" y="96" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68" font-weight="600">DC Gen (G)</text>
+      <text x="207" y="126" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">(Variable V)</text>
+      <!-- FA, AA labels -->
+      <text x="164" y="150" font-family="JetBrains Mono,monospace" font-size="10" fill="#1e6b68">F+  A+</text>
+      <text x="164" y="164" font-family="JetBrains Mono,monospace" font-size="10" fill="#1e6b68">F−  A−</text>
+      <!-- DC bus line -->
+      <line x1="255" y1="72" x2="320" y2="72" stroke="#c95f1a" stroke-width="2"/>
+      <line x1="255" y1="98" x2="320" y2="98" stroke="#1e6b68" stroke-width="2"/>
+      <!-- Control block -->
+      <rect x="280" y="55" width="80" height="55" rx="8" fill="#fff" stroke="#ddc8b0" stroke-width="1.5"/>
+      <text x="320" y="76" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22" font-weight="600">Control</text>
+      <text x="320" y="90" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#a05c00">Cross-over</text>
+      <text x="320" y="103" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#a05c00">switch +</text>
+      <text x="320" y="118.7" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#a05c00">Var. R<tspan baseline-shift="sub" font-size="80%">ext</tspan></text>
+      <!-- DC bus to motor -->
+      <line x1="360" y1="72" x2="420" y2="72" stroke="#c95f1a" stroke-width="2"/>
+      <line x1="360" y1="98" x2="420" y2="98" stroke="#1e6b68" stroke-width="2"/>
+      <!-- DC Motor block -->
+      <rect x="420" y="55" width="95" height="60" rx="8" fill="#fdebd8" stroke="#c95f1a" stroke-width="2"/>
+      <text x="467" y="78" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a" font-weight="600">DC Motor</text>
+      <text x="467" y="93" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a">(M)</text>
+      <text x="467" y="110" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">Speed control</text>
+      <!-- FA, AA motor labels -->
+      <text x="424" y="135" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">F  F+</text>
+      <text x="424" y="149" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">A  A+</text>
+      <!-- Load (flywheel) -->
+      <circle cx="590" cy="85" r="30" fill="#f0e0cc" stroke="#c8a888" stroke-width="2"/>
+      <text x="590" y="83" text-anchor="middle" font-family="Playfair Display,serif" font-size="11" fill="#6b3e22" font-weight="700">Fly</text>
+      <text x="590" y="97" text-anchor="middle" font-family="Playfair Display,serif" font-size="11" fill="#6b3e22" font-weight="700">Wheel</text>
+      <line x1="515" y1="85" x2="560" y2="85" stroke="#3d2010" stroke-width="2"/>
+      <polygon points="557,81 566,85 557,89" fill="#3d2010"/>
+      <!-- DC bus label -->
+      <rect x="260" y="35" width="130" height="18" rx="4" fill="#fdebd8" stroke="#f0b48a" stroke-width="1"/>
+      <text x="325" y="48" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">Variable DC Bus</text>
+      <!-- Ward-Leonard label -->
+      <rect x="18" y="188" width="660" height="20" rx="6" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5"/>
+      <text x="348" y="202" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648" font-weight="600">Ward–Leonard Method: Controls speed efficiently from rated to below AND above — both directions. Expensive (3 machines).</text>
+    </svg>
+    <div class="svg-cap">Fig 2.4 — Ward–Leonard system: AC/DC prime mover drives a separately excited generator whose output voltage is varied by a cross-over switch and field rheostat. Motor speed tracks generator output voltage — no resistance losses.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §7.7 p.358; Fitzgerald [3], §7.6</div>
+  </div>
+
+  <div class="callout c-key">
+    <div class="ci">🔑</div>
+    <div class="cb">
+      <div class="ct">Ward–Leonard vs Ward–Leonard–Ilgner</div>
+      <p><strong>Ward–Leonard</strong>: Basic system with three machines. <strong>Ward–Leonard–Ilgner</strong>: A flywheel is connected on the shaft of the generator-prime mover set. When load suddenly increases, the flywheel releases kinetic energy, smoothing out speed fluctuations and reducing peak demand from the supply. This improves overall energy efficiency, especially for loads with sudden torque demands (mine winders, rolling mills).<sup class="cite">[2]</sup></p>
+    </div>
+  </div>
+
+  <!-- Worked Example -->
+  <div class="example">
+    <div class="ex-hdr"><span class="ex-num">EX 1</span><span class="ex-title">Voltage Control — Speed vs Flux Dependence</span></div>
+    <div class="ex-body">
+      <div class="ex-q">A shunt motor is running at rated speed 1000 rpm with rated voltage \( V \). If the supply voltage is halved to \( V/2 \), determine the new speed for two cases: (1) Flux \( \phi \) is proportional to field current (linear magnetic circuit), and (2) Flux \( \phi \) remains constant due to a separate fixed excitation.</div>
+      <div class="sol-lbl">Solution</div>
+      <div class="fblock">From the speed equation, \( N \propto \frac{E_b}{\phi} \approx \frac{V}{\phi} \)  (assuming \( I_a R_a \) drop is negligible).
+Let initial state be \( N_1 = 1000 \text{ rpm} \), \( V_1 = V \), \( \phi_1 = \phi \).
+
+<span class="fh">Case 1: Flux proportional to field current (Standard Shunt Motor)</span>
+If \( V_2 = V/2 \), then field current \( I_{sh2} = \frac{V_2}{R_{sh}} = \frac{I_{sh1}}{2} \).
+Since \( \phi \propto I_{sh} \), new flux \( \phi_2 = \phi/2 \).
+\( \frac{N_2}{N_1} = \frac{V_2}{V_1} \times \frac{\phi_1}{\phi_2} = \frac{V/2}{V} \times \frac{\phi}{\phi/2} = \frac{1}{2} \times 2 = 1 \)
+\( N_2 = 1000 \text{ rpm} \) <span class="feq">(Speed remains unchanged)</span>
+
+<span class="fh">Case 2: Flux is constant (Separately Excited / Ward-Leonard)</span>
+Here, \( V_2 = V/2 \) but \( \phi_2 = \phi_1 = \phi \) (constant).
+\( \frac{N_2}{N_1} = \frac{V_2}{V_1} \times \frac{\phi_1}{\phi_2} = \frac{V/2}{V} \times 1 = \frac{1}{2} \).
+\( N_2 = 1000 \times 0.5 = 500 \text{ rpm} \) <span class="feq">(Speed becomes half)</span>
+
+This proves why Ward-Leonard requires a separately excited motor!</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S5: SERIES MOTOR SPEED CONTROL ═══ -->
+<div class="section" id="s5">
+  <div class="sec-hdr"><span class="sec-num">2.5</span><h2 class="sec-t">Speed Control of DC Series Motors — Methods Overview</h2></div>
+
+  <p>In a DC series motor, the field winding is connected in series with the armature. The series field current equals the armature (line) current: \( I_{se} \) = \( I_L \) = \( I_a \). Therefore \( \phi \) ∝ \( I_a \), and the speed-torque characteristic is hyperbolic. Speed control methods for series motors exploit this unique characteristic.<sup class="cite">[1]</sup></p>
+
+  <div class="callout c-info">
+    <div class="ci">📋</div>
+    <div class="cb">
+      <div class="ct">Six Methods for Series Motor Speed Control</div>
+      <p>The six standard methods are: <strong>(1) Field Diverter</strong> — resistance in parallel with field winding; <strong>(2) Armature Diverter</strong> — resistance in parallel with armature; <strong>(3) Tapped Field</strong> — change number of series turns; <strong>(4) Paralleling Field Coils</strong> — switch between series/parallel arrangements; <strong>(5) Armature Resistance Control</strong> — \( R_{ext} \) in series; <strong>(6) Multiple Voltage Control</strong> — vary supply voltage.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">① Field Diverter Method</h3>
+  <p>A <strong>diverter resistance (\( R_d \))</strong> is connected in <em>parallel with the series field winding</em>. Part of the armature current bypasses the field winding, reducing field current (\( I_{se} \) &lt; \( I_L \)), which weakens the flux and <strong>increases speed above normal value</strong>. The diverter resistance should never be reduced below a minimum value, as the speed becomes dangerously high.<sup class="cite">[2]</sup></p>
+
+  <div class="svg-wrap">
+    <svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
+      <text x="340" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" fill="#3d2010" font-weight="700">Series Motor — Field Diverter Circuit</text>
+      <!-- Supply rails -->
+      <line x1="30" y1="55" x2="30" y2="200" stroke="#c95f1a" stroke-width="2.5"/>
+      <line x1="350" y1="55" x2="350" y2="200" stroke="#1e6b68" stroke-width="2.5"/>
+      <line x1="30" y1="200" x2="350" y2="200" stroke="#c8a888" stroke-width="1.5"/>
+      <text x="190" y="48" font-family="JetBrains Mono,monospace" font-size="11" fill="#9a6e50">V (Supply)</text>
+      <!-- Top wire: Ia flows right -->
+      <line x1="30" y1="55" x2="350" y2="55" stroke="#c95f1a" stroke-width="2"/>
+      <!-- Ia label -->
+      <text x="55" y="42.4" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a">I<tspan baseline-shift="sub" font-size="80%">a</tspan> →</text>
+      <!-- Series field winding -->
+      <path d="M100,55 Q108,40 116,55 Q124,70 132,55 Q140,40 148,55 Q156,70 164,55 Q172,40 180,55" fill="none" stroke="#c95f1a" stroke-width="2"/>
+      <text x="92" y="88" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">Series Field (Rse)</text>
+      <!-- Diverter box parallel to field -->
+      <rect x="90" y="96" width="100" height="22" rx="5" fill="#dff0e8" stroke="#2d6648" stroke-width="2" stroke-dasharray="5 2"/>
+      <text x="95" y="110.5" font-family="JetBrains Mono,monospace" font-size="10" fill="#2d6648">R<tspan baseline-shift="sub" font-size="80%">d</tspan> (Diverter) ↕</text>
+      <!-- Connections for diverter -->
+      <line x1="100" y1="55" x2="100" y2="96" stroke="#2d6648" stroke-width="1.5"/>
+      <line x1="180" y1="55" x2="180" y2="96" stroke="#2d6648" stroke-width="1.5"/>
+      <line x1="100" y1="112" x2="100" y2="55" stroke="none"/>
+      <line x1="180" y1="112" x2="180" y2="115" stroke="#2d6648" stroke-width="1.5"/>
+      <line x1="100" y1="112" x2="100" y2="115" stroke="#2d6648" stroke-width="1.5"/>
+      <!-- Current labels -->
+      <text x="110" y="44" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">I<tspan baseline-shift="sub" font-size="80%">se</tspan> &lt; I<tspan baseline-shift="sub" font-size="80%">L</tspan></text>
+      <text x="100" y="133.5" font-family="JetBrains Mono,monospace" font-size="10" fill="#2d6648">I<tspan baseline-shift="sub" font-size="80%">rd</tspan> (bypass)</text>
+      <!-- Motor circle -->
+      <circle cx="280" cy="130" r="32" fill="#f8ede0" stroke="#c95f1a" stroke-width="2"/>
+      <text x="274" y="128" font-family="Playfair Display,serif" font-size="14" fill="#c95f1a" font-weight="700">M</text>
+      <text x="276" y="148.7" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">E<tspan baseline-shift="sub" font-size="80%">b</tspan></text>
+      <line x1="220" y1="55" x2="280" y2="55" stroke="#c95f1a" stroke-width="2"/>
+      <line x1="280" y1="55" x2="280" y2="98" stroke="#c95f1a" stroke-width="2"/>
+      <line x1="280" y1="162" x2="280" y2="200" stroke="#1e6b68" stroke-width="2"/>
+      <!-- Ise=IL label -->
+      <text x="40" y="188.5" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">I<tspan baseline-shift="sub" font-size="80%">se</tspan> = I<tspan baseline-shift="sub" font-size="80%">L</tspan></text>
+
+      <!-- Info panel right -->
+      <rect x="400" y="55" width="260" height="140" rx="10" fill="#fff" stroke="#ddc8b0" stroke-width="1.5"/>
+      <text x="530" y="78" text-anchor="middle" font-family="Playfair Display,serif" font-size="12" fill="#3d2010" font-weight="700">Field Diverter — Effect</text>
+      <text x="410" y="103.3" font-family="Lora,serif" font-size="11" fill="#2d6648">→ R<tspan baseline-shift="sub" font-size="80%">d</tspan> ↑ (from min to max)</text>
+      <text x="410" y="119.3" font-family="Lora,serif" font-size="11" fill="#c95f1a">→ I<tspan baseline-shift="sub" font-size="80%">se</tspan> ↓  (less bypasses)</text>
+      <text x="410" y="135.3" font-family="Lora,serif" font-size="11" fill="#c95f1a">→ ϕ ↓ (flux reduces)</text>
+      <text x="410" y="148" font-family="Lora,serif" font-size="11" fill="#2d6648">→ N ↑ (speed RISES)</text>
+      <rect x="408" y="160" width="242" height="24" rx="6" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.2"/>
+      <text x="529" y="179.3" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648" font-weight="600">R<tspan baseline-shift="sub" font-size="80%">d</tspan> → 0: speed dangerously high ⚠️</text>
+    </svg>
+    <div class="svg-cap">Fig 2.5 — Field diverter: \( R_d \) in parallel with series field. Increasing \( R_d \) from min → field current decreases → flux weakens → speed rises above normal. Never reduce \( R_d \) to zero (speed runaway).</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §7.8, p.360; Chapman [1], §8.5</div>
+  </div>
+</div>
+
+<!-- ═══ S6: ARMATURE DIVERTER ═══ -->
+<div class="section" id="s6">
+  <div class="sec-hdr"><span class="sec-num">2.6</span><h2 class="sec-t">Series Motor — Armature Diverter</h2></div>
+
+  <p>A diverter resistance is connected in <em>parallel with the armature</em>. When the diverter is connected, part of the line current is diverted away from the armature, reducing armature current (\( I_a \) &lt; \( I_L \)). To maintain the torque (T = k\( \phi \)\( I_a \)), the motor draws more current from the supply, which now flows through the field winding — <strong>increasing field current (and flux)</strong>. The increased flux reduces speed. This method gives speeds <strong>below rated</strong>.<sup class="cite">[2]</sup></p>
+
+  <div class="fblock"><div class="flbl">Armature Diverter — Analysis</div>
+<span class="fv">Without diverter:</span>  \( I_{se} = I_L = I_a \)      \( T = k\phi I_a \)
+<span class="fv">With diverter \( R_d \):</span>   \( I_a < I_L \)             \( I_{se} = I_L > I_a \)  →  \( \phi \) ↑
+
+<span class="fv">Torque maintenance:</span> Motor draws more \( I_L \) from supply
+                   → More current through field → <span class="feq">\( \phi \) ↑ → speed ↓</span>
+
+<span class="fv">Note:</span>  \( T \propto \phi \times I_a \) — both change when diverter is used
+       Speed control is BELOW rated; opposite of field diverter</div>
+
+  <div class="svg-wrap">
+    <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg">
+      <text x="340" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" fill="#3d2010" font-weight="700">Series Motor — Armature Diverter Circuit</text>
+      <!-- Supply rails -->
+      <line x1="30" y1="55" x2="30" y2="185" stroke="#c95f1a" stroke-width="2.5"/>
+      <line x1="380" y1="55" x2="380" y2="185" stroke="#1e6b68" stroke-width="2.5"/>
+      <line x1="30" y1="185" x2="380" y2="185" stroke="#c8a888" stroke-width="1.5"/>
+      <line x1="30" y1="55" x2="380" y2="55" stroke="#c8a888" stroke-width="1.5"/>
+      <text x="205" y="48" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#9a6e50">V (Supply)</text>
+      <!-- \( \phi \)se ↑ label -->
+      <text x="50" y="73.3" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a">I<tspan baseline-shift="sub" font-size="80%">L</tspan> ↑ →</text>
+      <!-- Series field -->
+      <path d="M90,55 Q98,40 106,55 Q114,70 122,55 Q130,40 138,55 Q146,70 154,55 Q162,40 170,55" fill="none" stroke="#c95f1a" stroke-width="2"/>
+      <text x="130" y="83.5" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">ϕ<tspan baseline-shift="sub" font-size="80%">se</tspan> ↑</text>
+      <!-- Motor circle -->
+      <circle cx="280" cy="120" r="30" fill="#f8ede0" stroke="#c95f1a" stroke-width="2"/>
+      <text x="280" y="118" text-anchor="middle" font-family="Playfair Display,serif" font-size="14" fill="#c95f1a" font-weight="700">M</text>
+      <text x="280" y="136.7" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">I<tspan baseline-shift="sub" font-size="80%">a</tspan> ↓</text>
+      <!-- Wire from field to motor -->
+      <line x1="170" y1="55" x2="280" y2="55" stroke="#c95f1a" stroke-width="2"/>
+      <line x1="280" y1="55" x2="280" y2="90" stroke="#c95f1a" stroke-width="2"/>
+      <!-- Diverter Rd in parallel with motor -->
+      <rect x="195" y="98" width="52" height="46" rx="5" fill="#dff0e8" stroke="#2d6648" stroke-width="2" stroke-dasharray="5 2"/>
+      <text x="221" y="121.5" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#2d6648">R<tspan baseline-shift="sub" font-size="80%">d</tspan> ↕</text>
+      <text x="221" y="133" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#2d6648">(diverter)</text>
+      <line x1="221" y1="98" x2="221" y2="55" stroke="#2d6648" stroke-width="1.5"/>
+      <line x1="221" y1="144" x2="221" y2="185" stroke="#2d6648" stroke-width="1.5"/>
+      <!-- Motor bottom line -->
+      <line x1="280" y1="150" x2="280" y2="185" stroke="#1e6b68" stroke-width="2"/>
+      <line x1="280" y1="185" x2="380" y2="185" stroke="#1e6b68" stroke-width="2"/>
+      <!-- Ird label -->
+      <text x="164" y="125.5" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#2d6648">I<tspan baseline-shift="sub" font-size="80%">rd</tspan> →</text>
+      <!-- T ∝ \( \phi \)×Ia label -->
+      <rect x="420" y="60" width="240" height="100" rx="10" fill="#fef0d0" stroke="#f0c060" stroke-width="1.5"/>
+      <text x="540" y="83.2" text-anchor="middle" font-family="Playfair Display,serif" font-size="12" fill="#a05c00" font-weight="700">T × ϕI<tspan baseline-shift="sub" font-size="80%">a</tspan> Effect</text>
+      <text x="430" y="100" font-family="Lora,serif" font-size="11" fill="#3d2010">Diverter bypasses armature:</text>
+      <text x="430" y="119.3" font-family="Lora,serif" font-size="11" fill="#c95f1a">I<tspan baseline-shift="sub" font-size="80%">a</tspan> ↓ → torque would ↓</text>
+      <text x="430" y="135.3" font-family="Lora,serif" font-size="11" fill="#2d6648">Motor draws more I<tspan baseline-shift="sub" font-size="80%">L</tspan> from supply</text>
+      <text x="430" y="151.3" font-family="Lora,serif" font-size="11" fill="#2d6648">→ ϕ<tspan baseline-shift="sub" font-size="80%">se</tspan> ↑ → N ↓ (speed FALLS)</text>
+    </svg>
+    <div class="svg-cap">Fig 2.6 — Armature diverter: \( R_d \) in parallel with armature. Motor torque balance forces more supply current through field → flux increases → speed decreases (below rated).</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §7.8, p.360</div>
+  </div>
+</div>
+
+<!-- ═══ S7: TAPPED FIELD ═══ -->
+<div class="section" id="s7">
+  <div class="sec-hdr"><span class="sec-num">2.7</span><h2 class="sec-t">Series Motor — Tapped Field &amp; Paralleling Field Coils</h2></div>
+
+  <p>In the <strong>tapped field method</strong>, the series field winding has tapping points at intermediate positions. By changing the tap connection, the number of active field turns (\( N_{se} \)) changes. More turns → more flux → slower speed; fewer turns → less flux → higher speed. This gives discrete speed steps only, with a diverter used to obtain intermediate speeds.<sup class="cite">[2]</sup></p>
+
+  <div class="svg-wrap">
+    <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg">
+      <text x="340" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" fill="#3d2010" font-weight="700">Tapped Field — Arrangement &amp; Effect</text>
+      <!-- Supply rails -->
+      <line x1="30" y1="55" x2="30" y2="185" stroke="#c95f1a" stroke-width="2.5"/>
+      <line x1="380" y1="55" x2="380" y2="185" stroke="#1e6b68" stroke-width="2.5"/>
+      <line x1="30" y1="185" x2="380" y2="185" stroke="#c8a888" stroke-width="1.5"/>
+      <line x1="30" y1="55" x2="55" y2="55" stroke="#c95f1a" stroke-width="2"/>
+      <!-- Field coil with taps -->
+      <!-- Full winding path drawn as arcs -->
+      <path d="M55,55 Q63,40 71,55 Q79,70 87,55 Q95,40 103,55 Q111,70 119,55 Q127,40 135,55 Q143,70 151,55 Q159,40 167,55 Q175,70 183,55 Q191,40 199,55" fill="none" stroke="#c95f1a" stroke-width="2"/>
+      <!-- Tap lines downward -->
+      <line x1="103" y1="55" x2="103" y2="90" stroke="#2d6648" stroke-width="1.5" stroke-dasharray="4 2"/>
+      <line x1="151" y1="55" x2="151" y2="90" stroke="#2d6648" stroke-width="1.5" stroke-dasharray="4 2"/>
+      <!-- Tap circles -->
+      <circle cx="103" cy="93" r="5" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5"/>
+      <circle cx="151" cy="93" r="5" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5"/>
+      <!-- Tap labels -->
+      <text x="103" y="112" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#2d6648">Tap A</text>
+      <text x="151" y="112" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#2d6648">Tap B</text>
+      <text x="85" y="128" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">\( N_{se} \) reduced</text>
+      <text x="85" y="144.5" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">→ ϕ ↓ → N ↑</text>
+      <!-- Tap change box -->
+      <rect x="204" y="70" width="55" height="22" rx="4" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+      <text x="231" y="85" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#c95f1a">Tap change</text>
+      <!-- Motor -->
+      <circle cx="315" cy="120" r="28" fill="#f8ede0" stroke="#c95f1a" stroke-width="2"/>
+      <text x="315" y="118" text-anchor="middle" font-family="Playfair Display,serif" font-size="14" fill="#c95f1a" font-weight="700">M</text>
+      <text x="315" y="137.7" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">I<tspan baseline-shift="sub" font-size="80%">a</tspan></text>
+      <line x1="199" y1="55" x2="315" y2="55" stroke="#c95f1a" stroke-width="2"/>
+      <line x1="315" y1="55" x2="315" y2="92" stroke="#c95f1a" stroke-width="2"/>
+      <line x1="315" y1="148" x2="315" y2="185" stroke="#1e6b68" stroke-width="2"/>
+      <line x1="315" y1="185" x2="380" y2="185" stroke="#1e6b68" stroke-width="2"/>
+      <!-- Info box -->
+      <rect x="420" y="55" width="240" height="110" rx="10" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5"/>
+      <text x="540" y="78" text-anchor="middle" font-family="Playfair Display,serif" font-size="12" fill="#2d6648" font-weight="700">Tapped Field — Key Points</text>
+      <text x="430" y="98" font-family="Lora,serif" font-size="11" fill="#3d2010">→ Fewer taps in circuit:</text>
+      <text x="430" y="117.3" font-family="Lora,serif" font-size="11" fill="#c95f1a">   N<tspan baseline-shift="sub" font-size="80%">se</tspan> ↓ → ϕ ↓ → N ↑</text>
+      <text x="430" y="130" font-family="Lora,serif" font-size="11" fill="#3d2010">→ More taps in circuit:</text>
+      <text x="430" y="149.3" font-family="Lora,serif" font-size="11" fill="#2d6648">   N<tspan baseline-shift="sub" font-size="80%">se</tspan> ↑ → ϕ ↑ → N ↓</text>
+      <text x="430" y="158" font-family="Lora,serif" font-size="10" fill="#9a6e50">Diverter used for speeds b/w steps</text>
+    </svg>
+    <div class="svg-cap">Fig 2.7 — Tapped field: intermediate taps on field winding change \( N_{se} \). Fewer active turns → less flux → higher speed. Discrete speed steps only; diverter used for intermediate speeds.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §7.8, p.361; Chapman [1], §8.5</div>
+  </div>
+
+  <h3 class="sub">④ Paralleling Field Coils</h3>
+  <p>The series field winding is wound in multiple sections (coils). By switching between series and parallel arrangements of these coil sections, the effective number of MMF-producing turns per ampere changes, altering the flux. When coils are in series (all 4 in series, each with \( N_{se} \)/4 turns carrying \( I_a \)), flux = \( \phi \) ∝ \( N_{se} \)·\( I_a \). When switched to parallel (2 series + 2 series, each group in parallel), each branch carries \( I_a \)/2 with doubled turns — the net MMF changes, providing different speed steps.<sup class="cite">[2]</sup></p>
+
+  <div class="callout c-tip">
+    <div class="ci">💡</div>
+    <div class="cb">
+      <div class="ct">Paralleling Field Coils — Concept</div>
+      <p>All coils in series: \(\phi\) ∝ \( N_{se} \)·\( I_a \) (maximum flux → minimum speed). When coils are switched to parallel groups, the effective MMF per unit current changes — this reduces flux and raises speed. The field winding is arranged so coils can be externally switched between series and parallel combinations. A diverter may be added to get speeds between the discrete steps.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S8: ARCC + MULTIPLE VOLTAGE SERIES ═══ -->
+<div class="section" id="s8">
+  <div class="sec-hdr"><span class="sec-num">2.8</span><h2 class="sec-t">Series Motor — Armature Resistance &amp; Multiple Voltage</h2></div>
+
+  <h3 class="sub">⑤ Armature Resistance Control (Series Motor)</h3>
+  <p>Similar to the shunt motor case — an external resistance (\( R_{ext} \)) is inserted in series with the armature circuit. The back-EMF drops, reducing speed below rated. However, this method involves large power dissipation in \( R_{ext} \) (\( I_a \)² × \( R_{ext} \)) and requires an additional multiple voltage source. As a result, it is rarely used in practice and is considered highly inefficient.<sup class="cite">[1]</sup></p>
+
+  <div class="fblock"><div class="flbl">Series Motor — Armature Resistance Control</div>
+<span class="fv">Circuit:</span>   Supply → \( R_{se} \) (field) → \( R_{ext} \) (external) → \( R_a \) → \( E_b \) → return
+
+<span class="fv">Effect:</span>    \( E_b = V - I_a(R_{se} + R_{ext} + R_a) \)   ↓  \( E_b \) → ↓ \( N \)
+
+<span class="fv">Problem:</span>  High copper loss (\( I_a \) is large in series motor)
+          Requires multiple voltage source
+          Therefore: <span class="feq">rarely used</span> — large \( I^2 R \) dissipation</div>
+
+  <h3 class="sub">⑥ Multiple Voltage Control (Series Motor)</h3>
+  <p>By changing the supply voltage from a set of multiple DC sources, speed can be controlled in discrete steps. This method avoids the resistance losses of ARCC but requires a multiple-voltage DC supply infrastructure, which is expensive. It is most practically implemented as <strong>traction motors in series and parallel</strong> — used extensively in electric railway locomotives and trams.<sup class="cite">[3]</sup></p>
+
+  <div class="svg-wrap">
+    <svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
+      <text x="340" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" fill="#3d2010" font-weight="700">Traction Motors — Series and Parallel Combinations</text>
+      <!-- Series combination (left panel) -->
+      <rect x="20" y="35" width="295" height="165" rx="10" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+      <text x="167" y="55" text-anchor="middle" font-family="Playfair Display,serif" font-size="12" fill="#c95f1a" font-weight="700">Two Motors in SERIES</text>
+      <!-- Supply V -->
+      <text x="30" y="75" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a">V →</text>
+      <!-- Motor 1 circle -->
+      <circle cx="100" cy="130" r="28" fill="#f8ede0" stroke="#c95f1a" stroke-width="2"/>
+      <text x="100" y="128" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" fill="#c95f1a" font-weight="700">M₁</text>
+      <text x="100" y="147.7" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">V/2</text>
+      <!-- Motor 2 circle -->
+      <circle cx="220" cy="130" r="28" fill="#f8ede0" stroke="#c95f1a" stroke-width="2"/>
+      <text x="220" y="128" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" fill="#c95f1a" font-weight="700">M₂</text>
+      <text x="220" y="147.7" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">V/2</text>
+      <!-- Series connection -->
+      <line x1="30" y1="130" x2="72" y2="130" stroke="#c95f1a" stroke-width="2"/>
+      <line x1="128" y1="130" x2="192" y2="130" stroke="#c95f1a" stroke-width="2"/>
+      <line x1="248" y1="130" x2="295" y2="130" stroke="#1e6b68" stroke-width="2"/>
+      <!-- Labels -->
+      <text x="155" y="178.3" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a">Each motor gets V/2</text>
+      <text x="155" y="190" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a">→ Lower speed (starting)</text>
+
+      <!-- Parallel combination (right panel) -->
+      <rect x="360" y="35" width="295" height="165" rx="10" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5"/>
+      <text x="507" y="55" text-anchor="middle" font-family="Playfair Display,serif" font-size="12" fill="#2d6648" font-weight="700">Two Motors in PARALLEL</text>
+      <!-- Supply V -->
+      <text x="370" y="75" font-family="JetBrains Mono,monospace" font-size="11" fill="#2d6648">V →</text>
+      <!-- Motor 1 circle -->
+      <circle cx="460" cy="130" r="28" fill="#dff0e8" stroke="#2d6648" stroke-width="2"/>
+      <text x="460" y="128" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" fill="#2d6648" font-weight="700">M₁</text>
+      <text x="460" y="144" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">I/2</text>
+      <!-- Motor 2 circle -->
+      <circle cx="580" cy="130" r="28" fill="#dff0e8" stroke="#2d6648" stroke-width="2"/>
+      <text x="580" y="128" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" fill="#2d6648" font-weight="700">M₂</text>
+      <text x="580" y="144" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">I/2</text>
+      <!-- Parallel connection (common rails) -->
+      <line x1="370" y1="110" x2="640" y2="110" stroke="#2d6648" stroke-width="1.5"/>
+      <line x1="370" y1="152" x2="640" y2="152" stroke="#1e6b68" stroke-width="1.5"/>
+      <line x1="460" y1="110" x2="460" y2="102" stroke="#2d6648" stroke-width="1.5"/>
+      <line x1="460" y1="152" x2="460" y2="158" stroke="#1e6b68" stroke-width="1.5"/>
+      <line x1="580" y1="110" x2="580" y2="102" stroke="#2d6648" stroke-width="1.5"/>
+      <line x1="580" y1="152" x2="580" y2="158" stroke="#1e6b68" stroke-width="1.5"/>
+      <!-- Labels -->
+      <text x="505" y="175" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648">Each motor gets full V</text>
+      <text x="505" y="190" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648">→ Higher speed (running)</text>
+    </svg>
+    <div class="svg-cap">Fig 2.8 — Traction motor speed control: Series connection → each motor gets V/2 → lower speed (for starting, acceleration). Parallel connection → each motor gets full V → higher running speed. This is how electric trams and older train locomotives controlled speed.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §7.8, p.362; Chapman [1], §8.5</div>
+  </div>
+</div>
+
+<!-- ═══ S9: COMPARISON TABLE ═══ -->
+<div class="section" id="s9">
+  <div class="sec-hdr"><span class="sec-num">2.9</span><h2 class="sec-t">Comprehensive Comparison — All Speed Control Methods</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Motor Type</th>
+          <th>Speed Range</th>
+          <th>Torque</th>
+          <th>Power</th>
+          <th>Efficiency</th>
+          <th>Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Field Weakening (FLOSC)</td>
+          <td>Shunt</td>
+          <td class="t-org">Above rated</td>
+          <td>Variable ↓</td>
+          <td class="t-grn">Constant</td>
+          <td class="t-grn">High</td>
+          <td>4-pt starter needed; interpoles required</td>
+        </tr>
+        <tr>
+          <td>Arm. Resistance (ARCC)</td>
+          <td>Shunt</td>
+          <td class="t-red">Below rated</td>
+          <td class="t-grn">Constant</td>
+          <td>Variable ↓</td>
+          <td class="t-red">Low</td>
+          <td>Large I²R loss; cooling needed</td>
+        </tr>
+        <tr>
+          <td>Voltage Control</td>
+          <td>Shunt</td>
+          <td class="t-grn">Both above &amp; below</td>
+          <td class="t-grn">Constant</td>
+          <td>Variable</td>
+          <td class="t-grn">High</td>
+          <td>Needs separately excited motor</td>
+        </tr>
+        <tr>
+          <td>Ward–Leonard</td>
+          <td>Shunt</td>
+          <td class="t-grn">Both directions</td>
+          <td class="t-grn">Constant</td>
+          <td>Variable</td>
+          <td class="t-org">Medium</td>
+          <td>3 machines; expensive; large drive use</td>
+        </tr>
+        <tr>
+          <td>Field Diverter</td>
+          <td>Series</td>
+          <td class="t-org">Above rated</td>
+          <td>Variable ↓</td>
+          <td>Variable</td>
+          <td class="t-grn">Good</td>
+          <td>\( R_d \) never zero (speed runaway risk)</td>
+        </tr>
+        <tr>
+          <td>Armature Diverter</td>
+          <td>Series</td>
+          <td class="t-red">Below rated</td>
+          <td>Variable</td>
+          <td>Variable</td>
+          <td class="t-org">Medium</td>
+          <td>Complex torque interaction</td>
+        </tr>
+        <tr>
+          <td>Tapped Field</td>
+          <td>Series</td>
+          <td>Discrete steps</td>
+          <td>Variable</td>
+          <td>Variable</td>
+          <td class="t-grn">Good</td>
+          <td>Only step changes; diverter for intermediate</td>
+        </tr>
+        <tr>
+          <td>Paralleling Field Coils</td>
+          <td>Series</td>
+          <td>Discrete steps</td>
+          <td>Variable</td>
+          <td>Variable</td>
+          <td class="t-grn">Good</td>
+          <td>Series/parallel switching of coil sections</td>
+        </tr>
+        <tr>
+          <td>Arm. Resistance (Series)</td>
+          <td>Series</td>
+          <td class="t-red">Below rated</td>
+          <td>Variable</td>
+          <td>Variable</td>
+          <td class="t-red">Poor</td>
+          <td>Rarely used; high copper loss (large \( I_a \))</td>
+        </tr>
+        <tr>
+          <td>Multiple Voltage / Traction</td>
+          <td>Series</td>
+          <td>Discrete steps</td>
+          <td>Variable</td>
+          <td>Variable</td>
+          <td class="t-grn">Good</td>
+          <td>Series/parallel motor combination; trams/trains</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="svg-wrap svg-simple">
+    <svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
+      <text x="340" y="22" text-anchor="middle" font-family="Playfair Display,serif" font-size="14" fill="#3d2010" font-weight="700">Speed-Torque &amp; Speed-Power Characteristics Summary</text>
+      <!-- Axes -->
+      <line x1="55" y1="200" x2="650" y2="200" stroke="#3d2010" stroke-width="1.5"/>
+      <line x1="65" y1="40" x2="65" y2="208" stroke="#3d2010" stroke-width="1.5"/>
+      <polygon points="646,197 653,200 646,203" fill="#3d2010"/>
+      <polygon points="62,43 65,35 68,43" fill="#3d2010"/>
+      <text x="656" y="204" font-family="Lora,serif" font-size="11" fill="#3d2010">Speed →</text>
+      <text x="70" y="38" font-family="Lora,serif" font-size="11" fill="#3d2010">T, P ↑</text>
+      <!-- Rated speed line -->
+      <line x1="280" y1="40" x2="280" y2="200" stroke="#ddc8b0" stroke-width="1.2" stroke-dasharray="5 3"/>
+      <text x="278" y="212" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">N_rated</text>
+      <!-- Region labels -->
+      <text x="172" y="58" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648" font-weight="600">ARCC Region</text>
+      <text x="172" y="72" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#2d6648">(Below rated)</text>
+      <rect x="67" y="60" width="208" height="30" rx="5" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1"/>
+      <text x="465" y="58" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a" font-weight="600">FLOSC Region</text>
+      <text x="465" y="72" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">(Above rated)</text>
+      <rect x="284" y="60" width="360" height="30" rx="5" fill="#fdebd8" stroke="#f0b48a" stroke-width="1"/>
+      <!-- Torque curve (falls with speed — ARCC const, FLOSC drops) -->
+      <path d="M67,90 L280,90 Q380,130 500,175 Q580,200 645,198" fill="none" stroke="#c95f1a" stroke-width="2.5"/>
+      <text x="540" y="192" font-family="Lora,serif" font-size="11" fill="#c95f1a" font-weight="600">Torque</text>
+      <!-- Power curve (rises to peak at rated, then roughly constant in FLOSC) -->
+      <path d="M67,200 Q160,130 280,100 L640,100" fill="none" stroke="#2d6648" stroke-width="2.5" stroke-dasharray="7 3"/>
+      <text x="450" y="94" font-family="Lora,serif" font-size="11" fill="#2d6648" font-weight="600">Power (approx. constant in FLOSC)</text>
+      <!-- Zero speed label -->
+      <text x="67" y="212" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">0 (Rh)</text>
+      <!-- Full operating range label -->
+      <rect x="67" y="165" width="208" height="18" rx="4" fill="#fef0d0" stroke="#f0c060" stroke-width="1"/>
+      <text x="171" y="178" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#a05c00" font-weight="600">Constant torque, Variable power</text>
+    </svg>
+    <div class="svg-cap">Fig 2.9 — Complete speed-torque-power characteristic. Left of N_rated: ARCC / Voltage control zone (constant torque, variable power). Right of N_rated: FLOSC / Field weakening zone (variable torque, constant power). This is the standard industrial drive characteristic.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], Fig 7.31, p.357; Chapman [1], §8.4</div>
+  </div>
+</div>
+
+<!-- ═══ S10: GATE & IES CONCEPTS ═══ -->
+<div class="section" id="s10">
+  <div class="sec-hdr"><span class="sec-num">2.10</span><h2 class="sec-t">GATE &amp; IES Previous Year Concepts</h2></div>
+
+  <!-- Worked Example -->
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EXAMPLE 2.1</span>
+      <span class="ex-title">Shunt Motor Voltage Halved — What Happens to Speed?</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">A shunt motor is running at rated speed 1000 rpm with rated voltage V. If the voltage becomes half (V/2), what will be the new speed? Choose: (1) 1000 rpm  (2) 500 rpm  (3) 250 rpm  (4) 2000 rpm</div>
+      <div class="sol-lbl">Solution — Step by Step</div>
+      <p>The speed ratio formula is: N₂/N₁ = (Eb₂/Eb₁) × (\( \phi \)₁/\( \phi \)₂)</p>
+      <p><strong>Key analysis:</strong> When V becomes V/2, the shunt field winding (\( R_{sh} \)) is also connected across the supply. So the field current \( I_{sh} \) = V/\( R_{sh} \) also halves → \( \phi \)₂ = \( \phi \)₁/2.</p>
+      <p><strong>Also:</strong> Since \( I_a \)\( R_a \) is small compared to V, we can approximate Eb ≈ V. Therefore Eb₂ ≈ V/2 = Eb₁/2.</p>
+      <div class="fblock"><div class="flbl">Calculation</div>
+<span class="fv">N₂/N₁ = (Eb₂/Eb₁) × (ϕ₁/ϕ₂)</span>
+       = (V/2 / V) × (ϕ₁ / ϕ₁/2)
+       = (1/2) × (2)
+       = <span class="feq">1</span>
+
+Therefore: <span class="feq">N₂ = N₁ = 1000 RPM</span>  ✓   Answer: Option (1)
+
+<span class="fh">Note:</span> If flux were constant (field separately excited), then:
+  N₂ = N₁ × (Eb₂/Eb₁) = 1000 × (1/2) = <span class="feq">500 RPM</span>  → Case ②</div>
+      <div class="callout c-tip">
+        <div class="ci">💡</div>
+        <div class="cb">
+          <div class="ct">Key Distinction — GATE Frequently Asks</div>
+          <p>For a <strong>self-excited shunt motor</strong>: halving voltage halves both Eb AND \( \phi \) → speed stays same. For a <strong>separately excited shunt motor</strong> (or if only armature voltage is halved, field kept rated): halving voltage halves Eb, \( \phi \) constant → speed halves to 500 rpm. Always check whether the motor is self-excited or separately excited!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GATE PYQ 1 -->
+  <div class="pyq-card">
+    <div class="pyq-hdr">
+      <span class="pyq-tag pyq-gate">GATE EE</span>
+      <span class="pyq-title">Speed Control of DC Shunt Motor — Method Classification</span>
+      <span class="pyq-year">GATE 2016</span>
+    </div>
+    <div class="pyq-body">
+      <p>In a DC shunt motor, the speed above rated value can be obtained by:</p>
+      <ul class="pyq-opts">
+        <li>(A) Increasing armature resistance</li>
+        <li class="correct">(B) Decreasing field current (field weakening)</li>
+        <li>(C) Increasing supply voltage beyond rated</li>
+        <li>(D) Decreasing armature voltage</li>
+      </ul>
+      <p><strong>Explanation:</strong> Field weakening (decreasing field current by increasing field resistance) reduces \( \phi \). Since N ∝ Eb/\( \phi \) and Eb ≈ V (approximately constant), speed increases above rated. This is the <em>only</em> standard method to achieve speeds above rated in a shunt motor without exceeding rated voltage. Armature resistance control (A) gives speeds <em>below</em> rated. (C) would exceed insulation rating. (D) reduces speed.</p>
+    </div>
+  </div>
+
+  <!-- GATE PYQ 2 -->
+  <div class="pyq-card">
+    <div class="pyq-hdr">
+      <span class="pyq-tag pyq-gate">GATE EE</span>
+      <span class="pyq-title">Ward–Leonard Method — Characteristic Feature</span>
+      <span class="pyq-year">GATE 2019</span>
+    </div>
+    <div class="pyq-body">
+      <p>The Ward–Leonard method of speed control of DC motors is preferred over the resistance control method because:</p>
+      <ul class="pyq-opts">
+        <li>(A) It uses less number of machines</li>
+        <li>(B) It requires less capital cost</li>
+        <li class="correct">(C) It gives smooth stepless speed control with high efficiency in both directions</li>
+        <li>(D) It does not require a separately excited generator</li>
+      </ul>
+      <p><strong>Explanation:</strong> The Ward–Leonard system uses a variable-output generator to supply variable voltage to the motor armature. Since no external resistance is added in the armature circuit, there is no I²R loss — the system is highly efficient. Speed can be controlled smoothly (stepless) from zero to rated, in both forward and reverse directions, by varying the generator excitation using the cross-over switch. The disadvantage is cost (3 machines required).</p>
+    </div>
+  </div>
+
+  <!-- IES PYQ -->
+  <div class="pyq-card ies-card">
+    <div class="pyq-hdr ies-hdr">
+      <span class="pyq-tag pyq-ies">IES E&T</span>
+      <span class="pyq-title pyq-title-ies">Series Motor — Field Diverter vs Armature Diverter</span>
+      <span class="pyq-year">IES 2018</span>
+    </div>
+    <div class="pyq-body">
+      <p>In a DC series motor, connecting a resistance in parallel with the field winding (field diverter) compared to a resistance in parallel with the armature (armature diverter):</p>
+      <ul class="pyq-opts">
+        <li>(A) Both give the same speed change direction</li>
+        <li class="correct">(B) Field diverter increases speed; armature diverter decreases speed</li>
+        <li>(C) Field diverter decreases speed; armature diverter increases speed</li>
+        <li>(D) Both always decrease the speed</li>
+      </ul>
+      <p><strong>Explanation:</strong> Field diverter bypasses the field winding → \( I_{se} \) ↓ → \( \phi \) ↓ → N ↑ (speed increases above rated). Armature diverter bypasses the armature → \( I_a \) ↓ → to maintain torque, motor draws more current through field → \( \phi \) ↑ → N ↓ (speed decreases below rated). The two methods thus produce opposite effects on speed.</p>
+    </div>
+  </div>
+
+  <!-- GATE PYQ 3 -->
+  <div class="pyq-card">
+    <div class="pyq-hdr">
+      <span class="pyq-tag pyq-gate">GATE EE</span>
+      <span class="pyq-title">Constant Power vs Constant Torque Region</span>
+      <span class="pyq-year">GATE 2022</span>
+    </div>
+    <div class="pyq-body">
+      <p>For a DC shunt motor operating above rated speed (field weakening region), the operation is best characterised as:</p>
+      <ul class="pyq-opts">
+        <li>(A) Constant torque, variable power</li>
+        <li class="correct">(B) Variable torque, constant power</li>
+        <li>(C) Constant torque, constant power</li>
+        <li>(D) Variable torque, variable power</li>
+      </ul>
+      <p><strong>Explanation:</strong> In the field weakening region (above rated speed), the armature current is limited to rated value (\( I_a \) = \( I_a \)_rated) to protect the windings. Since \( \phi \) decreases as speed increases, and T = k\( \phi \)\( I_a \), torque decreases proportionally with flux. Power P = T × ω ≈ \( E_b \) × \( I_a \) ≈ V × \( I_a \)_rated = constant (since V and \( I_a \) are both rated). Therefore the field weakening zone is a <strong>constant power, variable torque</strong> operation — same as a constant-power drive in modern industrial terminology.</p>
+    </div>
+  </div>
+
+  <!-- GATE PYQ 4 -->
+  <div class="gate-card">
+    <div class="gate-hdr">
+      <span class="gate-tag">CONCEPT</span>
+      <span class="gate-title">Why Field Resistance Must Be at Minimum During Starting</span>
+    </div>
+    <div class="gate-body">
+      <p>During starting, the back-EMF \( E_b \) = 0. The armature current is limited by the starter resistance. For proper starting torque and to ensure the hold-in coil of the 3-point starter remains energised, the field current should be <strong>maximum</strong> at start. Maximum field current requires <strong>minimum field resistance</strong> (\( R_{ext} \) = 0 in field circuit). If field resistance is high at start: (i) starting torque is low (T = k\( \phi \)\( I_a \), \( \phi \) small), (ii) in a 3-point starter, the hold-in coil may release the starter arm prematurely, causing the full supply voltage to appear across the armature — potentially damaging the machine.</p>
+      <p>Similarly, the armature rheostat (for ARCC) must be at <strong>maximum resistance</strong> position during starting to limit starting current. These two starting conditions (field \( R_{ext} \) = min; armature \( R_{ext} \) = max) are opposite and are a <strong>very frequent GATE question</strong>.</p>
+    </div>
+  </div>
+
+  <!-- Worked Example 2 -->
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EXAMPLE 2.2</span>
+      <span class="ex-title">Series Motor — Speed with Field Diverter</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">A DC series motor has a field winding resistance of 0.5 Ω and a field diverter of 1 Ω connected in parallel. If the rated line current is 20 A, find the field current and comment on speed change.</div>
+      <div class="sol-lbl">Solution</div>
+      <p>The parallel combination of Rse = 0.5 Ω and \( R_d \) = 1 Ω has an equivalent resistance of Req = (0.5 × 1)/(0.5 + 1) = 0.5/1.5 = 0.333 Ω.</p>
+      <p>Voltage across parallel combination = \( I_L \) × Req = 20 × 0.333 = 6.67 V.</p>
+      <p>Field current \( I_{se} \) = 6.67/0.5 = 13.3 A (instead of full 20 A without diverter).</p>
+      <div class="fblock"><div class="flbl">Analysis</div>
+Without diverter:  \( I_{se} \) = \( I_L \) = 20 A → rated flux \( \phi \)_rated
+With diverter:     \( I_{se} \) = 13.3 A → <span class="feq">\( \phi \) reduced to 13.3/20 = 66.5% of rated</span>
+
+Since N ∝ \( E_b \)/\( \phi \), and \( E_b \) ≈ constant:
+  <span class="feq">N ∝ 1/0.665 → speed increases by ~50% above rated</span>
+
+Conclusion: Field diverter significantly increases series motor speed.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASK CLAUDE WIDGET -->
+<div class="ai-prompt">
+  <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+  <p>Have a question on DC motor speed control, Ward–Leonard, field weakening, or series motor methods? Type below or pick a suggestion.</p>
+  <div class="ai-input-row">
+    <input class="ai-input" id="userQ" type="text" placeholder="e.g. Compare field weakening and armature resistance control for shunt motor...">
+    <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+  </div>
+  <div class="ai-suggest">
+    <span class="ai-chip" onclick="setQ('Explain why field weakening gives constant power operation and armature resistance gives constant torque operation with derivation')">Constant power vs constant torque</span>
+    <span class="ai-chip" onclick="setQ('A DC shunt motor running at 1000 rpm has armature resistance 0.5 Ω and is supplied at 200 V. Find the speed when an external resistance of 2 Ω is inserted in the armature circuit. Armature current = 20 A.')">Numerical: ARCC speed change</span>
+    <span class="ai-chip" onclick="setQ('Why does a series motor need a field diverter and not a simple rheostat in the field circuit for speed control above rated?')">Series motor diverter — why?</span>
+    <span class="ai-chip" onclick="setQ('Explain the Ward–Leonard Ilgner method and how the flywheel improves efficiency. When is it preferred over the basic Ward–Leonard system?')">Ward–Leonard–Ilgner flywheel</span>
+    <span class="ai-chip" onclick="setQ('What is the difference between a 3-point starter and a 4-point starter? Why is a 4-point starter essential for field weakening speed control?')">3-point vs 4-point starter</span>
+  </div>
+  <div class="ai-response" id="aiResp"></div>
+</div>
+
+<!-- CHAPTER SUMMARY -->
+<h3 class="sub">Chapter Summary</h3>
+<div class="sum-grid">
+  <div class="sum-card sc-o"><div class="sum-lbl">Speed Equation</div><p>N ∝ \( E_b \)/\( \phi \) ∝ (V−\( I_a \)\( R_a \))/\( \phi \). Three handles: vary \( \phi \) (field), \( R_a \) (external resistance), or V (supply voltage). Each gives a different speed range and torque-power characteristic.</p></div>
+  <div class="sum-card sc-g"><div class="sum-lbl">Field Weakening (FLOSC)</div><p>Shunt motor: \( R_{ext} \) in field circuit → \( I_{sh} \)↓ → \( \phi \)↓ → N↑. Speeds above rated only. Constant power, variable torque. 4-point starter needed. Most efficient shunt speed control.</p></div>
+  <div class="sum-card sc-t"><div class="sum-lbl">Arm. Resistance (ARCC)</div><p>\( R_{ext} \) in armature circuit → Eb↓ → N↓. Below rated only. Constant torque, variable power. Inefficient (large I²R loss). Cooling required. Simple but wasteful.</p></div>
+  <div class="sum-card sc-a"><div class="sum-lbl">Ward–Leonard</div><p>Variable DC generator drives motor. No armature \( R_{ext} \) losses — efficient. Smooth bidirectional speed control. 3 machines required — expensive. Used for large drives (rolling mills, cranes).</p></div>
+  <div class="sum-card sc-r"><div class="sum-lbl">Series — Field Diverter</div><p>\( R_d \) ∥ field winding. \( I_{se} \)↓ → \( \phi \)↓ → N↑ (above rated). \( R_d \) never zero (runaway). Series — Armature Diverter: \( R_d \) ∥ armature. \(I_a\)↓ → motor draws more \( I_L \) → \( \phi \)↑ → N↓ (below rated).</p></div>
+  <div class="sum-card sc-g"><div class="sum-lbl">Series — Other Methods</div><p>Tapped field: change \( N_{se} \) → discrete steps. Paralleling coils: switch series/parallel coil sections. Traction motors: series/parallel switching for different voltage steps.</p></div>
+</div>
+
+<div class="callout c-tip" style="margin-top:22px">
+  <div class="ci">➡️</div>
+  <div class="cb"><div class="ct">Coming Next — Chapter 3</div><p>DC Motor Braking — plugging, rheostatic braking, regenerative braking; Three-Phase Induction Motors — construction, rotating magnetic field, slip, equivalent circuit, torque-slip characteristics, and complete GATE &amp; IES exam concepts.</p></div>
+</div>
+
+</div><!-- end .page main content -->
+
+<!-- CITATIONS -->
+<div class="citations" id="citations">
+  <div class="cite-h">References &amp; Citations</div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from the following standard textbooks. No content is reproduced verbatim — all explanations, examples, numerical values, and diagrams are original to Aarova AI.</p>
+  <ul class="cite-list">
+    <li><span class="cite-num">[1]</span><span>Chapman, Stephen J. <em>Electric Machinery Fundamentals</em>, 5th ed. McGraw-Hill, 2012. Chapter 8, §8.4–8.5: DC motor speed control, field weakening, armature resistance control, shunt and series motor methods.</span></li>
+    <li><span class="cite-num">[2]</span><span>Kothari, D.P. and Nagrath, I.J. <em>Electric Machines</em>, 4th ed. Tata McGraw-Hill, 2010. Chapter 7, §7.7–7.8: Speed control of DC shunt motor, series motor speed control, Ward–Leonard method, rheostatic control, comparison of methods.</span></li>
+    <li><span class="cite-num">[3]</span><span>Fitzgerald, A.E., Kingsley, C. and Umans, S.D. <em>Electric Machinery</em>, 6th ed. McGraw-Hill, 2003. Chapter 7, §7.6: DC machine speed and torque control, Ward–Leonard system, separately excited motors.</span></li>
+    <li><span class="cite-num">[4]</span><span>IIT Kharagpur NPTEL. <em>Basic Electrical Technology — Lectures 35–40: DC Motor Speed Control</em>. National Programme on Technology Enhanced Learning. Available at: nptel.ac.in. Covers all six series motor methods, shunt motor field weakening, Ward–Leonard, starting conditions.</span></li>
+  </ul>
+</div>
+
+</div>
+
+<hr>
+<footer>
+  <strong>Aarova AI</strong> &nbsp;·&nbsp; Electrical Machines Series &nbsp;·&nbsp; Chapter 2 of 8<br>
+  <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+  <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">Content derived from standard textbooks [1–4]. All explanations and diagrams are original to Aarova AI.</span>
+</footer>
+
+<script>
+function setQ(t){document.getElementById('userQ').value=t;document.getElementById('userQ').focus();}
+async function askClaude(){
+  const q=document.getElementById('userQ').value.trim();if(!q)return;
+  const btn=document.querySelector('.ai-btn');const resp=document.getElementById('aiResp');
+  btn.textContent='Thinking…';btn.disabled=true;
+  resp.style.display='block';resp.textContent='Generating answer…';
+  const sys=`You are Aarova AI, an expert GATE EE and IES tutor. Topic: Speed Control of DC Motors (Chapter 2). Answer clearly with step-by-step working for numericals. Base answers on Chapman, Kothari & Nagrath, and Fitzgerald. All content original. Be concise but thorough.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:q}]})});
+    const data=await res.json();
+    resp.textContent=data.content?.map(c=>c.text||'').join('\n')||'No response.';
+  }catch(e){resp.textContent='Could not connect. Please try again.';}
+  btn.textContent='Ask Claude';btn.disabled=false;
+}
+document.getElementById('userQ').addEventListener('keydown',e=>{if(e.key==='Enter')askClaude();});
+
+/* Responsive SVG scroll hints on mobile */
+(function(){
+  if(window.innerWidth>600)return;
+  document.querySelectorAll('.svg-wrap').forEach(function(wrap){
+    const hint=document.createElement('div');
+    hint.style.cssText='font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+    hint.textContent='← scroll to see full diagram →';
+    wrap.appendChild(hint);
+    wrap.addEventListener('touchstart',function(){hint.style.display='none';},{once:true,passive:true});
+  });
+})();
+</script>
+</body>
+</html>

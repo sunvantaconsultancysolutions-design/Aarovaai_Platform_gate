@@ -1,0 +1,2371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Power Electronics Ch.4 DC–AC Converters (Inverters)</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 50%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-family: 'JetBrains Mono', monospace;
+            margin-left: 2px;
+            vertical-align: super;
+        }
+
+        /* CALLOUT */
+        .callout {
+            display: flex;
+            gap: 14px;
+            border-radius: var(--radius);
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+            margin: 16px 0;
+        }
+
+        .ci {
+            font-size: 20px;
+            flex-shrink: 0;
+            line-height: 1.4;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* MATH BLOCK */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* SVG DIAGRAMS */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* GATE / PYQ */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* TWO COLUMN */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* SUMMARY GRID */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* PROBABILITY */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ASK AI */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+        }
+
+        .ai-prompt-sub {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        .ai-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 180px;
+            padding: 10px 14px;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: 8px;
+            background: #fff;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+        }
+
+        .ai-btn {
+            padding: 10px 20px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+            white-space: nowrap;
+        }
+
+        .ai-btn:hover {
+            background: #155553;
+        }
+
+        .ai-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 8px;
+        }
+
+        .ai-chip {
+            font-size: 12px;
+            color: var(--teal);
+            background: var(--teal-bg);
+            border: 1px solid var(--teal-bdr);
+            border-radius: 20px;
+            padding: 4px 11px;
+            cursor: pointer;
+            transition: background .15s, color .15s;
+            line-height: 1.4;
+        }
+
+        .ai-chip:hover {
+            background: var(--teal);
+            color: #fff;
+        }
+
+        .ai-response {
+            display: none;
+            margin-top: 14px;
+            padding: 14px;
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text2);
+            white-space: pre-wrap;
+            line-height: 1.7;
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+            padding-top: 28px;
+            border-top: 1.5px solid var(--border);
+            font-family: 'Lora', serif;
+            line-height: 2;
+        }
+
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 36px 0;
+        }
+
+        /* FORMULA BLOCK */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* CONCEPT BOX */
+        .concept-box {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: var(--card-px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+        }
+
+        .concept-box-hdr {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--orange);
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div>
+            <span class="logo">Aarova AI</span>
+            <span class="logo-sub">Power Electronics Series</span>
+        </div>
+        <div class="hbadges">
+            <span class="hbadge">GATE EE</span>
+            <span class="hbadge">IES E&amp;T</span>
+            <span class="hbadge">PSU</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 4 · Power Electronics</div>
+            <h1 class="hero-title">DC–AC Converters<br><em>Inverters</em></h1>
+            <p class="hero-desc">
+                Static power electronic circuits that convert a fixed DC input into a variable AC output — controlling
+                magnitude, frequency, and number of phases. Covered completely for GATE EE, IES E&amp;T, and PSU
+                examinations.
+            </p>
+            <div class="badge-row">
+                <span class="badge badge-p">🟢 High GATE Weight</span>
+                <span class="badge">Single-Phase Inverters</span>
+                <span class="badge">Three-Phase Inverters</span>
+                <span class="badge">PWM Techniques</span>
+                <span class="badge">VSI vs CSI</span>
+                <span class="badge">THD &amp; Harmonics</span>
+            </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-bar">
+            <span class="pl">Course Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Ch 4 / 8</span>
+        </div>
+
+        <!-- TOC -->
+        <div class="toc">
+            <div class="toc-h">Contents — Chapter 4</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">01</span>What is an Inverter?</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">02</span>Single-Phase Half Bridge</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">03</span>Single-Phase Full Bridge</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">04</span>Steady-State Analysis &amp; Fourier</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">05</span>Harmonic Distortion Metrics</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">06</span>Voltage Control Methods &amp; PWM</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">07</span>Three-Phase Bridge Inverter</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">08</span>Series &amp; Current Source Inverters</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">09</span>GATE &amp; IES Previous Questions</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">10</span>Quick Revision Sheet</a>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════
+       SECTION 1 — WHAT IS AN INVERTER?
+  ═══════════════════════════════════ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">01</span>
+                <h2 class="sec-t">What is an Inverter? — Big Picture</h2>
+            </div>
+
+            <p>
+                An <strong>inverter</strong> is a static power electronic circuit that accepts a DC input and delivers
+                an AC output whose <em>magnitude</em>, <em>frequency</em>, and <em>number of phases</em> can all be
+                varied under electronic control. <sup class="cite">[1]</sup> The word "static" distinguishes it from
+                rotating machinery — there are no moving parts.
+            </p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Intuitive Analogy</div>
+                    <p>Think of an inverter as a <strong>faucet on a DC pipe</strong>. The DC supply is like water
+                        pressure always pushing in one direction. The inverter's switches (SCRs, MOSFETs, IGBTs) act
+                        like paddle-valves that reverse the water direction rapidly — creating alternating flow. The
+                        rate of reversal sets the output frequency, and how wide the paddle opens sets the output
+                        voltage magnitude.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Why Do We Need Inverters?</h3>
+            <p>
+                The world's primary energy sources — batteries, photovoltaic cells, fuel cells, rectified DC from
+                rectifiers — deliver DC power. Yet the global grid and almost all industrial motors, heating systems,
+                and lighting operate on AC. Inverters are therefore the universal interface between DC energy storage or
+                generation and the AC world.
+            </p>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Applications</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Solar panel grid-tie systems (PV inverters)</li>
+                        <li><span class="dot">▸</span>Variable frequency drives (VFDs) for motors</li>
+                        <li><span class="dot">▸</span>UPS (uninterruptible power supplies)</li>
+                        <li><span class="dot">▸</span>Electric vehicle traction drives</li>
+                        <li><span class="dot">▸</span>HVDC back-to-back stations</li>
+                        <li><span class="dot">▸</span>Induction heating systems</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Key Controlled Parameters</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><span>Output voltage magnitude \(V_o\)</span></li>
+                        <li><span class="dot">▸</span><span>Output frequency \(f = 1/T\)</span></li>
+                        <li><span class="dot">▸</span><span>Number of output phases (1-φ or 3-φ)</span></li>
+                        <li><span class="dot">▸</span><span>Harmonic content (waveform quality)</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub">Classification of Inverters</h3>
+
+            <div class="callout c-key">
+                <div class="ci">📋</div>
+                <div class="cb">
+                    <div class="ct">GATE Insight — Classification is frequently tested</div>
+                    <p>Know the two primary classification axes: <strong>source type</strong> (VSI vs CSI) and
+                        <strong>commutation method</strong> (line commutated vs forced commutated). GATE often presents
+                        a pair of statements and asks which are correct.</p>
+                </div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Criterion</th>
+                            <th>Voltage Source Inverter (VSI)</th>
+                            <th>Current Source Inverter (CSI)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Input source</td>
+                            <td class="t-org">Stiff DC voltage (capacitor at input)</td>
+                            <td class="t-tel">Stiff DC current (large inductor at input)</td>
+                        </tr>
+                        <tr>
+                            <td>Output waveform</td>
+                            <td>Voltage is square/PWM; current depends on load</td>
+                            <td>Current is square; voltage depends on load</td>
+                        </tr>
+                        <tr>
+                            <td>Feedback diodes</td>
+                            <td class="t-org">Always required (for reactive loads)</td>
+                            <td class="t-tel">Not required; load is capacitive</td>
+                        </tr>
+                        <tr>
+                            <td>Preferred load</td>
+                            <td>Inductive loads (motors)</td>
+                            <td>Capacitive loads</td>
+                        </tr>
+                        <tr>
+                            <td>Short circuit</td>
+                            <td>Dangerous — source short-circuits</td>
+                            <td>Tolerated — current limited by inductor</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Mistake — IES 2011, GATE 2016</div>
+                    <p>Many students write "both VSI and CSI require feedback diodes." <strong>This is wrong.</strong>
+                        Only VSI requires feedback (freewheeling) diodes. CSI does not need them because the current
+                        source inductor itself prevents sudden current reversal. Anti-parallel diodes are needed in VSI
+                        for <em>all loads except purely resistive.</em></p>
+                </div>
+            </div>
+
+            <h3 class="sub">Line Commutated vs Forced Commutated Inverters</h3>
+            <p>
+                A <strong>line commutated inverter</strong> is essentially a phase-controlled rectifier operating with
+                firing angle \(\alpha > 90°\). It transfers energy from DC to an existing AC supply network. Here the AC
+                supply itself provides the commutating voltage, so the output frequency and phase are fixed by the
+                supply — they cannot be independently controlled. This topology is used in HVDC power reversal
+                applications.
+            </p>
+            <p>
+                A <strong>forced commutated inverter</strong> uses its own internal circuit (auxiliary capacitors,
+                inductors, or gate-turn-off devices like GTOs, IGBTs, MOSFETs) to turn off conducting thyristors. The
+                output frequency, voltage, and waveform shape are all freely controllable. This is the category used in
+                motor drives, UPS, and solar inverters.
+            </p>
+        </div>
+
+        <!-- ═══════════════════════════════════
+       SECTION 2 — SINGLE-PHASE HALF BRIDGE
+  ═══════════════════════════════════ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">02</span>
+                <h2 class="sec-t">Single-Phase Half Bridge Inverter <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>
+                The half bridge is the most elemental inverter topology. It uses two switches (SCRs or IGBTs) and two
+                equal voltage sources — typically realised by splitting the DC bus with two capacitors. Understanding it
+                is essential before studying the full bridge.
+            </p>
+
+            <!-- HALF BRIDGE CIRCUIT DIAGRAM -->
+            <div class="svg-wrap">
+                <img src="images/ch4/fig4.1.png" alt="Fig 2.1 — Single-Phase Half Bridge Inverter" style="max-width: 100%; height: auto; display: inline-block; border-radius: 8px;">
+                <p class="svg-cap">Two SCRs with anti-parallel freewheeling diodes, centre-tapped DC supply. Output
+                    voltage alternates between +Vs/2 and −Vs/2.</p>
+            </div>
+
+            <h3 class="sub">Operating Principle</h3>
+            <p>
+                The DC supply is split into two equal halves of \(V_s/2\) each using a capacitor voltage divider. During
+                the first half cycle \(0 \lt t \le T/2\), thyristor T₁ is triggered and conducts — the load sees
+                \(+V_s/2\). At \(t = T/2\), T₁ is commutated (force turned off) and T₂ is triggered — the load sees
+                \(-V_s/2\) for the second half cycle. The result is a <strong>square wave</strong> of amplitude
+                \(V_s/2\) and frequency \(f = 1/T\).<sup class="cite">[1,2]</sup>
+            </p>
+            <p>
+                The output frequency can be varied by changing the periodic time \(T\). Anti-parallel (freewheeling)
+                diodes D₁ and D₂ are required for all loads except purely resistive ones — they carry the reactive
+                component of load current when the thyristors are OFF.
+            </p>
+
+            <!-- OUTPUT WAVEFORM SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch4/fig4.2.png" alt="V₀ — Output Voltage Waveform (Half Bridge)" style="max-width: 100%; height: auto; display: inline-block; border-radius: 8px;">
+                <p class="svg-cap">Square wave output of the half bridge inverter. Amplitude = Vs/2, frequency = 1/T.
+                    The waveform is then filtered to reduce harmonics.</p>
+            </div>
+
+            <h3 class="sub">Key Performance Equation</h3>
+            <div class="math-block">
+                <div class="math-lbl">RMS Output Voltage — Half Bridge</div>
+                $$V_{or} = \frac{V_s}{2}$$
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Disadvantage — Source Utilisation Only 50%</div>
+                    <p>At any instant the load voltage is only half the available supply voltage. The <strong>source
+                            utilisation factor is 50%</strong>, which makes the half bridge inefficient. This is the
+                        primary reason the full bridge inverter is preferred in practice — it uses 100% of the supply
+                        voltage.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════
+       SECTION 3 — SINGLE-PHASE FULL BRIDGE
+  ═══════════════════════════════════ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">03</span>
+                <h2 class="sec-t">Single-Phase Full Bridge Inverter <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>
+                The full bridge (H-bridge) uses <strong>four switches</strong> (T₁–T₄) arranged in two legs, with four
+                anti-parallel freewheeling diodes (D₁–D₄). It delivers the full supply voltage \(V_s\) across the load,
+                giving 100% source utilisation.
+            </p>
+
+            <!-- FULL BRIDGE CIRCUIT DIAGRAM -->
+            <div class="svg-wrap">
+                <img src="images/ch4/fig4.3.png" alt="Fig 3.1 — Single-Phase Full Bridge (H-Bridge) Inverter" style="max-width: 100%; height: auto; display: inline-block; border-radius: 8px;">
+                <p class="svg-cap">Four thyristors with freewheeling diodes. Diagonal pairs (T₁,T₂) and (T₃,T₄) conduct
+                    alternately, delivering ±Vs across the load.</p>
+            </div>
+
+            <h3 class="sub">Operating Sequence</h3>
+            <p>
+                Thyristors are triggered in diagonal pairs to ensure current always flows through the load. The
+                triggering sequence is:
+            </p>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Interval</th>
+                            <th>Thyristors ON</th>
+                            <th>Load Voltage V₀</th>
+                            <th>Freewheeling Path (inductive load)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>\(0 \lt t \le T/2\)</td>
+                            <td class="t-grn">T₁, T₂</td>
+                            <td class="t-org">+Vs</td>
+                            <td>D₃, D₄ carry negative current at start</td>
+                        </tr>
+                        <tr>
+                            <td>\(T/2 \lt t \le T\)</td>
+                            <td class="t-grn">T₃, T₄</td>
+                            <td class="t-red">−Vs</td>
+                            <td>D₁, D₂ carry positive current at start</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>
+                <strong>Rule:</strong> If all four thyristors conduct simultaneously the DC source is short-circuited.
+                To prevent this, only one diagonal pair is triggered at any time.
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">RMS Output Voltage — Full Bridge</div>
+                $$V_{or} = V_s \qquad \text{(source utilisation 100\%)}$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Half Bridge vs Full Bridge — Comparison (GATE Favourite)</div>
+                    <p>For the same DC supply \(V_s\): Full bridge output voltage is <strong>twice</strong> the half
+                        bridge output, and output power is <strong>four times</strong> greater. The full bridge is
+                        always preferred in high-power applications.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════
+       SECTION 4 — FOURIER ANALYSIS
+  ═══════════════════════════════════ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">04</span>
+                <h2 class="sec-t">Steady-State Analysis &amp; Fourier Series <span class="prob prob-h">🟢 HIGH</span>
+                </h2>
+            </div>
+
+            <p>
+                An ideal inverter would produce a perfect sinusoid. In practice, square wave inverters produce a rich
+                harmonic spectrum. Fourier analysis decomposes the output into its fundamental and harmonic components —
+                this is the mathematical foundation for understanding THD, filter design, and motor heating.
+            </p>
+
+            <h3 class="sub">Fourier Series of Square Wave Output</h3>
+            <p>
+                A square wave with half-cycle symmetry contains only <strong>odd harmonics</strong> (n = 1, 3, 5, 7, …).
+                Even harmonics are absent.
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">1-φ Half Bridge — Output Voltage Fourier Series</div>
+                $$V_0 = \sum_{n=1,3,5\ldots}^{\infty} \frac{2V_s}{n\pi} \sin(n\omega t)$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">1-φ Full Bridge — Output Voltage Fourier Series</div>
+                $$V_0 = \sum_{n=1,3,5\ldots}^{\infty} \frac{4V_s}{n\pi} \sin(n\omega t)$$
+            </div>
+
+            <p>
+                The coefficient doubles from half bridge to full bridge because the output amplitude doubles from
+                \(V_s/2\) to \(V_s\).
+            </p>
+
+            <h3 class="sub">Load Current Fourier Series</h3>
+            <p>
+                For a general RLC series load, each harmonic sees a different impedance \(Z_n\). The nth harmonic
+                current component is:
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">Load Current — nth Harmonic Component</div>
+                $$i_0 = \sum_{n=1,3,5\ldots}^{\infty} \frac{4V_s}{n\pi Z_n} \sin(n\omega t - \phi_n)$$
+                $$Z_n = \sqrt{R^2 + \left(n\omega L - \frac{1}{n\omega C}\right)^2}$$
+                $$\phi_n = \tan^{-1}\!\left(\frac{n\omega L - \frac{1}{n\omega C}}{R}\right)$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Physical Insight — Why Harmonics Decrease with Order</div>
+                    <p>The amplitude of the nth harmonic voltage is proportional to \(1/n\). So the 3rd harmonic is 1/3
+                        of the fundamental, the 5th is 1/5, and so on. At the same time, the harmonic impedance
+                        increases with n (due to the inductive term \(n\omega L\)). Therefore, higher-order harmonic
+                        currents are doubly attenuated — both the voltage driving them and the current they produce
+                        decrease with increasing harmonic order. Inductance acts as a natural low-pass filter.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Purely Inductive Load — Special Case</h3>
+            <p>
+                When feeding a purely inductive load, the current waveform is <strong>triangular</strong> (integral of a
+                square wave). The key relationships are:
+            </p>
+            <div class="fblock">
+<span class="flbl">Inductive Load — Key Parameters</span>
+<span class="fv">Waveform shape</span> = Triangular
+<span class="fv">Peak current slope</span> I_p = <span class="feq">(Vs/L)(T/4)</span>
+<span class="fv">Peak-to-peak current</span> I_pp = 2·I_p
+<span class="fv">Conduction time</span> each device = T/4
+            </div>
+
+            <!-- WAVEFORM COMPARISON SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch4/fig4.4.png" alt="Fig 4.1 — Square voltage to triangular current for inductive load" style="max-width: 100%; height: auto; display: inline-block; border-radius: 8px;">
+                <p class="svg-cap">The integral of a square wave is a triangle wave. With a purely inductive load, the
+                    inverter output current is triangular while the voltage remains square.</p>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════
+       SECTION 5 — HARMONIC METRICS
+  ═══════════════════════════════════ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">05</span>
+                <h2 class="sec-t">Harmonic Distortion Metrics <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>
+                Three key metrics characterise the quality of an inverter's output waveform. Every GATE/IES aspirant
+                must be able to compute and interpret them.
+            </p>
+
+            <h3 class="sub">1. Harmonic Factor (HF) — nth Harmonic</h3>
+            <p>
+                The harmonic factor of the nth harmonic measures how large the nth harmonic component is relative to the
+                fundamental. Defined as the ratio of the rms value of the nth harmonic voltage to the rms value of the
+                fundamental component:
+            </p>
+            <div class="math-block">
+                <div class="math-lbl">Harmonic Factor</div>
+                $$(\text{HF})_n = \frac{V_n}{V_{01}}$$
+                <p style="font-size:13px;margin-top:8px;color:var(--text3);">where \(V_n\) = rms of nth harmonic,
+                    \(V_{01}\) = rms of fundamental.</p>
+            </div>
+
+            <h3 class="sub">2. Total Harmonic Distortion (THD)</h3>
+            <p>
+                THD is the most important single-number quality metric for an inverter. It is the ratio of the rms value
+                of all harmonic components combined to the rms value of the fundamental. A <strong>lower THD means a
+                    better (cleaner) waveform</strong>. <sup class="cite">[1,3]</sup>
+            </p>
+            <div class="math-block">
+                <div class="math-lbl">Total Harmonic Distortion</div>
+                $$\text{THD} = \frac{V_{oh}}{V_{01}} = \left[\left(\frac{V_{or}}{V_{01}}\right)^2 - 1\right]^{1/2}$$
+                $$V_{oh} = \sqrt{V_{or}^2 - V_{01}^2} \qquad \text{(rms of all harmonics)}$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">How to Use the THD Formula in GATE Problems</div>
+                    <p>You are given \(V_{or}\) (total rms output) and need THD. First find \(V_{01}\) (fundamental
+                        rms). For a square wave full bridge: \(V_{01} = \frac{4V_s}{\pi\sqrt{2}} =
+                        \frac{2\sqrt{2}V_s}{\pi}\). Then plug into the formula. For a half bridge, replace \(V_s\) with
+                        \(V_s/2\).</p>
+                </div>
+            </div>
+
+            <h3 class="sub">3. Distortion Factor (DF)</h3>
+            <p>
+                Distortion factor is the reciprocal perspective of THD — it tells what fraction of the total output is
+                the useful fundamental component. The distortion factor of individual harmonics is also defined:
+            </p>
+            <div class="math-block">
+                <div class="math-lbl">Distortion Factor</div>
+                $$\text{DF} = \frac{V_{01}}{V_{or}} \qquad (\text{overall})$$
+                $$(\text{DF})_n = \frac{V_n}{n^2 V_{01}} \qquad (\text{nth harmonic})$$
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Formula</th>
+                            <th>Ideal Value</th>
+                            <th>Physical Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Harmonic Factor HFₙ</td>
+                            <td>\(V_n / V_{01}\)</td>
+                            <td class="t-grn">0</td>
+                            <td>Relative size of nth harmonic</td>
+                        </tr>
+                        <tr>
+                            <td>THD</td>
+                            <td>\(V_{oh}/V_{01}\)</td>
+                            <td class="t-grn">0%</td>
+                            <td>Overall waveform distortion</td>
+                        </tr>
+                        <tr>
+                            <td>Distortion Factor</td>
+                            <td>\(V_{01}/V_{or}\)</td>
+                            <td class="t-grn">1.0</td>
+                            <td>Fraction of output that is fundamental</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════
+       SECTION 6 — VOLTAGE CONTROL & PWM
+  ═══════════════════════════════════ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">06</span>
+                <h2 class="sec-t">Voltage Control Methods &amp; PWM <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>
+                In practical drives and UPS, the output voltage magnitude must be adjustable. Three methods are used,
+                each with different complexity and harmonic performance.
+            </p>
+
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Method A — External AC Control</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>AC voltage controller at inverter output</li>
+                        <li><span class="dot">▸</span>Simple but adds extra stage</li>
+                        <li><span class="dot">▸</span>Variable magnitude, fixed frequency</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Method B — External DC Control</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Chopper (DC-DC converter) at input</li>
+                        <li><span class="dot">▸</span>Varying DC bus voltage varies AC output</li>
+                        <li><span class="dot">▸</span>Good dynamic response</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Method C — Internal PWM Control</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Pulse width modulation within the inverter</li>
+                        <li><span class="dot">▸</span>DC amplitude fixed; pulse width varies</li>
+                        <li><span class="dot">▸</span>Best harmonic control — industry standard</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub">Single Pulse Modulation</h3>
+            <p>
+                In single pulse modulation, one pulse of width \(2d\) appears per half cycle. The output pulse is
+                centred in each half cycle. This is the simplest PWM method.
+            </p>
+
+            <!-- SINGLE PULSE WAVEFORM SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch4/fig4.5.png" alt="Fig 6.1 — Single pulse PWM" style="max-width: 100%; height: auto; display: inline-block; border-radius: 8px;">
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Single Pulse Modulation — Key Equations</div>
+                $$V_{or} = V_s\sqrt{\frac{2d}{\pi}} \qquad \text{(RMS output voltage)}$$
+                $$V_{01} = \frac{4V_s}{\pi\sqrt{2}}\,\sin(d) \cdot \frac{1}{\sqrt{2}} = \frac{2\sqrt{2}V_s}{\pi}\sin(d)
+                \qquad \text{(Fundamental RMS)}$$
+                $$\text{To eliminate nth harmonic: } \sin(nd) = 0 \Rightarrow 2d = \frac{2\pi}{n}$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Harmonic Elimination — Very Important for GATE</div>
+                    <p>To eliminate the <strong>3rd harmonic</strong> using single pulse modulation, set \(2d = 2\pi/3 =
+                        120°\). To eliminate the <strong>5th harmonic</strong>, set \(2d = 2\pi/5 = 72°\). This is
+                        tested repeatedly in GATE and IES — memorise the formula \(2d = 2\pi/n\).</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Multiple Pulse Modulation</h3>
+            <p>
+                To reduce lower-order harmonics while maintaining reasonable output voltage, multiple equal-width pulses
+                per half cycle are used. If there are \(N\) pulses per half cycle:
+            </p>
+            <div class="math-block">
+                <div class="math-lbl">Multiple Pulse Modulation</div>
+                $$V_{or} = V_s\sqrt{\frac{2Nd}{\pi}} \qquad N = \frac{f_c}{2f_r} \qquad \text{(N = pulses per half
+                cycle)}$$
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Trade-off in Multiple Pulse Modulation</div>
+                    <p>As number of pulses per half cycle increases, lower-order harmonic amplitudes reduce BUT
+                        higher-order harmonics increase. More pulses also increase switching frequency, raising
+                        switching losses in the thyristors. The number of pulses is economically chosen to balance
+                        harmonic reduction against switching duty.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Sinusoidal PWM (SPWM) — Industry Standard</h3>
+            <p>
+                Sinusoidal PWM compares a <strong>high-frequency triangular carrier wave</strong> (frequency \(f_c\))
+                against a <strong>low-frequency sinusoidal reference wave</strong> (frequency \(f_r\)). Whenever the
+                reference exceeds the carrier, the upper switch of a leg conducts; otherwise the lower switch conducts.
+                This produces a train of pulses whose widths vary sinusoidally — the output contains primarily the
+                fundamental and harmonics around \(2N \pm 1\) order.
+            </p>
+
+            <!-- SPWM BLOCK DIAGRAM -->
+            <div class="svg-wrap">
+                <img src="images/ch4/fig4.6.png" alt="Fig 6.2 — Sinusoidal PWM control block diagram" style="max-width: 100%; height: auto; display: inline-block; border-radius: 8px;">
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">SPWM — Modulation Index</div>
+                $$M_a = \frac{V_r}{V_c} \qquad \text{(Amplitude Modulation Index, } 0 \le M_a \le 1)$$
+                $$N = \frac{f_c}{2f_r} \qquad \text{(Number of pulses per half cycle)}$$
+                <p style="font-size:13px;margin-top:6px;color:var(--text3);">When \(M_a \lt 1\), largest harmonic
+                    amplitudes appear at orders \(2N \pm 1\). Increasing \(N\) pushes harmonics to higher frequencies —
+                    easier to filter.</p>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════
+       SECTION 7 — THREE-PHASE BRIDGE INVERTER
+  ═══════════════════════════════════ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">07</span>
+                <h2 class="sec-t">Three-Phase Bridge Inverter <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>
+                The three-phase bridge inverter uses <strong>six thyristors</strong> (T₁–T₆) arranged in three legs,
+                each leg corresponding to one output phase (a, b, c). The two operating modes — 180° conduction and 120°
+                conduction — produce different waveform shapes and are tested heavily in GATE and IES.
+            </p>
+
+            <!-- 3-PHASE BRIDGE DIAGRAM -->
+            <div class="svg-wrap">
+                <img src="images/ch4/fig4.7.png" alt="Fig 7.1 — Three-Phase Bridge Inverter (6-pulse)" style="max-width: 100%; height: auto; display: inline-block; border-radius: 8px;">
+            </div>
+
+            <h3 class="sub">180° Conduction Mode</h3>
+            <p>
+                In 180° mode, each SCR conducts for exactly 180° (half a cycle). At any instant, <strong>three SCRs are
+                    simultaneously conducting</strong>. The triggering sequence is T₁→T₂→T₃→T₄→T₅→T₆ with 60° intervals
+                between successive triggers.
+            </p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>180° Mode</th>
+                            <th>120° Mode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SCR conduction duration</td>
+                            <td class="t-org">180°</td>
+                            <td class="t-tel">120°</td>
+                        </tr>
+                        <tr>
+                            <td>SCRs conducting simultaneously</td>
+                            <td class="t-org">3 at any time</td>
+                            <td class="t-tel">2 at any time</td>
+                        </tr>
+                        <tr>
+                            <td>Phase voltage shape</td>
+                            <td>Three-stepped waveform</td>
+                            <td>Quasi-square wave</td>
+                        </tr>
+                        <tr>
+                            <td>Line voltage shape</td>
+                            <td>Quasi-square wave</td>
+                            <td>Three-stepped waveform</td>
+                        </tr>
+                        <tr>
+                            <td>RMS Line Voltage</td>
+                            <td class="t-org">\(0.8165\,V_s\)</td>
+                            <td class="t-tel">\(0.7071\,V_s\)</td>
+                        </tr>
+                        <tr>
+                            <td>RMS Phase Voltage</td>
+                            <td>\(0.4714\,V_s\)</td>
+                            <td>\(0.4082\,V_s\)</td>
+                        </tr>
+                        <tr>
+                            <td>Short circuit risk</td>
+                            <td class="t-red">Source short if 180° overlap occurs</td>
+                            <td class="t-grn">Safer — no simultaneous commutation</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">180° Mode — RMS Voltages</div>
+                $$V_L = V_s\sqrt{\frac{2}{3}} = 0.8165\,V_s \qquad (\text{line voltage RMS})$$
+                $$V_{ph} = \frac{V_L}{\sqrt{3}} = \frac{0.8165\,V_s}{\sqrt{3}} = 0.4714\,V_s$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">120° Mode — RMS Voltages</div>
+                $$V_L = \sqrt{3}\,V_{ph} = \sqrt{3} \times 0.4082\,V_s = 0.7071\,V_s$$
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">ℹ️</div>
+                <div class="cb">
+                    <div class="ct">Why 180° Mode is Preferred</div>
+                    <p>In 180° mode, every SCR conducts for exactly half a cycle — each SCR is equally loaded. In 120°
+                        mode, there is a 60° dead band when one phase's SCR is neither connected to the positive nor
+                        negative bus. For an <strong>unbalanced load</strong>, the voltage during this floating interval
+                        is indeterminate. Hence 180° mode is more commonly used despite the theoretical short-circuit
+                        risk at the 180° commutation boundary.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Harmonic Content of 3-Phase Inverter</h3>
+            <p>
+                A key advantage of the 3-phase bridge is that all triple harmonics (3rd, 9th, 15th, …) are absent from
+                the line voltage. This is because:
+            </p>
+            <div class="math-block">
+                <div class="math-lbl">Triple Harmonic Cancellation — 180° Mode</div>
+                $$V_{ab} = V_{ao} - V_{bo} \implies \text{For } n=3: \cos\!\left(\frac{3\pi}{6}\right) =
+                \cos\!\left(\frac{\pi}{2}\right) = 0$$
+                <p style="font-size:13px;margin-top:6px;color:var(--text3);">All line voltages are free from 3n
+                    harmonics. The lowest-order harmonic present is the <strong>5th</strong>.</p>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════
+       SECTION 8 — SERIES & CSI
+  ═══════════════════════════════════ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr">
+                <span class="sec-num">08</span>
+                <h2 class="sec-t">Series Inverter &amp; Current Source Inverter <span class="prob prob-m">🟡
+                        MEDIUM</span></h2>
+            </div>
+
+            <h3 class="sub">Series (Resonant) Inverter</h3>
+            <p>
+                In a series inverter, the commutating components (L and C) are permanently connected in series with the
+                load, forming an RLC circuit. The series circuit must be <strong>under-damped</strong> so that the
+                current naturally oscillates through zero — this causes automatic thyristor turn-off without external
+                forced commutation circuitry.
+            </p>
+
+            <!-- SERIES INVERTER WAVEFORM -->
+            <div class="svg-wrap">
+                <img src="images/ch4/fig4.8.png" alt="Fig 8.1 — Series inverter" style="max-width: 100%; height: auto; display: inline-block; border-radius: 8px;">
+                <p class="svg-cap">The under-damped RLC load causes sinusoidal current pulses. T₁ turns off naturally at
+                    zero crossing. The dead time T_off must exceed t_q (thyristor turn-off time).</p>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Series Inverter — Circuit Turn-Off Time</div>
+                $$T_{off} = \frac{1}{2}\left(\frac{1}{f} - \frac{1}{f_r}\right) \qquad \text{where } f_r =
+                \frac{\omega_r}{2\pi} \text{ (ringing/resonant frequency)}$$
+                $$\omega_r = \sqrt{\omega_0^2 - \xi^2}, \quad \omega_0 = \frac{1}{\sqrt{LC}}, \quad \xi = \frac{R}{2L}$$
+                <p style="font-size:13px;margin-top:6px;color:var(--text3);">Condition for commutation: \(T_{off} \gt
+                    t_q\) (thyristor's rated turn-off time).</p>
+            </div>
+
+            <h3 class="sub">Current Source Inverter (CSI)</h3>
+            <p>
+                In a CSI, the input is maintained as a stiff current source by a large series inductor. The output
+                current waveform is square (forced by the constant input current), while the output voltage waveform is
+                determined by the load. CSI is preferred for <strong>capacitive loads</strong> and has the advantage
+                that load short circuits do not damage the inverter — the inductor limits current rise.
+            </p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>VSI</th>
+                            <th>CSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Input storage element</td>
+                            <td>Capacitor (stiff voltage)</td>
+                            <td class="t-tel">Inductor (stiff current)</td>
+                        </tr>
+                        <tr>
+                            <td>Output current shape</td>
+                            <td class="t-org">Sinusoidal (load-dependent)</td>
+                            <td class="t-tel">Square wave</td>
+                        </tr>
+                        <tr>
+                            <td>Output voltage shape</td>
+                            <td class="t-org">Square/PWM</td>
+                            <td class="t-tel">Depends on load</td>
+                        </tr>
+                        <tr>
+                            <td>Feedback diodes needed?</td>
+                            <td class="t-red">Yes</td>
+                            <td class="t-grn">No</td>
+                        </tr>
+                        <tr>
+                            <td>Short circuit tolerance</td>
+                            <td class="t-red">Dangerous</td>
+                            <td class="t-grn">Tolerated</td>
+                        </tr>
+                        <tr>
+                            <td>To get output frequency f</td>
+                            <td>Trigger at f</td>
+                            <td class="t-tel">Trigger at 2f</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">CSI Output Voltage for Capacitive Load</div>
+                    <p>When CSI feeds a capacitive load, the output voltage is <strong>triangular</strong> (integral of
+                        square current). The peak voltage is \(V_p = (I/C)(T/4)\) and peak-to-peak is \(V_{pp} =
+                        (I/C)(T/2)\). The output voltage frequency is half the input current switching frequency.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════
+       SECTION 9 — GATE & IES PYQs
+  ═══════════════════════════════════ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr">
+                <span class="sec-num">09</span>
+                <h2 class="sec-t">GATE &amp; IES — Previous Year Concept Questions</h2>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">VSI vs CSI — Feedback Diodes</span>
+                    <span class="pyq-year">Pattern: 2008, 2012, 2016</span>
+                </div>
+                <div class="pyq-body">
+                    <p><strong>Concept:</strong> Which statement about feedback diodes in inverters is correct?</p>
+                    <ul class="pyq-opts">
+                        <li>(a) Both VSI and CSI require feedback diodes</li>
+                        <li>(b) Only CSI requires feedback diodes</li>
+                        <li>(c) GTOs can be used in CSI</li>
+                        <li class="correct">✓ (d) Only VSI requires feedback diodes</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> In VSI, when a thyristor is turned off with an inductive load, the
+                        load current must continue to flow — the freewheeling (feedback) diodes provide the path. In
+                        CSI, the input inductor maintains a constant current, so no freewheeling path is needed. GTOs
+                        are self-commutating devices used in VSI, not typically in CSI.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Single Pulse PWM — Harmonic Elimination</span>
+                    <span class="pyq-year">Pattern: 2007, 2010, 2015, 2019</span>
+                </div>
+                <div class="pyq-body">
+                    <p><strong>Concept:</strong> In single pulse modulation of a PWM inverter, the 3rd harmonic can be
+                        eliminated if the pulse width \(2d\) equals:</p>
+                    <ul class="pyq-opts">
+                        <li>(a) 30°</li>
+                        <li>(b) 60°</li>
+                        <li class="correct">✓ (c) 120°</li>
+                        <li>(d) 150°</li>
+                    </ul>
+                    <p><strong>Solution:</strong> To eliminate nth harmonic: \(\sin(nd) = 0 \Rightarrow nd = \pi
+                        \Rightarrow d = \pi/n\). For n = 3: \(d = \pi/3 = 60°\), so \(2d = 120°\). The pulse width
+                        \(2d\) must equal \(2\pi/n = 2\pi/3 = 120°\).</p>
+                </div>
+            </div>
+
+            <!-- PYQ 3 IES -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title">Three-Phase Inverter — Operating Modes</span>
+                    <span class="pyq-year">IES 2006, 2013, 2018</span>
+                </div>
+                <div class="pyq-body">
+                    <p><strong>Concept:</strong> In a 3-phase bridge inverter operating in 180° mode, the number of
+                        thyristors conducting at any instant is:</p>
+                    <ul class="pyq-opts">
+                        <li>(a) 1</li>
+                        <li>(b) 2</li>
+                        <li class="correct">✓ (c) 3</li>
+                        <li>(d) 6</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> In 180° mode, each SCR conducts for 180°. Since the six SCRs are
+                        triggered 60° apart in sequence, at any given instant exactly three are conducting — one from
+                        the upper group and two from the lower group, or vice versa. This is a fundamental property of
+                        the 180° mode.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 4 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Full Bridge VSI — Load Current Fundamental</span>
+                    <span class="pyq-year">GATE 2014</span>
+                </div>
+                <div class="pyq-body">
+                    <p><strong>Concept:</strong> A 1-phase full bridge VSI has a 200 V DC source. Load: R = 1 Ω, ωL = 6
+                        Ω, 1/ωC = 7 Ω in series. Identify the fundamental load current expression.</p>
+                    <ul class="pyq-opts">
+                        <li class="correct">✓ (a) 180 sin(ωt + 45°)</li>
+                        <li>(b) 180 sin(ωt − 45°)</li>
+                        <li>(c) 127.3 sin(ωt − 45°)</li>
+                        <li>(d) 127.3 sin(ωt + 45°)</li>
+                    </ul>
+                    <p><strong>Solution:</strong> \(V_{01}\) (fundamental rms) \(= 0.9 \times 200 = 180\) V. \(Z_1 =
+                        \sqrt{1^2 + (6-7)^2} = \sqrt{2}\). \(I_{01} = 180/\sqrt{2} = 180/\sqrt{2}\) — peak \(= 180\) A.
+                        Since \(X_C \gt X_L\), load is capacitive → current leads voltage by 45°. Answer: \(i_0 =
+                        180\sin(\omega t + 45°)\).</p>
+                </div>
+            </div>
+
+            <!-- GATE INSIGHT CARD -->
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">Most Important Formulas to Memorise for Chapter 4</span>
+                </div>
+                <div class="gate-body">
+                    <div class="fblock"><span class="flbl">Must-Know Formula Sheet</span><span class="fh">Half
+                            Bridge:</span> <span class="fv">V_or</span> = Vs/2 <span class="fv">V_01</span> =
+                        (2Vs)/(π√2) = √2·Vs/π
+                        <span class="fh">Full Bridge:</span> <span class="fv">V_or</span> = Vs <span
+                            class="fv">V_01</span> = (4Vs)/(π√2) = 2√2·Vs/π
+                        <span class="fh">THD:</span> <span class="fv">THD</span> = √[(V_or/V_01)² - 1]
+                        <span class="fh">Pulse elim:</span> <span class="fv">2d</span> = 2π/n (for nth harmonic
+                        elimination)
+                        <span class="fh">180° VSI:</span> <span class="fv">V_L</span> = 0.8165·Vs <span
+                            class="fv">V_ph</span> = 0.4714·Vs
+                        <span class="fh">120° VSI:</span> <span class="fv">V_L</span> = 0.7071·Vs <span
+                            class="fv">V_ph</span> = 0.4082·Vs
+                        <span class="fh">Series inv:</span> T_off = (1/2)(1/f - 1/f_r) f_r &gt; f always
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════
+       SECTION 10 — QUICK REVISION SHEET
+  ═══════════════════════════════════ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr">
+                <span class="sec-num">10</span>
+                <h2 class="sec-t">Quick Revision Sheet</h2>
+            </div>
+
+            <!-- ASK CLAUDE WIDGET -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI — DC-AC Converters</div>
+                <div class="ai-prompt-sub">Type any concept, formula, or numerical question about inverters</div>
+                <div class="ai-row">
+                    <input class="ai-input" id="userQ" placeholder="e.g. Derive THD for a square wave inverter…"
+                        autocomplete="off">
+                    <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+                </div>
+                <div class="ai-chips">
+                    <span class="ai-chip"
+                        onclick="setQ('Explain why VSI needs feedback diodes but CSI does not, with a circuit-level explanation.')">Why
+                        VSI needs freewheeling diodes</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Derive the THD expression for a single-phase full bridge square wave inverter step by step.')">Derive
+                        THD for square wave</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Compare 180° and 120° conduction modes in a 3-phase bridge inverter — waveforms, RMS values, harmonic content.')">180°
+                        vs 120° mode comparison</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain sinusoidal PWM in detail — how modulation index affects output voltage and harmonic spectrum.')">SPWM
+                        modulation index effect</span>
+                    <span class="ai-chip"
+                        onclick="setQ('In a series inverter what happens if operating frequency exceeds resonant frequency? Explain commutation failure.')">Series
+                        inverter commutation</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <h3 class="sub">Chapter Summary</h3>
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Half Bridge VSI</div>
+                    <p>Two SCRs, centre-tapped supply. \(V_{or} = V_s/2\). 50% source utilisation. Requires
+                        anti-parallel diodes for reactive loads. Output is square wave of amplitude \(V_s/2\).</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Full Bridge VSI</div>
+                    <p>Four SCRs in H-bridge. \(V_{or} = V_s\). 100% source utilisation. Diagonal pairs (T₁,T₂) and
+                        (T₃,T₄) triggered alternately. Power = 4× half bridge for same supply.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Fourier &amp; Harmonics</div>
+                    <p>Square wave has only odd harmonics (n = 1,3,5…). \(V_{01} = 2\sqrt{2}V_s/\pi\) (HB),
+                        \(4V_s/\pi\sqrt{2}\) (FB). THD = \(\sqrt{(V_{or}/V_{01})^2-1}\).</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">PWM Techniques</div>
+                    <p>Single pulse: \(2d = 2\pi/n\) eliminates nth harmonic. SPWM: modulation index \(M_a = V_r/V_c \le
+                        1\). Higher N → harmonics shift to higher frequencies → easier filtering.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">3-Phase Bridge VSI</div>
+                    <p>180° mode: 3 SCRs ON, \(V_L = 0.8165V_s\). 120° mode: 2 SCRs ON, \(V_L = 0.7071V_s\). All 3n
+                        harmonics absent in line voltage. Lowest harmonic is 5th.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">VSI vs CSI</div>
+                    <p>VSI: capacitor input, voltage-stiff, needs feedback diodes, suits inductive loads. CSI: inductor
+                        input, current-stiff, no feedback diodes needed, suits capacitive loads, short-circuit tolerant.
+                    </p>
+                </div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 5</div>
+                    <p>AC Voltage Controllers and Cycloconverters — single-phase and three-phase AC voltage controllers,
+                        on-off and phase-angle control, firing angle range, integral cycle control, and cycloconverter
+                        operation with complete GATE &amp; IES concepts.</p>
+                </div>
+            </div>
+
+            <!-- CITATIONS -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                    the following standard textbooks and resources. All explanations, derivations, diagrams, and
+                    conceptual content are original to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Rashid, Muhammad H. <em>Power Electronics Handbook</em>,
+                            4th ed. Butterworth-Heinemann, 2018. Ch. 16 — Single-Phase and Three-Phase Inverters: VSI,
+                            CSI, PWM control, harmonic analysis.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Mohan, Ned; Undeland, Tore M.; Robbins, William P.
+                            <em>Power Electronics: Converters, Applications, and Design</em>, 3rd ed. Wiley, 2003. Ch. 8
+                            — Switch-mode DC-AC inverters: bridge topologies, waveforms, Fourier analysis.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Sen, P.C. <em>Principles of Electric Machines and Power
+                                Electronics</em>, 3rd ed. Wiley, 2013. Ch. 10 — DC-to-AC converters, PWM techniques, THD
+                            definitions.</span></li>
+                    <li><span class="cite-num">[4]</span><span>Bose, Bimal K. <em>Modern Power Electronics and AC
+                                Drives</em>. Prentice Hall, 2002. Ch. 5 — Voltage source inverters, current source
+                            inverters, multi-level inverters, PWM strategies.</span></li>
+                    <li><span class="cite-num">[5]</span><span>IIT Kharagpur NPTEL. <em>Power Electronics — Lectures
+                                25–38: DC-AC Converters</em>. National Programme on Technology Enhanced Learning.
+                            nptel.ac.in.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Power Electronics Series &nbsp;·&nbsp; Chapter 4 of 8<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                    diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+        </div>
+
+    </div><!-- /page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Power Electronics. Topic: DC-AC Converters (Inverters) — Chapter 4. Cover VSI vs CSI, single-phase half bridge, full bridge, three-phase bridge inverter (180° and 120° modes), Fourier analysis, THD, distortion factor, PWM techniques (single pulse, multiple pulse, sinusoidal PWM), series inverter, commutation. Answer step-by-step for numericals. All content original, based on Rashid, Mohan-Undeland-Robbins, Bose, Sen.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+        /* Mobile scroll hints */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

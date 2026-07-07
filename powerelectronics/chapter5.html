@@ -1,0 +1,2791 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Power Electronics: Commutation Circuits</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 62.5%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* ── TOC ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        /* ── CALLOUTS ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre-wrap;
+            word-break: break-word
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* ── MATH (KaTeX) ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        /* ── GATE/PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-year {
+            font-size: 11px;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-left: auto;
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 9px 13px;
+            font-size: 13.5px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text2)
+        }
+
+        .pyq-ans {
+            background: var(--green-bg);
+            border: 1.5px solid var(--green-bdr);
+            border-radius: 8px;
+            padding: 9px 13px;
+            font-size: 13px;
+            color: var(--green);
+            font-weight: 600;
+            margin-top: 8px
+        }
+
+        /* ── TWO COL / CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 14px 0
+        }
+
+        .mini-card {
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 18px);
+            border: 1.5px solid var(--border)
+        }
+
+        .mc-org {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr)
+        }
+
+        .mc-grn {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .mc-tel {
+            background: var(--teal-bg);
+            border-color: var(--teal-bdr)
+        }
+
+        .mc-amb {
+            background: var(--amber-bg);
+            border-color: var(--amber-bdr)
+        }
+
+        .mc-red {
+            background: var(--red-bg);
+            border-color: var(--red-bdr)
+        }
+
+        .mc-t {
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 9px;
+            color: var(--text)
+        }
+
+        .mc-list {
+            list-style: none;
+            font-size: clamp(12px, 1.7vw, 14px);
+            line-height: 1.7;
+            color: var(--text2)
+        }
+
+        .mc-list li {
+            margin-bottom: 4px
+        }
+
+        .dot {
+            color: var(--orange);
+            margin-right: 5px
+        }
+
+        /* ── SUMMARY CARDS ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 18px 0
+        }
+
+        .sum-card {
+            border-radius: 10px;
+            padding: clamp(14px, 2vw, 20px);
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            transition: transform .18s, box-shadow .18s;
+            cursor: default
+        }
+
+        .sum-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md)
+        }
+
+        .sc-o {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr)
+        }
+
+        .sc-g {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .sc-t {
+            background: var(--teal-bg);
+            border-color: var(--teal-bdr)
+        }
+
+        .sc-a {
+            background: var(--amber-bg);
+            border-color: var(--amber-bdr)
+        }
+
+        .sc-r {
+            background: var(--red-bg);
+            border-color: var(--red-bdr)
+        }
+
+        .sum-lbl {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--muted);
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12.5px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.6;
+            margin: 0
+        }
+
+        /* ── GATE INSIGHT BOX ── */
+        .g-insight {
+            background: var(--teal-bg);
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: 10px;
+            padding: clamp(12px, 2vw, 18px);
+            margin: 14px 0
+        }
+
+        .g-insight-h {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--teal);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .g-insight ul {
+            list-style: none;
+            font-size: clamp(12.5px, 1.8vw, 14.5px);
+            color: #154e4c;
+            line-height: 1.75
+        }
+
+        .g-insight ul li {
+            margin-bottom: 5px;
+            display: flex;
+            gap: 8px
+        }
+
+        .g-insight ul li::before {
+            content: '→';
+            color: var(--teal);
+            flex-shrink: 0
+        }
+
+        .prob-tag {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            vertical-align: middle
+        }
+
+        .ph {
+            background: #dff0e8;
+            color: var(--green)
+        }
+
+        .pm {
+            background: #fef0d0;
+            color: var(--amber)
+        }
+
+        .pl-tag {
+            background: #fde8e8;
+            color: var(--red)
+        }
+
+        /* ── AI PROMPT ── */
+        .ai-prompt {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: clamp(28px, 5vw, 52px) 0 0
+        }
+
+        .ai-h {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 20px);
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px
+        }
+
+        .ai-sub {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            align-items: center
+        }
+
+        .ai-input {
+            flex: 1;
+            background: var(--bg);
+            border: 1.5px solid var(--border2);
+            border-radius: 9px;
+            padding: 12px 14px;
+            font-family: 'Lora', serif;
+            font-size: clamp(14px, 2vw, 16px);
+            color: var(--text);
+            outline: none;
+            transition: border-color .2s
+        }
+
+        .ai-input:focus {
+            border-color: var(--orange)
+        }
+
+        .ai-btn {
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 9px;
+            font-family: 'Lora', serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: background .18s
+        }
+
+        .ai-btn:hover {
+            background: #155553
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px
+        }
+
+        .ai-chip {
+            font-size: 12px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 12px;
+            color: var(--text3);
+            cursor: pointer;
+            transition: background .15s, color .15s;
+            font-family: 'Lora', serif
+        }
+
+        .ai-chip:hover {
+            background: var(--orange-bg);
+            color: var(--orange);
+            border-color: var(--orange-bdr)
+        }
+
+        #aiResp {
+            margin-top: 14px;
+            background: var(--bg);
+            border: 1.5px solid var(--border2);
+            border-radius: 9px;
+            padding: 14px 16px;
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            white-space: pre-wrap;
+            display: none;
+            line-height: 1.75
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: clamp(14px, 2vw, 22px);
+            margin: clamp(24px, 4vw, 40px) 0 0
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 10px
+        }
+
+        .cite-list {
+            list-style: none;
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            line-height: 1.65
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 10px;
+            padding: 7px 0;
+            border-bottom: 1px dashed var(--border)
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+            font-weight: 700;
+            margin-top: 1px
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border)
+        }
+
+        footer strong {
+            color: var(--orange)
+        }
+
+        /* ════ TABLET ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px
+            }
+
+            .pyq-year {
+                margin-left: 0
+            }
+
+            .svg-wrap svg {
+                min-width: 480px
+            }
+        }
+
+        /* ════ MOBILE ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .hbadges {
+                display: none
+            }
+
+            .site-header {
+                padding: 10px 14px
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px)
+            }
+
+            .hero-desc {
+                font-size: 14px
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0
+            }
+
+            .toc {
+                padding: 14px 16px
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px)
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px)
+            }
+
+            p {
+                font-size: 15px
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                overflow-x: auto
+            }
+
+            .svg-wrap svg {
+                min-width: 500px;
+                width: 500px;
+                height: auto
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px
+            }
+
+            .tw {
+                border-radius: 8px
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px
+            }
+
+            .two-col,
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 10px
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px
+            }
+
+            .pyq-year {
+                display: none
+            }
+
+            .math-block {
+                padding: 10px 12px
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px
+            }
+        }
+
+        /* ════ LARGE DESKTOP ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow)
+            }
+
+            .ai-btn:hover {
+                background: var(--teal)
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none
+            }
+
+            .svg-wrap {
+                break-inside: avoid
+            }
+
+            body {
+                font-size: 12pt
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Power Electronics Series</span></div>
+        <div class="hbadges">
+            <span class="hbadge">GATE EE</span>
+            <span class="hbadge">IES</span>
+            <span class="hbadge">PSU</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 05 &nbsp;·&nbsp; Power Electronics</div>
+            <h1 class="hero-title">Commutation <em>Circuits</em></h1>
+            <p class="hero-desc">Thyristor turn-off mechanisms, natural and forced commutation, tank circuit analysis,
+                voltage and current commutated choppers — comprehensive GATE, IES, and PSU coverage with full
+                derivations, inline circuit diagrams, and exam-oriented insights.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Follows Ch.4 — Choppers</span>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Chapter 5 of 8</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">5.1</span>What is Commutation?</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">5.2</span>Natural vs Forced Commutation</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">5.3</span>Tank Circuit Theory</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">5.4</span>Voltage Commutated Chopper</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">5.5</span>Current Commutated Chopper</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">5.6</span>Commutating Component Design</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">5.7</span>Comparison of Methods</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">5.8</span>GATE &amp; IES Questions</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">5.9</span>Quick Revision Sheet</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: WHAT IS COMMUTATION ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">5.1</span>
+                <h2 class="sec-t">What is Commutation — The Big Picture</h2>
+            </div>
+
+            <p>A thyristor (SCR) is a <strong>semi-controlled</strong> switch. Unlike a transistor, you cannot turn it
+                OFF simply by removing the gate signal. Once a thyristor latches ON, current continues to flow as long
+                as the anode-to-cathode current remains above the <strong>holding current</strong>. The engineering
+                challenge in power electronic circuits is: <em>how do we turn the thyristor OFF?</em></p>
+
+            <p>The process of deliberately transferring current away from a conducting thyristor so that it reverts to
+                its blocking state is called <strong>commutation</strong>. Every thyristor converter, inverter, or
+                chopper must include a commutation strategy — it is not optional. Without commutation, the SCR cannot be
+                turned off, and the power circuit becomes uncontrollable.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>The SCR needs a <strong>reverse voltage applied for a duration equal to or greater than the
+                            turn-off time \(t_q\)</strong> (typically 10–200 µs) before it can block forward voltage
+                        again. If the reverse voltage interval is shorter than \(t_q\), the SCR re-latches — causing a
+                        commutation failure and losing control of the circuit entirely.</p>
+                </div>
+            </div>
+
+            <!-- Big picture diagram -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <text x="340" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">SCR Turn-Off Requirement — Why Commutation Exists</text>
+                    <!-- Timeline bar -->
+                    <rect x="30" y="50" width="620" height="40" rx="6" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1.5" />
+                    <!-- ON phase -->
+                    <rect x="30" y="50" width="200" height="40" rx="6" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="130" y="74" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#c95f1a"
+                        font-weight="600">SCR ON (Conducting)</text>
+                    <!-- Reverse V phase -->
+                    <rect x="230" y="50" width="160" height="40" rx="0" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.5" />
+                    <text x="310" y="68" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a2020"
+                        font-weight="600">Reverse Voltage</text>
+                    <text x="310" y="83" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#9a2020">≥ t_q (turn-off time)</text>
+                    <!-- Blocking phase -->
+                    <rect x="390" y="50" width="260" height="40" rx="0" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="520" y="74" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#2d6648"
+                        font-weight="600">SCR Blocking (OFF)</text>
+                    <!-- Labels below -->
+                    <text x="30" y="115" font-family="JetBrains Mono,monospace" font-size="10" fill="#9a6e50">t=0 Gate
+                        Pulse</text>
+                    <text x="225" y="115" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#9a2020">Commutation begins</text>
+                    <text x="388" y="115" font-family="JetBrains Mono,monospace" font-size="10" fill="#2d6648">Forward V
+                        safe to apply</text>
+                    <!-- Arrows -->
+                    <line x1="60" y1="120" x2="60" y2="93" stroke="#c95f1a" stroke-width="1.5" marker-end="url(#arr)" />
+                    <line x1="295" y1="120" x2="295" y2="93" stroke="#9a2020" stroke-width="1.5"
+                        marker-end="url(#arr)" />
+                    <line x1="455" y1="120" x2="455" y2="93" stroke="#2d6648" stroke-width="1.5"
+                        marker-end="url(#arr)" />
+                    <!-- commutation condition box -->
+                    <rect x="30" y="145" width="620" height="40" rx="7" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="340" y="162" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="600">Commutation Condition: Reverse voltage must persist for at least t_q seconds
+                        before forward voltage reapplied</text>
+                    <text x="340" y="178" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#1e6b68">t_c ≥ t_q + Δt (safety margin). Failure → SCR re-triggers → loss of
+                        control</text>
+                </svg>
+                <div class="svg-cap">Fig 5.1 — The fundamental commutation requirement. Reverse voltage must be applied
+                    long enough for minority carriers in the SCR junction to recombine before forward voltage is
+                    reapplied.</div>
+            </div>
+
+            <h3 class="sub">Why Does an SCR Need Time to Turn Off?</h3>
+            <p>When an SCR conducts, charge carriers (holes and electrons) flood all four layers of the p-n-p-n
+                structure. When the anode current falls to zero, these minority carriers do not disappear instantly —
+                they take time to <strong>recombine</strong>. During this recovery period, if forward voltage is
+                re-applied, the carriers act like pre-injected gate current and the SCR latches ON again without a gate
+                pulse — a phenomenon called <strong>premature re-triggering</strong> or <em>commutation failure</em>.
+            </p>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Everyday Analogy</div>
+                    <p>Think of the SCR's recovery like a crowd trying to leave a stadium. Even after the game
+                        (conduction) ends, people (carriers) are still in the aisles. You cannot let the next event
+                        start (forward voltage) until the stadium is empty (carriers recombined). The time to clear the
+                        stadium is the turn-off time \(t_q\).</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Key Thyristor Turn-Off Parameters</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Symbol</th>
+                            <th>Typical Value</th>
+                            <th>Physical Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Turn-off time</td>
+                            <td>\(t_q\)</td>
+                            <td>10–200 µs</td>
+                            <td>Minimum reverse-voltage duration needed for complete carrier recombination</td>
+                        </tr>
+                        <tr>
+                            <td>Circuit turn-off time</td>
+                            <td>\(t_c\)</td>
+                            <td>\(> t_q\)</td>
+                            <td>Actual reverse-voltage interval provided by the commutation circuit</td>
+                        </tr>
+                        <tr>
+                            <td>Holding current</td>
+                            <td>\(I_H\)</td>
+                            <td>5–100 mA</td>
+                            <td>Minimum anode current to keep SCR latched</td>
+                        </tr>
+                        <tr>
+                            <td>Latching current</td>
+                            <td>\(I_L\)</td>
+                            <td>2–4× \(I_H\)</td>
+                            <td>Minimum current needed for SCR to stay ON after gate pulse removed</td>
+                        </tr>
+                        <tr>
+                            <td>Safety margin</td>
+                            <td>\(\Delta t\)</td>
+                            <td>~5 µs</td>
+                            <td>Additional reverse-voltage time above \(t_q\) for reliability</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S2: NATURAL VS FORCED ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">5.2</span>
+                <h2 class="sec-t">Natural vs Forced Commutation</h2>
+            </div>
+
+            <p>All commutation methods fall into two fundamental categories based on whether the reverse voltage arises
+                naturally from the supply or must be artificially created using auxiliary components.</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Natural (Line) Commutation</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Occurs automatically in AC circuits</li>
+                        <li><span class="dot">▸</span>Supply voltage itself reverses and forces current to zero</li>
+                        <li><span class="dot">▸</span>Used in: controlled rectifiers, AC voltage controllers,
+                            cycloconverters</li>
+                        <li><span class="dot">▸</span>No auxiliary commutation components needed</li>
+                        <li><span class="dot">▸</span>Cannot be used in DC circuits (voltage never reverses)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Forced Commutation</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Must be artificially arranged using L and C components</li>
+                        <li><span class="dot">▸</span>Used in: DC choppers, inverters, DC drives</li>
+                        <li><span class="dot">▸</span>Requires auxiliary thyristors, inductors, capacitors</li>
+                        <li><span class="dot">▸</span>Six classical types (Class A–F) by McMurray classification</li>
+                        <li><span class="dot">▸</span>Higher complexity and cost than natural commutation</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">GATE Key Fact</div>
+                    <p>In modern power electronics, forced commutation using SCRs has been largely replaced by
+                        <strong>self-commutating devices</strong> (MOSFET, IGBT, GTO) that can be turned off by their
+                        gate terminal. However, commutation circuit theory remains a core GATE and IES topic covering
+                        Class A–F commutation, tank circuits, and chopper designs.</p>
+                </div>
+            </div>
+
+            <!-- Classification diagram -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
+                    <text x="340" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Commutation Classification Tree</text>
+                    <!-- Root -->
+                    <rect x="265" y="30" width="150" height="36" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="340" y="52" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#c95f1a"
+                        font-weight="700">Commutation</text>
+                    <line x1="340" y1="66" x2="340" y2="85" stroke="#c8a888" stroke-width="1.5" />
+                    <line x1="155" y1="85" x2="525" y2="85" stroke="#c8a888" stroke-width="1.5" />
+                    <line x1="155" y1="85" x2="155" y2="104" stroke="#c8a888" stroke-width="1.5" />
+                    <line x1="525" y1="85" x2="525" y2="104" stroke="#c8a888" stroke-width="1.5" />
+                    <!-- Natural -->
+                    <rect x="60" y="104" width="190" height="36" rx="8" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="155" y="126" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#2d6648"
+                        font-weight="600">Natural Commutation</text>
+                    <!-- Forced -->
+                    <rect x="430" y="104" width="190" height="36" rx="8" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.5" />
+                    <text x="525" y="126" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#9a2020"
+                        font-weight="600">Forced Commutation</text>
+                    <!-- Natural children -->
+                    <line x1="155" y1="140" x2="155" y2="158" stroke="#8ecaaa" stroke-width="1.5" />
+                    <rect x="40" y="158" width="230" height="30" rx="6" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1" />
+                    <text x="155" y="177" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#3d2010">Rectifiers · AC Controllers · Cycloconverters</text>
+                    <!-- Forced children -->
+                    <line x1="525" y1="140" x2="525" y2="158" stroke="#e89090" stroke-width="1.5" />
+                    <line x1="385" y1="158" x2="665" y2="158" stroke="#e89090" stroke-width="1.2" />
+                    <line x1="420" y1="158" x2="420" y2="177" stroke="#e89090" stroke-width="1.2" />
+                    <line x1="525" y1="158" x2="525" y2="177" stroke="#e89090" stroke-width="1.2" />
+                    <line x1="630" y1="158" x2="630" y2="177" stroke="#e89090" stroke-width="1.2" />
+                    <rect x="360" y="177" width="120" height="28" rx="5" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1" />
+                    <text x="420" y="195" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#9a2020">Voltage Comm.</text>
+                    <rect x="465" y="177" width="120" height="28" rx="5" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1" />
+                    <text x="525" y="195" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#9a2020">Current Comm.</text>
+                    <rect x="570" y="177" width="120" height="28" rx="5" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1" />
+                    <text x="630" y="195" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#9a2020">Impulse Comm.</text>
+                </svg>
+                <div class="svg-cap">Fig 5.2 — Classification of commutation methods. Natural commutation needs no
+                    auxiliary components; forced commutation is essential in DC choppers and inverters.</div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: TANK CIRCUIT THEORY ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">5.3</span>
+                <h2 class="sec-t">Tank Circuit Theory — The Heart of Commutation</h2>
+            </div>
+
+            <p>The <strong>tank circuit</strong> (also called the <em>resonant commutation circuit</em>) is a series
+                combination of an inductor \(L\) and capacitor \(C\) that produces a sinusoidal oscillating current when
+                triggered. This oscillating current is exploited to reverse-bias and turn off the main thyristor.</p>
+
+            <p>Understanding the tank circuit mathematically is crucial — virtually every forced commutation scheme
+                relies on its behaviour. Let us derive the key results from first principles using Laplace transforms,
+                following the approach in Mohan's <em>Power Electronics</em>.</p>
+
+            <h3 class="sub">Tank Circuit — Circuit Description</h3>
+
+            <!-- Tank circuit diagram -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 620 240" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arr2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <text x="310" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">LC Tank Circuit — Series Resonant</text>
+                    <!-- Circuit box -->
+                    <!-- Capacitor left side -->
+                    <line x1="80" y1="60" x2="80" y2="100" stroke="#3d2010" stroke-width="2" />
+                    <line x1="80" y1="108" x2="80" y2="148" stroke="#3d2010" stroke-width="2" />
+                    <!-- Capacitor plates -->
+                    <line x1="55" y1="100" x2="105" y2="100" stroke="#1e6b68" stroke-width="3" />
+                    <line x1="55" y1="108" x2="105" y2="108" stroke="#1e6b68" stroke-width="3" />
+                    <text x="116" y="108" font-family="Lora,serif" font-size="12" fill="#1e6b68"
+                        font-weight="600">C</text>
+                    <!-- +Vc label -->
+                    <text x="36" y="98" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a">+</text>
+                    <text x="36" y="116" font-family="JetBrains Mono,monospace" font-size="11" fill="#9a2020">−</text>
+                    <text x="18" y="108" font-family="Lora,serif" font-size="11" fill="#3d2010"
+                        font-style="italic">V_C</text>
+                    <!-- Top wire -->
+                    <line x1="80" y1="60" x2="360" y2="60" stroke="#3d2010" stroke-width="2" />
+                    <!-- Diode D -->
+                    <polygon points="220,50 245,70 220,70" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="245" y1="50" x2="245" y2="70" stroke="#c95f1a" stroke-width="2" />
+                    <line x1="220" y1="50" x2="245" y2="50" stroke="#c95f1a" stroke-width="1.5" />
+                    <text x="232" y="42" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="600">D</text>
+                    <!-- Inductor top wire to L -->
+                    <line x1="360" y1="60" x2="360" y2="80" stroke="#3d2010" stroke-width="2" />
+                    <!-- Inductor coil (simplified) -->
+                    <path d="M360,80 Q370,72 380,80 Q390,88 400,80 Q410,72 420,80 Q430,88 440,80 Q450,72 460,80"
+                        fill="none" stroke="#2d6648" stroke-width="2.5" />
+                    <line x1="460" y1="80" x2="460" y2="148" stroke="#3d2010" stroke-width="2" />
+                    <text x="420" y="66" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#2d6648"
+                        font-weight="600">L</text>
+                    <!-- Bottom wire -->
+                    <line x1="80" y1="148" x2="460" y2="148" stroke="#3d2010" stroke-width="2" />
+                    <!-- Current arrow -->
+                    <line x1="240" y1="148" x2="300" y2="148" stroke="#c95f1a" stroke-width="2"
+                        marker-end="url(#arr2)" />
+                    <text x="270" y="165" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#c95f1a"
+                        font-style="italic">i(t)</text>
+                    <!-- KVL equation panel -->
+                    <rect x="30" y="180" width="560" height="50" rx="8" fill="#f0e0cc" stroke="#ddc8b0"
+                        stroke-width="1.5" />
+                    <text x="310" y="200" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#3d2010"
+                        font-weight="600">KVL around loop:</text>
+                    <text x="310" y="218" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11"
+                        fill="#1e6b68">L · di/dt + (1/C)∫i dt = 0 &nbsp;&nbsp;→&nbsp;&nbsp; Resonant oscillation</text>
+                </svg>
+                <div class="svg-cap">Fig 5.3 — Series LC tank circuit. Capacitor initially charged to V₀. When switch
+                    closes, energy oscillates between L and C, producing sinusoidal current i(t).</div>
+            </div>
+
+            <h3 class="sub">Mathematical Analysis Using Laplace Transform</h3>
+
+            <p>Assume the capacitor is initially charged to voltage \(V_0\). When the circuit is closed, by KVL:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">KVL Equation (time domain)</div>
+                $$L\frac{di(t)}{dt} + \frac{1}{C}\int i(t)\,dt = 0$$
+            </div>
+
+            <p>Taking the Laplace transform, with initial capacitor voltage \(V_0\) (polarity such that current leaves
+                the positive terminal):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Laplace Domain — KVL</div>
+                $$sL\,I(s) + \frac{1}{C}\left[\frac{I(s)}{s} - CV_0\right] = 0$$
+            </div>
+
+            <p>Simplifying and solving for \(I(s)\):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Transfer Function</div>
+                $$I(s) = \frac{V_0}{L}\cdot\frac{1}{s^2 + \omega_0^2} = \frac{V_0}{\omega_0
+                L}\cdot\frac{\omega_0}{s^2+\omega_0^2}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Resonant Angular Frequency</div>
+                $$\omega_0 = \frac{1}{\sqrt{LC}} \quad \text{(rad/s)}$$
+            </div>
+
+            <p>Taking the inverse Laplace transform:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Tank Circuit Current (time domain)</div>
+                $$\boxed{i(t) = \frac{V_0}{\omega_0 L}\sin\omega_0 t = V_0\sqrt{\frac{C}{L}}\,\sin\omega_0 t}$$
+            </div>
+
+            <p>The voltage across the inductor and capacitor during conduction:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Inductor Voltage</div>
+                $$V_L = L\frac{di}{dt} = V_0\cos\omega_0 t$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Capacitor Voltage (starting from V₀)</div>
+                $$V_C(t) = -V_0\cos\omega_0 t$$
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Key Result to Memorise</div>
+                    <p>At the end of the half-cycle (\(\omega_0 t = \pi\), i.e., at \(t = \pi\sqrt{LC}\)), the capacitor
+                        voltage <strong>reverses polarity</strong> completely from \(+V_0\) to \(-V_0\). This reversed
+                        voltage is what drives the commutation process — it provides the reverse bias across the
+                        conducting SCR.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Four Key Tank Circuit Results</h3>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Peak Current</div>
+                    <p>\(I_m = V_0\sqrt{\dfrac{C}{L}}\) — depends on initial voltage and L/C ratio</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Current Nature</div>
+                    <p>Sinusoidal at frequency \(\omega_0 = \dfrac{1}{\sqrt{LC}}\) rad/s — like a harmonic oscillator
+                    </p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Conduction Time</div>
+                    <p>\(t_{cond} = \pi\sqrt{LC}\) seconds — exactly one half-cycle of the resonant frequency</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Final Capacitor Voltage</div>
+                    <p>Polarity reverses at end of conduction: from \(+V_0\) to \(-V_0\) — total change = \(2V_0\)</p>
+                </div>
+            </div>
+
+            <!-- Current waveform diagram -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 680 250" xmlns="http://www.w3.org/2000/svg">
+                    <text x="340" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Tank Circuit Waveforms — i(t), V_L(t), V_C(t)</text>
+                    <!-- Axes -->
+                    <line x1="60" y1="60" x2="60" y2="230" stroke="#c8a888" stroke-width="1.5" />
+                    <line x1="60" y1="145" x2="640" y2="145" stroke="#c8a888" stroke-width="1.5" />
+                    <!-- i(t) - sine curve -->
+                    <path d="M60,145 C110,145 130,60 190,60 C250,60 270,145 320,145" fill="none" stroke="#c95f1a"
+                        stroke-width="2.5" />
+                    <!-- V_C(t) - cosine reversed -->
+                    <path d="M60,60 C110,60 130,145 190,230 C250,230 270,145 320,145" fill="none" stroke="#1e6b68"
+                        stroke-width="2" stroke-dasharray="6,3" />
+                    <!-- V_L(t) -->
+                    <path d="M60,60 C85,60 110,145 190,230 C270,145 295,145 320,145" fill="none" stroke="#2d6648"
+                        stroke-width="1.5" stroke-dasharray="3,3" />
+                    <!-- Labels -->
+                    <text x="190" y="48" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="600">i(t) = I_m sin ω₀t</text>
+                    <text x="100" y="40" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">I_m =
+                        V₀√(C/L)</text>
+                    <!-- Axes labels -->
+                    <text x="44" y="64" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a">I_m</text>
+                    <text x="44" y="149" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#9a6e50">0</text>
+                    <text x="44" y="232" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#1e6b68">−V₀</text>
+                    <text x="44" y="64" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a" />
+                    <text x="62" y="64" font-family="JetBrains Mono,monospace" font-size="10" fill="#1e6b68">+V₀</text>
+                    <!-- π mark -->
+                    <line x1="320" y1="140" x2="320" y2="150" stroke="#c8a888" stroke-width="1" />
+                    <text x="320" y="165" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11"
+                        fill="#9a6e50">t = π√LC</text>
+                    <text x="320" y="178" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#9a6e50">(ω₀t = π)</text>
+                    <!-- Vc label -->
+                    <text x="270" y="230" font-family="Lora,serif" font-size="11" fill="#1e6b68" font-style="italic">V_C
+                        → −V₀</text>
+                    <!-- legend -->
+                    <line x1="400" y1="80" x2="430" y2="80" stroke="#c95f1a" stroke-width="2.5" />
+                    <text x="435" y="84" font-family="Lora,serif" font-size="11" fill="#c95f1a">i(t) — circuit
+                        current</text>
+                    <line x1="400" y1="100" x2="430" y2="100" stroke="#1e6b68" stroke-width="2"
+                        stroke-dasharray="6,3" />
+                    <text x="435" y="104" font-family="Lora,serif" font-size="11" fill="#1e6b68">V_C(t) — capacitor
+                        voltage</text>
+                    <!-- Energy note -->
+                    <rect x="370" y="170" width="290" height="60" rx="7" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1" />
+                    <text x="515" y="188" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#3d2010"
+                        font-weight="600">Energy Exchange</text>
+                    <text x="515" y="204" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a">C → ½CV₀² → 0 → ½CV₀²</text>
+                    <text x="515" y="220" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#2d6648">L → 0 → ½LI_m² → 0</text>
+                </svg>
+                <div class="svg-cap">Fig 5.4 — Tank circuit waveforms. Current i(t) is sinusoidal. Capacitor voltage V_C
+                    starts at +V₀ and ends at −V₀ after one half-cycle. The diode D prevents the second half-cycle
+                    (prevents reverse current).</div>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">🔍</div>
+                <div class="cb">
+                    <div class="ct">Role of the Diode in Tank Circuit</div>
+                    <p>A diode is placed in series with the LC tank. After one half-cycle, the current \(i(t)\) tries to
+                        reverse — the diode blocks this reverse current, so the circuit conducts for exactly
+                        \(\pi\sqrt{LC}\) seconds. Without the diode, the circuit would oscillate indefinitely and the
+                        capacitor voltage would swing back to \(+V_0\), providing no net commutation benefit.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S4: VOLTAGE COMMUTATED CHOPPER ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">5.4</span>
+                <h2 class="sec-t">Voltage Commutated Chopper</h2>
+            </div>
+
+            <p>A <strong>voltage commutated chopper</strong> (also called <em>impulse commutated chopper</em>) uses a
+                pre-charged capacitor to apply a sudden reverse voltage across the main SCR, turning it off. The reverse
+                voltage is applied as a high-amplitude impulse — hence the alternative name. This is the most widely
+                studied forced commutation scheme in GATE and IES.</p>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Intuitive Understanding First</div>
+                    <p>Imagine the main SCR (\(T_1\)) is conducting and supplying load current \(I_0\). To turn it off,
+                        we switch in an auxiliary SCR (\(T_A\)) that connects a pre-charged capacitor \(C\) across
+                        \(T_1\). The capacitor's voltage (<em>opposite to forward drop of \(T_1\)</em>) instantly
+                        reverse-biases \(T_1\), forcing its current to zero. The capacitor voltage is the commutating
+                        voltage — hence "voltage commutated."</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Circuit Components and Their Roles</h3>
+
+            <!-- Voltage comm chopper circuit -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arr3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                        <marker id="arr4" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#2d6648" />
+                        </marker>
+                    </defs>
+                    <text x="340" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Voltage Commutated Chopper — Simplified Circuit</text>
+                    <!-- Supply Vs -->
+                    <line x1="50" y1="60" x2="50" y2="240" stroke="#3d2010" stroke-width="2" />
+                    <text x="28" y="135" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-style="italic">V_s</text>
+                    <text x="28" y="120" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#9a6e50">+</text>
+                    <text x="28" y="150" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#9a6e50">−</text>
+                    <!-- Top bus -->
+                    <line x1="50" y1="60" x2="600" y2="60" stroke="#3d2010" stroke-width="2" />
+                    <!-- Bottom bus -->
+                    <line x1="50" y1="240" x2="600" y2="240" stroke="#3d2010" stroke-width="2" />
+                    <!-- Main SCR T1 -->
+                    <polygon points="130,50 155,75 130,75" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="155" y1="50" x2="155" y2="75" stroke="#c95f1a" stroke-width="2" />
+                    <line x1="130" y1="50" x2="155" y2="50" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="130" y1="50" x2="130" y2="60" stroke="#3d2010" stroke-width="2" />
+                    <line x1="155" y1="75" x2="155" y2="100" stroke="#3d2010" stroke-width="2" />
+                    <text x="165" y="65" font-family="Lora,serif" font-size="11" fill="#c95f1a" font-weight="700">T₁
+                        (Main)</text>
+                    <!-- Capacitor C (horizontal) -->
+                    <line x1="155" y1="100" x2="230" y2="100" stroke="#3d2010" stroke-width="2" />
+                    <line x1="230" y1="85" x2="230" y2="115" stroke="#1e6b68" stroke-width="3" />
+                    <line x1="240" y1="85" x2="240" y2="115" stroke="#1e6b68" stroke-width="3" />
+                    <line x1="240" y1="100" x2="310" y2="100" stroke="#3d2010" stroke-width="2" />
+                    <text x="235" y="76" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#1e6b68"
+                        font-weight="600">C</text>
+                    <text x="207" y="96" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">+</text>
+                    <text x="248" y="96" font-family="JetBrains Mono,monospace" font-size="10" fill="#9a2020">−</text>
+                    <!-- Auxiliary SCR TA -->
+                    <polygon points="310,88 335,108 310,108" fill="#fdebd8" stroke="#9a2020" stroke-width="1.5" />
+                    <line x1="335" y1="88" x2="335" y2="108" stroke="#9a2020" stroke-width="2" />
+                    <line x1="310" y1="88" x2="335" y2="88" stroke="#9a2020" stroke-width="1.5" />
+                    <line x1="335" y1="108" x2="335" y2="240" stroke="#3d2010" stroke-width="2" />
+                    <text x="350" y="100" font-family="Lora,serif" font-size="11" fill="#9a2020" font-weight="700">T_A
+                        (Aux)</text>
+                    <!-- Inductor L (series) -->
+                    <line x1="155" y1="100" x2="155" y2="130" stroke="#3d2010" stroke-width="2" />
+                    <path d="M155,130 Q165,122 175,130 Q185,138 195,130 Q205,122 215,130" fill="none" stroke="#2d6648"
+                        stroke-width="2.5" />
+                    <line x1="215" y1="130" x2="215" y2="240" stroke="#3d2010" stroke-width="2" />
+                    <text x="175" y="155" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#2d6648"
+                        font-weight="600">L</text>
+                    <!-- Freewheeling Diode FD -->
+                    <line x1="430" y1="60" x2="430" y2="240" stroke="#3d2010" stroke-width="1.5"
+                        stroke-dasharray="4,3" />
+                    <polygon points="430,140 455,160 430,160" fill="#fef0d0" stroke="#a05c00" stroke-width="1.5" />
+                    <line x1="455" y1="140" x2="455" y2="160" stroke="#a05c00" stroke-width="2" />
+                    <text x="465" y="155" font-family="Lora,serif" font-size="11" fill="#a05c00"
+                        font-weight="600">FD</text>
+                    <!-- Load RL -->
+                    <rect x="530" y="80" width="60" height="120" rx="6" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="560" y="135" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648"
+                        font-weight="600">Load</text>
+                    <text x="560" y="150" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#2d6648">R+L</text>
+                    <line x1="560" y1="60" x2="560" y2="80" stroke="#3d2010" stroke-width="2" />
+                    <line x1="560" y1="200" x2="560" y2="240" stroke="#3d2010" stroke-width="2" />
+                    <!-- Output voltage label -->
+                    <text x="600" y="148" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-style="italic">V₀</text>
+                    <!-- Load current arrow -->
+                    <line x1="590" y1="100" x2="590" y2="80" stroke="#2d6648" stroke-width="1.5"
+                        marker-end="url(#arr4)" />
+                    <text x="606" y="95" font-family="JetBrains Mono,monospace" font-size="10" fill="#2d6648">I₀</text>
+                    <!-- Legend panel -->
+                    <rect x="50" y="260" width="580" height="32" rx="6" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1" />
+                    <text x="340" y="275" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a">T₁ = Main SCR · T_A = Auxiliary SCR · C = Commutating capacitor · L = Commutating
+                        inductor · FD = Freewheeling diode</text>
+                    <text x="340" y="288" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#9a6e50">Assume constant load current I₀ (large load inductance)</text>
+                </svg>
+                <div class="svg-cap">Fig 5.5 — Voltage commutated chopper circuit. The capacitor C is initially charged
+                    to V_s. When T_A fires, C applies reverse voltage across T₁, commutating it off.</div>
+            </div>
+
+            <h3 class="sub">Sequence of Events — Operating Modes</h3>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mode</th>
+                            <th>Devices Active</th>
+                            <th>What Happens</th>
+                            <th>Key Equation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Mode I (t = 0)</td>
+                            <td>T₁ ON, D OFF</td>
+                            <td>T₁ fires; load connected to supply. C charged to V_s (+ left, − right). Load current
+                                \(I_0\) flows.</td>
+                            <td>\(V_0 = V_s\)</td>
+                        </tr>
+                        <tr>
+                            <td>Mode II (t₁)</td>
+                            <td>T_A fires</td>
+                            <td>T_A turns on; tank circuit formed by V_s, C, T_A, L. Oscillating current \(i_c\) builds
+                                up sinusoidally. T₁ carries \(I_0 + i_c\) momentarily.</td>
+                            <td>\(i_c = V_s\sqrt{C/L}\sin\omega_0 t\)</td>
+                        </tr>
+                        <tr>
+                            <td>Mode III (t₂)</td>
+                            <td>T_A off, D on</td>
+                            <td>\(V_C\) reverses to \(-V_s\). T_A naturally commutates. Oscillatory current flows
+                                through C, L, D₂, T₁. Current through T₁ decreases as \(i_c\) rises toward \(I_0\).</td>
+                            <td>\(V_C = -V_s\)</td>
+                        </tr>
+                        <tr>
+                            <td>Mode IV (t₃)</td>
+                            <td>T₁ off, FD on</td>
+                            <td>When \(i_c = I_0\), current through T₁ drops to zero — T₁ turns off. Freewheeling diode
+                                FD carries load current. C charges linearly from \(-V_s\) back toward \(+V_s\).</td>
+                            <td>\(t_c = t_3 - t_2\) ← circuit turn-off time</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Critical Design Formulas</h3>
+
+            <div class="math-block">
+                <div class="math-lbl">Peak current through main SCR T₁ (must be rated for this)</div>
+                $$I_{T1,peak} = I_0 + V_s\sqrt{\frac{C}{L}}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Peak current through auxiliary SCR T_A</div>
+                $$I_{TA,peak} = I_0 \quad \text{(only load current flows through T_A)}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Average output voltage (with effective duty cycle α')</div>
+                $$V_0 = \frac{V_s}{T}\left[T_{ON} + (t_3 - t_2)\right] = V_s\cdot\alpha'$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Effective turn-on time (corrected for commutation interval)</div>
+                $$T'_{ON} = T_{ON} + \frac{2CV_s}{I_0}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Minimum ON time of chopper (commutation constraint)</div>
+                $$T_{ON,min} = \pi\sqrt{LC}$$
+            </div>
+
+            <h3 class="sub">Limitations of Voltage Commutated Chopper</h3>
+
+            <div class="two-col">
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Disadvantages</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Cannot work at no load (capacitor cannot recharge from −V_s to
+                            +V_s if I₀ = 0)</li>
+                        <li><span class="dot">▸</span>Load voltage momentarily rises to 2V_s during commutation —
+                            overvoltage stress</li>
+                        <li><span class="dot">▸</span>Main SCR T₁ must carry \(I_0 + V_s\sqrt{C/L}\) — must be
+                            over-rated</li>
+                        <li><span class="dot">▸</span>Requires a starting circuit to pre-charge capacitor</li>
+                        <li><span class="dot">▸</span>PIV of freewheeling diode = 2V_s</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Advantages</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Simple circuit — only one auxiliary SCR needed</li>
+                        <li><span class="dot">▸</span>Reliable voltage commutation — high reverse voltage pulse</li>
+                        <li><span class="dot">▸</span>Also called impulse commutation — industry standard approach</li>
+                        <li><span class="dot">▸</span>Jones chopper is a prominent variant using voltage commutation
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S5: CURRENT COMMUTATED CHOPPER ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">5.5</span>
+                <h2 class="sec-t">Current Commutated Chopper</h2>
+            </div>
+
+            <p>In current commutated chopper, commutation is achieved by injecting an oscillatory current pulse through
+                the main SCR in the <strong>opposite direction</strong> to the load current. When the net current
+                through the SCR becomes zero, it turns off naturally. This is fundamentally different from voltage
+                commutation — here it is the <em>current</em> that is forced to zero, not a voltage reversal that does
+                it.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Principle vs Voltage Commutation</div>
+                    <p>Voltage commutation: apply reverse voltage → SCR current becomes zero. Current commutation:
+                        inject opposing current pulse directly → total SCR current = I_load − I_pulse = 0. Both achieve
+                        the same goal but through different physical mechanisms. <strong>Morgan's chopper</strong> uses
+                        the principle of current commutation.</p>
+                </div>
+            </div>
+
+            <!-- Current comm chopper circuit -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg">
+                    <text x="340" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Current Commutated Chopper — Circuit Schematic</text>
+                    <!-- Supply -->
+                    <line x1="50" y1="60" x2="50" y2="220" stroke="#3d2010" stroke-width="2" />
+                    <text x="28" y="142" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-style="italic">V_s</text>
+                    <!-- Buses -->
+                    <line x1="50" y1="60" x2="610" y2="60" stroke="#3d2010" stroke-width="2" />
+                    <line x1="50" y1="220" x2="610" y2="220" stroke="#3d2010" stroke-width="2" />
+                    <!-- Main SCR T1 -->
+                    <polygon points="110,50 135,70 110,70" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="135" y1="50" x2="135" y2="70" stroke="#c95f1a" stroke-width="2" />
+                    <line x1="110" y1="50" x2="110" y2="60" stroke="#3d2010" stroke-width="2" />
+                    <line x1="135" y1="70" x2="135" y2="220" stroke="#3d2010" stroke-width="2" />
+                    <text x="150" y="63" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="700">T₁</text>
+                    <!-- D1 diode anti-parallel to T1 path -->
+                    <polygon points="135,155 155,175 135,175" fill="#fdebd8" stroke="#a05c00" stroke-width="1.5" />
+                    <line x1="155" y1="155" x2="155" y2="175" stroke="#a05c00" stroke-width="2" />
+                    <text x="162" y="168" font-family="Lora,serif" font-size="11" fill="#a05c00"
+                        font-weight="600">D₁</text>
+                    <!-- Cap C -->
+                    <line x1="225" y1="60" x2="225" y2="95" stroke="#3d2010" stroke-width="2" />
+                    <line x1="200" y1="95" x2="250" y2="95" stroke="#1e6b68" stroke-width="3" />
+                    <line x1="200" y1="103" x2="250" y2="103" stroke="#1e6b68" stroke-width="3" />
+                    <line x1="225" y1="103" x2="225" y2="140" stroke="#3d2010" stroke-width="2" />
+                    <text x="260" y="102" font-family="Lora,serif" font-size="12" fill="#1e6b68"
+                        font-weight="600">C</text>
+                    <!-- TA -->
+                    <polygon points="225,140 250,160 225,160" fill="#fdebd8" stroke="#9a2020" stroke-width="1.5" />
+                    <line x1="250" y1="140" x2="250" y2="160" stroke="#9a2020" stroke-width="2" />
+                    <line x1="225" y1="140" x2="250" y2="140" stroke="#9a2020" stroke-width="1.5" />
+                    <line x1="250" y1="160" x2="250" y2="220" stroke="#3d2010" stroke-width="2" />
+                    <text x="264" y="153" font-family="Lora,serif" font-size="11" fill="#9a2020"
+                        font-weight="700">T_A</text>
+                    <!-- Inductor L horizontal -->
+                    <line x1="225" y1="60" x2="330" y2="60" stroke="#3d2010" stroke-width="2" />
+                    <path d="M330,60 Q340,52 350,60 Q360,68 370,60 Q380,52 390,60 Q400,68 410,60" fill="none"
+                        stroke="#2d6648" stroke-width="2.5" />
+                    <line x1="410" y1="60" x2="480" y2="60" stroke="#3d2010" stroke-width="2" />
+                    <text x="370" y="46" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#2d6648"
+                        font-weight="600">L</text>
+                    <!-- FD Freewheeling -->
+                    <polygon points="480,100 505,120 480,120" fill="#fef0d0" stroke="#a05c00" stroke-width="1.5" />
+                    <line x1="505" y1="100" x2="505" y2="120" stroke="#a05c00" stroke-width="2" />
+                    <line x1="492" y1="60" x2="492" y2="100" stroke="#3d2010" stroke-width="2" />
+                    <line x1="492" y1="120" x2="492" y2="220" stroke="#3d2010" stroke-width="2" />
+                    <text x="516" y="114" font-family="Lora,serif" font-size="11" fill="#a05c00"
+                        font-weight="600">FD</text>
+                    <!-- Load -->
+                    <rect x="550" y="80" width="50" height="100" rx="5" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="575" y="128" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#2d6648">Load</text>
+                    <text x="575" y="143" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#2d6648">I₀</text>
+                    <line x1="575" y1="60" x2="575" y2="80" stroke="#3d2010" stroke-width="2" />
+                    <line x1="575" y1="180" x2="575" y2="220" stroke="#3d2010" stroke-width="2" />
+                    <!-- current annotation -->
+                    <text x="90" y="165" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a">i_T1</text>
+                    <text x="200" y="78" font-family="JetBrains Mono,monospace" font-size="10" fill="#9a2020">i_c
+                        (opposing)</text>
+                    <!-- bottom label -->
+                    <rect x="50" y="235" width="560" height="30" rx="5" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1" />
+                    <text x="330" y="254" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#3d2010">When i_c rises to equal I₀: i_T1 = I₀ − i_c = 0 → T₁ turns OFF (current
+                        commutation)</text>
+                </svg>
+                <div class="svg-cap">Fig 5.6 — Current commutated chopper. The commutating current i_c is injected
+                    opposite to load current through T₁. When i_c = I₀, T₁ current reaches zero and it turns off
+                    naturally.</div>
+            </div>
+
+            <h3 class="sub">Turn-Off Inductor Design</h3>
+
+            <p>The commutating inductor \(L\) in a current commutated chopper must be carefully designed. The condition
+                is that the peak commutating current must exceed the load current:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Condition for successful commutation</div>
+                $$I_{cp} = V_s\sqrt{\frac{C}{L}} \geq I_0 \quad \Rightarrow \quad L \geq \left(\frac{V_s}{I_0}\right)^2
+                C$$
+            </div>
+
+            <p>The value of \(L\) is determined based on the circuit turn-off time requirement:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Commutating inductor L (from turn-off time constraint)</div>
+                $$L = \frac{V_s \cdot t_c}{x I_0 \left[\pi - 2\sin^{-1}\!\left(\dfrac{1}{x}\right)\right]}$$
+            </div>
+
+            <p>where \(x = I_{cp}/I_0\) is the ratio of peak commutating current to load current, and \(t_c\) is the
+                required circuit turn-off time (\(t_c > t_q\)).</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Commutating capacitor C</div>
+                $$C = \frac{x I_0 \cdot t_c}{V_s\!\left[\pi - 2\sin^{-1}\!\left(\dfrac{1}{x}\right)\right]}$$
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">GATE Common Mistake — Anti-Parallel Diode</div>
+                    <p>Students often wonder why an anti-parallel diode is placed across the main SCR in current
+                        commutation. The reason: when the SCR turns off, the commutating current \(i_c\) still exceeds
+                        \(I_0\) momentarily, and this excess current must flow somewhere. The anti-parallel diode
+                        provides this path, preventing dangerously high reverse voltage from appearing across T₁.
+                        <em>Without this diode, the L-C circuit energy would create large voltage spikes.</em></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: COMMUTATING COMPONENT DESIGN ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">5.6</span>
+                <h2 class="sec-t">Commutating Component Design — L and C Calculation</h2>
+            </div>
+
+            <p>The design of commutating inductor \(L\) and capacitor \(C\) is a standard GATE numerical topic. The
+                values must satisfy two conditions simultaneously: (1) provide sufficient peak current/voltage for
+                commutation, and (2) provide a circuit turn-off time that exceeds the SCR's rated turn-off time \(t_q\).
+            </p>
+
+            <h3 class="sub">General Design Procedure</h3>
+
+            <div class="fblock"><span class="flbl">Step-by-Step Design of L and C</span><span class="fh">Step 1:</span>
+                Identify given data: V_s, I_o (max load current), t_q (SCR turn-off time)
+
+                <span class="fh">Step 2:</span> Choose safety factor: t_c = t_q + Δt (Δt ≈ 5–10 µs)
+                <span class="fh"> </span>Circuit turn-off time t_c must be > t_q
+
+                <span class="fh">Step 3:</span> For voltage commutation: during t_c, capacitor charges linearly
+                <span class="fh"> </span>I_o = C × (2V_s / t_c) → C = (I_o × t_c) / (2V_s) [approx, linear charging]
+
+                <span class="fh">Step 4:</span> For tank circuit constraint: t_c = π√LC (half-cycle of resonance)
+                <span class="fh"> </span>L = (t_c / π)² / C
+
+                <span class="fh">Step 5:</span> Verify peak current: I_cp = V_s√(C/L) ≥ I_o (for current commutation)
+                <span class="fh"> </span>Or: I_peak through T₁ = I_o + V_s√(C/L) (for voltage commutation)
+
+                <span class="fh">Step 6:</span> Check minimum ON time: T_ON_min = π√LC = t_c
+            </div>
+
+            <h3 class="sub">Voltage Commutation — Capacitor Sizing</h3>
+            <p>During the commutation interval \(t_3 - t_2\), the capacitor voltage changes linearly from \(-V_s\) to
+                \(+V_s\), a total change of \(2V_s\), while carrying the constant load current \(I_0\). Using \(i =
+                C\,dV/dt\):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Capacitor value from turn-off time (voltage commutated chopper)</div>
+                $$I_0 = C\cdot\frac{2V_s}{t_c} \quad \Rightarrow \quad \boxed{C = \frac{I_0 \cdot t_c}{2V_s}}$$
+            </div>
+
+            <p>The commutating inductor \(L\) is then determined from the resonant condition (peak current through main
+                SCR must not cause commutation failure):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Inductor constraint — peak SCR current</div>
+                $$I_{cp} = V_s\sqrt{\frac{C}{L}} \leq I_0 \quad \Rightarrow \quad L \geq \left(\frac{V_s}{I_0}\right)^2
+                C$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Output voltage — voltage commutated chopper</div>
+                $$V_0 = V_s\left(\frac{T'_{ON}}{T}\right) = \alpha' V_s \quad \text{where} \quad T'_{ON} = T_{ON} +
+                \frac{2CV_s}{I_0}$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">R-C Commutation Circuit Turn-Off Time</div>
+                    <p>For a simple \(RC\) commutation circuit (not LC tank), the circuit turn-off time is: \(t_c =
+                        RC\ln 2\). This is the time for the capacitor to charge from \(-V_s\) to zero through resistance
+                        \(R\). For example, if \(R = R_1 = R_2 = 5\,\Omega\) and \(C = 7.5\,\mu F\), then \(t_c = 5
+                        \times 7.5\times10^{-6} \times 0.693 \approx 26\,\mu s\).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: COMPARISON ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">5.7</span>
+                <h2 class="sec-t">Comparison of Commutation Methods</h2>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Natural Commutation</th>
+                            <th>Voltage Commutated</th>
+                            <th>Current Commutated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>How SCR turns off</td>
+                            <td>Supply voltage reverses naturally</td>
+                            <td>Capacitor applies reverse voltage pulse</td>
+                            <td>Opposing current cancels SCR current</td>
+                        </tr>
+                        <tr>
+                            <td>Application</td>
+                            <td>AC-DC rectifiers, AC controllers</td>
+                            <td>DC choppers (Jones type)</td>
+                            <td>DC choppers (Morgan type)</td>
+                        </tr>
+                        <tr>
+                            <td>Auxiliary components</td>
+                            <td class="t-grn">None</td>
+                            <td class="t-amb">1 auxiliary SCR + L + C</td>
+                            <td class="t-amb">1 auxiliary SCR + L + C + extra diodes</td>
+                        </tr>
+                        <tr>
+                            <td>No-load operation</td>
+                            <td class="t-grn">Yes</td>
+                            <td class="t-red">No — cannot recharge C</td>
+                            <td class="t-grn">Yes — cap charges from supply</td>
+                        </tr>
+                        <tr>
+                            <td>Voltage stress on load</td>
+                            <td>Normal</td>
+                            <td class="t-red">2V_s momentarily</td>
+                            <td>Normal (V_s)</td>
+                        </tr>
+                        <tr>
+                            <td>Main SCR rating</td>
+                            <td>Normal</td>
+                            <td class="t-red">I₀ + V_s√(C/L) — over-rated</td>
+                            <td class="t-org">I₀ only</td>
+                        </tr>
+                        <tr>
+                            <td>Circuit complexity</td>
+                            <td class="t-grn">Simple</td>
+                            <td class="t-org">Moderate</td>
+                            <td class="t-red">More complex</td>
+                        </tr>
+                        <tr>
+                            <td>Named topologies</td>
+                            <td>—</td>
+                            <td class="t-tel">Jones Chopper</td>
+                            <td class="t-tel">Morgan's Chopper</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Named Chopper Topologies — GATE Favourite</h3>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">GATE High-Priority Fact</div>
+                    <p><strong>Jones Chopper</strong> employs the principle of <em>voltage commutation</em>.
+                        <strong>Morgan's Chopper</strong> employs the principle of <em>current commutation</em>. These
+                        associations are directly tested in GATE and IES. Remember: <em>Jones = Voltage, Morgan =
+                            Current</em>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S8: GATE QUESTIONS ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr">
+                <span class="sec-num">5.8</span>
+                <h2 class="sec-t">GATE &amp; IES Questions — Commutation Circuits</h2>
+            </div>
+
+            <div class="g-insight">
+                <div class="g-insight-h">🎯 GATE Exam Perspective</div>
+                <ul>
+                    <li>Tank circuit analysis — peak current, conduction time, capacitor voltage reversal <span
+                            class="prob-tag ph">HIGH</span></li>
+                    <li>Voltage commutated chopper — C and L design given I₀, t_q, V_s <span
+                            class="prob-tag ph">HIGH</span></li>
+                    <li>Jones vs Morgan chopper identification <span class="prob-tag ph">HIGH</span></li>
+                    <li>Resonant commutation — find L &amp; C from peak current ratio and turn-off time <span
+                            class="prob-tag ph">HIGH</span></li>
+                    <li>Circuit turn-off time for RC circuit: t_c = RC ln 2 <span class="prob-tag pm">MEDIUM</span></li>
+                    <li>Commutation failure conditions and prevention <span class="prob-tag pm">MEDIUM</span></li>
+                    <li>Voltage across main SCR when turned off (resonant pulse) <span class="prob-tag pm">MEDIUM</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Resonant Commutation — Find L &amp; C</span>
+                    <span class="pyq-year">Concept Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p><strong>Question Type:</strong> A resonant commutation circuit has supply voltage \(V_{dc} =
+                        200\,\text{V}\), maximum load current \(I_0 = 10\,\text{A}\), device turn-off time \(t_q =
+                        30\,\mu s\), and ratio of peak resonant current to load current = 1.5. Find the values of L and
+                        C.</p>
+                    <div class="pyq-ans">
+                        <strong>Solution approach:</strong> Peak current \(I_p = 1.5\,I_0 = 15\,\text{A} =
+                        V_{dc}\sqrt{C/L}\).
+                        Circuit turn-off time: \(t_c = C \cdot V_{dc}/I_0 = 30\,\mu s\) → \(C = I_0 t_c / V_{dc} = 10
+                        \times 30\times10^{-6}/200 = 1.5\,\mu F\).
+                        From \(I_p = V_{dc}\sqrt{C/L}\): \(\sqrt{C/L} = 15/200 = 0.075\) → \(L = C/0.075^2 =
+                        1.5\times10^{-6}/0.005625 \approx 0.266\,\text{mH}\).
+                        <br><strong>Answer: L = 0.266 mH, C = 1.5 µF</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Voltage Commuted Chopper — Peak SCR Current</span>
+                    <span class="pyq-year">Concept Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p><strong>Question Type:</strong> A voltage commutated chopper operates at 500 Hz. Supply = 200 V,
+                        maximum load current = 10 A, L = 1 mH, C = 0.1 µF. Find the maximum current through main (M) and
+                        auxiliary (A) thyristors.</p>
+                    <div class="pyq-ans">
+                        <strong>Main SCR:</strong> \(I_{T1,max} = I_0 + V_s\sqrt{C/L} = 10 +
+                        200\sqrt{0.1\times10^{-6}/1\times10^{-3}} = 10 + 200\times0.01 = 10 + 2 = \mathbf{12\,A}\)
+                        <br><strong>Auxiliary SCR:</strong> \(I_{TA,max} = V_s\sqrt{C/L} = 200\times0.01 =
+                        \mathbf{2\,A}\)
+                        <br>Note: The auxiliary SCR carries only the resonant current, not the load current.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PYQ 3 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-ies">IES</span>
+                    <span class="pyq-title">RC Commutation — Circuit Turn-Off Time</span>
+                    <span class="pyq-year">Concept Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p><strong>Question Type:</strong> In a commutation circuit, \(R_1 = R_2 = R = 5\,\Omega\) and \(C =
+                        7.5\,\mu F\), \(V_{dc} = 100\,V\). Determine the circuit turn-off time.</p>
+                    <div class="pyq-ans">
+                        <strong>Solution:</strong> For RC commutation, \(t_c = R\,C\,\ln 2 = 5 \times 7.5\times10^{-6}
+                        \times 0.6931 \approx \mathbf{26\,\mu s}\).
+                        Physical reason: capacitor charges through R from −V_s toward +V_s; turn-off time is the
+                        duration it remains at negative (reverse) polarity.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PYQ 4 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Resonant Commutation — Voltage Across SCR at Turn-Off</span>
+                    <span class="pyq-year">Concept Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p><strong>Question Type:</strong> In a resonant pulse commutation, \(V_s = 230\,V\), \(L = 5\,\mu
+                        H\), \(C = 20\,\mu F\), \(I_0 = 300\,A\). Find the voltage across the main SCR when it gets
+                        turned off.</p>
+                    <div class="pyq-ans">
+                        <strong>Step 1 — Peak resonant current:</strong> \(I_p = V_s\sqrt{C/L} = 230\sqrt{20/5} =
+                        230\times2 = 460\,A\)
+                        <br><strong>Step 2 — Resonant frequency:</strong> \(\omega_0 = 1/\sqrt{LC} =
+                        1/\sqrt{5\times10^{-6}\times20\times10^{-6}} = 0.1\times10^6\,\text{rad/s}\)
+                        <br><strong>Step 3 — Time at commutation:</strong> \(\sin^{-1}(I_0/I_p) = \sin^{-1}(300/460)\) →
+                        \(\omega_0(t_3-t_2) = 40.706°\)
+                        <br><strong>Step 4 — SCR voltage:</strong> \(V_{ab} = V_s\cos[\omega_0(t_3-t_2)] =
+                        230\cos(40.706°) \approx \mathbf{174.4\,V}\)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ AI PROMPT ═══ -->
+        <div class="ai-prompt">
+            <div class="ai-prompt-title">🤖 Ask Aarova AI — Commutation Circuits</div>
+            <p>Ask any question about this chapter — concepts, derivations, numericals, GATE tips.</p>
+            <div class="ai-input-row">
+                <input id="userQ" class="ai-input" type="text"
+                    placeholder="e.g. Why does voltage commutated chopper fail at no load?" autocomplete="off" />
+                <button class="ai-btn" onclick="askClaude()">✦ Ask</button>
+            </div>
+            <div class="ai-suggest">
+                <span class="ai-chip" onclick="setQ('What is the difference between Jones and Morgan chopper?')">Jones
+                    vs Morgan chopper</span>
+                <span class="ai-chip" onclick="setQ('Derive the tank circuit current expression from KVL')">Tank circuit
+                    derivation</span>
+                <span class="ai-chip" onclick="setQ('How do I design commutating L and C for a given turn-off time?')">L
+                    &amp; C design steps</span>
+                <span class="ai-chip" onclick="setQ('What is commutation failure and how to prevent it?')">Commutation
+                    failure</span>
+                <span class="ai-chip" onclick="setQ('Explain the four modes of voltage commutated chopper')">Four modes
+                    explained</span>
+            </div>
+            <div class="ai-response" id="aiResp"></div>
+        </div>
+
+        <!-- ═══ S9: REVISION SHEET ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr">
+                <span class="sec-num">5.9</span>
+                <h2 class="sec-t">Quick Revision Sheet</h2>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">SCR Turn-Off Condition</div>
+                    <p>Reverse voltage must persist for \(\geq t_q\) seconds. Circuit turn-off time \(t_c = t_q + \Delta
+                        t\). Failure → commutation failure → loss of control.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Tank Circuit</div>
+                    <p>\(i(t) = V_0\sqrt{C/L}\sin\omega_0 t\). Peak = \(V_0\sqrt{C/L}\). Conduction = \(\pi\sqrt{LC}\).
+                        \(V_C\) reverses: \(+V_0 \to -V_0\).</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Resonant Frequency</div>
+                    <p>\(\omega_0 = 1/\sqrt{LC}\) rad/s. \(f_0 = 1/(2\pi\sqrt{LC})\) Hz. Min ON time = \(\pi\sqrt{LC}\).
+                    </p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Voltage Comm. Chopper</div>
+                    <p>C applies reverse V to SCR. No-load fails. Load V reaches 2V_s. SCR must carry \(I_0 +
+                        V_s\sqrt{C/L}\). Jones Chopper = voltage type.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Current Comm. Chopper</div>
+                    <p>Opposing i_c cancels I_0 in SCR. Works at no-load. Morgan's Chopper = current type. Need \(I_{cp}
+                        \geq I_0\).</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Component Design</div>
+                    <p>\(C = I_0 t_c/(2V_s)\). \(L \geq (V_s/I_0)^2 C\). RC circuit: \(t_c = RC\ln 2\). Effective duty
+                        cycle \(\alpha' = T'_{ON}/T\).</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 6</div>
+                    <p>DC Motor Drives — speed control using converters and choppers, separately excited and series DC
+                        motor drive analysis, four-quadrant operation, braking methods (dynamic, regenerative,
+                        plugging), torque-speed characteristics with GATE and IES coverage.</p>
+                </div>
+            </div>
+
+            <!-- Citations -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                    the following standard textbooks. All explanations, derivations, and diagrams are original to Aarova
+                    AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Mohan, N., Undeland, T.M., and Robbins, W.P. <em>Power
+                                Electronics: Converters, Applications and Design</em>, 3rd ed. Wiley, 2003. Ch. 8 —
+                            Switching-aid circuits and commutation. Primary reference for tank circuit theory and LC
+                            design.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Rashid, M.H. <em>Power Electronics Handbook</em>, 4th ed.
+                            Butterworth-Heinemann, 2017. Ch. 15 — DC–DC converters and commutation circuits; voltage and
+                            current commutated choppers.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Sen, P.C. <em>Principles of Electric Machines and Power
+                                Electronics</em>, 3rd ed. Wiley, 2013. Ch. 6 — Thyristor commutation, chopper circuits,
+                            turn-off time requirements.</span></li>
+                    <li><span class="cite-num">[4]</span><span>Bimbhra, P.S. <em>Power Electronics</em>, 5th ed. Khanna
+                            Publishers, 2012. Ch. 7 — Commutation circuits for thyristors; voltage and current
+                            commutation with design examples.</span></li>
+                    <li><span class="cite-num">[5]</span><span>IIT Kharagpur NPTEL. <em>Power Electronics — Lectures
+                                18–22: Commutation Circuits</em>. National Programme on Technology Enhanced Learning.
+                            nptel.ac.in. Commutation theory, chopper circuits and design.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Power Electronics Series &nbsp;·&nbsp; Chapter 5 of 8<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                    diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+        </div>
+
+
+
+    </div><!-- end .page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Power Electronics. Topic: Commutation Circuits — Chapter 5. Cover SCR turn-off mechanisms, natural vs forced commutation, tank circuit analysis (LC resonance, Laplace transform derivation), voltage commutated chopper (Jones type), current commutated chopper (Morgan type), commutating L and C design, GATE/IES previous year question patterns. Answer with step-by-step working for numericals. Base answers on Mohan, Rashid, Sen, Bimbhra. All content original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = '✦ Ask'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

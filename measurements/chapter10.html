@@ -1,0 +1,2760 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Q-meter</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* PROGRESS */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 50%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px
+        }
+
+        /* CALLOUTS */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* TABLES */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* FORMULA BLOCK */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* MATH */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* SVG */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* GATE / PYQ CARDS */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* TWO-COL CARDS */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        /* SUMMARY GRID */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* PROBABILITY */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* AI TUTOR */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12)
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none
+        }
+
+        .ai-btn:hover {
+            background: #155250
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg)
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto
+        }
+
+        footer {
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+            padding-top: 28px;
+            border-top: 1.5px solid var(--border);
+            margin-top: 44px
+        }
+
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 32px 0
+        }
+
+        @media (max-width:480px) {
+            .toc-grid {
+                grid-template-columns: 1fr
+            }
+
+            .two-col {
+                grid-template-columns: 1fr
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-btn {
+                width: 100%
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div>
+            <span class="logo">Aarova AI</span>
+            <span class="logo-sub">Electrical Measurements</span>
+        </div>
+        <div class="hbadges">
+            <span class="hbadge">GATE EE</span>
+            <span class="hbadge">IES E&amp;T</span>
+            <span class="hbadge">Ch. 4</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="eyebrow">Electrical Measurements &amp; Instrumentation</div>
+            <h1 class="hero-title"><em>Q-Meter</em> — Measurement of<br>Quality Factor &amp; RF Impedance</h1>
+            <p class="hero-desc">A thorough, exam-focused chapter on the Q-meter — its operating principle, circuit
+                analysis, series and parallel connection methods, sources of error, and complete GATE &amp; IES
+                perspectives. All content derived from standard reference textbooks.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">🟢 High GATE Weightage</span>
+                <span class="badge">Golding &amp; Widdis</span>
+                <span class="badge">Helfrick &amp; Cooper</span>
+                <span class="badge">A.K. Sawhney</span>
+                <span class="badge">E.W. Golding</span>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <span class="pl">Chapter Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Ch. 4 / 8</span>
+        </div>
+
+        <!-- TOC -->
+        <div class="toc">
+            <div class="toc-h">Table of Contents</div>
+            <div class="toc-grid">
+                <a class="toc-item" href="#s1"><span class="toc-n">01</span>Why the Q-Meter Exists</a>
+                <a class="toc-item" href="#s2"><span class="toc-n">02</span>Intuitive Understanding</a>
+                <a class="toc-item" href="#s3"><span class="toc-n">03</span>Core Theory &amp; Q-Factor</a>
+                <a class="toc-item" href="#s4"><span class="toc-n">04</span>Circuit &amp; Operating Principle</a>
+                <a class="toc-item" href="#s5"><span class="toc-n">05</span>Series Connection Method</a>
+                <a class="toc-item" href="#s6"><span class="toc-n">06</span>Parallel Connection Method</a>
+                <a class="toc-item" href="#s7"><span class="toc-n">07</span>Errors &amp; Distributed Capacitance</a>
+                <a class="toc-item" href="#s8"><span class="toc-n">08</span>GATE &amp; IES Insights</a>
+                <a class="toc-item" href="#s9"><span class="toc-n">09</span>Common Misconceptions</a>
+                <a class="toc-item" href="#s10"><span class="toc-n">10</span>Memory Techniques</a>
+                <a class="toc-item" href="#s11"><span class="toc-n">11</span>Quick Revision Sheet</a>
+                <a class="toc-item" href="#s12"><span class="toc-n">12</span>AI Tutor</a>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 1 ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">01</span>
+                <h2 class="sec-t">Why the Q-Meter Exists — The Engineering Problem</h2>
+            </div>
+
+            <p>In radio-frequency (RF) and high-frequency electronics, inductors and capacitors are never ideal. A real
+                coil wound with copper wire has resistance distributed throughout its length. This unwanted resistance
+                dissipates energy — energy that was meant to be stored in the magnetic field. The ratio of energy stored
+                to energy dissipated per cycle, scaled by \(2\pi\), defines the <strong>Quality Factor Q</strong>.</p>
+
+            <p>Before the Q-meter was developed in the 1930s, measuring inductance, self-capacitance, and effective
+                resistance of RF coils at operating frequencies was extremely tedious — requiring separate bridge
+                measurements that were difficult to perform at megahertz frequencies. The Q-meter solved all of this in
+                a single, direct-reading instrument.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Significance</div>
+                    <p>High Q in a coil means low resistive loss, sharper resonance, better selectivity in radio
+                        receivers, and higher efficiency in oscillator circuits. Broadcast receivers require coil Q
+                        values typically above 100. The Q-meter gives the engineer a direct, rapid measurement at the
+                        <em>actual operating frequency</em>.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Real-World Applications</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Radio &amp; Communication</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Characterising tank circuits in AM/FM transmitters</li>
+                        <li><span class="dot">▸</span>Selecting coils for IF transformers in superhet receivers</li>
+                        <li><span class="dot">▸</span>Verifying antenna loading coil quality</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Filter &amp; Oscillator Design</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Measuring Q of crystal resonators</li>
+                        <li><span class="dot">▸</span>Checking LC filter inductor losses at design frequency</li>
+                        <li><span class="dot">▸</span>Verifying power factor correction capacitors for ESR</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Medical &amp; Industrial</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>MRI gradient coil characterisation</li>
+                        <li><span class="dot">▸</span>Induction heating tank coil measurement</li>
+                        <li><span class="dot">▸</span>Plasma generator matching network design</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Quality Control</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Production testing of RF chokes</li>
+                        <li><span class="dot">▸</span>Verification of capacitor self-resonance frequency</li>
+                        <li><span class="dot">▸</span>Checking ferrite core losses at high frequency</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 2 ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">02</span>
+                <h2 class="sec-t">Intuitive Understanding — The Voltage Magnification Analogy</h2>
+            </div>
+
+            <p>Imagine a child on a swing. Each push you give is small — but if you time it perfectly with the swing's
+                natural frequency, the swing goes higher and higher. The amplitude of the swing at resonance compared to
+                the amplitude of your push is the Quality Factor. A very smooth, low-friction bearing gives a high Q; a
+                rusty pivot (high friction) gives a low Q.</p>
+
+            <p>In a series RLC circuit at resonance, something equally dramatic happens: the voltage appearing across
+                the capacitor (or inductor) can be <strong>Q times larger</strong> than the voltage applied to the
+                entire circuit. If you apply 1 V to a circuit with Q = 100, you get 100 V across the capacitor. The
+                Q-meter exploits this directly — it measures that magnified voltage and divides by the source voltage,
+                giving Q as a direct meter reading.</p>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Key Intuition</div>
+                    <p>The Q-meter does not measure resistance directly. It measures <strong>voltage
+                            magnification</strong> at resonance. The connection between the two is: high resistance →
+                        low magnification → low Q. Low resistance → high magnification → high Q.</p>
+                </div>
+            </div>
+
+            <!-- SVG: Voltage magnification intuition -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" font-family="'Lora',Georgia,serif">
+                    <!-- Applied voltage bar -->
+                    <rect x="40" y="80" width="50" height="40" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"
+                        rx="4" />
+                    <text x="65" y="104" text-anchor="middle" font-size="13" fill="#c95f1a" font-weight="600">V<tspan
+                            baseline-shift="sub" font-size="9">in</tspan></text>
+                    <text x="65" y="140" text-anchor="middle" font-size="10" fill="#9a6e50">1 V</text>
+
+                    <text x="120" y="104" text-anchor="middle" font-size="20" fill="#c95f1a">×</text>
+
+                    <!-- Q block -->
+                    <rect x="150" y="60" width="80" height="80" fill="#d8eeed" stroke="#1e6b68" stroke-width="2"
+                        rx="8" />
+                    <text x="190" y="96" text-anchor="middle" font-size="22" fill="#1e6b68" font-weight="700">Q</text>
+                    <text x="190" y="115" text-anchor="middle" font-size="11" fill="#1e6b68">factor</text>
+                    <text x="190" y="160" text-anchor="middle" font-size="10" fill="#9a6e50">= 100</text>
+
+                    <text x="260" y="104" text-anchor="middle" font-size="20" fill="#c95f1a">=</text>
+
+                    <!-- Output voltage bar -->
+                    <rect x="285" y="20" width="50" height="140" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5"
+                        rx="4" />
+                    <text x="310" y="96" text-anchor="middle" font-size="13" fill="#2d6648" font-weight="600">V<tspan
+                            baseline-shift="sub" font-size="9">C</tspan></text>
+                    <text x="310" y="175" text-anchor="middle" font-size="10" fill="#9a6e50">100 V</text>
+
+                    <!-- Arrow pointing to meter -->
+                    <line x1="348" y1="90" x2="420" y2="90" stroke="#1e6b68" stroke-width="1.5"
+                        marker-end="url(#arr)" />
+                    <defs>
+                        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L8,3 z" fill="#1e6b68" />
+                        </marker>
+                    </defs>
+
+                    <!-- Meter circle -->
+                    <circle cx="470" cy="90" r="45" fill="#fff" stroke="#c95f1a" stroke-width="2" />
+                    <text x="470" y="86" text-anchor="middle" font-size="11" fill="#3d2010"
+                        font-weight="600">Q-Meter</text>
+                    <text x="470" y="102" text-anchor="middle" font-size="18" fill="#c95f1a"
+                        font-weight="700">100</text>
+                    <text x="470" y="118" text-anchor="middle" font-size="9" fill="#9a6e50">Direct reading</text>
+
+                    <!-- Labels -->
+                    <text x="350" y="50" text-anchor="middle" font-size="11" fill="#9a6e50" font-style="italic">Q = V
+                        <tspan baseline-shift="sub" font-size="8">C</tspan> / V<tspan baseline-shift="sub"
+                            font-size="8">in</tspan></text>
+
+                    <!-- Low Q vs High Q illustration -->
+                    <text x="590" y="35" text-anchor="middle" font-size="10" fill="#9a2020" font-weight="600">LOW Q
+                        (lossy coil)</text>
+                    <rect x="555" y="45" width="70" height="10" fill="#e89090" rx="3" />
+
+                    <text x="590" y="80" text-anchor="middle" font-size="10" fill="#2d6648" font-weight="600">HIGH Q
+                        (good coil)</text>
+                    <rect x="555" y="90" width="70" height="30" fill="#8ecaaa" rx="3" />
+
+                    <text x="590" y="145" text-anchor="middle" font-size="9" fill="#9a6e50" font-style="italic">Bar
+                        height = Q value</text>
+                </svg>
+                <div class="svg-cap">Fig. 1 — Voltage magnification principle: the capacitor voltage is Q times the
+                    input voltage at resonance. The Q-meter reads this ratio directly.</div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 3 ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">03</span>
+                <h2 class="sec-t">Core Theory — Quality Factor, Definitions &amp; Derivations</h2>
+            </div>
+
+            <h3 class="sub">Definition of Q-Factor</h3>
+            <p>The Quality Factor of a reactive component or resonant circuit is defined in three equivalent ways, each
+                revealing a different physical insight:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Definition 1 — Energy ratio</div>
+                $$Q = 2\pi \times \frac{\text{Maximum energy stored in element}}{\text{Energy dissipated per cycle}}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Definition 2 — Impedance ratio (for a coil)</div>
+                $$Q = \frac{X_L}{R} = \frac{\omega L}{R} = \frac{2\pi f L}{R}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Definition 3 — Voltage magnification at series resonance</div>
+                $$Q = \frac{V_C}{V_{\text{in}}} = \frac{V_L}{V_{\text{in}}}$$
+            </div>
+
+            <p>Where \(X_L = \omega L\) is the inductive reactance, \(R\) is the effective series resistance of the coil
+                (which includes skin-effect resistance, core loss resistance, and winding resistance), \(V_C\) is the
+                voltage across the tuning capacitor at resonance, and \(V_{\text{in}}\) is the applied voltage.</p>
+
+            <h3 class="sub">Derivation of Voltage Magnification</h3>
+            <p>Consider a series RLC circuit driven by a sinusoidal source \(V_{\text{in}}\). At resonance, \(X_L =
+                X_C\), so the total impedance collapses to \(Z = R\) (purely resistive minimum). The current is at its
+                maximum:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Current at resonance</div>
+                $$I_{\text{res}} = \frac{V_{\text{in}}}{R}$$
+            </div>
+
+            <p>The voltage across the capacitor is \(V_C = I_{\text{res}} \cdot X_C\). Since at resonance \(X_C = X_L =
+                \omega_0 L\):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Voltage magnification derivation</div>
+                $$V_C = I_{\text{res}} \cdot X_C = \frac{V_{\text{in}}}{R} \cdot \frac{1}{\omega_0 C} =
+                \frac{V_{\text{in}}}{R} \cdot \omega_0 L = V_{\text{in}} \cdot \frac{\omega_0 L}{R} = Q \cdot
+                V_{\text{in}}$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✅</div>
+                <div class="cb">
+                    <div class="ct">Physical Significance</div>
+                    <p>The same relationship holds for the inductor voltage: \(V_L = Q \cdot V_{\text{in}}\) at
+                        resonance. Both \(V_C\) and \(V_L\) are Q times the supply voltage, but they are equal and
+                        opposite in phase — they cancel in the loop equation, leaving only \(V_R = V_{\text{in}}\).</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Resonance Frequency</h3>
+            <div class="math-block">
+                <div class="math-lbl">Resonance condition: X_L = X_C</div>
+                $$f_0 = \frac{1}{2\pi\sqrt{LC}} \quad \Longrightarrow \quad \omega_0 = \frac{1}{\sqrt{LC}}$$
+            </div>
+
+            <h3 class="sub">Bandwidth and Selectivity</h3>
+            <p>The Q-factor also determines the bandwidth of the resonant circuit. A higher Q gives a narrower, more
+                selective resonance peak — essential for channel selectivity in radio receivers.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Bandwidth — 3 dB bandwidth of resonance curve</div>
+                $$BW = \frac{f_0}{Q} = f_2 - f_1$$
+            </div>
+
+            <p>Here \(f_1\) and \(f_2\) are the lower and upper half-power (−3 dB) frequencies.</p>
+
+            <!-- SVG: Resonance curve showing bandwidth -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" font-family="'Lora',Georgia,serif">
+                    <!-- Axes -->
+                    <line x1="60" y1="260" x2="640" y2="260" stroke="#ddc8b0" stroke-width="1.5" />
+                    <line x1="60" y1="30" x2="60" y2="260" stroke="#ddc8b0" stroke-width="1.5" />
+                    <text x="340" y="290" text-anchor="middle" font-size="13" fill="#6b3e22">Frequency</text>
+                    <text x="25" y="150" text-anchor="middle" font-size="13" fill="#6b3e22"
+                        transform="rotate(-90,25,150)">Current I</text>
+
+                    <!-- High Q curve (sharp, teal) -->
+                    <path d="M80,255 Q200,258 300,40 Q400,258 530,256" fill="none" stroke="#1e6b68"
+                        stroke-width="2.5" />
+                    <text x="310" y="30" font-size="11" fill="#1e6b68" font-weight="600">High Q</text>
+
+                    <!-- Low Q curve (wide, orange) -->
+                    <path d="M80,255 Q170,230 300,130 Q430,230 560,255" fill="none" stroke="#c95f1a" stroke-width="2.5"
+                        stroke-dasharray="6,3" />
+                    <text x="500" y="120" font-size="11" fill="#c95f1a" font-weight="600">Low Q</text>
+
+                    <!-- Resonance peak marker -->
+                    <line x1="300" y1="40" x2="300" y2="260" stroke="#1e6b68" stroke-width="1" stroke-dasharray="4,3" />
+                    <text x="300" y="275" text-anchor="middle" font-size="11" fill="#1e6b68">f₀</text>
+
+                    <!-- -3dB line for High Q -->
+                    <line x1="60" y1="98" x2="640" y2="98" stroke="#9a6e50" stroke-width="1" stroke-dasharray="3,3" />
+                    <text x="545" y="93" font-size="10" fill="#9a6e50">I_max / √2 (−3 dB)</text>
+
+                    <!-- BW arrows for High Q -->
+                    <line x1="270" y1="98" x2="330" y2="98" stroke="#1e6b68" stroke-width="1.5"
+                        marker-start="url(#arrl)" marker-end="url(#arrr)" />
+                    <defs>
+                        <marker id="arrl" markerWidth="6" markerHeight="6" refX="0" refY="3" orient="auto">
+                            <path d="M6,0 L0,3 L6,6 z" fill="#1e6b68" />
+                        </marker>
+                        <marker id="arrr" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto">
+                            <path d="M0,0 L6,3 L0,6 z" fill="#1e6b68" />
+                        </marker>
+                    </defs>
+                    <text x="300" y="87" text-anchor="middle" font-size="10" fill="#1e6b68">BW = f₀/Q</text>
+
+                    <!-- I_max marker -->
+                    <circle cx="300" cy="40" r="4" fill="#1e6b68" />
+                    <text x="315" y="44" font-size="10" fill="#1e6b68">I_max</text>
+                </svg>
+                <div class="svg-cap">Fig. 2 — Resonance curves for high-Q (sharp, teal) and low-Q (broad, orange dashed)
+                    circuits. Higher Q gives narrower bandwidth and greater selectivity.</div>
+                <div class="svg-cite">Based on: Helfrick &amp; Cooper, <em>Modern Electronic Instrumentation and
+                        Measurement Techniques</em>, Ch. 10</div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 4 ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">04</span>
+                <h2 class="sec-t">Circuit &amp; Operating Principle of the Q-Meter</h2>
+            </div>
+
+            <h3 class="sub">Instrument Overview</h3>
+            <p>The Q-meter is essentially a series-resonant circuit with a built-in RF signal generator and two
+                voltmeters. Its key components are:<sup class="cite">[1]</sup></p>
+
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Signal Source</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Wide-range RF oscillator, typically 50 kHz to 50 MHz</li>
+                        <li><span class="dot">▸</span>Calibrated frequency dial for direct reading</li>
+                        <li><span class="dot">▸</span>Output shorted by low shunt resistance R<sub>sh</sub></li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Shunt Resistance R<sub>sh</sub></div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Very small value: typically 0.02 Ω</li>
+                        <li><span class="dot">▸</span>Acts as a near-ideal voltage source at RF</li>
+                        <li><span class="dot">▸</span>Voltage across it measured by thermocouple meter</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Tuning Capacitor C</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Precision variable capacitor, calibrated in pF</li>
+                        <li><span class="dot">▸</span>Used to tune circuit to resonance</li>
+                        <li><span class="dot">▸</span>Low-loss construction essential</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Electronic Voltmeter</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>High-impedance VTVM/FET voltmeter across capacitor</li>
+                        <li><span class="dot">▸</span>Scale calibrated directly in Q</li>
+                        <li><span class="dot">▸</span>Also reads capacitor voltage V<sub>C</sub></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SVG: Full Q-meter circuit diagram -->
+            <div class="svg-wrap svg-scroll">
+                <svg viewBox="0 0 760 280" xmlns="http://www.w3.org/2000/svg" font-family="'Lora',Georgia,serif">
+                    <!-- Top rail -->
+                    <line x1="30" y1="60" x2="730" y2="60" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- Bottom rail -->
+                    <line x1="30" y1="220" x2="730" y2="220" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Oscillator box -->
+                    <rect x="30" y="90" width="80" height="100" rx="6" fill="#fdebd8" stroke="#c95f1a"
+                        stroke-width="1.5" />
+                    <text x="70" y="135" text-anchor="middle" font-size="10" fill="#c95f1a"
+                        font-weight="600">Freq.</text>
+                    <text x="70" y="148" text-anchor="middle" font-size="10" fill="#c95f1a"
+                        font-weight="600">Calibrated</text>
+                    <text x="70" y="161" text-anchor="middle" font-size="10" fill="#c95f1a"
+                        font-weight="600">Oscillator</text>
+                    <line x1="70" y1="190" x2="70" y2="220" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="70" y1="60" x2="70" y2="90" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Rsh -->
+                    <line x1="140" y1="60" x2="140" y2="90" stroke="#3d2010" stroke-width="1.5" />
+                    <rect x="120" y="90" width="40" height="60" rx="4" fill="#f8ede0" stroke="#9a6e50"
+                        stroke-width="1.5" />
+                    <text x="140" y="118" text-anchor="middle" font-size="11" fill="#6b3e22" font-weight="600">R</text>
+                    <text x="140" y="132" text-anchor="middle" font-size="9" fill="#6b3e22">sh</text>
+                    <text x="140" y="165" text-anchor="middle" font-size="9" fill="#9a6e50">0.02Ω</text>
+                    <line x1="140" y1="150" x2="140" y2="220" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Supply voltmeter Vin -->
+                    <circle cx="190" cy="140" r="22" fill="#fff" stroke="#c95f1a" stroke-width="1.5" />
+                    <text x="190" y="137" text-anchor="middle" font-size="9" fill="#c95f1a">V</text>
+                    <text x="190" y="148" text-anchor="middle" font-size="8" fill="#c95f1a">in</text>
+                    <line x1="190" y1="118" x2="190" y2="60" stroke="#3d2010" stroke-width="1" />
+                    <line x1="190" y1="162" x2="190" y2="220" stroke="#3d2010" stroke-width="1" />
+
+                    <!-- Test terminals / socket box -->
+                    <rect x="230" y="85" width="90" height="50" rx="5" fill="#d8eeed" stroke="#1e6b68"
+                        stroke-width="1.5" />
+                    <text x="275" y="106" text-anchor="middle" font-size="10" fill="#1e6b68"
+                        font-weight="600">Test</text>
+                    <text x="275" y="119" text-anchor="middle" font-size="10" fill="#1e6b68"
+                        font-weight="600">Socket</text>
+                    <line x1="230" y1="110" x2="210" y2="110" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="320" y1="110" x2="340" y2="110" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="230" y1="110" x2="230" y2="60" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="320" y1="110" x2="320" y2="60" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Coil L (inductor symbol) -->
+                    <text x="395" y="47" text-anchor="middle" font-size="10" fill="#3d2010">L (Unknown coil)</text>
+                    <!-- Inductor humps -->
+                    <path d="M350,60 Q358,40 366,60 Q374,40 382,60 Q390,40 398,60 Q406,40 414,60 Q422,40 430,60"
+                        fill="none" stroke="#3d2010" stroke-width="1.8" />
+
+                    <!-- Coil resistance Rcoil -->
+                    <!-- Zigzag resistor -->
+                    <path d="M430,60 L438,60 L442,48 L450,72 L458,48 L466,72 L474,48 L478,60 L490,60" fill="none"
+                        stroke="#3d2010" stroke-width="1.8" />
+                    <text x="460" y="88" text-anchor="middle" font-size="9" fill="#9a6e50">R<tspan baseline-shift="sub"
+                            font-size="7">coil</tspan></text>
+
+                    <!-- Distributed capacitance Cd (dashed) -->
+                    <line x1="390" y1="60" x2="390" y2="75" stroke="#9a6e50" stroke-width="1" stroke-dasharray="3,2" />
+                    <line x1="375" y1="75" x2="405" y2="75" stroke="#9a6e50" stroke-width="1.2" />
+                    <line x1="375" y1="82" x2="405" y2="82" stroke="#9a6e50" stroke-width="1.2" />
+                    <line x1="390" y1="82" x2="390" y2="96" stroke="#9a6e50" stroke-width="1" stroke-dasharray="3,2" />
+                    <line x1="390" y1="96" x2="390" y2="110" stroke="#9a6e50" stroke-width="1" stroke-dasharray="3,2" />
+                    <line x1="350" y1="110" x2="490" y2="110" stroke="#3d2010" stroke-width="1"
+                        stroke-dasharray="2,2" />
+                    <text x="415" y="80" font-size="8" fill="#9a6e50" font-style="italic">C<tspan baseline-shift="sub"
+                            font-size="6">d</tspan></text>
+
+                    <!-- Tuning capacitor C -->
+                    <line x1="580" y1="60" x2="580" y2="100" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="560" y1="100" x2="600" y2="100" stroke="#3d2010" stroke-width="2.5" />
+                    <line x1="560" y1="110" x2="600" y2="110" stroke="#3d2010" stroke-width="2.5" />
+                    <!-- Tuning arrow -->
+                    <line x1="565" y1="92" x2="595" y2="118" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+                    <defs>
+                        <marker id="arr2" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto">
+                            <path d="M0,0 L6,3 L0,6 z" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <line x1="580" y1="110" x2="580" y2="140" stroke="#3d2010" stroke-width="1.5" />
+                    <text x="610" y="108" font-size="11" fill="#3d2010" font-weight="600">C</text>
+                    <text x="610" y="120" font-size="9" fill="#9a6e50">Tuning</text>
+                    <line x1="580" y1="140" x2="580" y2="220" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Capacitor voltmeter Vc -->
+                    <circle cx="660" cy="140" r="24" fill="#fff" stroke="#2d6648" stroke-width="1.5" />
+                    <text x="660" y="136" text-anchor="middle" font-size="9" fill="#2d6648">V</text>
+                    <text x="660" y="148" text-anchor="middle" font-size="8" fill="#2d6648">C</text>
+                    <line x1="660" y1="116" x2="660" y2="60" stroke="#3d2010" stroke-width="1" />
+                    <line x1="660" y1="164" x2="660" y2="220" stroke="#3d2010" stroke-width="1" />
+                    <!-- Q scale label -->
+                    <text x="660" y="175" text-anchor="middle" font-size="9" fill="#2d6648"
+                        font-style="italic">Q-scale</text>
+
+                    <!-- Wire connecting coil to socket and capacitor -->
+                    <line x1="490" y1="60" x2="730" y2="60" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="730" y1="60" x2="730" y2="220" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Labels -->
+                    <text x="140" y="250" text-anchor="middle" font-size="9" fill="#9a6e50">Thermocouple</text>
+                    <text x="140" y="262" text-anchor="middle" font-size="9" fill="#9a6e50">voltmeter</text>
+                    <text x="660" y="250" text-anchor="middle" font-size="9" fill="#9a6e50">Electronic</text>
+                    <text x="660" y="262" text-anchor="middle" font-size="9" fill="#9a6e50">voltmeter</text>
+                </svg>
+                <div class="svg-cap">Fig. 3 — Complete circuit diagram of the Q-meter (direct connection method).
+                    R<sub>sh</sub> is the low shunt resistance (≈ 0.02 Ω), C is the precision variable tuning capacitor,
+                    and C<sub>d</sub> (dashed) represents distributed self-capacitance of the coil.</div>
+                <div class="svg-cite">Adapted from: A.K. Sawhney, <em>A Course in Electrical and Electronic Measurements
+                        and Instrumentation</em>, Ch. 13</div>
+            </div>
+
+            <h3 class="sub">Step-by-Step Measurement Procedure</h3>
+            <div class="callout c-info">
+                <div class="ci">📋</div>
+                <div class="cb">
+                    <div class="ct">Measurement Steps</div>
+                    <p><strong>Step 1:</strong> Connect the unknown coil to the test terminals (socket) of the
+                        Q-meter.<br>
+                        <strong>Step 2:</strong> Set the oscillator to the desired test frequency.<br>
+                        <strong>Step 3:</strong> Vary the tuning capacitor C until the voltmeter V<sub>C</sub> reads a
+                        maximum (resonance condition).<br>
+                        <strong>Step 4:</strong> Read Q directly from the Q-scale of the voltmeter. Note capacitor
+                        setting C₁.<br>
+                        <strong>Step 5:</strong> Calculate inductance: \(L = \frac{1}{(2\pi f)^2 C_1}\) and effective
+                        resistance \(R = \frac{\omega L}{Q}\).
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Why is R<sub>sh</sub> so small?</h3>
+            <p>The shunt resistance R<sub>sh</sub> serves as the internal impedance of the voltage source. For an ideal
+                voltage source, the internal impedance should be zero. At 0.02 Ω, it is several orders of magnitude
+                smaller than the coil resistance under test (which may be 1–10 Ω). This ensures that R<sub>sh</sub> does
+                not add significant error to the Q measurement — the effective Q measured is:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Measured Q with shunt resistance effect</div>
+                $$Q_{\text{measured}} = \frac{X_L}{R_{\text{coil}} + R_{\text{sh}}}$$
+            </div>
+
+            <p>Since \(R_{\text{sh}} \ll R_{\text{coil}}\), the error is negligible in most practical cases. However,
+                when measuring high-Q coils (Q &gt; 300), this small addition becomes significant and a correction is
+                necessary.</p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Circuit Q vs Actual Q</div>
+                    <p>The Q measured by the instrument is called the <strong>circuit Q</strong>, which is slightly
+                        lower than the true or actual Q of the coil alone, because the measurement circuit includes
+                        distributed capacitance C<sub>d</sub> and the shunt resistance R<sub>sh</sub>. For routine
+                        engineering work this difference is negligible; for precision RF design it must be corrected.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 5 ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">05</span>
+                <h2 class="sec-t">Series Connection Method</h2>
+            </div>
+
+            <p>The series connection extends the Q-meter to measure <strong>low-impedance components</strong> that
+                cannot be placed directly in the test socket — including small coils (high mutual inductance), low-value
+                resistors, and large capacitors. The unknown impedance Z<sub>x</sub> = R<sub>s</sub> + jX<sub>s</sub> is
+                inserted in series with the reference coil.<sup class="cite">[2]</sup></p>
+
+            <!-- SVG: Series connection diagram -->
+            <div class="svg-wrap svg-scroll">
+                <svg viewBox="0 0 680 240" xmlns="http://www.w3.org/2000/svg" font-family="'Lora',Georgia,serif">
+                    <!-- Top and bottom rails -->
+                    <line x1="30" y1="50" x2="650" y2="50" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="30" y1="200" x2="650" y2="200" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Oscillator -->
+                    <rect x="30" y="90" width="70" height="80" rx="5" fill="#fdebd8" stroke="#c95f1a"
+                        stroke-width="1.5" />
+                    <text x="65" y="130" text-anchor="middle" font-size="10" fill="#c95f1a" font-weight="600">RF
+                        OSC</text>
+                    <text x="65" y="144" text-anchor="middle" font-size="9" fill="#c95f1a">~ f</text>
+                    <line x1="65" y1="170" x2="65" y2="200" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="65" y1="50" x2="65" y2="90" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Reference coil L with Rcoil -->
+                    <text x="170" y="38" text-anchor="middle" font-size="10" fill="#3d2010">Reference Coil</text>
+                    <!-- Inductor humps -->
+                    <path d="M120,50 Q128,32 136,50 Q144,32 152,50 Q160,32 168,50 Q176,32 184,50 Q192,32 200,50"
+                        fill="none" stroke="#3d2010" stroke-width="1.8" />
+                    <!-- Resistance -->
+                    <path d="M200,50 L206,50 L209,40 L215,60 L221,40 L227,60 L233,40 L236,50 L242,50" fill="none"
+                        stroke="#3d2010" stroke-width="1.8" />
+                    <text x="220" y="74" text-anchor="middle" font-size="9" fill="#9a6e50">R</text>
+
+                    <!-- Unknown impedance Zx in series -->
+                    <rect x="260" y="32" width="90" height="36" rx="5" fill="#dff0e8" stroke="#2d6648"
+                        stroke-width="1.5" />
+                    <text x="305" y="50" text-anchor="middle" font-size="10" fill="#2d6648" font-weight="600">Z</text>
+                    <text x="312" y="50" font-size="8" fill="#2d6648">x</text>
+                    <text x="305" y="63" text-anchor="middle" font-size="8" fill="#2d6648">R<tspan font-size="6">s
+                        </tspan> + jX<tspan font-size="6">s</tspan></text>
+                    <text x="305" y="86" text-anchor="middle" font-size="9" fill="#9a6e50"
+                        font-style="italic">Unknown</text>
+                    <line x1="242" y1="50" x2="260" y2="50" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="350" y1="50" x2="370" y2="50" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Tuning Capacitor -->
+                    <line x1="490" y1="50" x2="490" y2="90" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="470" y1="90" x2="510" y2="90" stroke="#3d2010" stroke-width="2.5" />
+                    <line x1="470" y1="100" x2="510" y2="100" stroke="#3d2010" stroke-width="2.5" />
+                    <line x1="490" y1="100" x2="490" y2="130" stroke="#3d2010" stroke-width="1.5" />
+                    <text x="525" y="100" font-size="11" fill="#3d2010" font-weight="600">C</text>
+
+                    <!-- Q Voltmeter -->
+                    <circle cx="580" cy="125" r="24" fill="#fff" stroke="#2d6648" stroke-width="1.5" />
+                    <text x="580" y="121" text-anchor="middle" font-size="9" fill="#2d6648" font-weight="600">Q</text>
+                    <text x="580" y="133" text-anchor="middle" font-size="8" fill="#2d6648">meter</text>
+                    <line x1="580" y1="101" x2="580" y2="50" stroke="#3d2010" stroke-width="1" />
+                    <line x1="580" y1="149" x2="580" y2="200" stroke="#3d2010" stroke-width="1" />
+
+                    <line x1="490" y1="130" x2="490" y2="200" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="370" y1="50" x2="650" y2="50" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="650" y1="50" x2="650" y2="200" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Two-step measurement labels -->
+                    <text x="200" y="180" text-anchor="middle" font-size="9" fill="#9a6e50" font-weight="600">Step 1:
+                        Without Z</text>
+                    <text x="200" y="193" text-anchor="middle" font-size="9" fill="#9a6e50">→ Q₁, C₁</text>
+                    <text x="400" y="180" text-anchor="middle" font-size="9" fill="#2d6648" font-weight="600">Step 2:
+                        With Z</text>
+                    <text x="400" y="193" text-anchor="middle" font-size="9" fill="#2d6648">→ Q₂, C₂</text>
+                </svg>
+                <div class="svg-cap">Fig. 4 — Series connection of Q-meter. Two measurements are taken: first without
+                    Z<sub>x</sub> (giving Q₁, C₁) and then with Z<sub>x</sub> inserted (giving Q₂, C₂). The difference
+                    yields the component's parameters.</div>
+            </div>
+
+            <h3 class="sub">Derivation — Series Connection Formulas</h3>
+            <p><strong>Measurement 1 (without Z<sub>x</sub>):</strong> The circuit resonates at frequency \(f\) with
+                capacitor set to \(C_1\), reading \(Q_1\).</p>
+            <p><strong>Measurement 2 (with Z<sub>x</sub> = R<sub>s</sub> + jX<sub>s</sub> in series):</strong> Re-tune
+                to resonance with capacitor at \(C_2\), reading \(Q_2\).</p>
+
+            <p>At resonance in both cases, \(\omega L = \frac{1}{\omega C}\). The unknown reactance is what shifts the
+                capacitor from \(C_1\) to \(C_2\). From the resonance condition in the second measurement:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Unknown series reactance</div>
+                $$X_s = \frac{C_1 - C_2}{\omega C_1 C_2}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Unknown series resistance</div>
+                $$R_s = \frac{Q_1 C_1 - Q_2 C_2}{\omega C_1 C_2 Q_1 Q_2}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Quality factor of unknown element</div>
+                $$Q_x = \frac{X_s}{R_s} = \frac{(C_1 - C_2) Q_1 Q_2}{Q_1 C_1 - Q_2 C_2}$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Sign of X<sub>s</sub> reveals component type</div>
+                    <p>If \(C_2 &lt; C_1\): the unknown is <strong>inductive</strong> (X<sub>s</sub> is positive).
+                        Capacitor must be reduced to re-tune because the unknown added inductive reactance.<br>
+                        If \(C_2 &gt; C_1\): the unknown is <strong>capacitive</strong> (X<sub>s</sub> is negative).
+                        Capacitor must be increased to compensate the extra capacitive reactance.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Physical Interpretation of the Formulas</h3>
+            <p>Think of it like a balance scale. In the first measurement, the scale is perfectly balanced (resonance)
+                with the tuning capacitor at C₁. When you add an inductive component, you have tilted the scale toward
+                inductance. To re-balance (re-tune to resonance), you must reduce the tuning capacitor. The amount you
+                reduce it — proportional to \((C_1 - C_2)\) — tells you how much inductive reactance the unknown
+                component brought in.</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Direction of C change</th>
+                            <th>Nature of X<sub>s</sub></th>
+                            <th>Component type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>C₂ &lt; C₁</td>
+                            <td class="t-org">Decrease C</td>
+                            <td class="t-org">Positive (inductive)</td>
+                            <td>Inductor / small coil</td>
+                        </tr>
+                        <tr>
+                            <td>C₂ &gt; C₁</td>
+                            <td class="t-grn">Increase C</td>
+                            <td class="t-grn">Negative (capacitive)</td>
+                            <td>Capacitor</td>
+                        </tr>
+                        <tr>
+                            <td>C₂ = C₁</td>
+                            <td class="t-tel">No change</td>
+                            <td class="t-tel">Zero (resistive)</td>
+                            <td>Pure resistor</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 6 ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">06</span>
+                <h2 class="sec-t">Parallel Connection Method</h2>
+            </div>
+
+            <p>For <strong>high-impedance components</strong> — high-value resistors, some inductors, and small
+                capacitors — the series connection introduces too much voltage drop across the unknown, disturbing the
+                resonance significantly. In parallel connection, the unknown impedance is placed directly in parallel
+                with the tuning capacitor. The disturbance to Q is minimised because the high-impedance unknown draws
+                only a small current.<sup class="cite">[2]</sup></p>
+
+            <!-- SVG: Parallel connection diagram -->
+            <div class="svg-wrap svg-scroll">
+                <svg viewBox="0 0 680 250" xmlns="http://www.w3.org/2000/svg" font-family="'Lora',Georgia,serif">
+                    <!-- Top and bottom rails -->
+                    <line x1="30" y1="50" x2="650" y2="50" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="30" y1="210" x2="650" y2="210" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Oscillator -->
+                    <rect x="30" y="90" width="70" height="80" rx="5" fill="#fdebd8" stroke="#c95f1a"
+                        stroke-width="1.5" />
+                    <text x="65" y="135" text-anchor="middle" font-size="10" fill="#c95f1a" font-weight="600">RF
+                        OSC</text>
+                    <line x1="65" y1="170" x2="65" y2="210" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="65" y1="50" x2="65" y2="90" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Reference coil -->
+                    <path d="M130,50 Q138,32 146,50 Q154,32 162,50 Q170,32 178,50 Q186,32 194,50 Q202,32 210,50"
+                        fill="none" stroke="#3d2010" stroke-width="1.8" />
+                    <path d="M210,50 L216,50 L219,40 L225,60 L231,40 L237,60 L243,40 L246,50 L252,50" fill="none"
+                        stroke="#3d2010" stroke-width="1.8" />
+                    <text x="190" y="38" text-anchor="middle" font-size="9" fill="#3d2010">L, R<tspan
+                            baseline-shift="sub" font-size="7">ref</tspan></text>
+
+                    <!-- Tuning capacitor C -->
+                    <line x1="430" y1="50" x2="430" y2="90" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="410" y1="90" x2="450" y2="90" stroke="#3d2010" stroke-width="2.5" />
+                    <line x1="410" y1="100" x2="450" y2="100" stroke="#3d2010" stroke-width="2.5" />
+                    <line x1="430" y1="100" x2="430" y2="140" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="430" y1="140" x2="430" y2="210" stroke="#3d2010" stroke-width="1.5" />
+                    <text x="458" y="100" font-size="11" fill="#3d2010" font-weight="600">C₁,C₂</text>
+
+                    <!-- Unknown Zx in parallel with C -->
+                    <line x1="510" y1="50" x2="510" y2="80" stroke="#3d2010" stroke-width="1.5" />
+                    <rect x="490" y="80" width="40" height="70" rx="5" fill="#dff0e8" stroke="#2d6648"
+                        stroke-width="1.8" />
+                    <text x="510" y="111" text-anchor="middle" font-size="10" fill="#2d6648" font-weight="600">Z</text>
+                    <text x="517" y="111" font-size="8" fill="#2d6648">x</text>
+                    <text x="510" y="127" text-anchor="middle" font-size="8" fill="#2d6648">X<tspan font-size="6">p
+                        </tspan>||R<tspan font-size="6">p</tspan></text>
+                    <line x1="510" y1="150" x2="510" y2="210" stroke="#3d2010" stroke-width="1.5" />
+                    <text x="510" y="175" text-anchor="middle" font-size="9" fill="#9a6e50"
+                        font-style="italic">Parallel</text>
+                    <text x="510" y="188" text-anchor="middle" font-size="9" fill="#9a6e50"
+                        font-style="italic">connection</text>
+
+                    <!-- Q Voltmeter -->
+                    <circle cx="595" cy="130" r="24" fill="#fff" stroke="#2d6648" stroke-width="1.5" />
+                    <text x="595" y="126" text-anchor="middle" font-size="9" fill="#2d6648" font-weight="600">Q</text>
+                    <text x="595" y="138" text-anchor="middle" font-size="8" fill="#2d6648">meter</text>
+                    <line x1="595" y1="106" x2="595" y2="50" stroke="#3d2010" stroke-width="1" />
+                    <line x1="595" y1="154" x2="595" y2="210" stroke="#3d2010" stroke-width="1" />
+
+                    <line x1="252" y1="50" x2="650" y2="50" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="650" y1="50" x2="650" y2="210" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Socket label -->
+                    <rect x="340" y="155" width="80" height="30" rx="5" fill="#f0e0cc" stroke="#ddc8b0"
+                        stroke-width="1" />
+                    <text x="380" y="174" text-anchor="middle" font-size="10" fill="#6b3e22">Socket</text>
+                    <line x1="380" y1="155" x2="380" y2="130" stroke="#ddc8b0" stroke-width="1"
+                        stroke-dasharray="3,2" />
+                    <line x1="380" y1="130" x2="510" y2="130" stroke="#ddc8b0" stroke-width="1"
+                        stroke-dasharray="3,2" />
+                </svg>
+                <div class="svg-cap">Fig. 5 — Parallel connection of Q-meter. The unknown impedance Z<sub>x</sub> is
+                    connected in parallel with the tuning capacitor. This method is used for high-impedance unknowns.
+                </div>
+            </div>
+
+            <h3 class="sub">Parallel Connection Formulas</h3>
+            <p>In parallel connection, the unknown admittance \(Y_x = G_p + jB_p\) modifies the total admittance of the
+                tank circuit. Two measurements again: with and without Z<sub>x</sub>.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Parallel equivalent conductance</div>
+                $$\frac{1}{R_P} = \frac{\omega C_1}{Q_2} = \frac{1}{RQ_1}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Parallel equivalent reactance</div>
+                $$X_P = \frac{1}{\omega(C_2 - C_1)}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Q of unknown in parallel connection</div>
+                $$Q_x = \frac{R_P}{X_P} = \frac{(C_1 - C_2)Q_1 Q_2}{Q_1 C_1 - Q_2 C_2}$$
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Series Connection</th>
+                            <th>Parallel Connection</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Unknown impedance range</td>
+                            <td class="t-org">Low impedance</td>
+                            <td class="t-grn">High impedance</td>
+                        </tr>
+                        <tr>
+                            <td>Components measured</td>
+                            <td>Small coils, low R, large C</td>
+                            <td>High R, small C, some L</td>
+                        </tr>
+                        <tr>
+                            <td>Connection point</td>
+                            <td>In series with reference coil</td>
+                            <td>Parallel with tuning C</td>
+                        </tr>
+                        <tr>
+                            <td>C change on insertion</td>
+                            <td class="t-org">Inductive → C decreases</td>
+                            <td class="t-grn">Capacitive → C increases</td>
+                        </tr>
+                        <tr>
+                            <td>GATE probability</td>
+                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                            <td><span class="prob prob-m">🟡 MED</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 7 ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">07</span>
+                <h2 class="sec-t">Errors, Distributed Capacitance &amp; Corrections</h2>
+            </div>
+
+            <h3 class="sub">Distributed (Self) Capacitance of the Coil</h3>
+            <p>Every coil has parasitic capacitance distributed between its turns. This distributed capacitance \(C_d\)
+                appears electrically as a capacitor in parallel with the coil. At DC this is irrelevant, but at RF
+                frequencies it becomes significant — it modifies the effective inductance, raises the apparent Q above
+                the true value, and creates a self-resonance frequency above which the coil behaves as a capacitor.<sup
+                    class="cite">[3]</sup></p>
+
+            <!-- SVG: Equivalent circuit of a real coil -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 560 180" xmlns="http://www.w3.org/2000/svg" font-family="'Lora',Georgia,serif">
+                    <!-- Ideal coil branch -->
+                    <text x="280" y="22" text-anchor="middle" font-size="11" fill="#3d2010" font-weight="600">Equivalent
+                        Circuit of a Real Coil</text>
+                    <!-- Top wire -->
+                    <line x1="60" y1="50" x2="120" y2="50" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- Inductor -->
+                    <path d="M120,50 Q128,34 136,50 Q144,34 152,50 Q160,34 168,50 Q176,34 184,50 Q192,34 200,50"
+                        fill="none" stroke="#3d2010" stroke-width="1.8" />
+                    <!-- Resistor -->
+                    <path d="M200,50 L206,50 L209,41 L215,59 L221,41 L227,59 L233,41 L236,50 L242,50" fill="none"
+                        stroke="#3d2010" stroke-width="1.8" />
+                    <line x1="242" y1="50" x2="300" y2="50" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- Labels -->
+                    <text x="160" y="38" text-anchor="middle" font-size="11" fill="#1e6b68" font-weight="600">L</text>
+                    <text x="218" y="76" text-anchor="middle" font-size="11" fill="#c95f1a" font-weight="600">R</text>
+
+                    <!-- Cd in parallel -->
+                    <line x1="60" y1="50" x2="60" y2="130" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="300" y1="50" x2="300" y2="130" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- Cd plates -->
+                    <line x1="40" y1="90" x2="80" y2="90" stroke="#9a6e50" stroke-width="2.2" />
+                    <line x1="40" y1="100" x2="80" y2="100" stroke="#9a6e50" stroke-width="2.2" />
+                    <line x1="60" y1="50" x2="60" y2="90" stroke="#9a6e50" stroke-width="1" />
+                    <line x1="60" y1="100" x2="60" y2="130" stroke="#9a6e50" stroke-width="1" />
+                    <text x="25" y="98" text-anchor="middle" font-size="11" fill="#9a6e50" font-weight="600">C<tspan
+                            baseline-shift="sub" font-size="9">d</tspan></text>
+                    <text x="15" y="115" text-anchor="middle" font-size="9" fill="#9a6e50"
+                        font-style="italic">(distributed)</text>
+
+                    <!-- Bottom wire -->
+                    <line x1="60" y1="130" x2="300" y2="130" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Terminal connections -->
+                    <circle cx="60" cy="50" r="4" fill="#c95f1a" />
+                    <circle cx="300" cy="50" r="4" fill="#c95f1a" />
+                    <line x1="300" y1="50" x2="380" y2="50" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="300" y1="130" x2="380" y2="130" stroke="#3d2010" stroke-width="1.5" />
+                    <text x="430" y="85" text-anchor="middle" font-size="11" fill="#3d2010">Terminals</text>
+                    <text x="430" y="100" text-anchor="middle" font-size="9" fill="#9a6e50">(A, B)</text>
+
+                    <!-- Frequency annotation -->
+                    <text x="470" y="50" font-size="10" fill="#1e6b68">Below SRF:</text>
+                    <text x="470" y="64" font-size="9" fill="#1e6b68">Inductive</text>
+                    <text x="470" y="100" font-size="10" fill="#9a2020">Above SRF:</text>
+                    <text x="470" y="114" font-size="9" fill="#9a2020">Capacitive</text>
+                </svg>
+                <div class="svg-cap">Fig. 6 — Equivalent circuit of a real coil: ideal inductance L in series with
+                    resistance R (the main branch), in parallel with distributed capacitance C<sub>d</sub>.</div>
+            </div>
+
+            <h3 class="sub">Effect of C<sub>d</sub> on Q Measurement</h3>
+            <p>Because C<sub>d</sub> adds capacitance in parallel with the tuning capacitor, the true capacitance in the
+                resonant circuit is \(C + C_d\), not just the indicated value \(C\). This creates a systematic error.
+                The circuit Q reading appears higher than the true coil Q.</p>
+
+            <h3 class="sub">Determination of C<sub>d</sub> — Double Frequency Method</h3>
+            <p>To find the distributed capacitance, measure the resonant capacitor values at two frequencies: \(f_1\)
+                and \(f_2 = 2f_1\). At resonance in each case, \(\omega^2 L(C + C_d) = 1\). This gives two equations in
+                two unknowns (L and C<sub>d</sub>).<sup class="cite">[3]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Distributed capacitance — double frequency method</div>
+                $$C_d = \frac{C_1 - 4C_2}{3}$$
+            </div>
+
+            <p>Here \(C_1\) is the tuning capacitor setting at \(f_1\) and \(C_2\) is the setting at \(f_2 = 2f_1\). The
+                factor of 4 arises because at double the frequency, the resonating capacitance contribution of
+                inductance changes by \((2f)^2/f^2 = 4\).</p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Verification Trick</div>
+                        <p>If Q is measured at two frequencies and they are not equal, distributed capacitance is the
+                            culprit. True Q should be independent of which capacitor value you use to resonate — the
+                            circuit Q stays constant if C<sub>d</sub> is zero.</p>
+                    </div>
+                </div>
+
+                <h3 class="sub">Summary of Errors in Q-Meter</h3>
+                <div class="tw">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Error Source</th>
+                                <th>Effect on Q Reading</th>
+                                <th>Correction Method</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Shunt resistance R<sub>sh</sub></td>
+                                <td class="t-red">Reads lower than true Q</td>
+                                <td>Negligible for most coils; corrected in precision work</td>
+                            </tr>
+                            <tr>
+                                <td>Distributed capacitance C<sub>d</sub></td>
+                                <td class="t-red">Reads higher than true Q</td>
+                                <td>Use double frequency method to find C<sub>d</sub></td>
+                            </tr>
+                            <tr>
+                                <td>Voltmeter loading</td>
+                                <td class="t-red">Slightly reduces Q</td>
+                                <td>Use very high impedance FET voltmeter</td>
+                            </tr>
+                            <tr>
+                                <td>Residual inductance of C</td>
+                                <td class="t-amb">Creates series resonance error</td>
+                                <td>Use air-spaced precision variable capacitor</td>
+                            </tr>
+                            <tr>
+                                <td>Stray lead inductance</td>
+                                <td class="t-amb">Modifies measured L value</td>
+                                <td>Keep test leads as short as possible</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ═══ SECTION 8 ═══ -->
+            <div class="section" id="s8">
+                <div class="sec-hdr">
+                    <span class="sec-num">08</span>
+                    <h2 class="sec-t">GATE &amp; IES Perspective — Exam-Focused Insights</h2>
+                </div>
+
+                <div class="callout c-info">
+                    <div class="ci">🎯</div>
+                    <div class="cb">
+                        <div class="ct">GATE EE Exam Pattern</div>
+                            <p>Q-meter questions in GATE typically test: (i) the principle of voltage magnification,
+                                (ii) the formula Q = V<sub>C</sub>/V<sub>in</sub>, (iii) application of the series
+                                connection formulas to find component parameters, and (iv) the effect of distributed
+                                capacitance. Questions are almost always 1-mark MCQs or 2-mark MCQs with numerical
+                                options.</p>
+                        </div>
+                    </div>
+
+                    <h3 class="sub">High-Probability Topics <span class="prob prob-h">🟢 HIGH</span></h3>
+
+                    <div class="pyq-card">
+                        <div class="pyq-hdr">
+                            <span class="pyq-tag pyq-gate">GATE EE</span>
+                            <span class="pyq-title">Voltage magnification principle — Q =
+                                V<sub>C</sub>/V<sub>in</sub></span>
+                            <span class="pyq-year">Concept</span>
+                        </div>
+                        <div class="pyq-body">
+                            <p>A series resonant circuit has \(L = 100\,\mu\text{H}\), \(C = 100\,\text{pF}\), and
+                                effective series resistance \(R = 5\,\Omega\). At resonance, the Q-factor and the
+                                voltage across the capacitor if the supply voltage is 10 mV are:</p>
+                            <ul class="pyq-opts">
+                                <li>(A) Q = 100, V<sub>C</sub> = 1 V</li>
+                                <li>(B) Q = 200, V<sub>C</sub> = 2 V</li>
+                                <li class="correct">✔ (C) Q = 200, V<sub>C</sub> = 2 V — Correct: \(f_0 =
+                                    \frac{1}{2\pi\sqrt{LC}} \approx 1.59\,\text{MHz}\), \(X_L = 2\pi \times
+                                    1.59\times10^6 \times 100\times10^{-6} = 1000\,\Omega\), \(Q = X_L/R = 1000/5 =
+                                    200\), \(V_C = QV_{in} = 200 \times 10\,\text{mV} = 2\,\text{V}\)</li>
+                                <li>(D) Q = 50, V<sub>C</sub> = 0.5 V</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="pyq-card">
+                        <div class="pyq-hdr">
+                            <span class="pyq-tag pyq-gate">GATE EE</span>
+                            <span class="pyq-title">Effect of distributed capacitance on Q measurement</span>
+                            <span class="pyq-year">Concept</span>
+                        </div>
+                        <div class="pyq-body">
+                            <p>In a Q-meter measurement, the circuit Q is slightly <strong>lower</strong> than the true
+                                Q of the coil because:</p>
+                            <ul class="pyq-opts">
+                                <li>(A) The distributed capacitance increases the effective L</li>
+                                <li class="correct">✔ (B) The shunt resistance R<sub>sh</sub> adds to the coil
+                                    resistance, making total R slightly higher and Q = X<sub>L</sub>/R slightly lower
+                                </li>
+                                <li>(C) The voltmeter reads V<sub>C</sub> incorrectly</li>
+                                <li>(D) The resonant frequency shifts upward</li>
+                            </ul>
+                            <p style="margin-top:12px;font-size:13px;color:var(--text3);">Note: Both R<sub>sh</sub>
+                                (reduces Q) and C<sub>d</sub> (increases apparent Q) contribute to measurement error,
+                                but the dominant error explicitly associated with Q being lower than true is
+                                R<sub>sh</sub>.</p>
+                        </div>
+                    </div>
+
+                    <div class="pyq-card ies-card">
+                        <div class="pyq-hdr ies-hdr">
+                            <span class="pyq-tag pyq-ies">IES E&T</span>
+                            <span class="pyq-title pyq-title-ies">Series vs Parallel connection — when to use
+                                which?</span>
+                            <span class="pyq-year">Concept</span>
+                        </div>
+                        <div class="pyq-body">
+                            <p>In a Q-meter, the <strong>series connection</strong> is used for measurement of:</p>
+                            <ul class="pyq-opts">
+                                <li class="correct">✔ (A) Low-value impedances — small inductances, low resistors, and
+                                    large capacitors</li>
+                                <li>(B) High-value impedances — large inductors and small capacitors</li>
+                                <li>(C) Only pure resistances</li>
+                                <li>(D) Mutual inductances exclusively</li>
+                            </ul>
+                            <p style="margin-top:12px;font-size:13px;color:var(--text3);">The <strong>parallel
+                                    connection</strong> is the complement: high impedances — small capacitors, certain
+                                large inductors, and high resistors.</p>
+                        </div>
+                    </div>
+
+                    <div class="pyq-card ies-card">
+                        <div class="pyq-hdr ies-hdr">
+                            <span class="pyq-tag pyq-ies">IES E&T</span>
+                            <span class="pyq-title pyq-title-ies">Self-resonant frequency and distributed
+                                capacitance</span>
+                            <span class="pyq-year">Concept</span>
+                        </div>
+                        <div class="pyq-body">
+                            <p>The self-resonance frequency (SRF) of a coil is that frequency at which the distributed
+                                capacitance C<sub>d</sub> resonates with the coil inductance L. Which statement is
+                                correct?</p>
+                            <ul class="pyq-opts">
+                                <li>(A) Above SRF, the coil still appears inductive to the circuit</li>
+                                <li class="correct">✔ (B) Above SRF, the coil appears capacitive — the Q-meter cannot
+                                    measure it as an inductor</li>
+                                <li>(C) SRF has no effect on Q-meter measurements</li>
+                                <li>(D) Q-meter should be operated at SRF for accurate results</li>
+                            </ul>
+                            <p style="margin-top:12px;font-size:13px;color:var(--text3);">Q-meter measurements must
+                                always be performed at frequencies well below SRF. IES frequently tests this concept in
+                                combination with the double-frequency method for C<sub>d</sub>.</p>
+                        </div>
+                    </div>
+
+                    <h3 class="sub">Medium-Probability Topics <span class="prob prob-m">🟡 MEDIUM</span></h3>
+
+                    <div class="gate-card">
+                        <div class="gate-hdr">
+                            <span class="gate-tag">GATE CONCEPT</span>
+                            <span class="gate-title">Bandwidth from Q — selectivity of resonant circuit</span>
+                        </div>
+                        <div class="gate-body">
+                            <p>Given \(Q = 80\) and \(f_0 = 800\,\text{kHz}\), find the half-power bandwidth.</p>
+                            <p>Solution: \(BW = f_0/Q = 800\,\text{kHz}/80 = 10\,\text{kHz}\). The circuit passes
+                                frequencies from 795 kHz to 805 kHz at greater than 70.7% of maximum current. This
+                                selectivity is why high-Q coils are essential in broadcast receiver IF stages.</p>
+                        </div>
+                    </div>
+
+                    <div class="gate-card">
+                        <div class="gate-hdr">
+                            <span class="gate-tag">GATE CONCEPT</span>
+                            <span class="gate-title">Finding inductance from Q-meter resonance condition</span>
+                        </div>
+                        <div class="gate-body">
+                            <p>A Q-meter resonates at \(f = 2\,\text{MHz}\) with tuning capacitor set to \(C =
+                                63.3\,\text{pF}\). Find the coil inductance.</p>
+                            <p>Solution: \(L = \dfrac{1}{(2\pi f)^2 C} = \dfrac{1}{(2\pi \times 2\times10^6)^2 \times
+                                63.3\times10^{-12}} \approx 100\,\mu\text{H}\). The calibrated oscillator frequency and
+                                capacitor scale together give inductance directly from: \(\omega^2 LC = 1\).</p>
+                        </div>
+                    </div>
+
+                    <h3 class="sub">Key Formulas for Quick Exam Reference</h3>
+                    <div class="fblock"><span class="flbl">Q-Meter Essential Formulas</span><span class="fv">Q</span>
+                        <span class="feq">=</span> X<sub>L</sub>/R = ωL/R = V<sub>C</sub>/V<sub>in</sub> [Voltage
+                        magnification]
+                        <span class="fv">f₀</span> <span class="feq">=</span> 1/(2π√LC) [Resonance frequency]
+                        <span class="fv">BW</span> <span class="feq">=</span> f₀/Q [Bandwidth]
+                        <span class="fv">L</span> <span class="feq">=</span> 1/[(2πf)² × C₁] [Find L from Q-meter]
+                        <span class="fv">R_eff</span> <span class="feq">=</span> ωL/Q [Effective coil resistance]
+
+                        <span class="fh">— Series Connection —</span>
+                        <span class="fv">Xs</span> <span class="feq">=</span> (C₁ − C₂) / (ωC₁C₂) [Unknown series
+                        reactance]
+                        <span class="fv">Rs</span> <span class="feq">=</span> (Q₁C₁ − Q₂C₂) / (ωC₁C₂Q₁Q₂) [Unknown
+                        series resistance]
+                        <span class="fv">Qx</span> <span class="feq">=</span> (C₁−C₂)Q₁Q₂ / (Q₁C₁ − Q₂C₂) [Q of unknown]
+
+                        <span class="fh">— Parallel Connection —</span>
+                        <span class="fv">Xp</span> <span class="feq">=</span> 1/[ω(C₂ − C₁)] [Unknown parallel
+                        reactance]
+                        <span class="fv">Qx</span> <span class="feq">=</span> (C₁−C₂)Q₁Q₂ / (Q₁C₁ − Q₂C₂) [Q of unknown]
+
+                        <span class="fh">— Distributed Capacitance —</span>
+                        <span class="fv">Cd</span> <span class="feq">=</span> (C₁ − 4C₂) / 3 [Double frequency method]
+                    </div>
+                </div>
+
+                <!-- ═══ SECTION 9 ═══ -->
+                <div class="section" id="s9">
+                    <div class="sec-hdr">
+                        <span class="sec-num">09</span>
+                        <h2 class="sec-t">Common Misconceptions &amp; GATE Traps</h2>
+                    </div>
+
+                    <div class="callout c-danger">
+                        <div class="ci">❌</div>
+                        <div class="cb">
+                            <div class="ct">Trap 1 — Confusing V<sub>C</sub> and V<sub>L</sub></div>
+                            <p>Both \(V_C = QV_{in}\) and \(V_L = QV_{in}\) at resonance. Students sometimes think only
+                                the capacitor voltage is magnified. Both are magnified equally. They are equal in
+                                magnitude but 180° apart in phase — they cancel, leaving \(V_R = V_{in}\). The Q-meter
+                                reads V<sub>C</sub> because it is more convenient to connect a voltmeter across a
+                                two-terminal capacitor than across a coil.</p>
+                        </div>
+                    </div>
+
+                    <div class="callout c-danger">
+                        <div class="ci">❌</div>
+                        <div class="cb">
+                            <div class="ct">Trap 2 — Distributed Capacitance makes Q appear HIGHER, not lower</div>
+                            <p>Students often think all errors reduce Q. C<sub>d</sub> in parallel with the tuning
+                                capacitor reduces the net reactance needed from the external tuning capacitor, making
+                                the coil look better than it is. The result is that the measured Q is
+                                <strong>higher</strong> than the true Q. Only R<sub>sh</sub> makes Q appear lower.</p>
+                        </div>
+                    </div>
+
+                    <div class="callout c-danger">
+                        <div class="ci">❌</div>
+                        <div class="cb">
+                            <div class="ct">Trap 3 — C₂ &lt; C₁ in series connection means inductive, NOT capacitive
+                            </div>
+                            <p>When an inductive component is added in series, the total inductance increases. To
+                                re-tune to the same resonant frequency, you must reduce C (since \(\omega_0 =
+                                1/\sqrt{LC}\), increasing L requires decreasing C). Many students incorrectly infer that
+                                \(C_2 &lt; C_1\) means the component is capacitive.</p>
+                        </div>
+                    </div>
+
+                    <div class="callout c-warn">
+                        <div class="ci">⚠️</div>
+                        <div class="cb">
+                            <div class="ct">Trap 4 — The Q-meter measures at ACTUAL operating frequency</div>
+                            <p>Unlike DC resistance measurement (ohmmeter) or low-frequency bridge methods, the Q-meter
+                                is uniquely capable of characterising coils at their intended RF operating frequency.
+                                Skin effect, core loss, and proximity effect all change with frequency — a coil that has
+                                Q = 200 at 1 MHz may have Q = 50 at 10 MHz due to skin-effect resistance increase.</p>
+                        </div>
+                    </div>
+
+                    <div class="callout c-warn">
+                        <div class="ci">⚠️</div>
+                        <div class="cb">
+                            <div class="ct">Trap 5 — R<sub>sh</sub> is NOT the coil resistance</div>
+                            <p>R<sub>sh</sub> (0.02 Ω) is the internal shunt resistance of the Q-meter's voltage source
+                                — it is part of the instrument. The coil under test has its own resistance
+                                R<sub>coil</sub>. The effective total resistance in the measurement circuit is
+                                \(R_{\text{total}} = R_{\text{coil}} + R_{\text{sh}}\), making the measured Q slightly
+                                lower than Q<sub>true</sub>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ SECTION 10 ═══ -->
+                <div class="section" id="s10">
+                    <div class="sec-hdr">
+                        <span class="sec-num">10</span>
+                        <h2 class="sec-t">Memory Techniques &amp; Mnemonics</h2>
+                    </div>
+
+                    <div class="callout c-tip">
+                        <div class="ci">🧠</div>
+                        <div class="cb">
+                            <div class="ct">Mnemonic 1 — Q = "Quality of Voltage Amplification"</div>
+                                <p>Remember: <strong>Q</strong>uality = <strong>Q</strong>uantified Voltage. \(Q =
+                                    V_C/V_{in}\). The Q-meter is literally a voltage ratio meter calibrated in Q. Think
+                                    of it as a "voltage amplification tester at resonance."</p>
+                            </div>
+                        </div>
+
+                        <div class="callout c-tip">
+                            <div class="ci">🧠</div>
+                            <div class="cb">
+                                <div class="ct">Mnemonic 2 — "SHL": Series for High Loss (Low Z)</div>
+                                    <p><strong>S</strong>eries connection → <strong>H</strong>igh-current /
+                                        <strong>L</strong>ow-impedance components (resistors, small coils, large
+                                        capacitors). <strong>P</strong>arallel connection →
+                                        <strong>H</strong>igh-impedance (small capacitors, some large inductors). Think:
+                                        <em>Series = Small Z, Parallel = Plarge Z</em>.</p>
+                                </div>
+                            </div>
+
+                            <div class="callout c-tip">
+                                <div class="ci">🧠</div>
+                                <div class="cb">
+                                    <div class="ct">Mnemonic 3 — Distributed Capacitance Formula: "One minus Four over
+                                        Three"</div>
+                                        <p>\(C_d = (C_1 - 4C_2)/3\). Remember: <strong>"One, Four, Three"</strong> —
+                                            single measurement at f, quadruple coefficient at 2f, divided by three. The
+                                            factor 4 comes from \((2f)^2 = 4f^2\) in the resonance equation.</p>
+                                    </div>
+                                </div>
+
+                                <div class="callout c-tip">
+                                    <div class="ci">🧠</div>
+                                    <div class="cb">
+                                        <div class="ct">Story — The Swing and the Q-Meter</div>
+                                            <p>Imagine you push a swing (apply V<sub>in</sub>). At the swing's natural
+                                                frequency (resonance), the swing rises Q times higher than your push
+                                                amplitude. You measure how high it goes (V<sub>C</sub>) versus how hard
+                                                you pushed (V<sub>in</sub>) and call the ratio Q. A smooth bearing (low
+                                                resistance) gives a high swing height (high Q). A rusty pivot (high
+                                                resistance) → low Q.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ═══ SECTION 11 ═══ -->
+                                <div class="section" id="s11">
+                                    <div class="sec-hdr">
+                                        <span class="sec-num">11</span>
+                                        <h2 class="sec-t">Quick Revision Sheet</h2>
+                                    </div>
+
+                                    <div class="sum-grid">
+                                        <div class="sum-card sc-o">
+                                            <div class="sum-lbl">Principle</div>
+                                            <p>Series resonance voltage magnification. \(Q = V_C/V_{in}\) at resonance.
+                                                Also \(Q = X_L/R = \omega L/R\). Instrument reads Q directly.</p>
+                                        </div>
+                                        <div class="sum-card sc-g">
+                                            <div class="sum-lbl">Key Circuit Elements</div>
+                                            <p>RF oscillator (50 kHz–50 MHz), shunt R<sub>sh</sub> ≈ 0.02 Ω, variable
+                                                tuning capacitor C, electronic voltmeter (Q-scale).</p>
+                                        </div>
+                                        <div class="sum-card sc-t">
+                                            <div class="sum-lbl">Series Connection</div>
+                                            <p>Low-Z unknowns (low R, small L, large C). Two readings: (Q₁,C₁) without,
+                                                (Q₂,C₂) with. C₂&lt;C₁ → inductive. C₂&gt;C₁ → capacitive.</p>
+                                        </div>
+                                        <div class="sum-card sc-a">
+                                            <div class="sum-lbl">Parallel Connection</div>
+                                            <p>High-Z unknowns (high R, small C, some large L). Unknown in parallel with
+                                                tuning capacitor. Same two-reading method applies.</p>
+                                        </div>
+                                        <div class="sum-card sc-r">
+                                            <div class="sum-lbl">Errors</div>
+                                            <p>R<sub>sh</sub> → Q reads LOW. C<sub>d</sub> → Q reads HIGH. Voltmeter
+                                                loading → Q reads LOW. Stray leads → L reads high.</p>
+                                        </div>
+                                        <div class="sum-card sc-g">
+                                            <div class="sum-lbl">Distributed Capacitance</div>
+                                            <p>\(C_d = (C_1 - 4C_2)/3\). Measure at f₁ and 2f₁. Above self-resonant
+                                                frequency, coil appears capacitive — cannot be measured as inductor.</p>
+                                        </div>
+                                        <div class="sum-card sc-o">
+                                            <div class="sum-lbl">Find L &amp; R from Q-meter</div>
+                                            <p>\(L = 1/[(2\pi f_0)^2 C_1]\). \(R = \omega_0 L / Q\). Both follow
+                                                directly from the resonance condition and Q definition.</p>
+                                        </div>
+                                        <div class="sum-card sc-t">
+                                            <div class="sum-lbl">Bandwidth</div>
+                                            <p>\(BW = f_0/Q\). Higher Q → narrower bandwidth → more selective circuit.
+                                                Used in receiver design: IF stages need Q &gt; 50–100.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="callout c-key" style="margin-top:22px">
+                                        <div class="ci">🔑</div>
+                                        <div class="cb">
+                                            <div class="ct">Three-Point Exam Checklist</div>
+                                            <p>1. Always identify if the unknown is high-Z or low-Z to choose series vs
+                                                parallel connection.<br>
+                                                2. Check the sign of (C₁ − C₂) to identify inductive or capacitive
+                                                nature of the unknown.<br>
+                                                3. Remember: R<sub>sh</sub> lowers Q (adds to R), C<sub>d</sub> raises
+                                                apparent Q (adds capacitance to tank) — opposite effects on error.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ═══ SECTION 12 — AI TUTOR ═══ -->
+                                <div class="section" id="s12">
+                                    <div class="sec-hdr">
+                                        <span class="sec-num">12</span>
+                                        <h2 class="sec-t">Ask the AI Tutor — Q-Meter Doubts</h2>
+                                    </div>
+
+                                    <div class="ai-prompt">
+                                        <div class="ai-prompt-title">🤖 Aarova AI Tutor</div>
+                                        <p>Ask any doubt about Q-meter, series resonance, distributed capacitance, or
+                                            GATE-level problems. Get step-by-step expert explanations.</p>
+                                        <div class="ai-input-row">
+                                            <input class="ai-input" id="userQ" type="text"
+                                                placeholder="e.g. Derive Q = Vc/Vin from first principles..."
+                                                autocomplete="off" />
+                                            <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+                                        </div>
+                                        <div class="ai-suggest">
+                                            <span class="ai-chip"
+                                                onclick="setQ('Why does distributed capacitance make Q appear higher than true value? Explain physically.')">C<sub>d</sub>
+                                                raises apparent Q</span>
+                                            <span class="ai-chip"
+                                                onclick="setQ('In series connection of Q-meter, if C2 is less than C1 after inserting unknown, why is the component inductive? Explain step by step.')">Series
+                                                connection — why C₂ &lt; C₁ means inductive</span>
+                                            <span class="ai-chip"
+                                                onclick="setQ('Derive the formula Cd = (C1 - 4C2)/3 for distributed capacitance using the double frequency method. Show complete derivation.')">Derive
+                                                C<sub>d</sub> = (C₁ − 4C₂)/3</span>
+                                            <span class="ai-chip"
+                                                onclick="setQ('What is the difference between circuit Q and actual Q in a Q-meter? Which one is measured and why?')">Circuit
+                                                Q vs Actual Q</span>
+                                            <span class="ai-chip"
+                                                onclick="setQ('A Q-meter resonates at 1.5 MHz with C = 100 pF and reads Q = 120. Find L, R_eff, and bandwidth. Show full working.')">GATE
+                                                numerical: find L, R, BW</span>
+                                        </div>
+                                        <div class="ai-response" id="aiResp"></div>
+                                    </div>
+
+                                    <!-- Chapter Summary and next chapter teaser -->
+                                    <div class="callout c-tip" style="margin-top:22px">
+                                        <div class="ci">➡️</div>
+                                        <div class="cb">
+                                            <div class="ct">Coming Next — Chapter 5</div>
+                                            <p>Instrument Transformers — Current Transformers (CT) and Potential
+                                                Transformers (PT): equivalent circuits, ratio and phase-angle errors,
+                                                burden, accuracy classes, knee-point voltage, protection vs metering
+                                                CTs, and complete GATE &amp; IES concepts.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- CITATIONS -->
+                                    <div class="citations" id="citations">
+                                        <div class="cite-h">References &amp; Citations</div>
+                                        <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical
+                                            content is derived from the following standard textbooks. All explanations,
+                                            derivations, and inline SVG diagrams are original to Aarova AI. No content
+                                            reproduced from any coaching material.</p>
+                                        <ul class="cite-list">
+                                            <li><span class="cite-num">[1]</span><span>Helfrick, A.D. and Cooper, W.D.
+                                                    <em>Modern Electronic Instrumentation and Measurement
+                                                        Techniques</em>. Prentice-Hall, 1990. Chapter 10 — Q-meters, RF
+                                                    measurement, series and parallel connection methods, distributed
+                                                    capacitance.</span></li>
+                                            <li><span class="cite-num">[2]</span><span>Sawhney, A.K. <em>A Course in
+                                                        Electrical and Electronic Measurements and Instrumentation</em>,
+                                                    19th ed. Dhanpat Rai &amp; Co., 2015. Chapter 13 — Measurement of
+                                                    inductance, capacitance and Q by Q-meter. Full treatment of
+                                                    series/parallel connections and error sources.</span></li>
+                                            <li><span class="cite-num">[3]</span><span>Golding, E.W. and Widdis, F.C.
+                                                    <em>Electrical Measurements and Measuring Instruments</em>, 5th ed.
+                                                    Wheeler Publishing, 1963. Chapter 14 — Q-meter principle,
+                                                    distributed self-capacitance, double-frequency method
+                                                    derivation.</span></li>
+                                            <li><span class="cite-num">[4]</span><span>Fitzgerald, A.E., Kingsley, C.
+                                                    and Umans, S.D. <em>Electric Machinery</em>, 6th ed. McGraw-Hill,
+                                                    2003. Background on energy storage and dissipation in reactive
+                                                    elements — physical basis of Q-factor definition.</span></li>
+                                            <li><span class="cite-num">[5]</span><span>IIT Kharagpur NPTEL.
+                                                    <em>Electrical Measurements &amp; Instrumentation — Lectures 28–32:
+                                                        RF Measurements, Q-meter</em>. National Programme on Technology
+                                                    Enhanced Learning. nptel.ac.in. Voltage magnification, error
+                                                    analysis, GATE-oriented solved problems.</span></li>
+                                        </ul>
+                                    </div>
+
+                                    <hr>
+                                    <footer>
+                                        <strong>Aarova AI</strong> &nbsp;·&nbsp; Electrical Measurements &amp;
+                                        Instrumentation Series &nbsp;·&nbsp; Chapter 4 of 8<br>
+                                        <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp;
+                                            IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                                        <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All
+                                            explanations and SVG diagrams are original to Aarova AI. Derived from
+                                            standard textbooks [1–5]. No coaching material reproduced.</span>
+                                    </footer>
+                                </div>
+
+                            </div>
+
+                            <script>
+                                function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+                                async function askClaude() {
+                                    const q = document.getElementById('userQ').value.trim();
+                                    if (!q) return;
+                                    const btn = document.querySelector('.ai-btn');
+                                    const resp = document.getElementById('aiResp');
+                                    btn.textContent = 'Thinking…'; btn.disabled = true;
+                                    resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+                                    const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Electrical Measurements & Instrumentation. Topic: Q-meter — principle of operation (series resonance, voltage magnification Q = Vc/Vin), series and parallel connection methods with full formulas (Xs, Rs, Qx), distributed self-capacitance Cd, double-frequency method (Cd = (C1-4C2)/3), sources of error (Rsh, Cd, stray inductance), and applications. Answer with step-by-step mathematical working for numericals. Base answers on Helfrick & Cooper, A.K. Sawhney, Golding & Widdis. All content is original — never copy text from any coaching institute material.`;
+                                    try {
+                                        const res = await fetch('https://api.anthropic.com/v1/messages', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                model: 'claude-sonnet-4-6',
+                                                max_tokens: 1000,
+                                                system: sys,
+                                                messages: [{ role: 'user', content: q }]
+                                            })
+                                        });
+                                        const data = await res.json();
+                                        resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+                                    } catch (e) {
+                                        resp.textContent = 'Could not connect. Please try again.';
+                                    }
+                                    btn.textContent = 'Ask Claude'; btn.disabled = false;
+                                }
+                                document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+                                /* Mobile scroll hint for svg-scroll wrappers */
+                                (function () {
+                                    if (window.innerWidth > 600) return;
+                                    document.querySelectorAll('.svg-scroll').forEach(function (wrap) {
+                                        const hint = document.createElement('div');
+                                        hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                                        hint.textContent = '← scroll to see full diagram →';
+                                        wrap.appendChild(hint);
+                                        wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+                                    });
+                                })();
+                            </script>
+</body>
+
+</html>

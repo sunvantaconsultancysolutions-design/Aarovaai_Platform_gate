@@ -1,0 +1,3439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Instrument Errors and Performance Characteristics</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]})"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 25%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h4.subsub {
+            font-family: 'Lora', serif;
+            font-size: clamp(13px, 2vw, 16px);
+            font-weight: 600;
+            color: var(--text3);
+            margin: 16px 0 8px 0;
+            padding-left: 12px;
+            border-left: 3px solid var(--border2);
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        ul.prose,
+        ol.prose {
+            margin: 0 0 14px 20px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 16.5px);
+            line-height: 1.8;
+        }
+
+        ul.prose li,
+        ol.prose li {
+            margin-bottom: 7px;
+            padding-left: 4px;
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        .prob-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            margin-left: 6px;
+        }
+
+        .pt-high {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .pt-med {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .pt-low {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1.5px solid var(--teal-bdr);
+            background: #fff;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 10px 20px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: #fff;
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 34px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* KaTeX display math centering */
+        .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 4px 0;
+        }
+
+        /* Equation box */
+        .eq-box {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 18px) clamp(14px, 2vw, 22px);
+            margin: 14px 0;
+            overflow-x: auto;
+        }
+
+        .eq-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .eq-desc {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin-top: 8px;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+        }
+
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+        }
+
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div><span class="logo">Aarova <em style="color:var(--teal);font-style:normal;">AI</em><span
+                    class="logo-sub">Electrical Measurements</span></span></div>
+        <div class="hbadges">
+            <span class="hbadge">GATE EE</span>
+            <span class="hbadge">ESE / IES</span>
+            <span class="hbadge">PSU</span>
+            <span class="hbadge">Ch. 2</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="eyebrow">Electrical Measurements · Chapter 2</div>
+            <h1 class="hero-title"><em>Instrument Errors</em> and Performance Characteristics</h1>
+            <p class="hero-desc">A complete, exam-focused study of errors in indicating instruments — from static and
+                dynamic characteristics to errors in PMMC, Moving Iron, and Electrodynamometer instruments. Built for
+                GATE EE, ESE, and PSU aspirants.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">🟢 High GATE Weight</span>
+                <span class="badge">Static &amp; Dynamic Characteristics</span>
+                <span class="badge">PMMC · MI · Dynamometer</span>
+                <span class="badge">Wattmeter Errors</span>
+                <span class="badge">PYQ Included</span>
+            </div>
+        </div>
+
+        <!-- PROGRESS BAR -->
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div><span class="pp">Chapter 2 of 8</span>
+        </div>
+
+        <!-- TOC -->
+        <nav class="toc" aria-label="Table of contents">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">01</span>Why Errors Exist — Big Picture</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">02</span>Static Performance Characteristics</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">03</span>Dynamic Characteristics</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">04</span>Classification of Errors</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">05</span>Errors in PMMC Instruments</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">06</span>Errors in Moving Iron Instruments</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">07</span>Errors in Dynamometer Instruments</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">08</span>Wattmeter Connection Errors</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">09</span>GATE PYQs &amp; Concepts</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">10</span>Common Mistakes</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">11</span>Memory Tricks</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">12</span>Quick Revision Sheet</a>
+            </div>
+        </nav>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- SECTION 1 — BIG PICTURE -->
+        <!-- ════════════════════════════════════════════════ -->
+        <section class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">01</span>
+                <h2 class="sec-t">Why Errors Exist — The Big Picture <span class="prob-tag pt-high">🟢 High</span></h2>
+            </div>
+
+            <p>Every measuring instrument is an imperfect window into the physical world. When you connect a voltmeter,
+                it draws a small current that slightly changes the very voltage you are measuring. When you read a
+                scale, your eye angle introduces a small deviation. When temperature rises, spring constants drift.
+                These are not manufacturing failures — they are <strong>fundamental physical realities</strong> that
+                every measurement engineer must understand and manage.<sup class="cite">[1]</sup></p>
+
+            <div class="callout c-info">
+                <span class="ci">💡</span>
+                <div class="cb">
+                    <div class="ct">Intuitive Analogy</div>
+                    <p>Imagine trying to measure the air pressure in a car tyre with a gauge. The moment you attach the
+                        gauge, some air escapes — the act of measurement itself changes what you are measuring. All
+                        instruments share this fundamental dilemma to varying degrees.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">1.1 The Measurement Hierarchy</h3>
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" role="img"
+                    aria-label="Measurement hierarchy">
+                    <defs>
+                        <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <!-- Top box: Measurand -->
+                    <rect x="230" y="10" width="220" height="44" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="340" y="29" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#c95f1a"
+                        font-weight="600">True Value</text>
+                    <text x="340" y="46" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#c95f1a">(Measurand)</text>
+                    <!-- arrow down -->
+                    <line x1="340" y1="54" x2="340" y2="74" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr)" />
+                    <!-- Instrument box -->
+                    <rect x="195" y="74" width="290" height="44" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="340" y="93" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#1e6b68"
+                        font-weight="600">Measuring Instrument</text>
+                    <text x="340" y="110" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#1e6b68">Transduces physical quantity → deflection</text>
+                    <!-- error enters -->
+                    <rect x="490" y="82" width="160" height="28" rx="6" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.2" />
+                    <text x="570" y="101" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#a05c00"
+                        font-weight="600">Systematic Errors Enter</text>
+                    <line x1="490" y1="96" x2="485" y2="96" stroke="#a05c00" stroke-width="1.3"
+                        marker-end="url(#arr)" />
+                    <!-- arrow down -->
+                    <line x1="340" y1="118" x2="340" y2="138" stroke="#1e6b68" stroke-width="1.5"
+                        marker-end="url(#arr)" />
+                    <!-- Reading box -->
+                    <rect x="200" y="138" width="280" height="44" rx="8" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="340" y="157" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#2d6648"
+                        font-weight="600">Instrument Reading</text>
+                    <text x="340" y="174" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#2d6648">(Indicated Value)</text>
+                    <!-- random error -->
+                    <rect x="490" y="146" width="160" height="28" rx="6" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.2" />
+                    <text x="570" y="165" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a2020"
+                        font-weight="600">Random Errors Enter</text>
+                    <line x1="490" y1="160" x2="480" y2="160" stroke="#9a2020" stroke-width="1.3"
+                        marker-end="url(#arr)" />
+                    <!-- arrow down -->
+                    <line x1="340" y1="182" x2="340" y2="202" stroke="#2d6648" stroke-width="1.5"
+                        marker-end="url(#arr)" />
+                    <!-- Error box -->
+                    <rect x="190" y="202" width="300" height="44" rx="8" fill="#f0e0cc" stroke="#ddc8b0"
+                        stroke-width="1.5" />
+                    <text x="340" y="221" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#3d2010"
+                        font-weight="600">Absolute Error = Reading − True Value</text>
+                    <text x="340" y="238" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#6b3e22">%
+                        Error = (Absolute Error / True Value) × 100</text>
+                </svg>
+                <div class="svg-cap">Fig 1.1 — How errors propagate from measurand to instrument reading</div>
+                <div class="svg-cite">Basis: Golding &amp; Widdis [1], Ch. 2; Helfrick &amp; Cooper [3], Ch. 2</div>
+            </div>
+
+            <h3 class="sub">1.2 Definitions — Error, Accuracy, and Precision</h3>
+            <p>Before studying specific instrument errors, we must be precise about terminology. These terms are often
+                confused but have distinct engineering meanings.<sup class="cite">[2]</sup></p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Term</th>
+                            <th>Definition</th>
+                            <th>Mathematical Form</th>
+                            <th>GATE Relevance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Absolute Error</td>
+                            <td>Algebraic difference between indicated value and true value</td>
+                            <td class="t-org">\(e = A_m - A_t\)</td>
+                            <td>Foundation of all error calculations</td>
+                        </tr>
+                        <tr>
+                            <td>Relative Error</td>
+                            <td>Absolute error expressed as fraction of true value</td>
+                            <td class="t-org">\(e_r = e/A_t\)</td>
+                            <td>Used for % accuracy specification</td>
+                        </tr>
+                        <tr>
+                            <td>Accuracy</td>
+                            <td>Closeness of indication to true value; complement of error</td>
+                            <td class="t-grn">\(\text{Accuracy} = 1 - |e_r|\)</td>
+                            <td>Instrument specification parameter</td>
+                        </tr>
+                        <tr>
+                            <td>Precision</td>
+                            <td>Repeatability — closeness of repeated readings to each other</td>
+                            <td>Statistical: low standard deviation</td>
+                            <td>Distinct from accuracy — must not confuse</td>
+                        </tr>
+                        <tr>
+                            <td>Sensitivity</td>
+                            <td>Output response per unit change in input</td>
+                            <td class="t-tel">\(S = \Delta\theta / \Delta Q\)</td>
+                            <td>Scale factor; related to resolution</td>
+                        </tr>
+                        <tr>
+                            <td>Resolution</td>
+                            <td>Smallest detectable input change</td>
+                            <td>Least-count / full-scale reading</td>
+                            <td>Limited by scale graduation</td>
+                        </tr>
+                        <tr>
+                            <td>Dead Zone</td>
+                            <td>Largest input change producing no output change</td>
+                            <td>Friction + hysteresis window</td>
+                            <td>Related to threshold; causes dead band</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <span class="ci">⚠️</span>
+                <div class="cb">
+                    <div class="ct">GATE Trap — Accuracy vs Precision</div>
+                    <p>A dartboard analogy: darts clustered tightly together but far from the bullseye = <strong>high
+                            precision, low accuracy</strong>. Darts scattered around the bullseye = <strong>low
+                            precision, high accuracy</strong>. An instrument can be precise without being accurate, and
+                        vice versa. GATE frequently tests this distinction.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- SECTION 2 — STATIC CHARACTERISTICS -->
+        <!-- ════════════════════════════════════════════════ -->
+        <section class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">02</span>
+                <h2 class="sec-t">Static Performance Characteristics <span class="prob-tag pt-high">🟢 High</span></h2>
+            </div>
+
+            <p>Static characteristics describe an instrument's performance when the input is steady or changes very
+                slowly — essentially, the equilibrium behaviour. These are the specifications you find on an
+                instrument's datasheet.<sup class="cite">[1]</sup></p>
+
+            <h3 class="sub">2.1 The Static Calibration Curve</h3>
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Axes -->
+                    <line x1="70" y1="270" x2="560" y2="270" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+                    <line x1="70" y1="270" x2="70" y2="30" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+                    <defs>
+                        <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <text x="320" y="298" text-anchor="middle" font-family="Lora,serif" font-size="13"
+                        fill="#3d2010">Input (Measurand)</text>
+                    <text x="22" y="155" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#3d2010"
+                        transform="rotate(-90,22,155)">Output (Indication)</text>
+                    <!-- Ideal line -->
+                    <line x1="70" y1="270" x2="540" y2="50" stroke="#2d6648" stroke-width="2" stroke-dasharray="8,4" />
+                    <text x="490" y="44" font-family="Lora,serif" font-size="11" fill="#2d6648">Ideal (Linear)</text>
+                    <!-- Actual curve with span error -->
+                    <path d="M70,255 L110,255 Q325,255 540,80" stroke="#c95f1a" stroke-width="2.5"
+                        fill="none" />
+                    <text x="490" y="75" font-family="Lora,serif" font-size="11" fill="#c95f1a">Actual</text>
+                    <!-- Zero error annotation -->
+                    <circle cx="70" cy="255" r="4" fill="#9a2020" />
+                    <text x="78" y="249" font-family="Lora,serif" font-size="11" fill="#9a2020">Zero Error</text>
+                    <!-- Span error annotation -->
+                    <line x1="540" y1="50" x2="540" y2="80" stroke="#9a2020" stroke-width="1.5"
+                        stroke-dasharray="3,2" />
+                    <text x="450" y="68" font-family="Lora,serif" font-size="11" fill="#9a2020">Span Error</text>
+                    <!-- Linearity error -->
+                    <line x1="280" y1="172" x2="280" y2="228" stroke="#a05c00" stroke-width="1.5"
+                        stroke-dasharray="3,2" />
+                    <text x="290" y="205" font-family="Lora,serif" font-size="11" fill="#a05c00">Non-linearity</text>
+                    <!-- Dead band -->
+                    <rect x="70" y="255" width="40" height="15" rx="3" fill="rgba(158,32,32,0.12)" stroke="#e89090"
+                        stroke-width="1" />
+                    <text x="112" y="266" font-family="Lora,serif" font-size="10" fill="#9a2020">Dead band</text>
+                </svg>
+                <div class="svg-cap">Fig 2.1 — Static calibration curve showing zero error, span error, non-linearity
+                    and dead band</div>
+                <div class="svg-cite">Basis: Golding &amp; Widdis [1], Ch. 2; Morris [4], Ch. 3</div>
+            </div>
+
+            <h3 class="sub">2.2 Key Static Parameters — Detailed Derivations</h3>
+
+            <h4 class="subsub">Scale Range, Span, and Full-Scale Deflection (FSD)</h4>
+            <p>The <strong>scale range</strong> is the pair of values [X<sub>min</sub>, X<sub>max</sub>] the instrument
+                can measure. The <strong>span</strong> is the algebraic difference X<sub>max</sub> − X<sub>min</sub>.
+                <strong>Full-Scale Deflection (FSD)</strong> is the maximum output when the input equals
+                X<sub>max</sub>.<sup class="cite">[1]</sup></p>
+
+            <div class="callout c-key">
+                <span class="ci">🔑</span>
+                <div class="cb">
+                    <div class="ct">Why FSD Matters for Error Specification</div>
+                    <p>Instrument accuracy is most often quoted as <strong>% of FSD</strong> (e.g., ±1% FSD). This means
+                        the absolute error is constant across the scale, but the <em>relative</em> error is largest at
+                        low readings. A 1% FSD instrument reading 10% of full scale has a 10% relative error! Always
+                        measure near the upper end of the scale for best relative accuracy.</p>
+                </div>
+            </div>
+
+            <h4 class="subsub">Sensitivity and Scale Factor</h4>
+            <p>Sensitivity is the ratio of the change in instrument output to the change in the measured input. For a
+                linear instrument with output \(\theta\) (deflection in degrees) and input \(Q\):<sup
+                    class="cite">[2]</sup></p>
+
+            <div class="eq-box">
+                <div class="eq-lbl">Sensitivity Definition</div>
+                $$S = \frac{d\theta}{dQ} \quad \text{(units: degrees per unit of measurand)}$$
+                <div class="eq-desc">For a linear characteristic, S is constant. For a non-linear instrument (e.g.,
+                    Moving Iron with θ ∝ I²), S = dθ/dI = 2kI — sensitivity increases with current, making the scale
+                    non-uniform.</div>
+            </div>
+
+            <p>The inverse of sensitivity is the <strong>scale factor</strong> (or deflection factor). A high
+                sensitivity instrument produces large deflection for small inputs — useful for measuring small
+                quantities but may be easily damaged by overloads.</p>
+
+            <h4 class="subsub">Accuracy and Error Classes</h4>
+            <p>Instruments are classified by their accuracy grades. The Bureau of Indian Standards (BIS) and IEC
+                classify indicating instruments into accuracy classes based on the permissible error as a percentage of
+                FSD:<sup class="cite">[3]</sup></p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Accuracy Class</th>
+                            <th>Permissible Error (% FSD)</th>
+                            <th>Application</th>
+                            <th>GATE Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Class 0.1</td>
+                            <td>±0.1%</td>
+                            <td>Precision laboratory standards</td>
+                            <td>Reference instruments</td>
+                        </tr>
+                        <tr>
+                            <td>Class 0.2</td>
+                            <td>±0.2%</td>
+                            <td>Secondary standards, precision labs</td>
+                            <td>Sub-standard instruments</td>
+                        </tr>
+                        <tr>
+                            <td>Class 0.5</td>
+                            <td>±0.5%</td>
+                            <td>High-accuracy industrial measurements</td>
+                            <td>Panel instruments in test labs</td>
+                        </tr>
+                        <tr>
+                            <td>Class 1.0</td>
+                            <td class="t-org">±1.0%</td>
+                            <td>Industrial switchboard instruments</td>
+                            <td>Most common exam reference</td>
+                        </tr>
+                        <tr>
+                            <td>Class 1.5</td>
+                            <td>±1.5%</td>
+                            <td>Commercial measurements</td>
+                            <td>Energy meters, billing</td>
+                        </tr>
+                        <tr>
+                            <td>Class 2.5</td>
+                            <td>±2.5%</td>
+                            <td>Rough industrial measurements</td>
+                            <td>General workshop instruments</td>
+                        </tr>
+                        <tr>
+                            <td>Class 5.0</td>
+                            <td class="t-red">±5.0%</td>
+                            <td>Approximate indication only</td>
+                            <td>Panel meters in low-accuracy applications</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 class="subsub">Hysteresis</h4>
+            <p>Hysteresis is the phenomenon where an instrument gives different output values for the same input,
+                depending on whether the input is increasing or decreasing. It arises from mechanical friction in the
+                pivot bearings, magnetic hysteresis in iron cores, and elastic after-effects in the spring.<sup
+                    class="cite">[1]</sup></p>
+
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arr3" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+                            <polygon points="0 0,7 2.5,0 5" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <line x1="60" y1="240" x2="490" y2="240" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr3)" />
+                    <line x1="60" y1="240" x2="60" y2="30" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr3)" />
+                    <text x="280" y="262" text-anchor="middle" font-family="Lora,serif" font-size="12"
+                        fill="#3d2010">Input →</text>
+                    <text x="16" y="135" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#3d2010"
+                        transform="rotate(-90,16,135)">Output →</text>
+                    <!-- Increasing path -->
+                    <path d="M60,240 Q180,210 320,130 T480,55" stroke="#2d6648" stroke-width="2.2" fill="none" />
+                    <text x="360" y="100" font-family="Lora,serif" font-size="11" fill="#2d6648">Increasing input</text>
+                    <!-- Decreasing path -->
+                    <path d="M480,55 Q380,80 260,150 T60,240" stroke="#9a2020" stroke-width="2.2" fill="none"
+                        stroke-dasharray="6,3" />
+                    <text x="100" y="195" font-family="Lora,serif" font-size="11" fill="#9a2020">Decreasing input</text>
+                    <!-- Hysteresis gap annotation -->
+                    <line x1="270" y1="145" x2="270" y2="157" stroke="#a05c00" stroke-width="1.5"
+                        stroke-dasharray="3,2" />
+                    <text x="278" y="150" font-family="Lora,serif" font-size="11" fill="#a05c00">Hysteresis</text>
+                    <text x="278" y="163" font-family="Lora,serif" font-size="11" fill="#a05c00">band</text>
+                    <!-- Shaded region -->
+                    <path d="M60,240 Q180,210 320,130 T480,55 Q380,80 260,150 T60,240" fill="rgba(160,92,0,0.08)"
+                        stroke="none" />
+                </svg>
+                <div class="svg-cap">Fig 2.2 — Hysteresis in instrument response. The shaded area represents energy lost
+                    per cycle.</div>
+                <div class="svg-cite">Basis: Doebelin [2], Ch. 3; Golding &amp; Widdis [1], Ch. 2</div>
+            </div>
+
+            <div class="eq-box">
+                <div class="eq-lbl">Hysteresis Error</div>
+                $$\% \text{ Hysteresis} = \frac{\text{Maximum output difference for same input (up vs.
+                down)}}{\text{Full Scale Output}} \times 100$$
+                <div class="eq-desc">For Moving Iron instruments, hysteresis error is reduced by using Nickel-Iron
+                    alloys (e.g., Mumetal) with a very narrow B-H loop. PMMC instruments are essentially free of
+                    hysteresis because they use a permanent magnet (no iron in the flux path of the moving system).
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- SECTION 3 — DYNAMIC CHARACTERISTICS -->
+        <!-- ════════════════════════════════════════════════ -->
+        <section class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">03</span>
+                <h2 class="sec-t">Dynamic Characteristics <span class="prob-tag pt-med">🟡 Medium</span></h2>
+            </div>
+
+            <p>Dynamic characteristics describe instrument behaviour when the measured quantity is changing with time.
+                The moving system of an indicating instrument is essentially a second-order mechanical system —
+                understanding its dynamics is crucial to interpreting transient readings.<sup class="cite">[2]</sup></p>
+
+            <h3 class="sub">3.1 The Three Torques — Governing Equation</h3>
+            <p>Every electromechanical indicating instrument has three fundamental torques acting on its moving system
+                simultaneously. At any instant, Newton's second law for rotation gives:<sup class="cite">[1]</sup></p>
+
+            <div class="eq-box">
+                <div class="eq-lbl">Torque Balance Equation (2nd Order ODE)</div>
+                $$J\frac{d^2\theta}{dt^2} + D\frac{d\theta}{dt} + K\theta = T_d(t)$$
+                <div class="eq-desc">
+                    J = Moment of inertia of moving system (kg·m²) &nbsp;|&nbsp; D = Damping coefficient (N·m·s/rad)<br>
+                    K = Spring (controlling) stiffness constant (N·m/rad) &nbsp;|&nbsp; T_d = Deflecting torque
+                    (N·m)<br>
+                    θ = Angular deflection from rest position (rad)
+                </div>
+            </div>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Three torque boxes -->
+                    <rect x="20" y="60" width="190" height="80" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="115" y="92" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#c95f1a"
+                        font-weight="600">Deflecting Torque</text>
+                    <text x="115" y="112" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#c95f1a">T_d : Drives needle forward</text>
+                    <text x="115" y="128" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#c95f1a">∝
+                        electrical quantity</text>
+
+                    <rect x="265" y="60" width="190" height="80" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="360" y="92" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#1e6b68"
+                        font-weight="600">Controlling Torque</text>
+                    <text x="360" y="112" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#1e6b68">T_c = Kθ : Spring restores</text>
+                    <text x="360" y="128" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#1e6b68">∝
+                        deflection angle θ</text>
+
+                    <rect x="510" y="60" width="190" height="80" rx="8" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="605" y="92" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#2d6648"
+                        font-weight="600">Damping Torque</text>
+                    <text x="605" y="112" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#2d6648">T_dam = D(dθ/dt) : Slows</text>
+                    <text x="605" y="128" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">∝
+                        angular velocity</text>
+
+                    <!-- Arrows converging to "Needle" -->
+                    <line x1="210" y1="100" x2="262" y2="100" stroke="#c95f1a" stroke-width="1.5"
+                        stroke-dasharray="4,2" />
+                    <line x1="455" y1="100" x2="507" y2="100" stroke="#1e6b68" stroke-width="1.5"
+                        stroke-dasharray="4,2" />
+
+                    <!-- Central needle symbol -->
+                    <circle cx="360" cy="20" r="10" fill="#f0e0cc" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="360" y1="30" x2="360" y2="58" stroke="#c95f1a" stroke-width="1.5"
+                        stroke-dasharray="3,2" />
+                    <text x="360" y="16" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#c95f1a">Needle</text>
+                </svg>
+                <div class="svg-cap">Fig 3.1 — The three fundamental torques of an electromechanical indicating
+                    instrument</div>
+            </div>
+
+            <h3 class="sub">3.2 Damping — Under, Critical, and Over</h3>
+            <p>The damping ratio \(\zeta = D / (2\sqrt{JK})\) determines the character of the transient response.
+                Engineers choose damping carefully — too little and the needle oscillates for a long time; too much and
+                it is sluggish.<sup class="cite">[2]</sup></p>
+
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 620 280" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arr4" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+                            <polygon points="0 0,7 2.5,0 5" fill="#3d2010" />
+                        </marker>
+                    </defs>
+                    <!-- Axes -->
+                    <line x1="60" y1="240" x2="590" y2="240" stroke="#3d2010" stroke-width="1.3"
+                        marker-end="url(#arr4)" />
+                    <line x1="60" y1="240" x2="60" y2="30" stroke="#3d2010" stroke-width="1.3"
+                        marker-end="url(#arr4)" />
+                    <text x="340" y="260" text-anchor="middle" font-family="Lora,serif" font-size="12"
+                        fill="#3d2010">Time →</text>
+                    <text x="18" y="135" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#3d2010"
+                        transform="rotate(-90,18,135)">θ(t) →</text>
+                    <!-- Final value line -->
+                    <line x1="60" y1="100" x2="590" y2="100" stroke="#3d2010" stroke-width="1" stroke-dasharray="5,4" />
+                    <text x="570" y="95" font-family="Lora,serif" font-size="10" fill="#3d2010">θ_final</text>
+                    <!-- Underdamped (ζ<1) -->
+                    <path
+                        d="M60,240 C80,90 100,70 140,80 S180,115 220,102 S260,94 300,99 S340,103 380,100 S420,99 460,100"
+                        stroke="#9a2020" stroke-width="2" fill="none" />
+                    <text x="120" y="65" font-family="Lora,serif" font-size="11" fill="#9a2020" font-weight="600">ζ &lt;
+                        1 (Underdamped)</text>
+                    <!-- Critically damped (ζ=1) -->
+                    <path d="M60,240 C100,120 150,95 240,100 S380,100 460,100" stroke="#2d6648" stroke-width="2.5"
+                        fill="none" />
+                    <text x="200" y="85" font-family="Lora,serif" font-size="11" fill="#2d6648" font-weight="600">ζ = 1
+                        (Critical — fastest without overshoot)</text>
+                    <!-- Overdamped (ζ>1) -->
+                    <path d="M60,240 C90,200 160,150 260,120 S380,105 460,101" stroke="#a05c00" stroke-width="2"
+                        fill="none" stroke-dasharray="7,3" />
+                    <text x="250" y="135" font-family="Lora,serif" font-size="11" fill="#a05c00" font-weight="600">ζ
+                        &gt; 1 (Overdamped — sluggish)</text>
+                </svg>
+                <div class="svg-cap">Fig 3.2 — Step response of indicating instrument for three damping conditions.
+                    Instruments are designed for ζ ≈ 0.65 for fastest settling within ±2% tolerance.</div>
+                <div class="svg-cite">Basis: Doebelin [2], Ch. 3; Stout [5], Ch. 4</div>
+            </div>
+
+            <div class="callout c-key">
+                <span class="ci">🔑</span>
+                <div class="cb">
+                    <div class="ct">GATE Key Point — Practical Damping</div>
+                    <p>Practical instruments are designed with a damping ratio between 0.6 and 0.8 (slightly
+                        underdamped). This gives the fastest response that settles within ±2% of the final value without
+                        excessive oscillation. The British Standard specifies that the pointer should reach its final
+                        position within the tolerance band in the minimum time — achieved around ζ ≈ 0.65.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">3.3 Speed of Response and Dynamic Error</h3>
+            <p><strong>Dynamic error</strong> is the difference between the true time-varying value and the instrument's
+                indicated value at any instant. It arises because the moving system cannot respond instantaneously due
+                to its inertia. The <strong>rise time</strong> is the time for the response to go from 10% to 90% of the
+                final value; the <strong>settling time</strong> is when it stays within ±2% (or ±5%) of the final
+                value.<sup class="cite">[4]</sup></p>
+        </section>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- SECTION 4 — CLASSIFICATION OF ERRORS -->
+        <!-- ════════════════════════════════════════════════ -->
+        <section class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">04</span>
+                <h2 class="sec-t">Classification of Errors <span class="prob-tag pt-high">🟢 High</span></h2>
+            </div>
+
+            <p>Errors in electrical measurements are systematically classified into three broad categories.
+                Understanding this hierarchy is the first step to knowing how to eliminate or reduce each type.<sup
+                    class="cite">[3]</sup></p>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arr5" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <!-- Root -->
+                    <rect x="270" y="10" width="180" height="38" rx="7" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="360" y="34" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#c95f1a"
+                        font-weight="600">Measurement Errors</text>
+                    <!-- Branches -->
+                    <line x1="360" y1="48" x2="360" y2="68" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="130" y1="68" x2="590" y2="68" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="130" y1="68" x2="130" y2="88" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr5)" />
+                    <line x1="360" y1="68" x2="360" y2="88" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr5)" />
+                    <line x1="590" y1="68" x2="590" y2="88" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr5)" />
+                    <!-- Systematic -->
+                    <rect x="30" y="88" width="200" height="40" rx="7" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="130" y="110" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#1e6b68"
+                        font-weight="600">Systematic (Deterministic)</text>
+                    <!-- Random -->
+                    <rect x="260" y="88" width="200" height="40" rx="7" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="360" y="110" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#2d6648"
+                        font-weight="600">Random (Stochastic)</text>
+                    <!-- Gross -->
+                    <rect x="490" y="88" width="200" height="40" rx="7" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="590" y="110" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#a05c00"
+                        font-weight="600">Gross (Human Mistakes)</text>
+                    <!-- Sub-branches of Systematic -->
+                    <line x1="130" y1="128" x2="130" y2="145" stroke="#1e6b68" stroke-width="1.2" />
+                    <line x1="55" y1="145" x2="205" y2="145" stroke="#1e6b68" stroke-width="1.2" />
+                    <line x1="55" y1="145" x2="55" y2="162" stroke="#1e6b68" stroke-width="1.2"
+                        marker-end="url(#arr5)" />
+                    <line x1="130" y1="145" x2="130" y2="162" stroke="#1e6b68" stroke-width="1.2"
+                        marker-end="url(#arr5)" />
+                    <line x1="205" y1="145" x2="205" y2="162" stroke="#1e6b68" stroke-width="1.2"
+                        marker-end="url(#arr5)" />
+                    <rect x="10" y="162" width="90" height="28" rx="5" fill="#f0e0cc" stroke="#ddc8b0" />
+                    <text x="55" y="180" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#3d2010">Instrumental</text>
+                    <rect x="85" y="162" width="90" height="28" rx="5" fill="#f0e0cc" stroke="#ddc8b0" />
+                    <text x="130" y="180" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#3d2010">Environmental</text>
+                    <rect x="160" y="162" width="90" height="28" rx="5" fill="#f0e0cc" stroke="#ddc8b0" />
+                    <text x="205" y="180" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#3d2010">Observational</text>
+                    <!-- Sub of Random -->
+                    <line x1="360" y1="128" x2="360" y2="162" stroke="#2d6648" stroke-width="1.2"
+                        marker-end="url(#arr5)" />
+                    <rect x="290" y="162" width="140" height="28" rx="5" fill="#f0e0cc" stroke="#ddc8b0" />
+                    <text x="360" y="180" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#3d2010">Statistical distribution</text>
+                    <!-- Sub of Gross -->
+                    <line x1="590" y1="128" x2="590" y2="162" stroke="#a05c00" stroke-width="1.2"
+                        marker-end="url(#arr5)" />
+                    <rect x="520" y="162" width="140" height="28" rx="5" fill="#f0e0cc" stroke="#ddc8b0" />
+                    <text x="590" y="180" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#3d2010">Eliminated by care</text>
+                </svg>
+                <div class="svg-cap">Fig 4.1 — Complete taxonomy of measurement errors</div>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Systematic Errors</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Consistent, repeatable bias in one direction</li>
+                        <li><span class="dot">▸</span>Can be identified and corrected by calibration</li>
+                        <li><span class="dot">▸</span><em>Instrumental:</em> friction, spring ageing, coil resistance
+                            change</li>
+                        <li><span class="dot">▸</span><em>Environmental:</em> temperature, humidity, stray fields</li>
+                        <li><span class="dot">▸</span><em>Observational:</em> parallax error in reading scale</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Random Errors</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Fluctuate unpredictably around the mean</li>
+                        <li><span class="dot">▸</span>Follow Gaussian (normal) distribution</li>
+                        <li><span class="dot">▸</span>Reduced by taking multiple readings and averaging</li>
+                        <li><span class="dot">▸</span>Cannot be eliminated completely</li>
+                        <li><span class="dot">▸</span>Standard deviation σ characterises their spread</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Gross Errors (Human)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Reading wrong scale on multi-range instrument</li>
+                        <li><span class="dot">▸</span>Incorrect decimal point placement</li>
+                        <li><span class="dot">▸</span>Wrong connection (AC instrument on DC)</li>
+                        <li><span class="dot">▸</span>Eliminated by careful technique and cross-checking</li>
+                        <li><span class="dot">▸</span>Not amenable to mathematical treatment</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Parallax Error (Observational)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Occurs when pointer does not lie in same plane as scale</li>
+                        <li><span class="dot">▸</span>Eye above pointer → reads high; eye below → reads low</li>
+                        <li><span class="dot">▸</span>Eliminated by knife-edge pointer + mirror scale</li>
+                        <li><span class="dot">▸</span>Always read with eye directly above pointer (normal incidence)
+                        </li>
+                        <li><span class="dot">▸</span>Systematic in nature; direction depends on habit</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- SECTION 5 — ERRORS IN PMMC -->
+        <!-- ════════════════════════════════════════════════ -->
+        <section class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">05</span>
+                <h2 class="sec-t">Errors in PMMC (Moving Coil) Instruments <span class="prob-tag pt-high">🟢 High</span>
+                </h2>
+            </div>
+
+            <p>The Permanent Magnet Moving Coil (PMMC) or d'Arsonval type instrument is the most widely used DC
+                measuring instrument. Its operating principle — a current-carrying coil in a permanent magnet field —
+                makes it susceptible to specific categories of errors that differ from AC instruments.<sup
+                    class="cite">[1]</sup></p>
+
+            <div class="callout c-info">
+                <span class="ci">💡</span>
+                <div class="cb">
+                    <div class="ct">PMMC Operating Principle — Quick Recap</div>
+                    <p>The deflecting torque \(T_d = BANI\) where B = flux density, A = coil area, N = number of turns,
+                        I = current. At steady state, \(T_d = T_c\), so \(BANI = K\theta\), giving \(\theta = (BAN/K)
+                        \cdot I\). Since B, A, N, K are constants of construction, deflection \(\theta \propto I\) — a
+                        perfectly linear scale for DC.</p>
+                </div>
+            </div>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Permanent magnet (N-S poles) -->
+                    <rect x="40" y="80" width="100" height="140" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="2" />
+                    <text x="90" y="155" text-anchor="middle" font-family="Lora,serif" font-size="20" fill="#c95f1a"
+                        font-weight="700">N</text>
+                    <text x="90" y="130" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">Permanent</text>
+                    <text x="90" y="143" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">Magnet</text>
+                    <rect x="540" y="80" width="100" height="140" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="2" />
+                    <text x="590" y="155" text-anchor="middle" font-family="Lora,serif" font-size="20" fill="#1e6b68"
+                        font-weight="700">S</text>
+                    <!-- Cylindrical iron core -->
+                    <ellipse cx="340" cy="150" rx="60" ry="60" fill="#f0e0cc" stroke="#ddc8b0" stroke-width="1.5" />
+                    <text x="340" y="145" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">Iron</text>
+                    <text x="340" y="158" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">Core</text>
+                    <!-- Moving coil -->
+                    <rect x="280" y="90" width="120" height="120" rx="4" fill="none" stroke="#c95f1a"
+                        stroke-width="3" />
+                    <text x="340" y="220" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="600">Moving Coil</text>
+                    <!-- Flux arrows -->
+                    <line x1="140" y1="150" x2="210" y2="150" stroke="#a05c00" stroke-width="1.5"
+                        marker-end="url(#arr5)" />
+                    <line x1="400" y1="150" x2="470" y2="150" stroke="#a05c00" stroke-width="1.5"
+                        marker-end="url(#arr5)" />
+                    <text x="175" y="142" font-family="Lora,serif" font-size="10" fill="#a05c00">B</text>
+                    <text x="435" y="142" font-family="Lora,serif" font-size="10" fill="#a05c00">B</text>
+                    <!-- Spring symbol (top) -->
+                    <path d="M340,80 L340,68 L330,62 L350,54 L330,46 L350,38 L340,32 L340,20" stroke="#2d6648"
+                        stroke-width="1.5" fill="none" />
+                    <text x="360" y="55" font-family="Lora,serif" font-size="10" fill="#2d6648">Spring (K)</text>
+                    <!-- Pointer -->
+                    <line x1="340" y1="80" x2="340" y2="30" stroke="#9a2020" stroke-width="2" />
+                    <polygon points="340,24 335,34 345,34" fill="#9a2020" />
+                    <!-- Error labels -->
+                    <text x="340" y="288" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#3d2010"
+                        font-style="italic">Errors: Friction · Temperature · Ageing of magnet &amp; spring</text>
+                </svg>
+                <div class="svg-cap">Fig 5.1 — PMMC instrument construction. The uniform radial field from the permanent
+                    magnet gives a linear, uniform scale.</div>
+                <div class="svg-cite">Basis: Golding &amp; Widdis [1], Ch. 5; Helfrick &amp; Cooper [3], Ch. 4</div>
+            </div>
+
+            <h3 class="sub">5.1 Frictional Error</h3>
+            <p>Friction in the pivot bearings and the interaction of the pointer with the scale glass resists
+                deflection. This creates a <strong>dead zone</strong> — a range of input currents over which no
+                deflection occurs. The instrument will read incorrectly for inputs near this threshold.<sup
+                    class="cite">[1]</sup></p>
+
+            <div class="eq-box">
+                <div class="eq-lbl">Condition for Minimising Friction Error</div>
+                $$\frac{T_d}{\text{Weight of moving system}} = \frac{BAN \cdot I_{FSD}}{mg} \gg 1$$
+                <div class="eq-desc">To minimise frictional error, the torque-to-weight ratio must be made as large as
+                    possible. This is achieved by:<br>
+                    (a) Using a very lightweight moving coil (aluminium former) to reduce weight (mg).<br>
+                    (b) Using a strong permanent magnet to increase flux density B.<br>
+                    (c) Using fine-jewelled pivot bearings to reduce friction coefficient.<br>
+                    PMMC instruments have lower frictional error than Moving Iron types because the PMMC coil is very
+                    light compared to the MI iron vane.
+                </div>
+            </div>
+
+            <h3 class="sub">5.2 Temperature Error</h3>
+            <p>Temperature affects PMMC instruments through two independent mechanisms, and these effects partially
+                compensate each other:<sup class="cite">[1]</sup></p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Effect of Temperature Rise</th>
+                            <th>Effect on Reading</th>
+                            <th>Remedy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Spiral springs</td>
+                            <td>Young's modulus decreases → spring weakens → K decreases</td>
+                            <td class="t-red">Reading increases (overcorrection)</td>
+                            <td>Use Elinvar alloy springs (K nearly constant with temperature)</td>
+                        </tr>
+                        <tr>
+                            <td>Coil resistance R_c</td>
+                            <td>Resistance increases (copper: +0.4%/°C) → current decreases for fixed voltage source
+                            </td>
+                            <td class="t-grn">Reading decreases</td>
+                            <td>Series swamping resistor (Manganin, very low TCR)</td>
+                        </tr>
+                        <tr>
+                            <td>Permanent magnet</td>
+                            <td>Flux density decreases slightly (−0.02%/°C for Alnico)</td>
+                            <td class="t-red">Reading decreases</td>
+                            <td>Use temperature-compensated magnets or magnet shunts</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Ammeter circuit with swamping resistor -->
+                    <text x="300" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="14"
+                        fill="#c95f1a" font-weight="600">Swamping Resistor in Ammeter Circuit</text>
+                    <!-- Supply -->
+                    <rect x="20" y="60" width="60" height="80" rx="6" fill="#f8ede0" stroke="#c95f1a"
+                        stroke-width="1.5" />
+                    <text x="50" y="100" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#c95f1a">Supply</text>
+                    <!-- Wire from supply -->
+                    <line x1="80" y1="80" x2="130" y2="80" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- Shunt Rsh -->
+                    <rect x="130" y="60" width="80" height="40" rx="5" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="170" y="82" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#2d6648">R_sh</text>
+                    <text x="170" y="95" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#2d6648">(Shunt)</text>
+                    <!-- Series path: coil + swamping -->
+                    <line x1="130" y1="80" x2="130" y2="130" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="210" y1="80" x2="210" y2="130" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="130" y1="130" x2="250" y2="130" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- R_m box -->
+                    <rect x="250" y="110" width="80" height="40" rx="5" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="290" y="130" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#c95f1a">R_m</text>
+                    <text x="290" y="143" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#c95f1a">(Meter coil)</text>
+                    <!-- R_swamp box -->
+                    <rect x="360" y="110" width="100" height="40" rx="5" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="410" y="130" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#1e6b68">R_swamp</text>
+                    <text x="410" y="143" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#1e6b68">(Manganin, 30–40×R_m)</text>
+                    <line x1="330" y1="130" x2="360" y2="130" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="460" y1="130" x2="540" y2="130" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="540" y1="80" x2="540" y2="130" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="210" y1="80" x2="540" y2="80" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- Current arrow -->
+                    <text x="300" y="170" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#3d2010"
+                        font-style="italic">I_m = I · R_sh / (R_sh + R_m + R_swamp) &nbsp;|&nbsp; Multiplying factor m =
+                        I/I_m</text>
+                </svg>
+                <div class="svg-cap">Fig 5.2 — Swamping resistor (Manganin for DC, Constantan for AC) in series with
+                    moving coil to minimise temperature error</div>
+                <div class="svg-cite">Basis: Golding &amp; Widdis [1], Ch. 5</div>
+            </div>
+
+            <div class="eq-box">
+                <div class="eq-lbl">Multiplying Factor with Swamping Resistor</div>
+                $$m = \frac{I}{I_m} = \frac{R_{sh} + R_m + R_{swamp}}{R_{sh}}$$
+                <div class="eq-desc">
+                    With R_swamp ≈ 30–40 × R_m: the fractional change in total series resistance due to a temperature
+                    rise is dominated by the stable Manganin/Constantan resistor. Thus a 10°C rise in R_m (say 4%
+                    increase) has negligible effect on (R_sh + R_m + R_swamp) — temperature error is dramatically
+                    reduced.<br><br>
+                    Material note: R_swamp made of <strong>Manganin for DC</strong> (TCR ≈ +2 ppm/°C) and
+                    <strong>Constantan for AC</strong> (low TCR + self-compensating properties).
+                </div>
+            </div>
+
+            <h3 class="sub">5.3 Ageing of Permanent Magnet</h3>
+            <p>Over time, a permanent magnet gradually loses its flux density due to mechanical vibration, temperature
+                cycles, and self-demagnetisation. This causes the sensitivity to decrease — the instrument reads low.
+                The solution is to <strong>artificially age</strong> (stabilise) the magnet during manufacture by
+                deliberately exposing it to vibration and temperature cycles before calibration. Modern Alnico and
+                ferrite magnets are very stable.<sup class="cite">[1]</sup></p>
+
+            <h3 class="sub">5.4 Stray Magnetic Field Error in PMMC</h3>
+            <p>Since the PMMC uses a strong permanent magnet, external stray magnetic fields have relatively little
+                effect — the instrument's own field dominates. The PMMC is inherently well-shielded from external field
+                interference. This is a significant advantage over Moving Iron instruments.<sup class="cite">[1]</sup>
+            </p>
+        </section>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- SECTION 6 — ERRORS IN MOVING IRON -->
+        <!-- ════════════════════════════════════════════════ -->
+        <section class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">06</span>
+                <h2 class="sec-t">Errors in Moving Iron (MI) Instruments <span class="prob-tag pt-high">🟢 High</span>
+                </h2>
+            </div>
+
+            <p>Moving Iron instruments work on the principle that an iron vane placed in a magnetic field experiences a
+                deflecting torque regardless of current direction — making them naturally suited for both AC and DC.
+                However, the presence of iron in the magnetic circuit introduces a richer set of errors compared to
+                PMMC.<sup class="cite">[1]</sup></p>
+
+            <div class="callout c-info">
+                <span class="ci">💡</span>
+                <div class="cb">
+                    <div class="ct">MI Operating Principle — Quick Recap</div>
+                    <p>Deflecting torque \(T_d = \frac{1}{2}I^2 \frac{dL}{d\theta}\) where L is the self-inductance of
+                        the coil, which varies with deflection angle θ. Since \(T_d \propto I^2\), the deflection
+                        \(\theta \propto I^2\), giving a <em>non-uniform (squared)</em> scale — cramped at the low end,
+                        open at the high end.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">6.1 Summary of MI Errors vs. PMMC</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Error Type</th>
+                            <th class="t-org">PMMC</th>
+                            <th class="t-tel">Moving Iron (MI)</th>
+                            <th>Reason for Difference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Frictional Error</td>
+                            <td>Less (light coil, high torque)</td>
+                            <td class="t-red">More (heavier iron vane, lower torque)</td>
+                            <td>MC weight vs. MI weight; torque/weight ratio</td>
+                        </tr>
+                        <tr>
+                            <td>Temperature Error</td>
+                            <td>Moderate (spring + coil resistance)</td>
+                            <td class="t-red">More (spring + coil resistance + iron permeability)</td>
+                            <td>Additional factor: μ of iron changes with T</td>
+                        </tr>
+                        <tr>
+                            <td>Frequency Error</td>
+                            <td class="t-grn">None (used for DC only)</td>
+                            <td class="t-red">Present (eddy current, skin effect, inductance change)</td>
+                            <td>MC uses no iron; MI has iron core</td>
+                        </tr>
+                        <tr>
+                            <td>Stray Magnetic Field</td>
+                            <td class="t-grn">Less (strong permanent magnet dominates)</td>
+                            <td class="t-red">More (weak electromagnet, easily distorted)</td>
+                            <td>External field comparable to MI's own field</td>
+                        </tr>
+                        <tr>
+                            <td>Hysteresis Error</td>
+                            <td class="t-grn">None (no iron in moving system)</td>
+                            <td class="t-red">Present (iron B-H hysteresis loop)</td>
+                            <td>MC permanent magnet vs. MI soft iron</td>
+                        </tr>
+                        <tr>
+                            <td>Eddy Current Error</td>
+                            <td class="t-grn">Low (no bulk iron, eddy current damping disc only)</td>
+                            <td class="t-red">Present (proportional to f²)</td>
+                            <td>Iron vane supports eddy currents</td>
+                        </tr>
+                        <tr>
+                            <td>Scale</td>
+                            <td class="t-grn">Uniform (θ ∝ I)</td>
+                            <td>Non-uniform (θ ∝ I²)</td>
+                            <td>Linear vs. square-law response</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">6.2 Frequency Error in MI Instruments</h3>
+            <p>When the supply frequency changes from the frequency at which the instrument was calibrated, the reading
+                changes even for the same RMS current. Two mechanisms cause this:<sup class="cite">[1]</sup></p>
+
+            <ul class="prose">
+                <li><strong>Inductance change with frequency:</strong> The impedance Z = √(R² + ω²L²) increases with
+                    frequency, reducing the current I = V/Z for voltmeter configuration, giving a lower reading at
+                    higher frequencies.</li>
+                <li><strong>Eddy current effect:</strong> Eddy currents in the iron vane reduce the effective flux and
+                    hence the deflecting torque. Eddy current error ∝ f² — significant at high frequencies. This is why
+                    MI instruments are rated suitable only up to <strong>125 Hz</strong>.</li>
+            </ul>
+
+            <div class="eq-box">
+                <div class="eq-lbl">Frequency Error — Voltage Coil Correction</div>
+                $$Z_f = \sqrt{R^2 + (2\pi f L)^2}$$
+                $$\text{Error} = \frac{Z_f - Z_{50}}{Z_{50}} \times 100\%$$
+                <div class="eq-desc">
+                    For a MI voltmeter calibrated at 50 Hz with resistance R and inductance L: if used at frequency f,
+                    the indicated voltage will differ from true voltage because Z_f ≠ Z_50. The correction factor is
+                    Z_50/Z_f. For this reason, MI instruments must always state their rated frequency on the scale.
+                </div>
+            </div>
+
+            <h3 class="sub">6.3 Stray Magnetic Field Error in MI</h3>
+            <p>MI instruments use a relatively weak electromagnetic field (produced by the current in the fixed coil).
+                External stray magnetic fields of comparable magnitude can distort the internal operating field, causing
+                significant errors. Key points:<sup class="cite">[1]</sup></p>
+            <ul class="prose">
+                <li>The stray field effect depends on both the <strong>magnitude</strong> and the
+                    <strong>direction</strong> of the external field relative to the instrument's internal field.</li>
+                <li>When the external field is <em>in phase</em> with the main field, the error is maximum.</li>
+                <li>The stray field error is <strong>more in MI than in PMMC</strong> because the MI's own field is much
+                    weaker.</li>
+                <li><strong>Remedy:</strong> Iron (μ-metal) magnetic shielding around the instrument; or using a
+                    <em>differential</em> (two-vane repulsion) type arrangement where the stray field affects both vanes
+                    equally and cancels.</li>
+            </ul>
+
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 620 240" xmlns="http://www.w3.org/2000/svg">
+                    <text x="310" y="22" text-anchor="middle" font-family="Playfair Display,serif" font-size="14"
+                        fill="#c95f1a" font-weight="600">Iron Shielding Against Stray Magnetic Field</text>
+                    <!-- Cross-section view -->
+                    <!-- Outer iron shield -->
+                    <rect x="80" y="40" width="200" height="180" rx="12" fill="none" stroke="#6b3e22"
+                        stroke-width="6" />
+                    <text x="180" y="35" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">Iron Shield</text>
+                    <!-- Instrument inside -->
+                    <circle cx="180" cy="130" r="60" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5" />
+                    <text x="180" y="125" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a">MI
+                        Instrument</text>
+                    <text x="180" y="140" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">Internal field protected</text>
+                    <!-- Stray field arrows deflected by shield -->
+                    <line x1="340" y1="80" x2="290" y2="80" stroke="#9a2020" stroke-width="1.5"
+                        marker-end="url(#arr5)" />
+                    <line x1="340" y1="130" x2="290" y2="130" stroke="#9a2020" stroke-width="1.5"
+                        marker-end="url(#arr5)" />
+                    <line x1="340" y1="180" x2="290" y2="180" stroke="#9a2020" stroke-width="1.5"
+                        marker-end="url(#arr5)" />
+                    <text x="380" y="130" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#9a2020">Stray External</text>
+                    <text x="380" y="145" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#9a2020">Magnetic Field</text>
+                    <!-- Redirected flux in iron shield -->
+                    <path d="M290,80 Q295,50 180,38 Q65,50 70,80" stroke="#6b3e22" stroke-width="1.5" fill="none"
+                        stroke-dasharray="4,3" />
+                    <path d="M290,180 Q295,210 180,222 Q65,210 70,180" stroke="#6b3e22" stroke-width="1.5" fill="none"
+                        stroke-dasharray="4,3" />
+                    <text x="180" y="205" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">Flux diverted through shield</text>
+                    <!-- Right side: portable wattmeter -->
+                    <rect x="450" y="50" width="140" height="160" rx="10" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="520" y="95" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="600">Precision Wattmeters:</text>
+                    <text x="520" y="112" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Static System used</text>
+                    <text x="520" y="127" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Two sets of fixed</text>
+                    <text x="520" y="142" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">&amp; moving coils in</text>
+                    <text x="520" y="157" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">astatic arrangement</text>
+                    <text x="520" y="172" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">(fields cancel externally)</text>
+                </svg>
+                <div class="svg-cap">Fig 6.1 — Iron shielding routes stray external flux through the shield, protecting
+                    the instrument's internal operating field</div>
+            </div>
+
+            <h3 class="sub">6.4 Hysteresis Error in MI</h3>
+            <p>The iron vane's B-H characteristic is not perfectly reversible — the flux density at a given field
+                intensity is higher on the decreasing path than on the increasing path. This causes the instrument to
+                give different readings for the same current depending on whether it was previously higher or lower.<sup
+                    class="cite">[1]</sup></p>
+            <ul class="prose">
+                <li>Hysteresis error is more severe in MI instruments than in PMMC (which have no iron in the moving
+                    system).</li>
+                <li><strong>Remedy:</strong> Use <strong>Nickel-Iron alloy</strong> (such as Mumetal or Permalloy) for
+                    the iron vane. These materials have an extremely narrow B-H loop (low coercivity) → very small
+                    hysteresis area → minimal error.</li>
+                <li>The Nickel-Iron alloy also has high permeability, increasing the torque for a given current.</li>
+            </ul>
+
+            <h3 class="sub">6.5 Eddy Current Error in MI</h3>
+            <p>Alternating current flowing in the fixed coil induces eddy currents in the iron vane. These eddy
+                currents:<sup class="cite">[1]</sup></p>
+            <ul class="prose">
+                <li>Produce their own magnetic field opposing the main flux → reduce deflecting torque → instrument
+                    reads low.</li>
+                <li>Increase with frequency: <strong>Eddy current error ∝ f²</strong> in the low-frequency range. At
+                    higher frequencies, the skin effect limits the depth of penetration, and the error tends to become
+                    more constant.</li>
+                <li>This is why MI instruments are rated suitable only up to <strong>125 Hz</strong>. For measurements
+                    at very high frequencies (up to 50 MHz), thermocouple instruments are used instead.</li>
+            </ul>
+        </section>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- SECTION 7 — ELECTRODYNAMOMETER ERRORS -->
+        <!-- ════════════════════════════════════════════════ -->
+        <section class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">07</span>
+                <h2 class="sec-t">Errors in Electrodynamometer (EMMC) Instruments <span class="prob-tag pt-high">🟢
+                        High</span></h2>
+            </div>
+
+            <p>The Electrodynamometer type instrument has two coils — a fixed coil (current coil, CC) and a moving coil
+                (potential coil, PC). The interaction between the magnetic fields of these two coils produces the
+                deflecting torque. Because it uses <em>air core</em> for both coils, it avoids several iron-related
+                errors but introduces its own unique error sources.<sup class="cite">[1]</sup></p>
+
+            <div class="callout c-info">
+                <span class="ci">💡</span>
+                <div class="cb">
+                    <div class="ct">Operating Principle Recap</div>
+                    <p>Deflecting torque \(T_d = I_1 I_2 \cos\phi \cdot \frac{dM}{d\theta}\) where M is the mutual
+                        inductance between fixed and moving coils, I₁ = current coil current, I₂ = voltage coil current,
+                        and φ = angle between them. For a wattmeter: T_d ∝ VI cosφ = Active Power. Note: cosφ here is
+                        <strong>not the load power factor</strong> — it is the cosine of the angle between coil axes.
+                    </p>
+                </div>
+            </div>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Fixed coil left -->
+                    <rect x="30" y="90" width="80" height="140" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="2" />
+                    <text x="70" y="150" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="600">Fixed Coil</text>
+                    <text x="70" y="165" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">(Current Coil)</text>
+                    <text x="70" y="180" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">Carries I₁ = I_load</text>
+                    <!-- Fixed coil right -->
+                    <rect x="610" y="90" width="80" height="140" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="2" />
+                    <text x="650" y="150" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="600">Fixed Coil</text>
+                    <text x="650" y="165" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">(Current Coil)</text>
+                    <text x="650" y="180" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">Carries I₁ = I_load</text>
+                    <!-- Moving coil centre -->
+                    <rect x="280" y="100" width="160" height="120" rx="6" fill="none" stroke="#1e6b68"
+                        stroke-width="2.5" />
+                    <text x="360" y="150" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#1e6b68"
+                        font-weight="600">Moving Coil</text>
+                    <text x="360" y="167" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">(Voltage / Potential Coil)</text>
+                    <text x="360" y="182" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Carries I₂ = V/R_series</text>
+                    <!-- Air core label -->
+                    <circle cx="360" cy="160" r="40" fill="rgba(216,238,237,0.3)" stroke="#7ec4c2" stroke-width="1"
+                        stroke-dasharray="4,3" />
+                    <text x="360" y="248" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-style="italic">Air core — no iron → no hysteresis, no eddy current error</text>
+                    <!-- Spring + pointer -->
+                    <line x1="360" y1="100" x2="360" y2="70" stroke="#2d6648" stroke-width="2" />
+                    <path d="M360,70 L340,55 L380,42 L340,29 L360,18" stroke="#2d6648" stroke-width="1.5" fill="none" />
+                    <text x="395" y="44" font-family="Lora,serif" font-size="10" fill="#2d6648">Spring control</text>
+                    <!-- Magnetic field arrows -->
+                    <line x1="110" y1="160" x2="270" y2="160" stroke="#a05c00" stroke-width="1.5"
+                        marker-end="url(#arr5)" />
+                    <line x1="450" y1="160" x2="600" y2="160" stroke="#a05c00" stroke-width="1.5"
+                        marker-end="url(#arr5)" />
+                    <text x="190" y="152" font-family="Lora,serif" font-size="10" fill="#a05c00">H₁ (from CC)</text>
+                    <!-- Error annotations below -->
+                    <text x="360" y="290" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#3d2010"
+                        font-weight="600">Errors: Frictional (large — heavy PC) · Temperature · Frequency · Stray Field
+                        (large — weak air-core field)</text>
+                </svg>
+                <div class="svg-cap">Fig 7.1 — Electrodynamometer instrument. Both coils are air-core, making it usable
+                    as transfer instrument for AC and DC calibration.</div>
+                <div class="svg-cite">Basis: Golding &amp; Widdis [1], Ch. 6; Stout [5], Ch. 6</div>
+            </div>
+
+            <h3 class="sub">7.1 Frictional Error — Most Severe in Dynamometer</h3>
+            <p>Because the potential coil (voltage coil) in the dynamometer has many turns, it is considerably heavier
+                than either the PMMC coil or the MI iron vane. A heavier moving system requires higher torque to
+                overcome pivot friction. Additionally, the springs carry current (unlike the MI instrument), requiring
+                more robust spring construction — adding further weight.<sup class="cite">[1]</sup></p>
+
+            <div class="callout c-warn">
+                <span class="ci">⚠️</span>
+                <div class="cb">
+                    <div class="ct">Frictional Error Ranking</div>
+                    <p>Among the three instrument types: <strong>Dynamometer > Moving Iron > PMMC</strong> in terms of
+                        frictional error. The dynamometer has the highest frictional error because its moving coil is
+                        the heaviest. The PMMC has the lowest because its lightweight aluminium coil gives an excellent
+                        torque-to-weight ratio.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">7.2 Temperature Error — Highest in Dynamometer</h3>
+            <p>The dynamometer has two coils dissipating power, and since both carry significant currents, the total
+                heat developed is greater than in PMMC or MI. This greater temperature rise causes larger drift in
+                spring constants and resistance values, leading to greater temperature error overall.<sup
+                    class="cite">[1]</sup></p>
+
+            <h3 class="sub">7.3 Frequency Error in Dynamometer</h3>
+            <p>When used as a voltmeter or ammeter, the dynamometer's net inductance is significant, causing appreciable
+                frequency error. However, when used as a <strong>wattmeter</strong>, the inductance of the current coil
+                is kept very low (thick conductors, few turns), and the series resistance R_s in the voltage circuit is
+                very large (kΩ range), making the inductive reactance ωL_p ≪ R_s. Frequency error in the wattmeter
+                configuration is therefore very small.<sup class="cite">[1]</sup></p>
+
+            <h3 class="sub">7.4 Stray Magnetic Field Error — Highest in Dynamometer</h3>
+            <p>Both fixed and moving coils are air-core electromagnets producing a relatively weak field. An external
+                stray field of comparable magnitude can easily distort the instrument's internal operating field,
+                causing significant deflection errors.<sup class="cite">[1]</sup></p>
+
+            <ul class="prose">
+                <li><strong>Portable wattmeters:</strong> Iron shielding around the instrument reduces stray field
+                    error.</li>
+                <li><strong>Precision wattmeters:</strong> An <em>astatic</em> (static) system is used — two sets of
+                    fixed and moving coils arranged so that stray fields cancel each other.</li>
+            </ul>
+        </section>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- SECTION 8 — WATTMETER CONNECTION ERRORS -->
+        <!-- ════════════════════════════════════════════════ -->
+        <section class="section" id="s8">
+            <div class="sec-hdr">
+                <span class="sec-num">08</span>
+                <h2 class="sec-t">Wattmeter Connection Errors &amp; LPF Wattmeter <span class="prob-tag pt-high">🟢
+                        High</span></h2>
+            </div>
+
+            <p>When a dynamometer wattmeter is connected to measure load power, the instrument itself consumes some
+                power — creating a systematic measurement error. There are two ways to connect the wattmeter, each with
+                its own error characteristics.<sup class="cite">[1]</sup></p>
+
+            <h3 class="sub">8.1 MC Connection vs LC Connection</h3>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg">
+                    <!-- MC Connection (left half) -->
+                    <text x="185" y="22" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#c95f1a" font-weight="700">MC Connection</text>
+                    <text x="185" y="38" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">(Voltage coil connected on Supply side)</text>
+                    <!-- Supply -->
+                    <line x1="30" y1="60" x2="30" y2="220" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="30" y1="60" x2="100" y2="60" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- CC box -->
+                    <rect x="100" y="45" width="60" height="30" rx="5" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="130" y="65" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#c95f1a">CC
+                        (I₁)</text>
+                    <!-- Wire to load -->
+                    <line x1="160" y1="60" x2="220" y2="60" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- Load box -->
+                    <rect x="220" y="45" width="60" height="30" rx="5" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="250" y="65" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Load</text>
+                    <line x1="280" y1="60" x2="340" y2="60" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="340" y1="60" x2="340" y2="220" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- PC on supply side (MC = Measured on Coil supply side = supply-side PC) -->
+                    <line x1="100" y1="60" x2="100" y2="110" stroke="#3d2010" stroke-width="1.5" />
+                    <rect x="70" y="110" width="60" height="30" rx="5" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="100" y="130" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">PC
+                        (I₂)</text>
+                    <line x1="100" y1="140" x2="100" y2="220" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="30" y1="220" x2="340" y2="220" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- Error box -->
+                    <rect x="30" y="155" width="300" height="50" rx="7" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="185" y="175" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#a05c00"
+                        font-weight="600">P_m = P_load + I₁²·r_cc</text>
+                    <text x="185" y="192" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#a05c00">Error = I₁²·r_cc (CC resistance loss)</text>
+                    <text x="185" y="245" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        font-style="italic">Best when load current I is SMALL</text>
+
+                    <!-- Vertical divider -->
+                    <line x1="370" y1="30" x2="370" y2="260" stroke="#ddc8b0" stroke-width="1.5"
+                        stroke-dasharray="6,3" />
+
+                    <!-- LC Connection (right half) -->
+                    <text x="545" y="22" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e6b68" font-weight="700">LC Connection</text>
+                    <text x="545" y="38" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">(Voltage coil connected on Load side)</text>
+                    <!-- Supply -->
+                    <line x1="390" y1="60" x2="390" y2="220" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="390" y1="60" x2="450" y2="60" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- CC box -->
+                    <rect x="450" y="45" width="60" height="30" rx="5" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="480" y="65" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#c95f1a">CC
+                        (I₁)</text>
+                    <line x1="510" y1="60" x2="580" y2="60" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- PC on load side -->
+                    <line x1="580" y1="60" x2="580" y2="110" stroke="#3d2010" stroke-width="1.5" />
+                    <rect x="550" y="110" width="60" height="30" rx="5" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="580" y="130" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">PC
+                        (I₂)</text>
+                    <line x1="580" y1="140" x2="580" y2="220" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- Load box -->
+                    <rect x="610" y="45" width="60" height="30" rx="5" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="640" y="65" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Load</text>
+                    <line x1="670" y1="60" x2="700" y2="60" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="700" y1="60" x2="700" y2="220" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="390" y1="220" x2="700" y2="220" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- Error box -->
+                    <rect x="390" y="155" width="300" height="50" rx="7" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.5" />
+                    <text x="545" y="175" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a2020"
+                        font-weight="600">P_m = P_load + V²/R_s</text>
+                    <text x="545" y="192" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#9a2020">Error = V²/R_s (PC resistance loss)</text>
+                    <text x="545" y="245" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22"
+                        font-style="italic">Best when load current I is LARGE</text>
+                </svg>
+                <div class="svg-cap">Fig 8.1 — MC connection (PC on supply side) vs LC connection (PC on load side).
+                    Both connections over-read the true load power.</div>
+                <div class="svg-cite">Basis: Golding &amp; Widdis [1], Ch. 6; Stout [5], Ch. 8</div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th class="t-org">MC Connection (PC on supply side)</th>
+                            <th class="t-tel">LC Connection (PC on load side)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>What is measured</td>
+                            <td>P_load + power in CC (I²r_cc)</td>
+                            <td>P_load + power in PC (V²/R_s)</td>
+                        </tr>
+                        <tr>
+                            <td>Error formula</td>
+                            <td>\(P_m - P_T = I_1^2 \cdot r_{cc}\)</td>
+                            <td>\(P_m - P_T = V^2/R_s = I_2^2 R_s\)</td>
+                        </tr>
+                        <tr>
+                            <td>Error is minimum when</td>
+                            <td class="t-grn">Load current I is small</td>
+                            <td class="t-grn">Load current I is large</td>
+                        </tr>
+                        <tr>
+                            <td>Preferred for</td>
+                            <td>Low current, high impedance loads</td>
+                            <td>High current, low impedance loads</td>
+                        </tr>
+                        <tr>
+                            <td>Correction</td>
+                            <td>Subtract I²r_cc from reading</td>
+                            <td>Subtract V²/R_s from reading</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">8.2 Error Due to Potential Coil Inductance</h3>
+            <p>The potential coil has a small but nonzero inductance L_p even though a large series resistance R_s is
+                connected. This causes the current I₂ in the potential coil to lag the voltage V by a small phase angle
+                β:<sup class="cite">[1]</sup></p>
+
+            <div class="eq-box">
+                <div class="eq-lbl">Phase Angle of Potential Coil Circuit</div>
+                $$Z_p = \sqrt{(r_p + R_s)^2 + (\omega L_p)^2} \approx R_s + j\omega L_p$$
+                $$\beta = \tan^{-1}\!\left(\frac{\omega L_p}{r_p + R_s}\right) \approx \frac{\omega L_p}{R_s} \quad
+                \text{(small angle)}$$
+                <div class="eq-desc">
+                    The current I₂ lags V by angle β. The measured power W_m and true power W_T are related by:
+                    $$W_m = W_T \cdot \frac{1}{1 + \tan\phi \cdot \tan\beta}$$
+                    $$\% \text{ error} = \pm(\tan\phi \cdot \tan\beta) \times 100\%$$
+                    '+' sign for lagging load (wattmeter reads high), '−' for leading load (reads low). Error is maximum
+                    at low power factor (φ → 90°) and minimum at unity p.f. (φ = 0).
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <span class="ci">🔑</span>
+                <div class="cb">
+                    <div class="ct">GATE Key Point — PC Inductance Error</div>
+                    <p>Since the error ∝ tanφ · tanβ, the error is <strong>maximum at low power factor</strong> and
+                        <strong>minimum at unity power factor</strong>. A standard unity p.f. wattmeter has a large
+                        error when measuring loads with power factor between 0.2–0.4 (e.g., transformer no-load test).
+                        <strong>Correction:</strong> Connect compensating capacitor C_c ≈ L_p/R_s² in parallel with the
+                        series resistance R_s to cancel the inductance effect.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">8.3 Low Power Factor (LPF) Wattmeter</h3>
+            <p>Standard wattmeters cannot accurately measure power at low power factors (0.1 to 0.5). This situation
+                arises in transformer no-load tests and induction motor no-load tests where the power factor is between
+                0.1 and 0.3. A specially designed <strong>LPF wattmeter</strong> is needed.<sup class="cite">[1]</sup>
+            </p>
+
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+                    <text x="320" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e6b68" font-weight="600">LPF Wattmeter — Key Design Features</text>
+                    <!-- Box for CC both coils (I1 and I2) -->
+                    <rect x="30" y="40" width="580" height="140" rx="10" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <!-- Feature 1 -->
+                    <rect x="50" y="58" width="160" height="106" rx="7" fill="white" stroke="#7ec4c2"
+                        stroke-width="1" />
+                    <text x="130" y="78" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="600">CC carries both I₁</text>
+                    <text x="130" y="92" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68">and
+                        I₂</text>
+                    <text x="130" y="110" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">Ensures adequate deflecting</text>
+                    <text x="130" y="124" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">torque at low p.f.</text>
+                    <text x="130" y="140" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">T_d ∝ (I₁+I₂)·I₂·cosφ</text>
+                    <!-- Feature 2 -->
+                    <rect x="240" y="58" width="160" height="106" rx="7" fill="white" stroke="#7ec4c2"
+                        stroke-width="1" />
+                    <text x="320" y="78" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="600">Low R_s in PC circuit</text>
+                    <text x="320" y="96" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">Keeps I₂ high for sufficient</text>
+                    <text x="320" y="110" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">torque (at low cosφ,</text>
+                    <text x="320" y="124" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">V·I₂·cosφ is very small)</text>
+                    <text x="320" y="140" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">R_s ↓ → I₂ ↑ → T_d ↑</text>
+                    <!-- Feature 3 -->
+                    <rect x="430" y="58" width="160" height="106" rx="7" fill="white" stroke="#7ec4c2"
+                        stroke-width="1" />
+                    <text x="510" y="78" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="600">Compensating capacitor</text>
+                    <text x="510" y="96" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22">C_c
+                        connected in parallel</text>
+                    <text x="510" y="110" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">with R_s to cancel effect</text>
+                    <text x="510" y="124" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22">of
+                        PC inductance L_p</text>
+                    <text x="510" y="140" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">C_c ≈ L_p / R_s²</text>
+                </svg>
+                <div class="svg-cap">Fig 8.2 — Three design features of the LPF wattmeter that distinguish it from a
+                    standard unity p.f. wattmeter</div>
+                <div class="svg-cite">Basis: Golding &amp; Widdis [1], Ch. 6; Helfrick &amp; Cooper [3], Ch. 7</div>
+            </div>
+
+            <h3 class="sub">8.4 Compensation Coil — LC Connection Error Remedy</h3>
+            <p>In the LC connection, the current coil carries both the load current I and the potential coil current I₂
+                = I − I₁. The magnetic flux of I₂ linking with the potential coil induces a small back-EMF, causing
+                additional power measurement error. A <strong>compensation coil</strong> (equal turns, connected in
+                series opposition) cancels this effect — but only for the LC connection.<sup class="cite">[1]</sup></p>
+        </section>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- SECTION 9 — GATE PYQs -->
+        <!-- ════════════════════════════════════════════════ -->
+        <section class="section" id="s9">
+            <div class="sec-hdr">
+                <span class="sec-num">09</span>
+                <h2 class="sec-t">GATE PYQs &amp; Key Concept Questions <span class="prob-tag pt-high">🟢 High</span>
+                </h2>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Which instrument type has the highest power consumption among PMMC, MI, and
+                        Dynamometer?</span>
+                    <span class="pyq-year">Concept PYQ</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) PMMC — because it has a permanent magnet</li>
+                        <li class="correct">(C) Dynamometer (Electrodynamometer) — because both fixed and moving coils
+                            dissipate power continuously</li>
+                        <li>(B) Moving Iron — because of iron core losses</li>
+                        <li>(D) All instruments have identical power consumption</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> In a dynamometer, both the current coil (I₁²R_cc) and potential
+                        coil (I₂²R_pc + I₂²R_s) dissipate power. Since R_s is kept very large (kΩ) for voltage
+                        measurement, the total power consumed is highest. The PMMC has no iron losses and only the
+                        moving coil resistance. The MI has iron losses but the coil resistance is small.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">The percentage error due to PC inductance in a wattmeter is
+                        ±(tanφ·tanβ)×100%. At which power factor is this error maximum?</span>
+                    <span class="pyq-year">Concept PYQ</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The error = tanφ · tanβ × 100%. Since β is fixed by the wattmeter design, the error varies with
+                        the load power factor φ. At <strong>zero power factor</strong> (φ = 90°), tanφ → ∞, and the
+                        error is maximum. At <strong>unity power factor</strong> (φ = 0), tanφ = 0, and the error is
+                        zero. This is why standard wattmeters cannot accurately measure power at low power factors and
+                        why LPF wattmeters are needed.</p>
+                    <p>For a 50 Hz wattmeter with reactance 1% of its resistance: tanβ = X_p/r_p = 0.01. At p.f. = 0.8
+                        (φ = 36.87°, tanφ = 0.75): % error = ±(0.75 × 0.01) × 100 = <strong>±0.75%</strong>.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">In a MI instrument, the eddy current error is proportional to:</span>
+                    <span class="pyq-year">Concept PYQ</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) f (frequency)</li>
+                        <li class="correct">(B) f² at low frequencies (until skin effect limits penetration)</li>
+                        <li>(C) 1/f</li>
+                        <li>(D) Independent of frequency</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> Eddy current magnitude ∝ f (from Faraday's law). Eddy current loss
+                        (and hence its error effect) ∝ f². At high frequencies, skin effect reduces the penetration
+                        depth, and the error tends toward a constant. This f² dependence limits MI instruments to a
+                        maximum frequency of 125 Hz for acceptable accuracy.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">ESE / IES</span>
+                    <span class="pyq-title">Compare stray magnetic field errors in PMMC, MI, and Dynamometer
+                        instruments. Which has the most/least?</span>
+                    <span class="pyq-year">ESE Concept</span>
+                </div>
+                <div class="pyq-body">
+                    <p><strong>Ranking (Most to Least):</strong> Dynamometer > Moving Iron > PMMC</p>
+                    <p><strong>Dynamometer</strong> has the highest stray field error: Both coils are air-core,
+                        producing a weak internal field. External stray fields are comparable in magnitude and easily
+                        distort the operating field. Remedy: iron shielding or astatic system.</p>
+                    <p><strong>Moving Iron</strong> has moderate stray field error: The internal field is
+                        electromagnetic (weak), making it susceptible. Remedy: iron shielding around the instrument.</p>
+                    <p><strong>PMMC</strong> has the least stray field error: The strong permanent magnet produces a
+                        large radial field that dominates any external stray field. The radial field geometry also
+                        ensures that non-uniform external fields average out over the coil.</p>
+                </div>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">Transfer Instruments — When is a Dynamometer used as a Standard?</span>
+                </div>
+                <div class="gate-body">
+                    <p>A <strong>transfer instrument</strong> gives the same reading (within calibration uncertainty)
+                        when used on both AC and DC for the same RMS value of the measurand. The dynamometer instrument
+                        qualifies because it uses air-core coils — there are no iron-related frequency-dependent
+                        effects. The torque T_d = I₁I₂ cos(angle) · dM/dθ depends only on the product of the two RMS
+                        currents (for AC at power frequency) and is independent of whether the supply is AC or DC.</p>
+                    <p>The dynamometer is thus the <em>working standard instrument</em> for calibrating ammeters,
+                        voltmeters, and wattmeters at power frequencies. For very high frequencies, thermocouple
+                        instruments serve as transfer standards.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- SECTION 10 — COMMON MISTAKES -->
+        <!-- ════════════════════════════════════════════════ -->
+        <section class="section" id="s10">
+            <div class="sec-hdr">
+                <span class="sec-num">10</span>
+                <h2 class="sec-t">Common Student Mistakes <span class="prob-tag pt-high">🟢 High</span></h2>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-red">
+                    <div class="mc-t">❌ Mistake 1 — Accuracy vs Precision</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Wrong:</strong> Thinking a precise instrument is
+                            necessarily accurate</li>
+                        <li><span class="dot">▸</span><strong>Correct:</strong> Precision = repeatability; Accuracy =
+                            closeness to true value. An instrument can be highly precise but systematically biased
+                            (inaccurate).</li>
+                        <li><span class="dot">▸</span>Always check: precision is reduced by random errors; accuracy is
+                            reduced by systematic errors.</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">❌ Mistake 2 — cosφ in Dynamometer</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Wrong:</strong> Interpreting cosφ in T_d = I₁I₂cosφ·dM/dθ
+                            as the load power factor</li>
+                        <li><span class="dot">▸</span><strong>Correct:</strong> φ is the angle between the two coil
+                            currents I₁ and I₂ — it equals the load phase angle only when the PC circuit is purely
+                            resistive (β = 0).</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">❌ Mistake 3 — MI Eddy Current</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Wrong:</strong> Thinking eddy current error in MI is
+                            constant with frequency</li>
+                        <li><span class="dot">▸</span><strong>Correct:</strong> Eddy current error ∝ f² at low
+                            frequencies. At high frequencies (skin effect regime), the error tends to constant. This f²
+                            dependence limits MI to ≤125 Hz.</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">❌ Mistake 4 — Swamping Resistor Material</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Wrong:</strong> Using Manganin for both DC and AC ammeters
+                        </li>
+                        <li><span class="dot">▸</span><strong>Correct:</strong> Manganin (TCR ≈ 2 ppm/°C) for DC;
+                            Constantan (TCR ≈ 17 ppm/°C but with known characteristic) for AC, where additional
+                            properties suit the AC application.</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">❌ Mistake 5 — LPF Wattmeter Selection</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Wrong:</strong> Using a standard UPF wattmeter for
+                            transformer no-load test</li>
+                        <li><span class="dot">▸</span><strong>Correct:</strong> Transformer no-load test has p.f. ≈
+                            0.1–0.3. A standard wattmeter has maximum scale at UPF — at this low p.f., the reading is
+                            near zero on a large-range scale, magnifying percentage error. LPF wattmeter has a scale
+                            calibrated for 0.1–0.5 p.f.</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">❌ Mistake 6 — MC vs LC Connection Choice</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Wrong:</strong> Always using MC connection regardless of
+                            load</li>
+                        <li><span class="dot">▸</span><strong>Correct:</strong> MC connection for low-current loads; LC
+                            connection for high-current loads. The error in MC is I²r_cc (grows with I²); error in LC is
+                            V²/R_s (independent of load current — fixed for a given voltage).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-danger">
+                <span class="ci">🚫</span>
+                <div class="cb">
+                    <div class="ct">Critical GATE Trap — Hysteresis Error Direction</div>
+                    <p>For a wattmeter with potential coil inductance β: for <strong>lagging</strong> load (inductive, φ
+                        > 0), the wattmeter reads <strong>more</strong> than actual (error is positive / +ve). For
+                        <strong>leading</strong> load (capacitive), the wattmeter reads <strong>less</strong> than
+                        actual (error is negative / −ve). Remember: <strong>lag → over-read; lead → under-read</strong>.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- SECTION 11 — MEMORY TRICKS -->
+        <!-- ════════════════════════════════════════════════ -->
+        <section class="section" id="s11">
+            <div class="sec-hdr">
+                <span class="sec-num">11</span>
+                <h2 class="sec-t">Memory Tricks &amp; Mnemonics</h2>
+            </div>
+
+            <div class="callout c-tip">
+                <span class="ci">🧠</span>
+                <div class="cb">
+                    <div class="ct">Mnemonic — Error Ranking for Three Instruments</div>
+                    <p><strong>"Dynamo is the Fierce Tiger; MI is a Moderate Wolf; PMMC is a Calm Panda"</strong><br>
+                        Fierce Tiger (Dynamometer): Highest Frictional error, Highest Temperature error, Highest Stray
+                        field error.<br>
+                        Moderate Wolf (Moving Iron): Moderate errors + unique ones (Frequency, Hysteresis, Eddy
+                        current).<br>
+                        Calm Panda (PMMC): Lowest frictional error, manageable temperature error, nearly immune to stray
+                        fields and hysteresis.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <span class="ci">🧠</span>
+                <div class="cb">
+                    <div class="ct">Mnemonic — MI Unique Errors</div>
+                    <p><strong>"FRESH-E"</strong> = <strong>F</strong>riction · <strong>R</strong>esistance-temperature
+                        · <strong>E</strong>ddy current · <strong>S</strong>tray field · <strong>H</strong>ysteresis ·
+                        <strong>E</strong>rror-frequency. These are all six major error sources of the Moving Iron
+                        instrument. PMMC lacks the last three (E, S, H) because it has no iron.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <span class="ci">🧠</span>
+                <div class="cb">
+                    <div class="ct">Mnemonic — Wattmeter Connection</div>
+                    <p><strong>"Small current → MC; Large current → LC"</strong><br>
+                        MC (Measured on the Current coil side / PC on supply side): Error = I²r_cc → large when I is
+                        large → use MC for small currents.<br>
+                        LC (PC on Load side): Error = V²/R_s → fixed for a given voltage, independent of load current →
+                        use LC for large currents.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <span class="ci">🧠</span>
+                <div class="cb">
+                    <div class="ct">Mnemonic — Damping Methods</div>
+                    <p><strong>"PAVE"</strong> = <strong>P</strong>neumatic (air friction) damping — used in dynamometer
+                        instruments; <strong>A</strong>ir friction — same as pneumatic; <strong>V</strong>iscous fluid —
+                        in some laboratory instruments; <strong>E</strong>ddy current — in PMMC (aluminium former in the
+                        permanent magnet field produces damping eddy currents automatically). PMMC is self-damping;
+                        others need an explicit damping mechanism.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <span class="ci">🧠</span>
+                <div class="cb">
+                    <div class="ct">Mnemonic — LPF Wattmeter Design: "CLC"</div>
+                    <p><strong>"CLC" = CC carries both, Low R_s, Compensating capacitor.</strong> These are the three
+                        distinguishing features of an LPF wattmeter compared to a standard UPF wattmeter. When asked
+                        "what makes an LPF wattmeter special?" — recall CLC.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════ -->
+        <!-- SECTION 12 — QUICK REVISION SHEET -->
+        <!-- ════════════════════════════════════════════════ -->
+        <section class="section" id="s12">
+            <div class="sec-hdr">
+                <span class="sec-num">12</span>
+                <h2 class="sec-t">Quick Revision Sheet — One-Page Summary</h2>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Error Fundamentals</div>
+                    <p>Absolute error \(e = A_m - A_t\). Relative error \(e_r = e/A_t\). Accuracy = 1 − |e_r|. Precision
+                        ≠ Accuracy. Systematic errors → calibration. Random errors → averaging. Gross errors → care.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Static Characteristics</div>
+                    <p>Sensitivity S = dθ/dQ. Scale range, span, FSD. Hysteresis = different output up vs. down path.
+                        Dead zone = range with no response. Accuracy class = % FSD (0.1 to 5.0).</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Dynamic Characteristics</div>
+                    <p>Governing ODE: \(J\ddot{\theta} + D\dot{\theta} + K\theta = T_d\). Damping ratio ζ = D/2√(JK). ζ
+                        ≈ 0.65 is optimal (fastest settling within ±2%). Dynamic error = reading − true instantaneous
+                        value.</p>
+                </div>
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">PMMC Errors</div>
+                    <p>Low friction (light coil). Temperature: spring weakens → reads high; coil resistance rises →
+                        reads low. Remedy: swamping resistor (Manganin/DC, Constantan/AC) = 30–40× R_m. Magnet ageing →
+                        stabilise before calibration. Nearly immune to stray fields &amp; hysteresis.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">MI Errors</div>
+                    <p>Friction > PMMC. Frequency error (eddy ∝ f², suitable ≤125 Hz). Stray field more than PMMC.
+                        Hysteresis error — use Nickel-Iron alloy. Temperature > PMMC (iron permeability changes). Scale:
+                        non-uniform (θ ∝ I²).</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Dynamometer Errors</div>
+                    <p>Friction highest (heavy PC). Temperature highest (two coils). Stray field highest (air core, weak
+                        field) → iron shielding or astatic system. Hysteresis ≈ zero (air core). Eddy current ≈ zero
+                        (air core). Transfer instrument: same reading AC/DC.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Wattmeter Connections</div>
+                    <p>MC: error = I²r_cc, use for small I. LC: error = V²/R_s, use for large I. PC inductance error: %
+                        err = ±tanφ·tanβ·100%. Max error at low p.f. (tanφ large). Lag load: reads high (+ve error).
+                        Lead load: reads low (−ve error).</p>
+                </div>
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">LPF Wattmeter</div>
+                    <p>For p.f. = 0.1–0.5 measurements. Design: (1) CC carries I₁+I₂; (2) Low R_s for adequate I₂; (3)
+                        Compensating capacitor C_c ≈ L_p/R_s² to cancel β. Used in transformer/motor no-load tests.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Key Formulas</div>
+                    <p>\(T_d^{PMMC} = BANI\) · \(T_d^{MI} = \frac{1}{2}I^2\frac{dL}{d\theta}\) · \(T_d^{EMMC} =
+                        I_1I_2\cos\phi\frac{dM}{d\theta}\) · \(\% err_{PC} = \pm\tan\phi\tan\beta \times 100\) · \(C_c =
+                        L_p/R_s^2\)</p>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- AI WIDGET -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+                <p>Have a question on instrument errors, wattmeter connections, temperature compensation, or dynamic
+                    response? Type below or pick a suggestion.</p>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="userQ" type="text"
+                        placeholder="e.g. Why does MI instrument have frequency error but PMMC does not?">
+                    <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('Derive the % error formula for wattmeter due to PC inductance — step by step with phasor diagram explanation')">Wattmeter
+                        PC inductance error derivation</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Compare PMMC, Moving Iron, and Dynamometer on all error types in a table — which is best for what application?')">Full
+                        instrument comparison</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain why a PMMC instrument cannot be used on AC and why a half-wave rectifier is needed — with average vs. RMS discussion')">PMMC
+                        on AC — rectifier instruments</span>
+                    <span class="ai-chip"
+                        onclick="setQ('What is an astatic wattmeter and how does it eliminate stray magnetic field error?')">Astatic
+                        wattmeter design</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain the concept of transfer instrument — why is the dynamometer used as a transfer standard and not PMMC or MI?')">Transfer
+                        instruments concept</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <div class="callout c-key">
+                <span class="ci">🎓</span>
+                <div class="cb">
+                    <div class="ct">Interview &amp; PSU Perspective</div>
+                    <p>PSU interviews (NTPC, PGCIL, BHEL) frequently ask: (1) Why is a PMMC not used for AC measurements
+                        directly? (2) What is the function of a swamping resistor? (3) Explain why a wattmeter
+                        over-reads at lagging power factor. (4) What is the difference between an LPF wattmeter and a
+                        UPF wattmeter? (5) How do you choose between MC and LC wattmeter connections? (6) What material
+                        is used for the vane in MI instruments and why?</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 3</div>
+                    <p>AC Bridges — Wheatstone, Maxwell, Hay, Schering, and Wien bridges; balance conditions, Q-factor
+                        measurement, and frequency determination. Complete GATE and ESE concepts with numerical
+                        examples.</p>
+                </div>
+            </div>
+        </section>
+
+    </div><!-- end .page -->
+
+    <!-- CITATIONS -->
+    <div class="page">
+        <div class="citations" id="citations">
+            <div class="cite-h">References &amp; Citations</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from the
+                following standard textbooks. No content is reproduced verbatim — all explanations, derivations, and
+                diagrams are original educational material created for this resource.</p>
+            <ul class="cite-list">
+                <li><span class="cite-num">[1]</span><span>Golding, E.W. and Widdis, F.C. <em>Electrical Measurements
+                            and Measuring Instruments</em>, 5th ed. Sir Isaac Pitman &amp; Sons, London, 1963. Chapters
+                        2, 5, 6 — foundational treatment of instrument errors, PMMC, Moving Iron, and Dynamometer
+                        instruments.</span></li>
+                <li><span class="cite-num">[2]</span><span>Doebelin, E.O. <em>Measurement Systems: Application and
+                            Design</em>, 5th ed. McGraw-Hill, 2004. Chapter 3 — static and dynamic characteristics,
+                        second-order system response, damping analysis.</span></li>
+                <li><span class="cite-num">[3]</span><span>Helfrick, A.D. and Cooper, W.D. <em>Modern Electronic
+                            Instrumentation and Measurement Techniques</em>, Prentice-Hall, 1990. Chapter 2 — error
+                        classification, accuracy, precision, statistical analysis of measurements.</span></li>
+                <li><span class="cite-num">[4]</span><span>Morris, A.S. <em>Measurement and Instrumentation
+                            Principles</em>, 3rd ed. Butterworth-Heinemann, 2001. Chapter 3 — static and dynamic
+                        instrument characteristics, calibration curves.</span></li>
+                <li><span class="cite-num">[5]</span><span>Stout, M.B. <em>Basic Electrical Measurements</em>, 2nd ed.
+                        Prentice-Hall, 1960. Chapters 4, 6, 8 — three-torque theory, dynamometer instruments, wattmeter
+                        connections and errors.</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        <strong>Aarova AI</strong> · Electrical Measurements Chapter 2 · Instrument Errors and Performance
+        Characteristics<br>
+        Built for GATE EE · ESE/IES · PSU Preparation · All diagrams are original educational illustrations.
+    </footer>
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Electrical Measurements. Topic: Chapter 2 — Instrument Errors and Performance Characteristics. Base answers conceptually on Golding & Widdis, Doebelin, Helfrick & Cooper, and Stout. Explain clearly with step-by-step derivations where relevant. Keep answers focused and exam-relevant. All content must be original explanations, not quotes from textbooks.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Mobile SVG scroll hints */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+            });
+        })();
+    </script>
+</body>
+
+</html>

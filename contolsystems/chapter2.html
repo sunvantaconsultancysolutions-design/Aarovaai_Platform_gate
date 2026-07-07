@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aarova AI — Ch.2 Signal Flow Graph & Block Diagram</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root{
+  --bg:#fdf6ee;--bg2:#f8ede0;--bg3:#f0e0cc;--bg4:#e8d0b8;
+  --text:#1e1208;--text2:#3d2010;--text3:#6b3e22;--muted:#9a6e50;
+  --orange:#c95f1a;--orange-md:#e07235;--orange-lt:#f5956a;
+  --orange-bg:#fdebd8;--orange-bdr:#f0b48a;
+  --green:#2d6648;--green-bg:#dff0e8;--green-bdr:#8ecaaa;
+  --teal:#1e6b68;--teal-bg:#d8eeed;--teal-bdr:#7ec4c2;
+  --amber:#a05c00;--amber-bg:#fef0d0;--amber-bdr:#f0c060;
+  --red:#9a2020;--red-bg:#fde8e8;--red-bdr:#e89090;
+  --purple:#5b2d8e;--purple-bg:#ede8f8;--purple-bdr:#b8a0e0;
+  --border:#ddc8b0;--border2:#c8a888;
+  --radius:14px;
+  --shadow:0 2px 16px rgba(150,80,20,0.10);
+  --shadow-md:0 6px 28px rgba(150,80,20,0.14);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;font-size:18px;}
+body{background:var(--bg);color:var(--text2);font-family:'Lora',Georgia,serif;line-height:1.85;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.page{max-width:900px;margin:0 auto;padding:0 clamp(16px,4vw,48px) 100px;}
+
+/* ── HEADER ── */
+.site-header{position:sticky;top:0;z-index:100;background:rgba(253,246,238,0.95);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--border);padding:14px clamp(16px,4vw,48px);display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.logo{font-family:'Playfair Display',serif;font-size:clamp(15px,2.5vw,18px);font-weight:700;color:var(--orange);}
+.logo-sub{font-family:'Lora',serif;font-size:12px;color:var(--muted);margin-left:10px;font-weight:400;}
+.hbadges{display:flex;gap:6px;flex-wrap:wrap;}
+.hbadge{font-size:11px;font-weight:600;padding:3px 11px;border-radius:20px;background:var(--orange-bg);border:1px solid var(--orange-bdr);color:var(--orange);white-space:nowrap;}
+
+/* ── HERO ── */
+.hero{padding:clamp(36px,6vw,64px) 0 clamp(28px,4vw,44px);border-bottom:1.5px solid var(--border);margin-bottom:clamp(28px,4vw,44px);}
+.eyebrow{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.16em;color:var(--orange);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.eyebrow::before{content:'';display:inline-block;width:28px;height:2.5px;background:var(--orange);border-radius:2px;}
+h1.hero-title{font-family:'Playfair Display',serif;font-size:clamp(30px,6vw,50px);font-weight:800;color:var(--text);line-height:1.12;margin-bottom:18px;}
+h1.hero-title em{font-style:italic;color:var(--orange);}
+.hero-desc{font-size:clamp(15px,2vw,17px);color:var(--text3);max-width:640px;line-height:1.75;font-weight:400;margin-bottom:26px;}
+.badge-row{display:flex;flex-wrap:wrap;gap:8px;}
+.badge{font-size:13px;padding:5px 15px;border-radius:22px;border:1.5px solid var(--border2);color:var(--text3);background:var(--bg2);font-family:'Lora',serif;}
+.badge-p{background:var(--orange-bg);border-color:var(--orange-bdr);color:var(--orange);font-weight:600;}
+
+/* ── PROGRESS ── */
+.progress-bar{display:flex;align-items:center;gap:14px;background:var(--orange-bg);border:1.5px solid var(--orange-bdr);border-radius:10px;padding:13px 20px;margin-bottom:clamp(24px,4vw,40px);}
+.pl{font-size:13px;font-weight:600;color:var(--orange);white-space:nowrap;}
+.pt{flex:1;height:7px;background:rgba(201,95,26,0.18);border-radius:4px;overflow:hidden;min-width:40px;}
+.pf{height:100%;width:12.5%;background:var(--orange);border-radius:4px;}
+.pp{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--orange);white-space:nowrap;}
+
+/* ── TOC ── */
+.toc{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--orange);border-radius:var(--radius);padding:clamp(18px,3vw,28px);margin-bottom:clamp(32px,5vw,52px);}
+.toc-h{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:18px;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0 28px;}
+.toc-item{display:flex;align-items:baseline;gap:10px;font-size:15px;color:var(--text3);text-decoration:none;padding:7px 0;border-bottom:1px dashed transparent;transition:color .2s,border-color .2s;line-height:1.5;}
+.toc-item:hover{color:var(--orange);border-bottom-color:var(--orange-lt);}
+.toc-n{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--orange);min-width:30px;flex-shrink:0;}
+
+/* ── RACE STEP LABELS ── */
+.race-step{display:inline-flex;align-items:center;gap:8px;background:var(--purple-bg);border:1.5px solid var(--purple-bdr);border-radius:8px;padding:4px 14px;margin-bottom:14px;}
+.race-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--purple);background:#fff;border-radius:4px;padding:2px 7px;}
+.race-label{font-size:12px;font-weight:600;color:var(--purple);text-transform:uppercase;letter-spacing:.07em;}
+
+/* ── SECTIONS ── */
+.section{margin-bottom:clamp(40px,6vw,64px);}
+.sec-hdr{display:flex;align-items:center;gap:14px;margin-bottom:clamp(16px,3vw,24px);padding-bottom:14px;border-bottom:1.5px solid var(--border);}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-bdr);padding:3px 11px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+h2.sec-t{font-family:'Playfair Display',serif;font-size:clamp(20px,3.5vw,26px);font-weight:700;color:var(--text);}
+h3.sub{font-family:'Playfair Display',serif;font-size:clamp(16px,2.5vw,19px);font-weight:600;color:var(--text2);margin:clamp(22px,3vw,32px) 0 12px;display:flex;align-items:center;gap:10px;}
+h3.sub::before{content:'';display:inline-block;width:4px;height:17px;background:var(--orange-lt);border-radius:2px;flex-shrink:0;}
+p{margin-bottom:16px;color:var(--text2);font-size:clamp(15px,2vw,17px);line-height:1.85;}
+strong{font-weight:600;color:var(--text);}
+ul.prose-list{margin:12px 0 16px 0;padding-left:0;list-style:none;}
+ul.prose-list li{font-size:clamp(15px,2vw,16.5px);color:var(--text2);padding:6px 0 6px 22px;border-bottom:1px solid var(--bg3);position:relative;line-height:1.7;}
+ul.prose-list li:last-child{border-bottom:none;}
+ul.prose-list li::before{content:'→';position:absolute;left:0;color:var(--orange-lt);font-weight:600;}
+
+/* ── CALLOUTS ── */
+.callout{border-radius:10px;padding:clamp(12px,2vw,16px) clamp(14px,2vw,20px);margin:18px 0;display:flex;gap:12px;align-items:flex-start;}
+.ci{font-size:18px;flex-shrink:0;margin-top:2px;}.cb{flex:1;}
+.ct{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;}
+.cb p{margin:0;font-size:clamp(14px,1.8vw,15.5px);line-height:1.7;}
+.c-info{background:var(--orange-bg);border-left:4px solid var(--orange);}.c-info .ct{color:var(--orange);}.c-info p{color:var(--text2);}
+.c-tip{background:var(--green-bg);border-left:4px solid var(--green);}.c-tip .ct{color:var(--green);}.c-tip p{color:#1e4d38;}
+.c-key{background:var(--teal-bg);border-left:4px solid var(--teal);}.c-key .ct{color:var(--teal);}.c-key p{color:#154e4c;}
+.c-warn{background:var(--amber-bg);border-left:4px solid var(--amber);}.c-warn .ct{color:var(--amber);}.c-warn p{color:#6e3f00;}
+.c-danger{background:var(--red-bg);border-left:4px solid var(--red);}.c-danger .ct{color:var(--red);}.c-danger p{color:#6e1515;}
+.c-insight{background:var(--purple-bg);border-left:4px solid var(--purple);}.c-insight .ct{color:var(--purple);}.c-insight p{color:#3d1d6e;}
+
+/* ── TABLES ── */
+.tw{overflow-x:auto;margin:18px 0;border-radius:12px;border:1.5px solid var(--border);box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:clamp(13px,1.8vw,15px);}
+thead tr{background:var(--bg3);}
+thead th{padding:12px 18px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--text3);border-bottom:1.5px solid var(--border);white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--bg3);transition:background .12s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg2);}
+tbody td{padding:11px 18px;color:var(--text2);vertical-align:top;line-height:1.6;}
+tbody td:first-child{font-weight:600;color:var(--text);}
+.t-org{color:var(--orange)!important;font-weight:600!important;}
+.t-grn{color:var(--green)!important;font-weight:600!important;}
+.t-red{color:var(--red)!important;font-weight:600!important;}
+.t-amb{color:var(--amber)!important;font-weight:600!important;}
+.t-tel{color:var(--teal)!important;font-weight:600!important;}
+.t-dim{color:var(--muted)!important;}
+
+/* ── FORMULA BLOCKS ── */
+.fblock{background:var(--bg3);border:1.5px solid var(--border2);border-left:4px solid var(--orange-lt);border-radius:10px;padding:clamp(14px,2vw,20px) clamp(16px,2vw,24px);margin:16px 0;font-family:'JetBrains Mono',monospace;font-size:clamp(12.5px,1.8vw,14px);color:var(--text);line-height:2.1;overflow-x:auto;white-space:pre;}
+.fblock .flbl{font-family:'Lora',serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:6px;white-space:normal;}
+.fv{color:var(--orange);}.feq{color:var(--green);font-weight:500;}.fh{color:var(--teal);}
+
+/* ── SVG / DIAGRAMS ── */
+.svg-wrap{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:clamp(14px,3vw,24px);margin:18px 0;overflow-x:auto;box-shadow:var(--shadow);}
+.svg-wrap svg{width:100%;height:auto;min-width:300px;}
+.svg-cap{font-size:12.5px;color:var(--muted);text-align:center;margin-top:10px;font-style:italic;}
+
+/* ── EXAMPLES ── */
+.example{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);margin:24px 0;box-shadow:var(--shadow);overflow:hidden;}
+.ex-hdr{background:var(--bg3);padding:10px clamp(14px,2vw,20px);display:flex;align-items:center;gap:10px;border-bottom:1.5px solid var(--border);flex-wrap:wrap;}
+.ex-num{font-size:10px;font-weight:700;background:var(--orange);color:#fff;padding:3px 10px;border-radius:5px;letter-spacing:.06em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.ex-num.gate{background:var(--teal);}
+.ex-num.concept{background:var(--green);}
+.ex-title{font-size:14px;font-weight:600;color:var(--text2);line-height:1.4;}
+.ex-body{padding:clamp(14px,2vw,22px) clamp(16px,2vw,22px);}
+.ex-q{font-size:clamp(14px,2vw,16px);color:var(--text);background:var(--orange-bg);border-left:4px solid var(--orange);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;line-height:1.65;}
+.sol-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--green);margin-bottom:10px;}
+
+/* ── GATE PROBABILITY TAGS ── */
+.prob-row{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0;}
+.prob-tag{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;padding:6px 14px;border-radius:8px;font-weight:600;}
+.prob-high{background:var(--green-bg);border:1.5px solid var(--green-bdr);color:var(--green);}
+.prob-med{background:var(--amber-bg);border:1.5px solid var(--amber-bdr);color:var(--amber);}
+.prob-low{background:var(--red-bg);border:1.5px solid var(--red-bdr);color:var(--red);}
+
+/* ── CBQ SECTION ── */
+.cbq{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);margin:20px 0;overflow:hidden;box-shadow:var(--shadow);}
+.cbq-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:10px 18px;}
+.cbq-title{font-size:13px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.07em;}
+.cbq-body{padding:16px 20px;}
+.cbq-q{font-size:14.5px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.cbq-a{font-size:14px;color:var(--text2);padding-left:14px;border-left:3px solid var(--orange-lt);line-height:1.7;margin-bottom:14px;}
+.cbq-a:last-child{margin-bottom:0;}
+
+/* ── MEMORY TRICKS ── */
+.memory-box{background:linear-gradient(135deg,var(--amber-bg),var(--orange-bg));border:2px solid var(--amber-bdr);border-radius:var(--radius);padding:clamp(16px,3vw,24px);margin:20px 0;}
+.memory-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--amber);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.memory-item{background:#fff;border-radius:8px;padding:12px 16px;margin-bottom:10px;border:1px solid var(--amber-bdr);}
+.memory-item:last-child{margin-bottom:0;}
+.memory-key{font-size:13px;font-weight:700;color:var(--amber);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;}
+.memory-val{font-size:14px;color:var(--text2);line-height:1.6;}
+
+/* ── REVISION SHEET ── */
+.revision{background:var(--bg2);border:2px solid var(--orange-bdr);border-radius:var(--radius);padding:clamp(18px,3vw,28px);margin:20px 0;}
+.revision-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:800;color:var(--orange);margin-bottom:18px;text-align:center;border-bottom:1.5px solid var(--border);padding-bottom:12px;}
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+.rev-card{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;}
+.rev-card-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--orange);margin-bottom:8px;}
+.rev-card p{font-size:13px;color:var(--text2);margin:0;line-height:1.65;font-family:'JetBrains Mono',monospace;}
+
+/* ── CITATIONS ── */
+.citations{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--teal);border-radius:var(--radius);padding:clamp(18px,3vw,28px);margin-top:40px;}
+.cite-h{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:18px;}
+.cite-list{list-style:none;}
+.cite-list li{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid var(--border);font-size:clamp(13px,1.8vw,14.5px);color:var(--text2);line-height:1.65;}
+.cite-list li:last-child{border-bottom:none;}
+.cite-num{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--teal);background:var(--teal-bg);padding:2px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0;height:fit-content;margin-top:2px;}
+.cite-list em{color:var(--orange-md);font-style:italic;}
+
+/* ── AI PROMPT ── */
+.ai-prompt{background:linear-gradient(135deg,var(--teal-bg),var(--orange-bg));border:2px solid var(--teal-bdr);border-radius:var(--radius);padding:clamp(18px,3vw,28px);margin:32px 0;box-shadow:var(--shadow-md);}
+.ai-prompt-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--teal);margin-bottom:10px;}
+.ai-prompt p{color:var(--text2);font-size:14.5px;margin-bottom:14px;}
+.ai-input-row{display:flex;gap:10px;flex-wrap:wrap;}
+.ai-input{flex:1;min-width:200px;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Lora',serif;font-size:14px;color:var(--text);outline:none;}
+.ai-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(30,107,104,0.12);}
+.ai-btn{padding:10px 22px;border-radius:8px;background:var(--teal);color:#fff;border:none;font-family:'Lora',serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .18s,transform .12s;white-space:nowrap;}
+.ai-btn:hover{background:#155250;transform:translateY(-1px);}
+.ai-suggest{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;}
+.ai-chip{font-size:12px;padding:5px 12px;border-radius:20px;border:1.5px solid var(--teal-bdr);color:var(--teal);background:var(--bg);cursor:pointer;font-family:'Lora',serif;transition:all .15s;}
+.ai-chip:hover{background:var(--teal-bg);}
+.ai-response{margin-top:16px;padding:14px 16px;background:#fff;border-radius:8px;border:1.5px solid var(--border);font-size:14.5px;color:var(--text2);display:none;line-height:1.75;white-space:pre-wrap;}
+
+hr{border:none;border-top:1.5px solid var(--border);margin:44px 0;}
+footer{text-align:center;padding:30px 0;font-size:13px;color:var(--muted);border-top:1.5px solid var(--border);}
+footer strong{color:var(--orange);}
+.section{opacity:0;transform:translateY(14px);animation:rise .45s forwards;}
+@keyframes rise{to{opacity:1;transform:none;}}
+.section:nth-child(1){animation-delay:.04s}.section:nth-child(2){animation-delay:.08s}
+.section:nth-child(3){animation-delay:.12s}.section:nth-child(4){animation-delay:.16s}
+.section:nth-child(5){animation-delay:.20s}.section:nth-child(6){animation-delay:.24s}
+.section:nth-child(7){animation-delay:.28s}.section:nth-child(8){animation-delay:.32s}
+.section:nth-child(9){animation-delay:.36s}.section:nth-child(10){animation-delay:.40s}
+.section:nth-child(11){animation-delay:.44s}.section:nth-child(12){animation-delay:.48s}
+.section:nth-child(13){animation-delay:.52s}.section:nth-child(14){animation-delay:.56s}
+@media(max-width:768px){html{font-size:17px;}.logo-sub{display:none;}.fblock{white-space:pre-wrap;word-break:break-word;}}
+@media(max-width:480px){html{font-size:16px;}.hbadges{display:none;}.toc-grid{grid-template-columns:1fr;}}
+
+/* NAV STRIP */
+.nav-strip{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:clamp(18px,3vw,28px) 0 0;border-top:1.5px solid var(--border);margin-top:clamp(32px,5vw,52px);}
+.nav-btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;border:1.5px solid var(--orange-bdr);background:var(--orange-bg);color:var(--orange);text-decoration:none;transition:all .18s;font-family:'Lora',serif;}
+.nav-btn:hover{background:var(--orange);color:#fff;border-color:var(--orange);}
+.nav-btn.primary{background:var(--orange);color:#fff;border-color:var(--orange);}
+.nav-btn.primary:hover{background:var(--orange-md);border-color:var(--orange-md);}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">Aarova AI <span class="logo-sub">Control Systems Series</span></div>
+  <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span class="hbadge">PSU</span></div>
+</header>
+
+<div class="page">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="eyebrow">Chapter 02 &nbsp;·&nbsp; Control Systems &nbsp;·&nbsp; ACE Academy</div>
+  <h1 class="hero-title">Signal Flow Graph &<br><em>Block Diagram</em></h1>
+  <p class="hero-desc">Master Block Diagram Reduction Techniques and Mason's Gain Formula for Signal Flow Graphs. High GATE & ESE relevance. Outputting overall transfer functions with absolute confidence.</p>
+  <div class="badge-row">
+    <span class="badge badge-p">GATE EE/EC — High Priority</span>
+    <span class="badge">IES E&T</span>
+    <span class="badge">PSU Electrical</span>
+    <span class="badge">RACE Framework</span>
+  </div>
+</div>
+
+<div class="progress-bar">
+  <span class="pl">Series Progress</span>
+  <div class="pt"><div class="pf" style="width:25%;"></div></div>
+  <span class="pp">Chapter 2 of 8</span>
+</div>
+
+<div class="toc">
+  <div class="toc-h">Contents</div>
+  <div class="toc-grid">
+    <a href="#s1"  class="toc-item"><span class="toc-n">2.1</span>Introduction</a>
+    <a href="#s9"  class="toc-item"><span class="toc-n">2.9</span>Common Mistakes</a>
+    <a href="#s2"  class="toc-item"><span class="toc-n">2.2</span>Why This Topic Matters</a>
+    <a href="#s10" class="toc-item"><span class="toc-n">2.10</span>GATE Insights</a>
+    <a href="#s3"  class="toc-item"><span class="toc-n">2.3</span>Intuitive Understanding</a>
+    <a href="#s11" class="toc-item"><span class="toc-n">2.11</span>Numerical Examples</a>
+    <a href="#s4"  class="toc-item"><span class="toc-n">2.4</span>Real-World Examples</a>
+    <a href="#s12" class="toc-item"><span class="toc-n">2.12</span>Memory Tricks</a>
+    <a href="#s5"  class="toc-item"><span class="toc-n">2.5</span>Core Theory</a>
+    <a href="#s13" class="toc-item"><span class="toc-n">2.13</span>Interview Questions</a>
+    <a href="#s6"  class="toc-item"><span class="toc-n">2.6</span>Mathematical Derivation</a>
+    <a href="#s14" class="toc-item"><span class="toc-n">2.14</span>Quick Revision Sheet</a>
+    <a href="#s7"  class="toc-item"><span class="toc-n">2.7</span>Visual Diagrams</a>
+    <a href="#s15" class="toc-item"><span class="toc-n">2.15</span>Summary</a>
+    <a href="#s8"  class="toc-item"><span class="toc-n">2.8</span>Concept Building Questions</a>
+  </div>
+</div>
+
+<!-- STEP 1 -->
+<div class="section" id="s1">
+  <div class="sec-hdr"><span class="sec-num">2.1</span><h2 class="sec-t">Introduction</h2></div>
+  <div class="race-step"><span class="race-num">STEP 1</span><span class="race-label">Introduction</span></div>
+  <p>Welcome, future engineers! When we design a complex control system — whether it's the autopilot of an Airbus A320, the cruise control of an electric vehicle, or a simple temperature controller in an industrial boiler — the system is never just a single, isolated block. It is a massive interconnected web of sensors, error detectors, proportional controllers, actuators, and physical plants.</p>
+</div>
+
+<!-- STEP 2 -->
+<div class="section" id="s2">
+  <div class="sec-hdr"><span class="sec-num">2.2</span><h2 class="sec-t">Why This Topic Matters</h2></div>
+  <div class="race-step"><span class="race-num">STEP 2</span><span class="race-label">Importance</span></div>
+  <p>To analyse the stability and performance of these complex systems, we must find the <em>overall Transfer Function</em> (Output/Input). If we leave the system as a hundred individual blocks, we cannot apply the Routh-Hurwitz criteria or draw a Root Locus. <strong>Block Diagram Reduction</strong> and <strong>Signal Flow Graphs (SFG)</strong> are the two primary mathematical tools that allow us to collapse hundreds of interconnected components into a single, unified mathematical equation. They bridge the gap between a complex physical layout and a solvable mathematical model.</p>
+</div>
+
+<!-- STEP 3 -->
+<div class="section" id="s3">
+  <div class="sec-hdr"><span class="sec-num">2.3</span><h2 class="sec-t">Intuitive Understanding</h2></div>
+  <div class="race-step"><span class="race-num">STEP 3</span><span class="race-label">Intuition</span></div>
+  <p>Let's understand this intuitively. Imagine you are the General Manager of a massive manufacturing plant. Your factory has multiple departments: Raw Materials (Input), Processing, Quality Check, Packaging, and Dispatch (Output). Sometimes, defective products from Quality Check are sent back to Processing (this is <em>feedback</em>!).</p>
+  <p>You need to calculate the overall efficiency of the entire factory. You have two approaches:</p>
+  <ul class="prose-list">
+    <li><strong>Block Diagram Reduction (The Manager's Approach):</strong> You walk through the factory and merge departments one by one. You combine Processing and Quality Check into one "Super Department" on paper. Then you combine that with Packaging. Step by step, you physically redraw the factory layout until it looks like one single giant machine. It is highly visual and easy to understand step-by-step, but it takes a lot of time and drawing.</li>
+    <li><strong>Signal Flow Graph & Mason's Rule (The Accountant's Approach):</strong> Instead of redrawing the factory floor repeatedly, you sit in your office, map out the flow of materials using simple nodes and arrows, and apply a single, powerful accounting formula. You get the overall efficiency instantly without combining any departments manually. It is highly algorithmic, fast, and perfect for extremely complex webs.</li>
+  </ul>
+</div>
+
+<!-- STEP 4 -->
+<div class="section" id="s4">
+  <div class="sec-hdr"><span class="sec-num">2.4</span><h2 class="sec-t">Real-World Examples</h2></div>
+  <div class="race-step"><span class="race-num">STEP 4</span><span class="race-label">Application</span></div>
+  <p>Where do we use Block Diagrams and SFGs in the industry?</p>
+  <div class="callout c-info">
+    <div class="ci">🌍</div>
+    <div class="cb"><div class="ct">Industry Applications</div>
+    <p>
+      • <strong>Power Systems (AGC):</strong> Automatic Generation Control uses multi-loop block diagrams where load frequency and tie-line power are fed back to control the turbine governor. You cannot analyze grid stability without reducing this diagram.<br>
+      • <strong>Electric Vehicles (EVs):</strong> The motor drive system involves cascaded loops: a fast inner current loop to protect the IGBTs, and a slower outer speed loop for driver cruise control. SFG is used to find the overall speed response to a throttle input.<br>
+      • <strong>Renewable Energy:</strong> In grid-tied solar inverters, Phase-Locked Loops (PLL) and Maximum Power Point Tracking (MPPT) controllers are modeled as block diagrams to ensure stable power injection into the grid despite solar fluctuations.<br>
+      • <strong>Industrial Automation:</strong> A PID controller managing boiler pressure in a thermal power plant is tuned by first reducing the boiler's multi-variable block diagram into a single loop.<br>
+      • <strong>Aerospace & Robotics:</strong> Pitch, roll, and yaw controllers in a drone are heavily coupled (a change in yaw affects roll). Mason's gain formula resolves these multi-input multi-output (MIMO) interactions efficiently.
+    </p></div>
+  </div>
+</div>
+
+<!-- STEP 5 -->
+<div class="section" id="s5">
+  <div class="sec-hdr"><span class="sec-num">2.5</span><h2 class="sec-t">Core Theory</h2></div>
+  <div class="race-step"><span class="race-num">STEP 5</span><span class="race-label">Theory</span></div>
+  <p>Let's dive into the core theory. <strong>Block Diagram reduction</strong> is governed by linear algebra. Every block represents a multiplication by a transfer function $G(s)$. Summing points represent addition. Take-off points represent identical signal distribution.</p>
+  <p>The golden rule is: <em>Whatever algebraic manipulation you do, the signal at any subsequent point must remain exactly the same as it was before the manipulation.</em></p>
+</div>
+
+<!-- STEP 6 -->
+<div class="section" id="s6">
+  <div class="sec-hdr"><span class="sec-num">2.6</span><h2 class="sec-t">Mathematical Derivation</h2></div>
+  <div class="race-step"><span class="race-num">STEP 6</span><span class="race-label">Math</span></div>
+  <p>Let's derive the basic Closed-Loop Transfer Function (Negative Feedback), which is the most fundamental building block of all control systems.</p>
+  <ul class="prose-list">
+    <li>$R(s)$ = Reference Input (Command)</li>
+    <li>$C(s)$ = Controlled Output (Actual Response)</li>
+    <li>$E(s)$ = Error Signal $= R(s) - B(s)$</li>
+    <li>$G(s)$ = Forward Path Gain</li>
+    <li>$H(s)$ = Feedback Path Gain</li>
+    <li>$B(s)$ = Feedback Signal $= C(s)H(s)$</li>
+  </ul>
+  <p>We know: $C(s) = E(s)G(s)$. Substitute $E(s)$: <br>
+  $C(s) = [R(s) - C(s)H(s)] G(s)$ <br>
+  $C(s) + C(s)G(s)H(s) = R(s)G(s)$ <br>
+  <strong>$T(s) = \frac{C(s)}{R(s)} = \frac{G(s)}{1 + G(s)H(s)}$</strong></p>
+</div>
+
+<!-- STEP 7 -->
+<div class="section" id="s7">
+  <div class="sec-hdr"><span class="sec-num">2.7</span><h2 class="sec-t">Visual Diagrams</h2></div>
+  <div class="race-step"><span class="race-num">STEP 7</span><span class="race-label">Visuals</span></div>
+  <p>Below are the 9 visual rules dictating how we can mathematically shift take-off points and summing points left or right without changing the overall signal value.</p>
+  
+  <div class="tw">
+    <table class="rd-table">
+    <thead>
+      <tr>
+        <th style="width:48px;">Rule</th>
+        <th>Original Block Diagram</th>
+        <th>Equivalent Block Diagram</th>
+        <th>Operation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="rule-num">1</td>
+        <td>
+          <svg viewBox="0 0 140 40" style="width:120px;height:auto;display:block;margin:0 auto;">
+            <line x1="5" y1="20" x2="25" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="25" y="8" width="24" height="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="37" y="24" font-size="11" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G₁</text>
+            <line x1="49" y1="20" x2="69" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="69" y="8" width="24" height="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="81" y="24" font-size="11" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G₂</text>
+            <line x1="93" y1="20" x2="113" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+          </svg>
+          <div style="font-size:11px;margin-top:6px;color:var(--text3);">G₁ → G₂</div>
+        </td>
+        <td>
+          <svg viewBox="0 0 140 40" style="width:120px;height:auto;display:block;margin:0 auto;">
+            <line x1="15" y1="20" x2="40" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="40" y="8" width="40" height="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="60" y="24" font-size="11" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G₁G₂</text>
+            <line x1="80" y1="20" x2="105" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+          </svg>
+          <div style="font-size:11px;margin-top:6px;color:var(--text3);">G₁G₂</div>
+        </td>
+        <td class="op-cell"><strong>Cascading the blocks</strong> — blocks in series multiply</td>
+      </tr>
+      <tr>
+        <td class="rule-num">2</td>
+        <td>
+          <svg viewBox="0 0 160 55" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="5" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="16" y1="20" x2="50" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <circle cx="30" cy="20" r="2.5" fill="#3d2010"/>
+            <line x1="30" y1="20" x2="30" y2="45" stroke="#3d2010" stroke-width="1.5"/>
+            <line x1="30" y1="45" x2="90" y2="45" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="96" y="49" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <rect x="50" y="8" width="30" height="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="65" y="24" font-size="12" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G</text>
+            <line x1="80" y1="20" x2="110" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="116" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+          </svg>
+        </td>
+        <td>
+          <svg viewBox="0 0 160 55" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="5" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="16" y1="20" x2="40" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="40" y="8" width="30" height="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="55" y="24" font-size="12" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G</text>
+            <line x1="70" y1="20" x2="110" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="116" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+            <circle cx="85" cy="20" r="2.5" fill="#3d2010"/>
+            <line x1="85" y1="20" x2="85" y2="45" stroke="#3d2010" stroke-width="1.5"/>
+            <line x1="85" y1="45" x2="95" y2="45" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="95" y="33" width="26" height="24" fill="#f8ede0" stroke="#c8a888" stroke-width="1.5"/>
+            <text x="108" y="49" font-size="11" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">1/G</text>
+            <line x1="121" y1="45" x2="135" y2="45" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="141" y="49" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+          </svg>
+        </td>
+        <td class="op-cell"><strong>Shift take-off point after the block</strong> — insert 1/G in the shifted branch</td>
+      </tr>
+      <tr>
+        <td class="rule-num">3</td>
+        <td>
+          <svg viewBox="0 0 160 55" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="5" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="16" y1="20" x2="40" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="40" y="8" width="30" height="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="55" y="24" font-size="12" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G</text>
+            <line x1="70" y1="20" x2="110" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="116" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+            <circle cx="85" cy="20" r="2.5" fill="#3d2010"/>
+            <line x1="85" y1="20" x2="85" y2="45" stroke="#3d2010" stroke-width="1.5"/>
+            <line x1="85" y1="45" x2="110" y2="45" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="116" y="49" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+          </svg>
+        </td>
+        <td>
+          <svg viewBox="0 0 160 55" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="5" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="16" y1="20" x2="50" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="50" y="8" width="30" height="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="65" y="24" font-size="12" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G</text>
+            <line x1="80" y1="20" x2="110" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="116" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+            <circle cx="30" cy="20" r="2.5" fill="#3d2010"/>
+            <line x1="30" y1="20" x2="30" y2="45" stroke="#3d2010" stroke-width="1.5"/>
+            <line x1="30" y1="45" x2="50" y2="45" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="50" y="33" width="30" height="24" fill="#f8ede0" stroke="#c8a888" stroke-width="1.5"/>
+            <text x="65" y="49" font-size="12" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G</text>
+            <line x1="80" y1="45" x2="110" y2="45" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="116" y="49" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+          </svg>
+        </td>
+        <td class="op-cell"><strong>Shift take-off point before the block</strong> — insert G in the shifted branch</td>
+      </tr>
+      <tr>
+        <td class="rule-num">4</td>
+        <td>
+          <svg viewBox="0 0 160 65" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="5" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="16" y1="20" x2="30" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <circle cx="40" cy="20" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="33" y="16" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="35" y="27" font-size="10" fill="#c95f1a" font-weight="bold">±</text>
+            
+            <text x="36" y="52" font-size="12" fill="#3d2010" font-family="Georgia,serif">F</text>
+            <line x1="40" y1="40" x2="40" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <line x1="50" y1="20" x2="65" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="65" y="8" width="30" height="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="80" y="24" font-size="12" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G</text>
+            <line x1="95" y1="20" x2="115" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="121" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+          </svg>
+        </td>
+        <td>
+          <svg viewBox="0 0 160 65" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="5" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="16" y1="20" x2="25" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="25" y="8" width="24" height="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="37" y="24" font-size="12" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G</text>
+            <line x1="49" y1="20" x2="65" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <circle cx="75" cy="20" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="68" y="16" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="70" y="27" font-size="10" fill="#c95f1a" font-weight="bold">±</text>
+            
+            <text x="71" y="62" font-size="12" fill="#3d2010" font-family="Georgia,serif">F</text>
+            <line x1="75" y1="50" x2="75" y2="44" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="63" y="32" width="24" height="12" fill="#f8ede0" stroke="#c8a888" stroke-width="1.5"/>
+            <text x="75" y="42" font-size="10" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G</text>
+            <line x1="75" y1="32" x2="75" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <line x1="85" y1="20" x2="110" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="116" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+          </svg>
+        </td>
+        <td class="op-cell"><strong>Shift summing point after the block</strong> — insert <strong>G</strong> in the signal fed to summing point</td>
+      </tr>
+      <tr>
+        <td class="rule-num">5</td>
+        <td>
+          <svg viewBox="0 0 160 65" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="5" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="16" y1="20" x2="25" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="25" y="8" width="30" height="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="40" y="24" font-size="12" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G</text>
+            <line x1="55" y1="20" x2="70" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <circle cx="80" cy="20" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="73" y="16" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="75" y="27" font-size="10" fill="#c95f1a" font-weight="bold">±</text>
+            
+            <text x="76" y="52" font-size="12" fill="#3d2010" font-family="Georgia,serif">F</text>
+            <line x1="80" y1="40" x2="80" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <line x1="90" y1="20" x2="115" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="121" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+          </svg>
+        </td>
+        <td>
+          <svg viewBox="0 0 160 65" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="5" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="16" y1="20" x2="30" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <circle cx="40" cy="20" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="33" y="16" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="35" y="27" font-size="10" fill="#c95f1a" font-weight="bold">±</text>
+            
+            <text x="36" y="62" font-size="12" fill="#3d2010" font-family="Georgia,serif">F</text>
+            <line x1="40" y1="50" x2="40" y2="44" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="27" y="32" width="26" height="12" fill="#f8ede0" stroke="#c8a888" stroke-width="1.5"/>
+            <text x="40" y="42" font-size="10" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">1/G</text>
+            <line x1="40" y1="32" x2="40" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <line x1="50" y1="20" x2="65" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <rect x="65" y="8" width="30" height="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="80" y="24" font-size="12" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G</text>
+            <line x1="95" y1="20" x2="115" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="121" y="24" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+          </svg>
+        </td>
+        <td class="op-cell"><strong>Shift summing point before the block</strong> — insert <strong>1/G</strong> in the feed branch</td>
+      </tr>
+      <tr>
+        <td class="rule-num">6</td>
+        <td>
+          <svg viewBox="0 0 160 65" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="10" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">I₁</text>
+            <line x1="22" y1="30" x2="45" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <circle cx="55" cy="30" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="48" y="34" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="52" y="20" font-size="10" fill="#c95f1a" font-weight="bold">-</text>
+            <text x="52" y="44" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            
+            <text x="51" y="10" font-size="12" fill="#3d2010" font-family="Georgia,serif">I₂</text>
+            <line x1="55" y1="12" x2="55" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <text x="51" y="62" font-size="12" fill="#3d2010" font-family="Georgia,serif">I₃</text>
+            <line x1="55" y1="50" x2="55" y2="40" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <line x1="65" y1="30" x2="90" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="96" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">I</text>
+          </svg>
+        </td>
+        <td>
+          <svg viewBox="0 0 160 65" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="5" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">I₁</text>
+            <line x1="17" y1="30" x2="35" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <circle cx="45" cy="30" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="38" y="34" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="42" y="20" font-size="10" fill="#c95f1a" font-weight="bold">-</text>
+            
+            <text x="41" y="10" font-size="12" fill="#3d2010" font-family="Georgia,serif">I₂</text>
+            <line x1="45" y1="12" x2="45" y2="20" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <line x1="55" y1="30" x2="80" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <circle cx="90" cy="30" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="83" y="34" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="87" y="44" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            
+            <text x="86" y="62" font-size="12" fill="#3d2010" font-family="Georgia,serif">I₃</text>
+            <line x1="90" y1="50" x2="90" y2="40" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <line x1="100" y1="30" x2="120" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="126" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">I</text>
+          </svg>
+        </td>
+        <td class="op-cell"><strong>Equivalence of the summing point</strong> — summing points with the same input are commutative</td>
+      </tr>
+      <tr>
+        <td class="rule-num">7</td>
+        <td>
+          <svg viewBox="0 0 160 65" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="10" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="22" y1="30" x2="45" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <circle cx="55" cy="30" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="48" y="34" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="50" y="42" font-size="10" fill="#c95f1a" font-weight="bold">±</text>
+            
+            <text x="51" y="62" font-size="12" fill="#3d2010" font-family="Georgia,serif">F</text>
+            <line x1="55" y1="50" x2="55" y2="40" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <line x1="65" y1="30" x2="105" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="111" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+            
+            <circle cx="85" cy="30" r="2.5" fill="#3d2010"/>
+            <line x1="85" y1="30" x2="85" y2="50" stroke="#3d2010" stroke-width="1.5"/>
+            <line x1="85" y1="50" x2="105" y2="50" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="111" y="54" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+          </svg>
+        </td>
+        <td>
+          <svg viewBox="0 0 160 85" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="5" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="17" y1="30" x2="50" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <circle cx="60" cy="30" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="53" y="34" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="55" y="42" font-size="10" fill="#c95f1a" font-weight="bold">±</text>
+            
+            <line x1="70" y1="30" x2="100" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="106" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+            
+            <circle cx="35" cy="30" r="2.5" fill="#3d2010"/>
+            <line x1="35" y1="30" x2="35" y2="70" stroke="#3d2010" stroke-width="1.5"/>
+            <line x1="35" y1="70" x2="50" y2="70" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <circle cx="60" cy="70" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="53" y="74" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="55" y="65" font-size="10" fill="#c95f1a" font-weight="bold">±</text>
+            
+            <line x1="70" y1="70" x2="100" y2="70" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="106" y="74" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+            
+            <text x="100" y="54" font-size="12" fill="#3d2010" font-family="Georgia,serif">F</text>
+            <line x1="95" y1="50" x2="60" y2="50" stroke="#3d2010" stroke-width="1.5"/>
+            <line x1="60" y1="50" x2="60" y2="40" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <circle cx="60" cy="50" r="2.5" fill="#3d2010"/>
+            <line x1="60" y1="50" x2="60" y2="60" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+          </svg>
+        </td>
+        <td class="op-cell"><strong>Shift take-off point before the summing point</strong></td>
+      </tr>
+      <tr>
+        <td class="rule-num">8</td>
+        <td>
+          <svg viewBox="0 0 160 65" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="10" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="22" y1="30" x2="55" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <circle cx="35" cy="30" r="2.5" fill="#3d2010"/>
+            <line x1="35" y1="30" x2="35" y2="50" stroke="#3d2010" stroke-width="1.5"/>
+            <line x1="35" y1="50" x2="45" y2="50" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="51" y="54" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            
+            <circle cx="65" cy="30" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="58" y="34" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="60" y="42" font-size="10" fill="#c95f1a" font-weight="bold">±</text>
+            
+            <text x="61" y="62" font-size="12" fill="#3d2010" font-family="Georgia,serif">F</text>
+            <line x1="65" y1="50" x2="65" y2="40" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <line x1="75" y1="30" x2="105" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="111" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+          </svg>
+        </td>
+        <td>
+          <svg viewBox="0 0 160 90" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="15" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="27" y1="30" x2="50" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <circle cx="60" cy="30" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="53" y="34" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="55" y="42" font-size="10" fill="#c95f1a" font-weight="bold">±</text>
+            
+            <line x1="70" y1="30" x2="100" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="106" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+            
+            <circle cx="85" cy="30" r="2.5" fill="#3d2010"/>
+            <line x1="85" y1="30" x2="85" y2="65" stroke="#3d2010" stroke-width="1.5"/>
+            <line x1="85" y1="65" x2="70" y2="65" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <circle cx="60" cy="65" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="63" y="69" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="55" y="60" font-size="10" fill="#c95f1a" font-weight="bold">∓</text>
+            
+            <line x1="60" y1="75" x2="60" y2="83" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="56" y="92" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            
+            <text x="35" y="52" font-size="12" fill="#3d2010" font-family="Georgia,serif">F</text>
+            <line x1="45" y1="48" x2="60" y2="48" stroke="#3d2010" stroke-width="1.5"/>
+            <circle cx="60" cy="48" r="2.5" fill="#3d2010"/>
+            <line x1="60" y1="48" x2="60" y2="40" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <line x1="60" y1="48" x2="60" y2="55" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+          </svg>
+        </td>
+        <td class="op-cell"><strong>Shift take-off point after the summing point</strong></td>
+      </tr>
+      <tr>
+        <td class="rule-num">9</td>
+        <td>
+          <svg viewBox="0 0 160 65" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="10" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="22" y1="30" x2="35" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <circle cx="45" cy="30" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="38" y="34" font-size="10" fill="#c95f1a" font-weight="bold">+</text>
+            <text x="40" y="42" font-size="10" fill="#c95f1a" font-weight="bold">±</text>
+            
+            <line x1="55" y1="30" x2="65" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <rect x="65" y="18" width="30" height="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="80" y="34" font-size="12" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G</text>
+            
+            <line x1="95" y1="30" x2="120" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="126" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+            
+            <circle cx="110" cy="30" r="2.5" fill="#3d2010"/>
+            <line x1="110" y1="30" x2="110" y2="55" stroke="#3d2010" stroke-width="1.5"/>
+            <line x1="110" y1="55" x2="95" y2="55" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <rect x="65" y="43" width="30" height="24" fill="#f8ede0" stroke="#c8a888" stroke-width="1.5"/>
+            <text x="80" y="59" font-size="12" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">H</text>
+            
+            <line x1="65" y1="55" x2="45" y2="55" stroke="#3d2010" stroke-width="1.5"/>
+            <line x1="45" y1="55" x2="45" y2="40" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+          </svg>
+        </td>
+        <td>
+          <svg viewBox="0 0 160 65" style="width:130px;height:auto;display:block;margin:0 auto;">
+            <text x="10" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">R</text>
+            <line x1="22" y1="30" x2="40" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            
+            <rect x="40" y="18" width="70" height="24" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+            <text x="75" y="34" font-size="12" fill="#1e1208" text-anchor="middle" font-family="Georgia,serif">G / 1∓GH</text>
+            
+            <line x1="110" y1="30" x2="130" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-tbl)"/>
+            <text x="136" y="34" font-size="12" fill="#3d2010" font-family="Georgia,serif">C</text>
+          </svg>
+        </td>
+        <td class="op-cell"><strong>Eliminating the feedback loop</strong> — the most-used rule in GATE problems</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  
+  <p>The most critical rule is <strong>Rule 9 (Feedback Loop Elimination)</strong>. Let's visualise this.</p>
+  
+  <!-- ══ Rule 9: Before → After Visual ══ -->
+  <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin:20px 0;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:20px 16px;">
+    <!-- Before: Closed loop -->
+    <div style="flex:1;min-width:180px;text-align:center;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px;font-family:'JetBrains Mono',monospace;">Original (Closed Loop)</div>
+      <svg viewBox="0 0 200 112" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;">
+        <defs>
+          <marker id="arr-r9f" markerWidth="6" markerHeight="4.5" refX="5" refY="2.25" orient="auto">
+            <polygon points="0 0,6 2.25,0 4.5" fill="#3d2010"/>
+          </marker>
+          <marker id="arr-r9b" markerWidth="6" markerHeight="4.5" refX="5" refY="2.25" orient="auto">
+            <polygon points="0 0,6 2.25,0 4.5" fill="#1e6b68"/>
+          </marker>
+        </defs>
+        <!-- R input -->
+        <text x="4" y="44" font-size="11" fill="#3d2010" font-family="Georgia,serif" font-style="italic">R(s)</text>
+        <line x1="26" y1="40" x2="33" y2="40" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-r9f)"/>
+        <!-- Summing circle -->
+        <circle cx="43" cy="40" r="10" fill="#fdf6ee" stroke="#c95f1a" stroke-width="1.5"/>
+        <text x="37" y="36" font-size="9" fill="#c95f1a" font-weight="bold" font-family="sans-serif">+</text>
+        <text x="40" y="46" font-size="10" fill="#c95f1a" font-weight="bold" font-family="sans-serif">−</text>
+        <!-- Arrow Σ → G -->
+        <line x1="53" y1="40" x2="62" y2="40" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-r9f)"/>
+        <!-- G(s) block -->
+        <rect x="64" y="29" width="76" height="22" rx="4" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+        <text x="102" y="44" font-size="12" fill="#1e1208" text-anchor="middle" font-weight="600" font-family="Georgia,serif">G(s)</text>
+        <!-- Arrow G → takeoff -->
+        <line x1="140" y1="40" x2="153" y2="40" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-r9f)"/>
+        <!-- Takeoff dot -->
+        <circle cx="157" cy="40" r="3" fill="#3d2010"/>
+        <!-- C label -->
+        <text x="162" y="44" font-size="11" fill="#3d2010" font-family="Georgia,serif" font-style="italic">C(s)</text>
+        <!-- Feedback: down -->
+        <line x1="157" y1="50" x2="157" y2="86" stroke="#1e6b68" stroke-width="1.5"/>
+        <!-- Left to H -->
+        <line x1="157" y1="86" x2="143" y2="86" stroke="#1e6b68" stroke-width="1.5" marker-end="url(#arr-r9b)"/>
+        <!-- H(s) block (teal) -->
+        <rect x="64" y="75" width="76" height="22" rx="4" fill="#d8eeed" stroke="#1e6b68" stroke-width="1.5"/>
+        <text x="102" y="90" font-size="12" fill="#1e1208" text-anchor="middle" font-weight="600" font-family="Georgia,serif">H(s)</text>
+        <!-- H left → corner -->
+        <line x1="64" y1="86" x2="47" y2="86" stroke="#1e6b68" stroke-width="1.5" marker-end="url(#arr-r9b)"/>
+        <!-- Up to Σ -->
+        <line x1="43" y1="86" x2="43" y2="50" stroke="#1e6b68" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <!-- Equivalence sign -->
+    <div style="font-size:32px;color:var(--orange);font-weight:700;flex-shrink:0;line-height:1;">&#8801;</div>
+    <!-- After: Single block -->
+    <div style="flex:1;min-width:180px;text-align:center;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px;font-family:'JetBrains Mono',monospace;">Equivalent (Rule 9 Applied)</div>
+      <svg viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;">
+        <defs>
+          <marker id="arr-r9af" markerWidth="6" markerHeight="4.5" refX="5" refY="2.25" orient="auto">
+            <polygon points="0 0,6 2.25,0 4.5" fill="#3d2010"/>
+          </marker>
+        </defs>
+        <text x="4" y="34" font-size="11" fill="#3d2010" font-family="Georgia,serif" font-style="italic">R(s)</text>
+        <line x1="28" y1="30" x2="42" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-r9af)"/>
+        <!-- Single equivalent block (green → resolved) -->
+        <rect x="44" y="17" width="138" height="26" rx="4" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5"/>
+        <text x="113" y="33" font-size="10.5" fill="#1e1208" text-anchor="middle" font-weight="600" font-family="Georgia,serif">G(s) / (1+G(s)H(s))</text>
+        <line x1="182" y1="30" x2="196" y2="30" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-r9af)"/>
+        <text x="199" y="34" font-size="11" fill="#3d2010" font-family="Georgia,serif" font-style="italic">C(s)</text>
+      </svg>
+    </div>
+  </div>
+
+  <h3 class="sub">Signal Flow Graphs (SFG)</h3>
+  <p>A Signal Flow Graph represents linear algebraic equations as a network of directed branches and nodes. Instead of blocks, we use arrows (branches) with gains.</p>
+
+  <!-- ══ SFG Concept Diagram ══ -->
+  <div style="margin:20px 0;">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px;font-family:'JetBrains Mono',monospace;">Signal Flow Graph — Annotated Concept Diagram</div>
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:20px 12px;overflow-x:auto;text-align:center;">
+      <svg viewBox="0 0 480 108" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;">
+        <defs>
+          <marker id="arr-sfg1" markerWidth="6" markerHeight="4.5" refX="5" refY="2.25" orient="auto">
+            <polygon points="0 0,6 2.25,0 4.5" fill="#3d2010"/>
+          </marker>
+          <marker id="arr-sfgl" markerWidth="6" markerHeight="4.5" refX="5" refY="2.25" orient="auto">
+            <polygon points="0 0,6 2.25,0 4.5" fill="#1e6b68"/>
+          </marker>
+        </defs>
+
+        <!-- ══ FORWARD PATH BRANCHES (arrows between nodes) ══ -->
+        <!-- R → X₁: gain 1 -->
+        <line x1="54" y1="46" x2="137" y2="46" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-sfg1)"/>
+        <text x="95" y="38" font-size="10" fill="#3d2010" text-anchor="middle" font-family="Georgia,serif" font-style="italic">a₁</text>
+        <!-- X₁ → X₂: gain G₁ -->
+        <line x1="167" y1="46" x2="275" y2="46" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-sfg1)"/>
+        <text x="221" y="38" font-size="10" fill="#3d2010" text-anchor="middle" font-family="Georgia,serif" font-style="italic">G(s)</text>
+        <!-- X₂ → C: gain 1 -->
+        <line x1="305" y1="46" x2="405" y2="46" stroke="#3d2010" stroke-width="1.5" marker-end="url(#arr-sfg1)"/>
+        <text x="355" y="38" font-size="10" fill="#3d2010" text-anchor="middle" font-family="Georgia,serif" font-style="italic">a₂</text>
+        <!-- Forward path label -->
+        <text x="230" y="20" font-size="9.5" fill="#c95f1a" text-anchor="middle" font-family="Georgia,serif" font-style="italic">&#8593; Forward Path (Mₖ)</text>
+
+        <!-- ══ NODES ══ -->
+        <!-- Source R (double ring, orange) -->
+        <circle cx="42" cy="46" r="13" fill="#fdebd8" stroke="#c95f1a" stroke-width="2"/>
+        <circle cx="42" cy="46" r="7" fill="none" stroke="#c95f1a" stroke-width="1.2"/>
+        <text x="42" y="50" font-size="11" fill="#c95f1a" text-anchor="middle" font-weight="700" font-family="Georgia,serif" font-style="italic">R</text>
+        <text x="42" y="75" font-size="8.5" fill="#9a6e50" text-anchor="middle" font-family="Georgia,serif">Input Node</text>
+        <text x="42" y="84" font-size="8" fill="#9a6e50" text-anchor="middle" font-family="Georgia,serif">(Source)</text>
+
+        <!-- Internal Node X₁ -->
+        <circle cx="152" cy="46" r="13" fill="#f8ede0" stroke="#c8a888" stroke-width="1.5"/>
+        <text x="152" y="50" font-size="10" fill="#3d2010" text-anchor="middle" font-family="Georgia,serif">X₁</text>
+
+        <!-- Internal Node X₂ -->
+        <circle cx="290" cy="46" r="13" fill="#f8ede0" stroke="#c8a888" stroke-width="1.5"/>
+        <text x="290" y="50" font-size="10" fill="#3d2010" text-anchor="middle" font-family="Georgia,serif">X₂</text>
+
+        <!-- Sink C (double ring, teal) -->
+        <circle cx="418" cy="46" r="13" fill="#d8eeed" stroke="#1e6b68" stroke-width="2"/>
+        <circle cx="418" cy="46" r="7" fill="none" stroke="#1e6b68" stroke-width="1.2"/>
+        <text x="418" y="50" font-size="11" fill="#1e6b68" text-anchor="middle" font-weight="700" font-family="Georgia,serif" font-style="italic">C</text>
+        <text x="418" y="75" font-size="8.5" fill="#9a6e50" text-anchor="middle" font-family="Georgia,serif">Output Node</text>
+        <text x="418" y="84" font-size="8" fill="#9a6e50" text-anchor="middle" font-family="Georgia,serif">(Sink)</text>
+
+        <!-- ══ FEEDBACK LOOP: X₂ → X₁ (arc below, teal) ══ -->
+        <path d="M 287 59 C 287 92, 155 92, 155 59" fill="none" stroke="#1e6b68" stroke-width="1.5" marker-end="url(#arr-sfgl)"/>
+        <text x="221" y="104" font-size="10" fill="#1e6b68" text-anchor="middle" font-family="Georgia,serif" font-style="italic">−H(s) &nbsp; [Loop Gain = −GH]</text>
+play:inline-block;"></span>Internal node</span>
+      <span style="display:flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:50%;background:#d8eeed;border:2px solid #1e6b68;display:inline-block;"></span>Sink node (only incoming branches)</span>
+    </div>
+  </div>
+</div>
+
+  <p>While Block Diagram reduction is intuitive, it becomes algebraically exhausting for systems with three or four intersecting loops. <strong>Mason's Gain Formula</strong> provides a direct, algorithmic way to find the transfer function between any input and output node of a Signal Flow Graph without any intermediate reduction steps.</p>
+
+  <div class="fblock">
+    <div class="flbl">Mason's Gain Formula</div>
+    <span class="feq">T = \frac{C(s)}{R(s)} = \frac{1}{\Delta} \sum_{k=1}^{N} P_k \Delta_k</span>
+  </div>
+
+  <p>Let's break down exactly what every variable in this equation means physically:</p>
+  <ul class="prose-list">
+    <li><strong>$N$:</strong> Total number of forward paths between the input and output.</li>
+    <li><strong>$P_k$ (Forward Path Gain):</strong> The product of branch gains for the $k^{th}$ forward path from input to output. A path must never pass through the same node twice!</li>
+    <li><strong>$\Delta$ (Graph Determinant):</strong> The overall system stability determinant. It tells us the characteristic equation of the system. <br>$\Delta = 1 - (\text{Sum of all individual loops}) + (\text{Sum of products of 2 non-touching loops}) - (\text{Sum of products of 3 non-touching loops}) + \dots$</li>
+    <li><strong>$\Delta_k$ (Path Cofactor):</strong> This is the value of $\Delta$ calculated <em>only for the part of the graph that does not touch the $k^{th}$ forward path</em>. Simply put, trace the $k^{th}$ path with your finger. If a loop touches your finger, discard it. Calculate $\Delta$ with whatever loops are left over.</li>
+  </ul>
+</div>
+
+<!-- STEP 8 -->
+<div class="section" id="s8">
+  <div class="sec-hdr"><span class="sec-num">2.8</span><h2 class="sec-t">Concept Building Questions</h2></div>
+  <div class="race-step"><span class="race-num">STEP 8</span><span class="race-label">Clarification</span></div>
+  
+  <div class="cbq">
+    <div class="cbq-hdr"><div class="cbq-title">Q1. Why do we divide by $G$ when shifting a take-off point AFTER a block?</div></div>
+    <div class="cbq-body">
+      <div class="cbq-a"><strong>Ans:</strong> Because by shifting the point after the block, the signal has now been physically multiplied by $G$. To keep the original signal unchanged for that specific tapped line, we must multiply it by $1/G$ to artificially cancel out the effect of the block we just bypassed.</div>
+    </div>
+  </div>
+
+  <div class="cbq">
+    <div class="cbq-hdr"><div class="cbq-title">Q2. What if two loops touch each other at just one single node? Are they non-touching?</div></div>
+    <div class="cbq-body">
+      <div class="cbq-a"><strong>Ans:</strong> No! If they share even a <em>single mathematical node</em>, they are considered touching loops. They will not appear in the $\sum L_i L_j$ term of Mason's formula. They must be completely physically disjoint to be non-touching.</div>
+    </div>
+  </div>
+
+  <div class="cbq">
+    <div class="cbq-hdr"><div class="cbq-title">Q3. What happens practically if we accidentally use positive feedback instead of negative?</div></div>
+    <div class="cbq-body">
+      <div class="cbq-a"><strong>Ans:</strong> In positive feedback, the error signal adds up constructively. The system will drive itself into saturation or continuous oscillations. In the transfer function equation, the denominator becomes $(1 - GH)$. It is heavily used in oscillator design, but it will physically destroy a standard control system like an aircraft stabilizer.</div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 9 -->
+<div class="section" id="s9">
+  <div class="sec-hdr"><span class="sec-num">2.9</span><h2 class="sec-t">Common Mistakes</h2></div>
+  <div class="race-step"><span class="race-num">STEP 9</span><span class="race-label">Mistakes</span></div>
+  
+  <div class="callout c-danger">
+    <div class="ci">⛔</div>
+    <div class="cb"><div class="ct">Typical GATE Traps & Misconceptions</div>
+      <ol style="padding-left:1.4em; color:var(--text2);">
+        <li><strong>Assuming $\Delta_k = 1$ always:</strong> Students blindly write $\Delta_k = 1$ for every forward path. This is ONLY true if all loops in the system touch the $k^{th}$ forward path. If there is an isolated loop somewhere in the corner that doesn't touch your path, $\Delta_k$ will be $(1 - L_{isolated})$.</li>
+        <li><strong>Missing non-touching loops:</strong> In a highly complex SFG, visually missing a pair of non-touching loops ruins the entire $\Delta$ calculation. Methodically list all loops ($L_1, L_2...$) first, then check every single pair ($L_1 L_2, L_1 L_3...$) systematically.</li>
+        <li><strong>Sign Errors in Feedback:</strong> If a summing point in a block diagram has a negative sign, the corresponding loop gain $L$ in the SFG is negative (e.g., $-G_1 H_1$). In the $\Delta$ formula ($1 - \sum L$), this becomes $1 - (-G_1 H_1) = 1 + G_1 H_1$. Don't double-negate incorrectly and accidentally make it $1 - G_1 H_1$!</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 10 -->
+<div class="section" id="s10">
+  <div class="sec-hdr"><span class="sec-num">2.10</span><h2 class="sec-t">GATE Insights</h2></div>
+  <div class="race-step"><span class="race-num">STEP 10</span><span class="race-label">Exam Focus</span></div>
+  
+  <div class="prob-row">
+    <span class="prob-tag prob-high">🟢 High Probability</span>
+  </div>
+  
+  <p><strong>Exam Pattern:</strong> GATE rarely asks you to do 5 steps of manual block diagram reduction. It takes too long. Instead, they give a complex block diagram and expect you to immediately convert it to an SFG in your head and apply Mason's formula.</p>
+  
+  <div class="callout c-warn">
+    <div class="ci">⚡</div>
+    <div class="cb"><div class="ct">Time-Saving Technique for GATE</div>
+    <p>If you are given a Block Diagram and asked for the Transfer Function, <strong>do not redraw it as an SFG on your rough pad!</strong> Just treat the summing points and take-off points as nodes directly on the block diagram. Draw imaginary arrows through the blocks, find the forward paths and loops visually, and apply Mason's rule straight on the Block Diagram. This saves 2-3 precious minutes in the exam hall.</p></div>
+  </div>
+</div>
+
+<!-- STEP 11 -->
+<div class="section" id="s11">
+  <div class="sec-hdr"><span class="sec-num">2.11</span><h2 class="sec-t">Numerical Examples</h2></div>
+  <div class="race-step"><span class="race-num">STEP 11</span><span class="race-label">Practice</span></div>
+  <p>Here are three carefully selected examples ranging from basic to GATE-level conceptual problems.</p>
+  
+  <!-- Example 1 -->
+  <!-- Example 1 -->
+  <div class="example-block">
+    <div class="ex-head">
+      <span class="ex-badge">Example 01</span>
+      <div class="ex-title">Electrical Network to SFG — Find G₂ and H</div>
+    </div>
+    <p class="ex-q">
+      An electrical system and its signal-flow graph representation are shown in figures (a) and (b). The network contains impedances Z₁(s), Z₂(s), Z₃(s), Z₄(s) and nodes V<sub>i</sub>(s), I₁(s), I₂(s), V<sub>o</sub>(s). The SFG has forward path gains G₁, G₂, G₃ and feedback gain H. Find G₂ and H.
+    </p>
+    <div class="diag-wrap" style="margin-top:14px;background:#fff;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:12px;font-family:'JetBrains Mono',monospace;">SFG Representation of Electrical Network</div>
+      <svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;">
+        <defs>
+          <marker id="ex1-arr" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+            <polygon points="0 0,6 2,0 4" fill="#3d2010"/>
+          </marker>
+        </defs>
+        <!-- Nodes -->
+        <circle cx="60" cy="50" r="4" fill="#3d2010"/>
+        <text x="60" y="70" font-size="12" fill="#3d2010" text-anchor="middle" font-family="Georgia,serif" font-style="italic">V_i(s)</text>
+        
+        <circle cx="160" cy="50" r="4" fill="#3d2010"/>
+        <text x="160" y="70" font-size="12" fill="#3d2010" text-anchor="middle" font-family="Georgia,serif" font-style="italic">I_1(s)</text>
+
+        <circle cx="260" cy="50" r="4" fill="#3d2010"/>
+        <text x="260" y="70" font-size="12" fill="#3d2010" text-anchor="middle" font-family="Georgia,serif" font-style="italic">I_2(s)</text>
+
+        <circle cx="360" cy="50" r="4" fill="#3d2010"/>
+        <text x="360" y="70" font-size="12" fill="#3d2010" text-anchor="middle" font-family="Georgia,serif" font-style="italic">V_o(s)</text>
+
+        <!-- Forward Paths -->
+        <line x1="60" y1="50" x2="155" y2="50" stroke="#3d2010" stroke-width="1.8" marker-end="url(#ex1-arr)"/>
+        <text x="110" y="42" font-size="12" fill="#c95f1a" font-weight="bold" text-anchor="middle">G_1</text>
+
+        <line x1="160" y1="50" x2="255" y2="50" stroke="#3d2010" stroke-width="1.8" marker-end="url(#ex1-arr)"/>
+        <text x="210" y="42" font-size="12" fill="#c95f1a" font-weight="bold" text-anchor="middle">G_2</text>
+
+        <line x1="260" y1="50" x2="355" y2="50" stroke="#3d2010" stroke-width="1.8" marker-end="url(#ex1-arr)"/>
+        <text x="310" y="42" font-size="12" fill="#c95f1a" font-weight="bold" text-anchor="middle">G_3</text>
+
+        <!-- Feedback Path -->
+        <path d="M260,50 Q210,90 165,55" fill="none" stroke="#1e6b68" stroke-width="1.8" marker-end="url(#ex1-arr)"/>
+        <text x="210" y="85" font-size="12" fill="#1e6b68" font-weight="bold" text-anchor="middle">H</text>
+      </svg>
+      <div style="margin:16px 20px; font-size:14px;">
+        <div style="margin-bottom:8px;"><strong>Options:</strong></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div>(a) $\frac{Z_3(s)}{Z_2(s)+Z_3(s)+Z_4(s)} ; \frac{-Z_3(s)}{Z_1(s)+Z_3(s)}$</div>
+          <div>(b) $\frac{-Z_3(s)}{Z_2(s)-Z_3(s)+Z_4(s)} ; \frac{-Z_3(s)}{Z_1(s)+Z_3(s)}$</div>
+          <div>(c) $\frac{Z_3(s)}{Z_2(s)+Z_3(s)+Z_4(s)} ; \frac{Z_3(s)}{Z_1(s)+Z_3(s)}$</div>
+          <div>(d) $\frac{-Z_3(s)}{Z_2(s)-Z_3(s)+Z_4(s)} ; \frac{Z_3(s)}{Z_1(s)+Z_3(s)}$</div>
+        </div>
+      </div>
+    </div>
+    <div class="ex-sol-head">Solution</div>
+    <div class="ex-steps">
+      <div class="ex-step">
+        <strong>Apply KVL in 1st Loop:</strong>
+        $$ V_i(s) = I_1(s)[Z_1(s) + Z_3(s)] - I_2(s)Z_3(s) $$
+        $$ \therefore I_1(s) = V_i(s) \left[ \frac{1}{Z_1(s) + Z_3(s)} \right] + I_2(s) \left[ \frac{Z_3(s)}{Z_1(s) + Z_3(s)} \right] \quad \cdots (1) $$
+      </div>
+      <div class="ex-step">
+        <strong>Apply KVL in 2nd Loop:</strong>
+        $$ [I_2(s) - I_1(s)]Z_3(s) + I_2(s)Z_2(s) + I_2(s)Z_4(s) = 0 $$
+        $$ I_2(s)[Z_2(s) + Z_3(s) + Z_4(s)] = I_1(s)Z_3(s) $$
+        $$ \therefore I_2(s) = \left[ \frac{Z_3(s)}{Z_2(s) + Z_3(s) + Z_4(s)} \right] I_1(s) \quad \cdots (2) $$
+      </div>
+      <div class="ex-step">
+        <strong>From Signal Flow Graph equations:</strong>
+        $$ I_1(s) = V_i(s)G_1(s) + I_2(s)H(s) \quad \cdots (3) $$
+        $$ I_2(s) = G_2(s)I_1(s) \quad \cdots (4) $$
+      </div>
+      <div class="ex-step">
+        <strong>Compare equations (1) &amp; (3) to find $H(s)$:</strong>
+        $$ H(s) = \frac{Z_3(s)}{Z_1(s) + Z_3(s)} $$
+      </div>
+      <div class="ex-step">
+        <strong>Compare equations (2) &amp; (4) to find $G_2(s)$:</strong>
+        $$ G_2(s) = \frac{Z_3(s)}{Z_2(s) + Z_3(s) + Z_4(s)} $$
+      </div>
+    </div>
+    <div class="ex-ans">✔ Ans: (c) — $G_2(s) = \frac{Z_3(s)}{Z_2(s)+Z_3(s)+Z_4(s)}$ and $H(s) = \frac{Z_3(s)}{Z_1(s)+Z_3(s)}$</div>
+  </div>
+  
+  <!-- Example 2 -->
+  
+  
+  <!-- Example 3 -->
+  
+</div>
+
+<!-- STEP 12 -->
+<div class="section" id="s12">
+  <div class="sec-hdr"><span class="sec-num">2.12</span><h2 class="sec-t">Memory Tricks</h2></div>
+  <div class="race-step"><span class="race-num">STEP 12</span><span class="race-label">Retention</span></div>
+  
+  <div class="memory-box">
+    <div class="memory-title">🧠 Mnemonic: The Take-off Shift Rule</div>
+    <div class="memory-item">
+      <div class="memory-key">"After is Over, Before is Direct"</div>
+      <div class="memory-val">
+        • Shifting Take-off point <strong>After</strong> a block -> multiply by $1/G$ (Over G).<br>
+        • Shifting Take-off point <strong>Before</strong> a block -> multiply by $G$ (Direct G).
+      </div>
+    </div>
+  </div>
+  
+  <div class="memory-box">
+    <div class="memory-title">🧠 Mnemonic: The Summing Point Shift Rule</div>
+    <div class="memory-item">
+      <div class="memory-key">"Summing is the Opposite of Take-off"</div>
+      <div class="memory-val">
+        • Shifting Summing point <strong>After</strong> a block -> multiply by $G$ (Direct G).<br>
+        • Shifting Summing point <strong>Before</strong> a block -> multiply by $1/G$ (Over G).
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 13 -->
+<div class="section" id="s13">
+  <div class="sec-hdr"><span class="sec-num">2.13</span><h2 class="sec-t">Interview Questions</h2></div>
+  <div class="race-step"><span class="race-num">STEP 13</span><span class="race-label">Industry</span></div>
+  
+  <p><strong>PSU Interview Question 1:</strong> "Why is negative feedback predominantly used in control systems instead of positive feedback?"</p>
+  <p style="color:var(--teal);"><strong>Your Answer:</strong> "Sir/Madam, negative feedback reduces the overall gain, but it vastly improves system stability, increases bandwidth, and reduces sensitivity to internal parameter variations and external noise disturbances. Positive feedback, on the other hand, drives systems towards instability and is primarily used deliberately in oscillator circuits."</p>
+
+  <p><strong>PSU Interview Question 2:</strong> "If a system is defined as a Signal Flow Graph, does the choice of state variables change the Transfer Function?"</p>
+  <p style="color:var(--teal);"><strong>Your Answer:</strong> "No, sir. A system can have an infinite number of valid state-space representations and therefore infinite physical Signal Flow Graph representations. However, the Transfer Function represents the absolute input-output relationship. By uniqueness, Mason's Gain Formula will yield the exact same Transfer Function for all valid graphs of that system."</p>
+</div>
+
+<!-- STEP 14 -->
+<div class="section" id="s14">
+  <div class="sec-hdr"><span class="sec-num">2.14</span><h2 class="sec-t">Quick Revision Sheet</h2></div>
+  <div class="race-step"><span class="race-num">STEP 14</span><span class="race-label">Revision</span></div>
+  
+  <div class="revision">
+    <div class="revision-title">Chapter 2: BD & SFG Snapshot</div>
+    <div class="rev-grid">
+      <div class="rev-card">
+        <div class="rev-card-h">Negative Feedback</div>
+        <p>$T(s) = \frac{G(s)}{1 + G(s)H(s)}$</p>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-h">Positive Feedback</div>
+        <p>$T(s) = \frac{G(s)}{1 - G(s)H(s)}$</p>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-h">Recovering OLTF</div>
+        <p>$G(s)H(s) = \frac{T(s)}{1 - T(s)}$ (Unity FB)</p>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-h">Mason's Gain</div>
+        <p>$T = \frac{\sum P_k \Delta_k}{\Delta}$</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 15 -->
+<div class="section" id="s15">
+  <div class="sec-hdr"><span class="sec-num">2.15</span><h2 class="sec-t">Summary</h2></div>
+  <div class="race-step"><span class="race-num">STEP 15</span><span class="race-label">Conclusion</span></div>
+  
+  <p>You have now mastered the art of collapsing complex multiloop systems into a single transfer function. Whether using iterative Block Diagram reduction for physical layout intuition, or the highly algorithmic Mason's Gain formula for speed and complex matrices, you can confidently find the exact mathematical relationship between any input and output.</p>
+  <p>Never forget that block diagram reduction rules are nothing but algebraic manipulations. As long as you don't change the physical signal at any tapped point, your reduction is valid!</p>
+  
+  <div class="callout c-tip">
+    <div class="ci">➡️</div>
+    <div class="cb"><div class="ct">Coming Next — Chapter 3</div>
+    <p><strong>Time Domain Analysis:</strong> Now that we know how to find the overall Transfer Function $T(s)$, we will finally apply standard physical test signals (Step, Ramp, Parabola) to these transfer functions and observe how the system actually behaves in real time!</p></div>
+  </div>
+</div>
+
+<div class="nav-strip">
+  <a href="AarovaAI_Ch1_Control_Systems (2).html" class="nav-btn">← Ch.1 Basics of Control Systems</a>
+  <span style="flex:1"></span>
+  <a href="AarovaAI_Ch3_TimeResponse.html" class="nav-btn primary">Ch.3 Time Response Analysis →</a>
+</div>
+
+</div><!-- end .page -->
+
+</body>
+</html>

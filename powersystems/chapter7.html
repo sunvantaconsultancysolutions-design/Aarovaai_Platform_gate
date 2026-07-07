@@ -1,0 +1,3355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Power Systems Ch.3 Per-Unit System, Symmetrical Components &amp; Fault Analysis</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* PROGRESS */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 37.5%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px
+        }
+
+        /* CALLOUTS */
+        .callout {
+            border-radius: 0 10px 10px 0;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* FORMULA */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* MATH */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* SVG */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* EXAMPLES */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px)
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px
+        }
+
+        /* GATE CARDS */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        /* PYQ CARDS */
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* TWO COL */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 18px;
+            border-bottom: 1px solid var(--bg3);
+            display: block;
+            position: relative;
+            line-height: 1.5
+        }
+
+        .mc-list .dot {
+            position: absolute;
+            left: 0;
+            top: 6px;
+            color: inherit;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        /* SUMMARY */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* PROB TAG */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* AI WIDGET */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12)
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none
+        }
+
+        .ai-btn:hover {
+            background: #155250
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg)
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto
+        }
+
+        /* MISC */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border)
+        }
+
+        footer strong {
+            color: var(--orange)
+        }
+
+        /* TABLET */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .svg-wrap {
+                padding: 12px 10px
+            }
+
+            .svg-wrap svg {
+                min-width: 480px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px
+            }
+
+            .pyq-year {
+                margin-left: 0
+            }
+        }
+
+        /* MOBILE */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .hbadges {
+                display: none
+            }
+
+            .site-header {
+                padding: 10px 14px
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px)
+            }
+
+            .hero-desc {
+                font-size: 14px
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px
+            }
+
+            .pl {
+                font-size: 11px
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0
+            }
+
+            .toc {
+                padding: 14px 16px
+            }
+
+            .sec-hdr {
+                gap: 9px
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px)
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px)
+            }
+
+            p {
+                font-size: 15px
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%
+            }
+
+            .svg-cap {
+                font-size: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px;
+                border-radius: 8px
+            }
+
+            .tw {
+                border-radius: 8px
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px
+            }
+
+            .mini-card {
+                padding: 13px 14px
+            }
+
+            .sum-card {
+                padding: 14px 16px
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px
+            }
+
+            .ci {
+                font-size: 16px
+            }
+
+            .cb p {
+                font-size: 13.5px
+            }
+
+            .ex-hdr {
+                padding: 8px 13px
+            }
+
+            .ex-body {
+                padding: 12px 13px
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px
+            }
+
+            .pyq-year {
+                display: none
+            }
+
+            .ai-prompt {
+                padding: 14px
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-input {
+                font-size: 15px
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px
+            }
+
+            .ai-chip {
+                font-size: 11px
+            }
+
+            .ai-suggest {
+                gap: 5px
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px
+            }
+
+            .citations {
+                padding: 14px
+            }
+
+            .math-block {
+                padding: 10px 12px
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px
+            }
+        }
+
+        /* DESKTOP */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow)
+            }
+
+            .ai-btn:hover {
+                background: var(--teal)
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none
+            }
+
+            .svg-wrap {
+                break-inside: avoid
+            }
+
+            body {
+                font-size: 12pt
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Power Systems Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 03 &nbsp;·&nbsp; Power Systems</div>
+            <h1 class="hero-title">Per-Unit System, Symmetrical Components<br>&amp; <em>Fault Analysis</em></h1>
+            <p class="hero-desc">Per-unit normalisation, electrical simulation networks, symmetrical components, the
+                operator K, classification of faults, short-circuit current behaviour, and
+                sub-transient/transient/steady-state reactances — complete GATE, IES and PSU coverage with derivations,
+                solved examples, and previous-year questions.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Follows Ch.2 — Line Constants</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Chapter 3 of 8</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">3.1</span>Why Per-Unit System?</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">3.2</span>Base Quantities &amp; Definitions</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">3.3</span>PU Impedance Formulas</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">3.4</span>Changing PU System Base</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">3.5</span>Symmetrical Components</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">3.6</span>The Operator K (alpha)</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">3.7</span>Classification of Faults</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">3.8</span>Short-Circuit Current Analysis</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">3.9</span>Reactances: X″, X′, Xd</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">3.10</span>Solved Numericals</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">3.11</span>GATE &amp; IES PYQs</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">3.12</span>Quick Revision Sheet</a>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+     SECTION 1 — WHY PER-UNIT SYSTEM?
+════════════════════════════════════════ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">3.1</span>
+                <h2 class="sec-t">Why the Per-Unit System?</h2>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Big Picture</div>
+                    <p>A real power system has generators at 11 kV, step-up transformers to 220 kV, long EHV lines,
+                        step-down transformers to 33 kV, and finally distribution at 6.6 kV — all in one single-line
+                        diagram. Analysing this with actual ohms and amps requires <em>four separate networks</em>, one
+                        per voltage zone. The per-unit (PU) system collapses all of these into a single unified network.
+                    </p>
+                </div>
+            </div>
+
+            <p>In electrical engineering, quantities like voltage, current, impedance, and power can be expressed in two
+                ways: in their <strong>actual units</strong> (volts, amperes, ohms, watts) or as dimensionless
+                <strong>per-unit (PU) values</strong> — ratios relative to a chosen base. This normalisation is the
+                foundation of modern power system analysis.<sup class="cite">[1]</sup>
+            </p>
+
+            <!-- Diagram: Multi-voltage SLD vs PU network -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg"
+                    aria-label="Actual system vs per-unit system">
+                    <defs>
+                        <marker id="arr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <!-- Top label -->
+                    <text x="350" y="22" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Actual System vs Per-Unit System</text>
+
+                    <!-- ACTUAL row -->
+                    <text x="12" y="58" font-family="Lora,serif" font-size="11" fill="#6b3e22"
+                        font-weight="600">Actual</text>
+                    <!-- Gen circle -->
+                    <circle cx="80" cy="65" r="16" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.8" />
+                    <text x="80" y="70" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">G</text>
+                    <text x="80" y="88" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a6e50">11
+                        kV</text>
+                    <!-- T1 box -->
+                    <line x1="96" y1="65" x2="126" y2="65" stroke="#3d2010" stroke-width="1.5" />
+                    <rect x="126" y="54" width="26" height="22" rx="3" fill="#f0e0cc" stroke="#c8a888"
+                        stroke-width="1.5" />
+                    <text x="139" y="68" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#3d2010">T1</text>
+                    <line x1="152" y1="65" x2="220" y2="65" stroke="#3d2010" stroke-width="1.5" />
+                    <text x="186" y="58" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a6e50">220
+                        kV</text>
+                    <!-- T2 box -->
+                    <rect x="220" y="54" width="26" height="22" rx="3" fill="#f0e0cc" stroke="#c8a888"
+                        stroke-width="1.5" />
+                    <text x="233" y="68" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#3d2010">T2</text>
+                    <line x1="246" y1="65" x2="314" y2="65" stroke="#3d2010" stroke-width="1.5" />
+                    <text x="280" y="58" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a6e50">33
+                        kV</text>
+                    <!-- T3 box -->
+                    <rect x="314" y="54" width="26" height="22" rx="3" fill="#f0e0cc" stroke="#c8a888"
+                        stroke-width="1.5" />
+                    <text x="327" y="68" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#3d2010">T3</text>
+                    <line x1="340" y1="65" x2="390" y2="65" stroke="#3d2010" stroke-width="1.5" />
+                    <text x="365" y="58" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a6e50">6.6
+                        kV</text>
+                    <!-- Load box -->
+                    <rect x="390" y="54" width="40" height="22" rx="3" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="410" y="68" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#1e6b68">Load</text>
+                    <!-- Zone brackets -->
+                    <text x="88" y="100" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#9a6e50">Zone 1</text>
+                    <text x="189" y="100" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#9a6e50">Zone 2</text>
+                    <text x="280" y="100" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#9a6e50">Zone 3</text>
+                    <text x="370" y="100" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#9a6e50">Zone 4</text>
+                    <!-- ↓ arrow -->
+                    <text x="350" y="118" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="600">↓ Normalise to PU ↓</text>
+                    <!-- PU row -->
+                    <text x="12" y="155" font-family="Lora,serif" font-size="11" fill="#2d6648"
+                        font-weight="600">PU</text>
+                    <circle cx="80" cy="162" r="16" fill="#dff0e8" stroke="#2d6648" stroke-width="1.8" />
+                    <text x="80" y="167" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#2d6648">G</text>
+                    <line x1="96" y1="162" x2="126" y2="162" stroke="#3d2010" stroke-width="1.5" />
+                    <rect x="126" y="151" width="26" height="22" rx="3" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="139" y="165" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#2d6648">Z₁</text>
+                    <line x1="152" y1="162" x2="250" y2="162" stroke="#3d2010" stroke-width="1.5" />
+                    <rect x="250" y="151" width="26" height="22" rx="3" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="263" y="165" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#2d6648">Z₂</text>
+                    <line x1="276" y1="162" x2="374" y2="162" stroke="#3d2010" stroke-width="1.5" />
+                    <rect x="374" y="151" width="26" height="22" rx="3" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="387" y="165" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#2d6648">Z₃</text>
+                    <line x1="400" y1="162" x2="430" y2="162" stroke="#3d2010" stroke-width="1.5" />
+                    <rect x="430" y="151" width="40" height="22" rx="3" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="450" y="165" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#1e6b68">Load</text>
+                    <!-- annotation -->
+                    <text x="560" y="165" font-family="Lora,serif" font-size="10" fill="#1e6b68"
+                        font-style="italic">Single network!</text>
+                </svg>
+                <p class="svg-cap">Fig 3.1 — Multi-voltage actual system (4 zones) collapses to one unified network in
+                    the PU system.</p>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Actual System — Problems</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Multiple voltage zones → multiple network equations to solve
+                            simultaneously</li>
+                        <li><span class="dot">▸</span>Transformer: Z<sub>primary</sub> ≠ Z<sub>secondary</sub> in ohms →
+                            needs two networks</li>
+                        <li><span class="dot">▸</span>High calculation time; transformer turns ratio appears everywhere
+                        </li>
+                        <li><span class="dot">▸</span>Difficult to compare equipment on different voltage bases</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">PU System — Advantages</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Single equivalent network for the entire SLD — one equation set
+                        </li>
+                        <li><span class="dot">▸</span>Transformer PU impedance same on both sides — ideal element</li>
+                        <li><span class="dot">▸</span>Equipment ratings expressed on a common base for direct comparison
+                        </li>
+                        <li><span class="dot">▸</span>Reduces computation time significantly in load-flow &amp; fault
+                            analysis</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+     SECTION 2 — BASE QUANTITIES
+════════════════════════════════════════ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">3.2</span>
+                <h2 class="sec-t">Base Quantities &amp; PU Definition</h2>
+            </div>
+
+            <p>A <strong>per-unit value</strong> is the ratio of the actual quantity to a chosen base quantity in the
+                same unit. The base is always optional — you choose it for convenience.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Definition</div>
+                $$\text{Per-Unit Quantity} = \frac{\text{Actual (or absolute) quantity in the units}}{\text{Base (or
+                reference) quantity in the same unit}}$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Key Insight</div>
+                    <p>A PU value can be &lt;1.0, &gt;1.0, or exactly 1.0. The magnitude depends entirely on which base
+                        you choose. In a per-unit system, only <strong>two</strong> base quantities are independent
+                        (usually V<sub>base</sub> and VA<sub>base</sub>). All others — I<sub>base</sub> and
+                        Z<sub>base</sub> — are derived.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Selecting Base Quantities</h3>
+            <p>For a 3-phase AC power system, ratings of equipment are specified in volts (V) and volt-amperes (VA). We
+                freely choose V<sub>base</sub> and VA<sub>base</sub>, then derive the rest:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Derived Base Quantities — 3-Phase System</div>
+                $$I_b = \frac{(VA)_b}{\sqrt{3}\,V_b} \quad \text{(base current, line)}$$
+                $$Z_b = \frac{V_b}{{\sqrt{3}\,I_b}} = \frac{(V_b)^2}{(VA)_b} \quad \text{(base impedance, per-phase)}$$
+                $$Z_{PU} = \frac{Z\,[\Omega]}{Z_b} = Z\,[\Omega] \times \frac{(VA)_b}{(V_b)^2}$$
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Mistake</div>
+                    <p>Always use <em>line</em> voltage (kV) as V<sub>base</sub> when working with 3-phase systems. If
+                        given V<sub>phase</sub>, convert to line first: \(V_{line} = \sqrt{3}\,V_{phase}\). Many
+                        students mix these up and get factors of 3 wrong.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Electrical Simulation Network</h3>
+            <p>In any PU system, the entire SLD is replaced by an <strong>electrical simulation network</strong> —
+                impedance (or reactance) and admittance (or susceptance) networks drawn on a per-phase basis, assuming
+                the 3-phase system is balanced with Y-configuration. Each machine and element has a specific equivalent:
+            </p>
+
+            <!-- Simulation network table -->
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Equipment</th>
+                            <th>SLD Symbol</th>
+                            <th>PU Equivalent</th>
+                            <th>Remark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Synchronous Generator</td>
+                            <td>Circle with #</td>
+                            <td class="t-org">Voltage source E∠δ in series with X<sub>PU</sub></td>
+                            <td>R≪X; Z≈jX; rotor flux leads stator flux by δ</td>
+                        </tr>
+                        <tr>
+                            <td>Transformer</td>
+                            <td>Two coupled coils (YY or ΔY)</td>
+                            <td class="t-grn">Series reactance X<sub>PU</sub> — ideal element, no turns ratio</td>
+                            <td>PU Z same on primary &amp; secondary</td>
+                        </tr>
+                        <tr>
+                            <td>Transmission Line</td>
+                            <td>Horizontal bar</td>
+                            <td class="t-tel">Series impedance Z<sub>PU</sub> (or X<sub>PU</sub>)</td>
+                            <td>R+jX in PU; shunt elements added for medium/long line</td>
+                        </tr>
+                        <tr>
+                            <td>Synchronous Motor</td>
+                            <td>Circle with # and arrow</td>
+                            <td class="t-org">Voltage source E∠δ in series with λ<sub>PU</sub></td>
+                            <td>Back-EMF; absorbs real power</td>
+                        </tr>
+                        <tr>
+                            <td>Induction Motor</td>
+                            <td>Rectangle with down arrow</td>
+                            <td class="t-amb">Series X + rotor r'<sub>PU</sub>/s</td>
+                            <td>Slip s appears in equivalent circuit</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="svg-cap" style="margin-top:0">Table 3.1 — Electrical simulation network elements. All impedances
+                expressed in PU. Source: Stevenson [1], Kothari &amp; Nagrath [2].</p>
+
+            <div class="callout c-tip">
+                <div class="ci">✅</div>
+                <div class="cb">
+                    <div class="ct">Why Transformer PU Impedance is the Same on Both Sides</div>
+                    <p>On the primary: \(Z_{PPU} = Z_{P\Omega}/Z_{b,primary}\). On the secondary: \(Z_{SPU} =
+                        Z_{S\Omega}/Z_{b,secondary}\). Since \(Z_{P\Omega} = k^2 Z_{S\Omega}\) (where k = turns ratio)
+                        and \(Z_{b,primary} = k^2\,Z_{b,secondary}\), the k² cancels perfectly — giving Z<sub>PPU</sub>
+                        = Z<sub>SPU</sub>. This is the single most important advantage of the PU system.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+     SECTION 3 — PU IMPEDANCE FORMULAS
+════════════════════════════════════════ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">3.3</span>
+                <h2 class="sec-t">Per-Unit Impedance — Key Formulas <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <h3 class="sub">Standard PU Impedance Formula</h3>
+            <p>In an AC system the rating of equipment is given in voltage V and apparent power (VA or MVA). For large
+                generators rated in MVA at kV:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">PU Impedance — Large Machine (MVA, kV)</div>
+                $$Z_{PU} = Z_\Omega \times \frac{(MVA)_b}{(kV_b)^2} \qquad \cdots (1)$$
+            </div>
+
+            <p>This is the most frequently used formula in GATE and IES. Notice the units: if Z is in ohms,
+                MVA<sub>b</sub> in MVA, and kV<sub>b</sub> in kV, the result is dimensionless per-unit.</p>
+
+            <div class="fblock"><span class="flbl">Formula Derivation Trace</span><span class="fv">Z_PU</span> = <span class="fv">Z_Ω</span> / <span class="fh">Z_base</span>
+<span class="fh">Z_base</span> = (V_b)² / (VA)_b → in engineer's units (kV_b)² / (MVA_b) × 10⁻³
+∴ <span class="fv">Z_PU</span> = <span class="fv">Z_Ω</span> × (MVA)_b / (kV_b)²</div>
+
+            <h3 class="sub">Changing from One PU Base to Another <span class="prob prob-h">🟢 HIGH</span></h3>
+            <p>Equipment datasheets give PU impedance on the equipment's own nameplate base (old base). When adding to a
+                system study, we must convert to the system base (new base). The conversion formula is:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Base Conversion Formula</div>
+                $$Z_{PU,\,new} = Z_{PU,\,old} \times \frac{(MVA)_{new}}{(MVA)_{old}} \times
+                \left(\frac{kV_{old}}{kV_{new}}\right)^2 \qquad \cdots (2)$$
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">Memory Trick — MNVO</div>
+                    <p><strong>M</strong>VA ratio is <em>new/old</em> &nbsp;·&nbsp; <strong>KV</strong> ratio is
+                        <em>old/new</em> (squared). Think: "MVA you want to be <em>new</em>, kV you want to be
+                        <em>old</em>." Write it as: <strong>Z_new = Z_old × (MVA_new / MVA_old) × (kV_old /
+                            kV_new)²</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Delta-Y and PU -->
+            <h3 class="sub">Δ–Y Transformer in PU System</h3>
+            <p>When converting a Δ-connected winding to its 1-φ Y-equivalent for PU analysis, the phase voltage is taken
+                as V<sub>L</sub>/√3 (the Y equivalent). The PU reactance, however, remains identical on both sides —
+                regardless of whether the winding is Δ or Y. This is a powerful feature: the simulation network always
+                looks like a Y-connected circuit.</p>
+
+            <!-- Diagram: Delta-Y PU equivalence -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 500 160" xmlns="http://www.w3.org/2000/svg"
+                    aria-label="Delta-Y transformer PU equivalence">
+                    <!-- Actual delta -->
+                    <text x="100" y="20" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#3d2010"
+                        font-weight="600">Actual Δ–Y Transformer</text>
+                    <!-- Primary delta -->
+                    <polygon points="30,120 70,50 110,120" fill="none" stroke="#c95f1a" stroke-width="2" />
+                    <text x="70" y="145" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#c95f1a">Δ
+                        Primary</text>
+                    <text x="70" y="158" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#9a6e50">V_P = V_L</text>
+                    <!-- Secondary Y -->
+                    <line x1="160" y1="85" x2="160" y2="50" stroke="#2d6648" stroke-width="2" />
+                    <line x1="160" y1="85" x2="145" y2="112" stroke="#2d6648" stroke-width="2" />
+                    <line x1="160" y1="85" x2="175" y2="112" stroke="#2d6648" stroke-width="2" />
+                    <circle cx="160" cy="85" r="3" fill="#2d6648" />
+                    <text x="160" y="145" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#2d6648">Y
+                        Secondary</text>
+                    <text x="160" y="158" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#9a6e50">V_S = V_L/√3</text>
+                    <!-- Arrow -->
+                    <text x="220" y="88" text-anchor="middle" font-family="Lora,serif" font-size="20"
+                        fill="#c95f1a">→</text>
+                    <!-- PU equivalent -->
+                    <text x="380" y="20" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#3d2010"
+                        font-weight="600">PU Equivalent Network</text>
+                    <line x1="295" y1="85" x2="340" y2="85" stroke="#3d2010" stroke-width="2" />
+                    <!-- Inductor symbol -->
+                    <path d="M340,85 q8,-12 16,0 q8,-12 16,0 q8,-12 16,0" fill="none" stroke="#1e6b68"
+                        stroke-width="2" />
+                    <line x1="388" y1="85" x2="430" y2="85" stroke="#3d2010" stroke-width="2" />
+                    <text x="363" y="72" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#1e6b68">X.PU</text>
+                    <text x="295" y="100" font-family="Lora,serif" font-size="9" fill="#9a6e50">n</text>
+                    <text x="430" y="100" font-family="Lora,serif" font-size="9" fill="#9a6e50">n</text>
+                    <line x1="295" y1="95" x2="430" y2="95" stroke="#9a6e50" stroke-width="1" stroke-dasharray="4,3" />
+                    <text x="363" y="145" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#2d6648">Same Z_PU on both sides!</text>
+                </svg>
+                <p class="svg-cap">Fig 3.2 — The Δ–Y transformer is reduced to a single series reactance X<sub>PU</sub>
+                    in the per-unit simulation network. Turns ratio disappears.</p>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+     SECTION 4 — CHANGING BASE
+════════════════════════════════════════ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">3.4</span>
+                <h2 class="sec-t">Converting PU Impedance to New Base</h2>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 3.1</span>
+                    <span class="ex-title">Nameplate to System Base Conversion</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An alternator is rated 100 MVA, 11 kV, with a synchronous reactance X = 1.2 PU on
+                        its nameplate base. Find the PU reactance when the system base is changed to 250 MVA, 13.2 kV.
+                    </div>
+                    <div class="sol-lbl">▶ Solution</div>
+                    <p>Using the base-change formula (Equation 2):</p>
+                    <div class="math-block">
+                        $$X_{PU,\,new} = 1.2 \times \frac{250}{100} \times \left(\frac{11}{13.2}\right)^2$$
+                        $$= 1.2 \times 2.5 \times (0.8333)^2 = 1.2 \times 2.5 \times 0.6944$$
+                        $$= \boxed{2.083 \text{ PU}}$$
+                    </div>
+                    <div class="callout c-tip" style="margin-top:8px">
+                        <div class="ci">✅</div>
+                        <div class="cb">
+                            <div class="ct">Check Your Direction</div>
+                            <p>The new system base is much larger (250 vs 100 MVA) so the reactance in PU should be
+                                larger — it is (2.083 &gt; 1.2). Also the system voltage is higher (13.2 &gt; 11 kV),
+                                which reduces PU reactance — but the MVA increase dominates here. Always do a rough
+                                sanity check.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 3.2</span>
+                    <span class="ex-title">From Ohms to PU — Machine Reactance</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An alternator is rated 200 MVA, 13.2 kV, X = 6 Ω. Find (a) PU reactance on
+                        nameplate base, (b) PU reactance on 400 MVA, 18.2 kV system base.</div>
+                    <div class="sol-lbl">▶ Solution — Part (a)</div>
+                    <div class="math-block">
+                        $$X_{PU} = X_\Omega \times \frac{(MVA)_b}{(kV_b)^2} = 6 \times \frac{200}{(13.2)^2} =
+                        \frac{1200}{174.24} = \boxed{6.88 \text{ PU}}$$
+                    </div>
+                    <div class="sol-lbl">▶ Solution — Part (b) — Change Base</div>
+                    <div class="math-block">
+                        $$X_{PU,\,new} = 6.88 \times \frac{400}{200} \times \left(\frac{13.2}{18.2}\right)^2 = 6.88
+                        \times 2 \times 0.527 = \boxed{7.25 \text{ PU}}$$
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+     SECTION 5 — SYMMETRICAL COMPONENTS
+════════════════════════════════════════ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">3.5</span>
+                <h2 class="sec-t">Symmetrical Components — Fortescue's Theorem <span class="prob prob-h">🟢 HIGH</span>
+                </h2>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">🌍</div>
+                <div class="cb">
+                    <div class="ct">Why We Need Symmetrical Components</div>
+                    <p>Under balanced conditions, only one phase needs analysis (all three are symmetric). But faults —
+                        like a line-to-ground short circuit — create <em>unbalanced</em> voltages and currents.
+                        Fortescue's theorem (1918) proves that any set of N unbalanced phasors can be decomposed into N
+                        sets of balanced phasors. For 3-phase systems, three unbalanced phasors decompose into three
+                        <em>balanced</em> sequence sets.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">The Three Sequence Components</h3>
+            <p>Any unbalanced 3-phase voltage or current (V<sub>R</sub>, V<sub>Y</sub>, V<sub>B</sub>) can be expressed
+                as the sum of three sets of balanced symmetrical components:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Fortescue Decomposition</div>
+                $$V_R = V_{R1} + V_{R2} + V_{R0}$$
+                $$V_Y = V_{Y1} + V_{Y2} + V_{Y0}$$
+                $$V_B = V_{B1} + V_{B2} + V_{B0}$$
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sequence</th>
+                            <th>Name</th>
+                            <th>Phase Order</th>
+                            <th>Characteristics</th>
+                            <th>GATE Importance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1 (Positive)</td>
+                            <td class="t-grn">Positive Sequence</td>
+                            <td>R → Y → B (normal RYB)</td>
+                            <td>Equal magnitudes, 120° apart, same rotation as normal system</td>
+                            <td class="t-grn">Very High</td>
+                        </tr>
+                        <tr>
+                            <td>2 (Negative)</td>
+                            <td class="t-amb">Negative Sequence</td>
+                            <td>R → B → Y (reversed)</td>
+                            <td>Equal magnitudes, 120° apart, opposite rotation</td>
+                            <td class="t-amb">High</td>
+                        </tr>
+                        <tr>
+                            <td>0 (Zero)</td>
+                            <td class="t-red">Zero Sequence</td>
+                            <td>All in phase</td>
+                            <td>Equal magnitudes, 0° apart — all three phases same phasor</td>
+                            <td class="t-grn">Very High</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Sequence component phasor diagram -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg"
+                    aria-label="Three sequence components phasor diagram">
+                    <text x="300" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Three Symmetrical Sequence Components</text>
+
+                    <!-- Positive Sequence -->
+                    <text x="100" y="42" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648"
+                        font-weight="600">Positive Sequence</text>
+                    <line x1="100" y1="110" x2="100" y2="60" stroke="#2d6648" stroke-width="2"
+                        marker-end="url(#arrG)" />
+                    <line x1="100" y1="110" x2="135" y2="138" stroke="#2d6648" stroke-width="2"
+                        marker-end="url(#arrG)" />
+                    <line x1="100" y1="110" x2="65" y2="138" stroke="#2d6648" stroke-width="2"
+                        marker-end="url(#arrG)" />
+                    <text x="100" y="56" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#2d6648">V_R1 (ref)</text>
+                    <text x="148" y="145" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#2d6648">V_Y1</text>
+                    <text x="34" y="145" font-family="JetBrains Mono,monospace" font-size="9" fill="#2d6648">V_B1</text>
+                    <text x="100" y="175" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a6e50"
+                        font-style="italic">R→Y→B, 120° apart</text>
+
+                    <!-- Negative Sequence -->
+                    <text x="300" y="42" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#a05c00"
+                        font-weight="600">Negative Sequence</text>
+                    <line x1="300" y1="110" x2="300" y2="60" stroke="#a05c00" stroke-width="2"
+                        marker-end="url(#arrA)" />
+                    <line x1="300" y1="110" x2="265" y2="138" stroke="#a05c00" stroke-width="2"
+                        marker-end="url(#arrA)" />
+                    <line x1="300" y1="110" x2="335" y2="138" stroke="#a05c00" stroke-width="2"
+                        marker-end="url(#arrA)" />
+                    <text x="300" y="56" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">V_R2</text>
+                    <text x="247" y="145" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">V_Y2</text>
+                    <text x="337" y="145" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">V_B2</text>
+                    <text x="300" y="175" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a6e50"
+                        font-style="italic">R→B→Y, reversed</text>
+
+                    <!-- Zero Sequence -->
+                    <text x="500" y="42" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a2020"
+                        font-weight="600">Zero Sequence</text>
+                    <line x1="500" y1="110" x2="500" y2="60" stroke="#9a2020" stroke-width="2.5"
+                        marker-end="url(#arrR)" />
+                    <line x1="498" y1="110" x2="498" y2="62" stroke="#a05c00" stroke-width="1.5"
+                        marker-end="url(#arrA)" />
+                    <line x1="502" y1="110" x2="502" y2="62" stroke="#2d6648" stroke-width="1.5"
+                        marker-end="url(#arrG)" />
+                    <text x="510" y="58" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a2020">V_R0=V_Y0=V_B0</text>
+                    <text x="500" y="175" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#9a6e50"
+                        font-style="italic">All three in phase</text>
+
+                    <defs>
+                        <marker id="arrG" markerWidth="7" markerHeight="5" refX="5" refY="2.5" orient="auto">
+                            <polygon points="0 0,7 2.5,0 5" fill="#2d6648" />
+                        </marker>
+                        <marker id="arrA" markerWidth="7" markerHeight="5" refX="5" refY="2.5" orient="auto">
+                            <polygon points="0 0,7 2.5,0 5" fill="#a05c00" />
+                        </marker>
+                        <marker id="arrR" markerWidth="7" markerHeight="5" refX="5" refY="2.5" orient="auto">
+                            <polygon points="0 0,7 2.5,0 5" fill="#9a2020" />
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="svg-cap">Fig 3.3 — The three symmetrical sequence components. Positive sequence is normal
+                    balanced, negative is reversed, zero has all three in phase.</p>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Why Power Cannot Be Expressed Using Symmetrical Components</div>
+                    <p>Although voltage and current can be decomposed into symmetrical components, <strong>power
+                            cannot</strong> be directly expressed using them in the same way. Power calculations must
+                        always remain in the original 3-phase domain. This is because power is a product (V × I) and
+                        cross-sequence products don't cancel in the power expression.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+     SECTION 6 — OPERATOR K
+════════════════════════════════════════ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">3.6</span>
+                <h2 class="sec-t">The Operator K (also written α or a) <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>To reduce the nine symmetrical components (3 phases × 3 sequences) to just three unknowns (the R-phase
+                components of each sequence), we use a unit phasor operator <strong>K</strong> — defined as unity
+                magnitude with 120° anti-clockwise phase displacement.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Definition of K</div>
+                $$K = 1\angle 120° = -0.5 + j\,0.866$$
+            </div>
+
+            <h3 class="sub">Powers of K — Must Know by Heart</h3>
+
+            <div class="fblock"><span class="flbl">Key Powers of K — All from memory</span><span class="fv">K </span> =
+                1∠120° = −0.5 + j0.866
+                <span class="fv">K² </span> = 1∠240° = −0.5 − j0.867
+                <span class="fv">K³ </span> = 1∠360° = 1.0 + j0.0 ≡ 1
+                <span class="feq">K⁴ = K³·K = K</span>
+                <span class="feq">K⁵ = K³·K² = K²</span>
+                <span class="feq">K⁶ = K³·K³ = 1</span>
+                <span class="fh">1 + K + K² = 0 (very important identity)</span>
+                <span class="fh">1 + K + K² = 0 → 1 + K² = −K</span>
+            </div>
+
+            <h3 class="sub">Expressing All Components in Terms of R-Phase</h3>
+            <p>Using K, the Y-phase and B-phase components of each sequence can be written in terms of the R-phase
+                components:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Sequence → Phase Transformation</div>
+                $$V_R = V_{R1} + V_{R2} + V_{R0}$$
+                $$V_Y = K^2\,V_{R1} + K\,V_{R2} + V_{R0}$$
+                $$V_B = K\,V_{R1} + K^2\,V_{R2} + V_{R0}$$
+            </div>
+
+            <p>In matrix form (the A-matrix or Fortescue matrix):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Matrix Form — Phase from Sequence</div>
+                $$\begin{bmatrix}V_R\\V_Y\\V_B\end{bmatrix} =
+                \begin{bmatrix}1&1&1\\K^2&K&1\\K&K^2&1\end{bmatrix}\begin{bmatrix}V_{R1}\\V_{R2}\\V_{R0}\end{bmatrix}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Inverse — Sequence from Phase</div>
+                $$V_{R1} = \frac{1}{3}(V_R + K\,V_Y + K^2\,V_B)$$
+                $$V_{R2} = \frac{1}{3}(V_R + K^2\,V_Y + K\,V_B)$$
+                $$V_{R0} = \frac{1}{3}(V_R + V_Y + V_B)$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Important Observation — Zero Sequence</div>
+                    <p>The zero sequence component V<sub>R0</sub> = (V<sub>R</sub> + V<sub>Y</sub> + V<sub>B</sub>)/3.
+                        For a <strong>perfectly balanced</strong> system, the phasors sum to zero → V<sub>R0</sub> = 0.
+                        Zero sequence components only exist when there is a ground path (neutral connection). This is
+                        why zero sequence current flows only in circuits with a neutral or ground connection.</p>
+                </div>
+            </div>
+
+            <!-- K phasor diagram -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 340 180" xmlns="http://www.w3.org/2000/svg" aria-label="Phasor diagram of K operator">
+                    <text x="170" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+                        fill="#1e1208" font-weight="700">The K Operator — Phasor Diagram</text>
+                    <!-- Axes -->
+                    <line x1="170" y1="100" x2="260" y2="100" stroke="#ddc8b0" stroke-width="1" />
+                    <line x1="170" y1="100" x2="80" y2="100" stroke="#ddc8b0" stroke-width="1" />
+                    <line x1="170" y1="30" x2="170" y2="160" stroke="#ddc8b0" stroke-width="1" />
+                    <text x="265" y="104" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">Re</text>
+                    <text x="174" y="28" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">Im</text>
+                    <!-- Unit circle -->
+                    <circle cx="170" cy="100" r="60" fill="none" stroke="#ddc8b0" stroke-width="1"
+                        stroke-dasharray="4,3" />
+                    <!-- K³ = 1 -->
+                    <line x1="170" y1="100" x2="230" y2="100" stroke="#1e6b68" stroke-width="2.5"
+                        marker-end="url(#aT)" />
+                    <text x="230" y="115" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">K³=1</text>
+                    <!-- K = 120° -->
+                    <line x1="170" y1="100" x2="140" y2="48" stroke="#c95f1a" stroke-width="2.5"
+                        marker-end="url(#aO)" />
+                    <text x="125" y="44" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#c95f1a">K∠120°</text>
+                    <!-- K² = 240° -->
+                    <line x1="170" y1="100" x2="140" y2="152" stroke="#2d6648" stroke-width="2.5"
+                        marker-end="url(#aG)" />
+                    <text x="100" y="165" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#2d6648">K²∠240°</text>
+                    <!-- Angle arcs -->
+                    <path d="M230,100 A60,60 0 0,0 140,48" fill="none" stroke="#c95f1a" stroke-width="1"
+                        stroke-dasharray="2,3" />
+                    <text x="230" y="75" font-family="Lora,serif" font-size="9" fill="#c95f1a">120°</text>
+                    <defs>
+                        <marker id="aT" markerWidth="7" markerHeight="5" refX="5" refY="2.5" orient="auto">
+                            <polygon points="0 0,7 2.5,0 5" fill="#1e6b68" />
+                        </marker>
+                        <marker id="aO" markerWidth="7" markerHeight="5" refX="5" refY="2.5" orient="auto">
+                            <polygon points="0 0,7 2.5,0 5" fill="#c95f1a" />
+                        </marker>
+                        <marker id="aG" markerWidth="7" markerHeight="5" refX="5" refY="2.5" orient="auto">
+                            <polygon points="0 0,7 2.5,0 5" fill="#2d6648" />
+                        </marker>
+                    </defs>
+                </svg>
+                <p class="svg-cap">Fig 3.4 — K = 1∠120° rotates a phasor by 120° anti-clockwise. K², K³ are 240° and
+                    360° rotations.</p>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+     SECTION 7 — CLASSIFICATION OF FAULTS
+════════════════════════════════════════ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">3.7</span>
+                <h2 class="sec-t">Classification of Faults <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>The occurrence of a fault in a 3-phase system causes the system to become unbalanced. Faults are broadly
+                classified into two categories:</p>
+
+            <!-- Fault tree diagram -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg" aria-label="Fault classification tree">
+                    <!-- Title -->
+                    <rect x="265" y="10" width="150" height="34" rx="6" fill="#fdebd8" stroke="#c95f1a"
+                        stroke-width="2" />
+                    <text x="340" y="32" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#c95f1a" font-weight="700">FAULTS</text>
+                    <!-- Lines down -->
+                    <line x1="340" y1="44" x2="340" y2="70" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="340" y1="70" x2="155" y2="70" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="340" y1="70" x2="535" y2="70" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="155" y1="70" x2="155" y2="90" stroke="#3d2010" stroke-width="1.5" />
+                    <line x1="535" y1="70" x2="535" y2="90" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- Open circuit box -->
+                    <rect x="75" y="90" width="160" height="34" rx="6" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.8" />
+                    <text x="155" y="112" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="600">Open Circuit (Series)</text>
+                    <!-- Short circuit box -->
+                    <rect x="455" y="90" width="160" height="34" rx="6" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.8" />
+                    <text x="535" y="112" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a2020"
+                        font-weight="600">Short Circuit (Shunt)</text>
+                    <!-- Open circuit sub -->
+                    <line x1="155" y1="124" x2="155" y2="145" stroke="#1e6b68" stroke-width="1.3" />
+                    <line x1="155" y1="145" x2="100" y2="145" stroke="#1e6b68" stroke-width="1.3" />
+                    <line x1="155" y1="145" x2="210" y2="145" stroke="#1e6b68" stroke-width="1.3" />
+                    <line x1="100" y1="145" x2="100" y2="160" stroke="#1e6b68" stroke-width="1.3" />
+                    <line x1="210" y1="145" x2="210" y2="160" stroke="#1e6b68" stroke-width="1.3" />
+                    <text x="100" y="178" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#1e6b68">1-phase open</text>
+                    <text x="100" y="190" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#1e6b68">(conductor melts)</text>
+                    <text x="210" y="178" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#1e6b68">2-phase open</text>
+                    <text x="210" y="190" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#1e6b68">(2 conductors melt)</text>
+                    <!-- Short circuit sub -->
+                    <line x1="535" y1="124" x2="535" y2="145" stroke="#9a2020" stroke-width="1.3" />
+                    <line x1="535" y1="145" x2="390" y2="145" stroke="#9a2020" stroke-width="1.3" />
+                    <line x1="535" y1="145" x2="680" y2="145" stroke="#9a2020" stroke-width="1.3"
+                        stroke-dasharray="0" />
+                    <line x1="390" y1="145" x2="390" y2="160" stroke="#9a2020" stroke-width="1.3" />
+                    <line x1="480" y1="145" x2="480" y2="160" stroke="#9a2020" stroke-width="1.3" />
+                    <line x1="555" y1="145" x2="555" y2="160" stroke="#9a2020" stroke-width="1.3" />
+                    <line x1="645" y1="145" x2="645" y2="160" stroke="#9a2020" stroke-width="1.3" />
+                    <text x="390" y="173" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#9a2020">LG (70%)</text>
+                    <text x="480" y="173" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#a05c00">LL (15%)</text>
+                    <text x="555" y="173" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#a05c00">LLG (10%)</text>
+                    <text x="645" y="173" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#2d6648">LLL/LLLG (5%)</text>
+                    <text x="390" y="185" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7.5"
+                        fill="#9a2020">Most common</text>
+                    <text x="645" y="185" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7.5"
+                        fill="#2d6648">Most severe I_sc</text>
+                </svg>
+                <p class="svg-cap">Fig 3.5 — Complete fault classification tree. LG faults are most frequent; LLL/LLLG
+                    produce the highest fault current.</p>
+            </div>
+
+            <!-- Fault table -->
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fault Type</th>
+                            <th>Abbreviation</th>
+                            <th>% Occurrence</th>
+                            <th>I<sub>SC</sub> Severity</th>
+                            <th>Balanced?</th>
+                            <th>Sequences Involved</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Line to Ground</td>
+                            <td>LG</td>
+                            <td class="t-org">~70%</td>
+                            <td>Less severe</td>
+                            <td>No</td>
+                            <td>+ve, −ve, zero</td>
+                        </tr>
+                        <tr>
+                            <td>Line to Line</td>
+                            <td>LL</td>
+                            <td>~15%</td>
+                            <td>Moderate</td>
+                            <td>No</td>
+                            <td>+ve, −ve only</td>
+                        </tr>
+                        <tr>
+                            <td>Line to Line to Ground</td>
+                            <td>LLG</td>
+                            <td>~10%</td>
+                            <td>Moderate-severe</td>
+                            <td>No</td>
+                            <td>+ve, −ve, zero</td>
+                        </tr>
+                        <tr>
+                            <td>Three Phase (Line to Line to Line)</td>
+                            <td>LLL</td>
+                            <td class="t-grn">~5%</td>
+                            <td class="t-red">Most severe</td>
+                            <td><strong>Yes</strong></td>
+                            <td>+ve only</td>
+                        </tr>
+                        <tr>
+                            <td>Three Phase to Ground</td>
+                            <td>LLLG</td>
+                            <td class="t-grn">~5%</td>
+                            <td class="t-red">Most severe</td>
+                            <td><strong>Yes</strong></td>
+                            <td>+ve only</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="svg-cap" style="margin-top:0">Table 3.2 — Fault types, percentage occurrence, and severity.
+                Source: Stevenson [1], IIT-KGP NPTEL [5].</p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common GATE Trap</div>
+                    <p>Students often confuse "most common" with "most severe." <strong>LG is the most common fault
+                            (70%)</strong> — it occurs most frequently because insulation failure and tree branches are
+                        common single-phase events. But <strong>LLL/LLLG produces the highest fault current</strong> —
+                        because all three phases contribute simultaneously with no zero-sequence path to limit current.
+                        These are opposite facts and GATE explicitly tests this.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Causes of Faults</h3>
+            <div class="two-col">
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Open Circuit (Series) Faults</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Conductor melting due to overloading</li>
+                        <li><span class="dot">▸</span>Switching: circuit breaker opens in one or two phases only</li>
+                        <li><span class="dot">▸</span>Wind effect breaking the conductor</li>
+                        <li><span class="dot">▸</span>If all three phases open simultaneously → no-load condition (not a
+                            fault)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Short Circuit (Shunt) Faults</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Insulation failure (most common cause)</li>
+                        <li><span class="dot">▸</span>Tree branches or animals falling on lines</li>
+                        <li><span class="dot">▸</span>Lightning striking the conductor</li>
+                        <li><span class="dot">▸</span>Accidental contact during maintenance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+     SECTION 8 — SHORT-CIRCUIT CURRENT
+════════════════════════════════════════ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr">
+                <span class="sec-num">3.8</span>
+                <h2 class="sec-t">Short-Circuit Current Analysis <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <h3 class="sub">Short-Circuit on R–L Transmission Line</h3>
+            <p>Consider a transmission line supplied by a synchronous generator, operating at steady state with balanced
+                load. At t = 0, a three-phase short circuit occurs. The capacitance is assumed shorted. The circuit
+                reduces to a series R–L network driven by a sinusoidal source:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Governing Equation</div>
+                $$R\,i + L\frac{di}{dt} = \sqrt{2}\,V\sin(\omega t + \alpha)$$
+            </div>
+
+            <p>The complete solution consists of two components:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Complete Short-Circuit Current</div>
+                $$i = \underbrace{\frac{\sqrt{2}\,V}{Z}\sin(\omega t + \alpha - \phi)}_{i_s\text{ — AC steady-state}} +
+                \underbrace{k\,e^{-t/\tau}}_{i_t\text{ — DC transient}}$$
+            </div>
+
+            <div class="fblock"><span class="flbl">Where</span><span class="fv">Z</span> = √(R² + X²) — impedance of
+                circuit
+                <span class="fv">φ</span> = tan⁻¹(X/R) — impedance angle
+                <span class="fv">τ</span> = L/R — time constant of RL circuit
+                <span class="fv">α</span> = angle of voltage at instant of fault (fault inception angle)
+                <span class="fv">k</span> = −(√2·V/Z)·sin(α − φ) — DC offset magnitude (from initial condition i(0)=0)
+            </div>
+
+            <!-- Short circuit current waveform -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg"
+                    aria-label="Short circuit current waveform showing AC plus DC components">
+                    <text x="320" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Short-Circuit Current Waveform</text>
+                    <!-- Time axis -->
+                    <line x1="40" y1="130" x2="620" y2="130" stroke="#ddc8b0" stroke-width="1.5" />
+                    <line x1="40" y1="30" x2="40" y2="210" stroke="#ddc8b0" stroke-width="1.5" />
+                    <text x="625" y="134" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">t</text>
+                    <text x="44" y="28" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">i</text>
+                    <!-- DC offset curve (exponentially decaying) -->
+                    <path d="M80,130 Q120,60 200,95 Q280,115 360,125 Q440,128 540,130" fill="none" stroke="#9a2020"
+                        stroke-width="1.5" stroke-dasharray="5,3" />
+                    <text x="90" y="58" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a2020">i_t (DC
+                        offset)</text>
+                    <!-- AC symmetric component -->
+                    <path
+                        d="M80,130 Q100,55 130,130 Q160,205 190,130 Q220,55 250,130 Q280,205 310,130 Q340,55 370,130 Q400,205 430,130 Q460,55 490,130 Q520,205 550,130"
+                        fill="none" stroke="#1e6b68" stroke-width="1.5" stroke-dasharray="3,3" />
+                    <text x="490" y="50" font-family="JetBrains Mono,monospace" font-size="9" fill="#1e6b68">i_s (AC
+                        steady)</text>
+                    <!-- Total current (asymmetric) -->
+                    <path
+                        d="M80,130 Q90,35 130,90 Q155,130 170,145 Q200,175 230,135 Q255,90 270,80 Q295,55 320,100 Q345,140 370,135 Q395,120 415,108 Q440,90 460,115 Q485,140 510,130 Q535,115 560,127"
+                        fill="none" stroke="#c95f1a" stroke-width="2.5" />
+                    <text x="90" y="25" font-family="Lora,serif" font-size="10" fill="#c95f1a" font-weight="600">i = i_s
+                        + i_t (Total)</text>
+                    <!-- Period labels -->
+                    <line x1="80" y1="200" x2="160" y2="200" stroke="#9a6e50" stroke-width="1" />
+                    <text x="120" y="215" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#9a6e50">Sub-T</text>
+                    <line x1="160" y1="200" x2="360" y2="200" stroke="#a05c00" stroke-width="1" />
+                    <text x="260" y="215" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#a05c00">Transient (2–5 cycles)</text>
+                    <line x1="360" y1="200" x2="560" y2="200" stroke="#2d6648" stroke-width="1" />
+                    <text x="460" y="215" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#2d6648">Steady State</text>
+                    <!-- Vertical separators -->
+                    <line x1="160" y1="135" x2="160" y2="205" stroke="#9a6e50" stroke-width="0.8"
+                        stroke-dasharray="2,2" />
+                    <line x1="360" y1="135" x2="360" y2="205" stroke="#9a6e50" stroke-width="0.8"
+                        stroke-dasharray="2,2" />
+                </svg>
+                <p class="svg-cap">Fig 3.6 — Total fault current i = i_s (AC component) + i_t (DC offset). The asymmetry
+                    is maximum when α−φ = 90° (maximum DC offset condition).</p>
+            </div>
+
+            <h3 class="sub">DC Offset — Two Special Cases</h3>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Case 1 — No DC Offset</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Condition: α − φ = 0 → α = φ</li>
+                        <li><span class="dot">▸</span>k = 0 → no DC transient</li>
+                        <li><span class="dot">▸</span>Current = pure AC from t = 0</li>
+                        <li><span class="dot">▸</span>Symmetrical short-circuit current</li>
+                        <li><span class="dot">▸</span>Can express fault current in RMS value directly</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Case 2 — Maximum DC Offset</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Condition: α − φ = π/2 (90°)</li>
+                        <li><span class="dot">▸</span>k = −√2·V/Z (maximum possible)</li>
+                        <li><span class="dot">▸</span>Initial current can be nearly double steady-state peak</li>
+                        <li><span class="dot">▸</span>Maximum stress on circuit breaker</li>
+                        <li><span class="dot">▸</span>Determines CB making capacity ratings</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">Why the DC Offset Exists — Physical Intuition</div>
+                    <p>An inductor does not allow sudden changes in current. At t = 0⁻ (just before fault), the current
+                        in the inductor is zero (no load, or we calculate from pre-fault). At t = 0⁺, the AC source
+                        tries to instantly drive a large current — but the inductor forces continuity. The DC offset is
+                        exactly the "correction" term needed to ensure i(0⁺) = i(0⁻). Once established, it decays with
+                        time constant τ = L/R.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Symmetrical Short-Circuit Current (RMS)</h3>
+            <p>When the DC offset is zero (symmetrical fault, no transient), the short-circuit current is purely
+                sinusoidal and can be expressed as an RMS value. This is called the <strong>symmetrical short-circuit
+                    current</strong>:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Symmetrical Fault Current (RMS)</div>
+                $$I_{SC} = \frac{V_{phase}}{Z} = \frac{V_{phase}}{\sqrt{R^2 + X^2}}$$
+                \(\text{For a purely inductive system: } I_{SC} = \frac{V_{phase}}{X}\)
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+     SECTION 9 — X'', X', Xd REACTANCES
+════════════════════════════════════════ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr">
+                <span class="sec-num">3.9</span>
+                <h2 class="sec-t">Sub-Transient, Transient &amp; Steady-State Reactances <span class="prob prob-h">🟢
+                        HIGH</span></h2>
+            </div>
+
+            <p>When a short-circuit occurs at the terminals of a synchronous generator, the AC component of fault
+                current is not constant — it starts very large and decays in three distinct stages. This is because the
+                effective reactance seen by the fault <em>changes with time</em> due to armature reaction and flux
+                linkage changes.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Physical Explanation</div>
+                    <p>The short-circuit current at generator terminals is purely inductive. The stator flux
+                        ϕ<sub>s</sub> (rotating) demagnetises the rotor air-gap flux through armature reaction. To
+                        maintain air-gap flux, the rotor field winding and damper winding provide counter-EMF. As damper
+                        winding currents die out, then field current changes, the effective reactance increases in
+                        stages.</p>
+                </div>
+            </div>
+
+            <!-- Reactance diagram -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg"
+                    aria-label="Synchronous generator equivalent circuit during fault">
+                    <text x="250" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+                        fill="#1e1208" font-weight="700">Synchronous Generator — Equivalent Circuit During Fault</text>
+                    <!-- Source -->
+                    <circle cx="40" cy="110" r="22" fill="#fdebd8" stroke="#c95f1a" stroke-width="2" />
+                    <text x="40" y="107" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#c95f1a">E∠δ</text>
+                    <line x1="62" y1="110" x2="85" y2="110" stroke="#3d2010" stroke-width="1.8" />
+                    <!-- X_l leakage -->
+                    <path d="M85,110 q7,-10 14,0 q7,-10 14,0" fill="none" stroke="#9a2020" stroke-width="2" />
+                    <text x="99" y="96" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a2020">X_l</text>
+                    <line x1="113" y1="110" x2="135" y2="110" stroke="#3d2010" stroke-width="1.8" />
+                    <!-- X_a armature -->
+                    <path d="M135,110 q7,-10 14,0 q7,-10 14,0" fill="none" stroke="#1e6b68" stroke-width="2" />
+                    <text x="149" y="96" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">X_a</text>
+                    <line x1="163" y1="110" x2="185" y2="110" stroke="#3d2010" stroke-width="1.8" />
+                    <!-- Node to field/damper -->
+                    <text x="195" y="114" font-family="JetBrains Mono,monospace" font-size="9" fill="#3d2010">●</text>
+                    <line x1="195" y1="110" x2="195" y2="65" stroke="#3d2010" stroke-width="1.2" />
+                    <line x1="195" y1="110" x2="195" y2="155" stroke="#3d2010" stroke-width="1.2" />
+                    <!-- Field -->
+                    <path d="M195,65 q10,-4.16 0,-8.33 q10,-4.16 0,-8.33 q10,-4.16 0,-8.34" fill="none" stroke="#a05c00" stroke-width="1.8" />
+                    <line x1="195" y1="40" x2="250" y2="40" stroke="#a05c00" stroke-width="1.5" />
+                    <text x="260" y="44" font-family="JetBrains Mono,monospace" font-size="9" fill="#a05c00">X_f (field)</text>
+                    <!-- Damper -->
+                    <path d="M195,155 q8,-10 16,0 q8,-10 16,0" fill="none" stroke="#2d6648" stroke-width="1.8" />
+                    <line x1="227" y1="155" x2="250" y2="155" stroke="#2d6648" stroke-width="1.8" />
+                    <text x="214" y="140" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#2d6648">X_damp</text>
+                    <!-- output -->
+                    <line x1="195" y1="110" x2="430" y2="110" stroke="#3d2010" stroke-width="1.8" />
+                    <text x="440" y="114" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a">I_SC</text>
+                    <!-- Ground -->
+                    <line x1="250" y1="40" x2="250" y2="155" stroke="#a05c00" stroke-width="1" stroke-dasharray="2,2" />
+                    <line x1="240" y1="155" x2="260" y2="155" stroke="#2d6648" stroke-width="1.2" />
+                    <line x1="243" y1="162" x2="257" y2="162" stroke="#2d6648" stroke-width="1" />
+                    <line x1="246" y1="169" x2="254" y2="169" stroke="#2d6648" stroke-width="0.8" />
+                </svg>
+                <p class="svg-cap">Fig 3.7 — Generator equivalent during sub-transient period: damper winding
+                    (X<sub>damp</sub>), field winding (X<sub>f</sub>), armature reactance (X<sub>a</sub>), and leakage
+                    (X<sub>l</sub>) all appear in parallel.</p>
+            </div>
+
+            <h3 class="sub">The Three Reactances — Definitions &amp; Formulas</h3>
+
+            <div class="math-block">
+                <div class="math-lbl">Sub-Transient Reactance X″_d — First cycle (≤ 0.05 s)</div>
+                $$X_d'' = X_l + (X_a \parallel X_f \parallel X_{damp})$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Transient Reactance X′_d — Transient period (2–5 cycles)</div>
+                $$X_d' = X_l + (X_a \parallel X_f)$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Steady-State Reactance X_d — Steady state (&gt; ~30 cycles)</div>
+                $$X_d = X_l + X_a$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Key Inequality — Always True for Salient Pole Machines</div>
+                    <p>$$X_d'' < X_d' < X_d$$</p>
+                            <p>Sub-transient reactance is smallest → sub-transient current is the largest. This is the
+                                current that determines the rating of circuit breakers (interrupting capacity) and the
+                                peak mechanical stress on generator windings.</p>
+                </div>
+            </div>
+
+            <!-- Reactance vs time diagram -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg"
+                    aria-label="AC component of fault current showing three periods">
+                    <text x="320" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">AC Component of Fault Current — Three Periods</text>
+                    <!-- axes -->
+                    <line x1="60" y1="160" x2="610" y2="160" stroke="#ddc8b0" stroke-width="1.5" />
+                    <line x1="60" y1="30" x2="60" y2="170" stroke="#ddc8b0" stroke-width="1.5" />
+                    <text x="615" y="164" font-family="JetBrains Mono,monospace" font-size="8" fill="#9a6e50">t</text>
+                    <text x="64" y="28" font-family="JetBrains Mono,monospace" font-size="8" fill="#9a6e50">i_s</text>
+                    <!-- Current curve (decaying) -->
+                    <path d="M70,40 Q100,42 130,50 Q180,65 230,82 Q290,100 360,118 Q430,130 510,138 Q560,142 600,145"
+                        fill="none" stroke="#c95f1a" stroke-width="2.5" />
+                    <!-- Period dividers -->
+                    <line x1="140" y1="50" x2="140" y2="165" stroke="#9a2020" stroke-width="1" stroke-dasharray="3,3" />
+                    <line x1="310" y1="85" x2="310" y2="165" stroke="#a05c00" stroke-width="1" stroke-dasharray="3,3" />
+                    <!-- Labels for each period -->
+                    <text x="100" y="182" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#9a2020">Sub-Transient</text>
+                    <text x="100" y="193" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#9a2020">X″_d used</text>
+                    <text x="225" y="182" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#a05c00">Transient</text>
+                    <text x="225" y="193" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#a05c00">X′_d used</text>
+                    <text x="460" y="182" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#2d6648">Steady State</text>
+                    <text x="460" y="193" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#2d6648">X_d used</text>
+                    <!-- i_s level annotations -->
+                    <text x="75" y="38" font-family="JetBrains Mono,monospace" font-size="8" fill="#c95f1a">I″
+                        (max)</text>
+                    <text x="540" y="140" font-family="JetBrains Mono,monospace" font-size="8" fill="#c95f1a">I_SS
+                        (min)</text>
+                </svg>
+                <p class="svg-cap">Fig 3.8 — The AC component of fault current decays from sub-transient peak I″ to
+                    transient I′ to steady-state I<sub>SS</sub> as reactance increases.</p>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th>Duration</th>
+                            <th>Reactance Used</th>
+                            <th>Current</th>
+                            <th>Application</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sub-transient</td>
+                            <td>0 – 1 cycle (~0.05 s)</td>
+                            <td class="t-red">X″_d (smallest)</td>
+                            <td class="t-red">I″ (largest)</td>
+                            <td>CB interrupting &amp; making capacity, mechanical stress design</td>
+                        </tr>
+                        <tr>
+                            <td>Transient</td>
+                            <td>2 – 5 cycles</td>
+                            <td class="t-amb">X′_d</td>
+                            <td class="t-amb">I′</td>
+                            <td>CB timing; relay coordination; stability studies</td>
+                        </tr>
+                        <tr>
+                            <td>Steady-State</td>
+                            <td>&gt; 30 cycles</td>
+                            <td class="t-grn">X_d (largest)</td>
+                            <td class="t-grn">I<sub>SS</sub> (smallest)</td>
+                            <td>Thermal rating of equipment; long-term protection</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+     SECTION 10 — SOLVED NUMERICALS
+════════════════════════════════════════ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr">
+                <span class="sec-num">3.10</span>
+                <h2 class="sec-t">Solved Numerical Examples</h2>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 3.3</span>
+                    <span class="ex-title">PU System — Find Base Impedance</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 3-phase system has base values of 11 kV (line) and 100 MVA. Find: (a) Base
+                        current, (b) Base impedance.</div>
+                    <div class="sol-lbl">▶ Solution</div>
+                    <div class="math-block">
+                        $$I_b = \frac{(MVA)_b \times 10^6}{\sqrt{3}\,\times\,kV_b \times 10^3} = \frac{100 \times
+                        10^6}{\sqrt{3} \times 11000} = \frac{10^8}{19053} = \mathbf{5249\text{ A}}$$
+                        $$Z_b = \frac{(kV_b)^2}{(MVA)_b} = \frac{11^2}{100} = \mathbf{1.21\,\Omega}$$
+                    </div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 3.4</span>
+                    <span class="ex-title">DC Offset — Maximum Asymmetry Condition</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 3-phase short circuit occurs on a transmission line with R = 2 Ω and X = 8 Ω.
+                        The supply voltage is 11 kV (line), 50 Hz. Find the maximum possible peak fault current (maximum
+                        DC offset condition).</div>
+                    <div class="sol-lbl">▶ Solution</div>
+                    <div class="math-block">
+                        $$Z = \sqrt{R^2 + X^2} = \sqrt{4 + 64} = \sqrt{68} = 8.25\,\Omega$$
+                        $$V_{phase} = \frac{11000}{\sqrt{3}} = 6351\text{ V}$$
+                        $$I_{SC,sym} = \frac{V_{phase}}{Z} = \frac{6351}{8.25} = 769.8\text{ A (RMS)}$$
+                        $$\text{Peak symmetrical} = \sqrt{2} \times 769.8 = 1088.5\text{ A}$$
+                        $$\text{Max DC offset} = \sqrt{2}\,\frac{V}{Z} = 1088.5\text{ A}$$
+                        $$\boxed{i_{max} = i_{peak,sym} + i_{DC,max} = 1088.5 + 1088.5 = 2177\text{ A (momentary)}}$$
+                    </div>
+                    <div class="callout c-tip" style="margin-top:8px">
+                        <div class="ci">✅</div>
+                        <div class="cb">
+                            <div class="ct">Insight</div>
+                            <p>The maximum possible instantaneous current is exactly twice the peak steady-state
+                                current. This occurs when the fault inception angle satisfies α − φ = 90°. This 2×
+                                factor is used in circuit breaker making capacity calculations.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 3.5</span>
+                    <span class="ex-title">Symmetrical Component Decomposition</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">Three unbalanced phase voltages are: V<sub>R</sub> = 100∠0°, V<sub>Y</sub> =
+                        80∠−100°, V<sub>B</sub> = 120∠130°. Find the positive, negative, and zero sequence components of
+                        the R-phase.</div>
+                    <div class="sol-lbl">▶ Solution</div>
+                    <p>Using K = 1∠120°:</p>
+                    <div class="math-block">
+                        $$V_{R0} = \frac{1}{3}(V_R + V_Y + V_B)$$
+                        $$= \frac{1}{3}(100\angle0° + 80\angle{-100°} + 120\angle130°)$$
+                        $$= \frac{1}{3}(100 + (-13.9 - j78.8) + (-77.2 + j91.9))$$
+                        $$= \frac{1}{3}(8.9 + j13.1) = \mathbf{2.97 + j4.37 \approx 5.3\angle55.8°}$$
+                    </div>
+                    <p>Similarly compute V<sub>R1</sub> and V<sub>R2</sub> using the inverse transformation formulas.
+                        (This is the standard procedure; complete numerical substitution yields the three sequence
+                        voltages.)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+     SECTION 11 — GATE & IES PYQs
+════════════════════════════════════════ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr">
+                <span class="sec-num">3.11</span>
+                <h2 class="sec-t">Previous Year Questions — GATE &amp; IES</h2>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Per-Unit Impedance Base Conversion</span>
+                    <span class="pyq-year">2019</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A generator rated 200 MVA, 20 kV has a reactance of 0.15 PU on its own base. The system base is
+                        100 MVA, 22 kV. The reactance of the generator in per unit on the system base is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 0.075</li>
+                        <li class="correct">(B) 0.0620 ✓</li>
+                        <li>(C) 0.1240</li>
+                        <li>(D) 0.300</li>
+                    </ul>
+                    <div class="callout c-tip" style="margin:10px 0 0">
+                        <div class="ci">✅</div>
+                        <div class="cb">
+                            <div class="ct">Solution</div>
+                            <p>\(X_{new} = 0.15 \times \frac{100}{200} \times \left(\frac{20}{22}\right)^2 = 0.15 \times
+                                0.5 \times 0.826 = 0.0620\text{ PU}\)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">DC Offset and Symmetrical Short-Circuit Current</span>
+                    <span class="pyq-year">2018</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In a short-circuit fault on a transmission line, the DC offset in the fault current depends on:
+                    </p>
+                    <ul class="pyq-opts">
+                        <li>(A) Only the source voltage magnitude</li>
+                        <li class="correct">(B) The angle of fault inception α and the line impedance angle φ ✓</li>
+                        <li>(C) Only the line resistance</li>
+                        <li>(D) The operating frequency</li>
+                    </ul>
+                    <div class="callout c-tip" style="margin:10px 0 0">
+                        <div class="ci">✅</div>
+                        <div class="cb">
+                            <div class="ct">Key</div>
+                            <p>DC offset magnitude k = −(√2·V/Z)·sin(α−φ). It depends on <em>both</em> the fault
+                                inception angle α and the circuit impedance angle φ = tan⁻¹(X/R). Maximum when α−φ =
+                                90°, zero when α = φ.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PYQ 3 — IES -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Sub-transient vs Transient Reactance</span>
+                    <span class="pyq-year">2017</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The sub-transient reactance X″_d of a synchronous generator is used for calculating:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Steady-state stability limit</li>
+                        <li class="correct">(B) The initial fault current immediately after short circuit ✓</li>
+                        <li>(C) The load angle under normal operation</li>
+                        <li>(D) The voltage regulation at full load</li>
+                    </ul>
+                    <div class="callout c-tip" style="margin:10px 0 0">
+                        <div class="ci">✅</div>
+                        <div class="cb">
+                            <div class="ct">Explanation</div>
+                            <p>X″_d (smallest reactance) gives the <em>largest</em> initial fault current. This is used
+                                to size circuit breakers (interrupting &amp; making capacity) and to determine peak
+                                mechanical stress on generator stator windings during the first cycle of the fault.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PYQ 4 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Symmetrical Components — Zero Sequence</span>
+                    <span class="pyq-year">2016</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In a 3-phase balanced system, the zero sequence component of voltage is:</p>
+                    <ul class="pyq-opts">
+                        <li class="correct">(A) Zero ✓</li>
+                        <li>(B) Equal to the positive sequence component</li>
+                        <li>(C) Equal to the negative sequence component</li>
+                        <li>(D) Non-zero and equal in all three phases</li>
+                    </ul>
+                    <div class="callout c-tip" style="margin:10px 0 0">
+                        <div class="ci">✅</div>
+                        <div class="cb">
+                            <div class="ct">Explanation</div>
+                            <p>For a balanced system V<sub>R</sub> + V<sub>Y</sub> + V<sub>B</sub> = 0, so
+                                V<sub>R0</sub> = (V<sub>R</sub>+V<sub>Y</sub>+V<sub>B</sub>)/3 = 0. Zero sequence
+                                components only appear under unbalanced conditions (faults, unsymmetrical loading).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PYQ 5 — IES -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Most Frequent vs Most Severe Fault</span>
+                    <span class="pyq-year">2015</span>
+                </div>
+                <div class="pyq-body">
+                    <p>Which of the following statements is correct regarding faults in a 3-phase power system?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) LLL fault is the most common; LG fault produces maximum fault current</li>
+                        <li class="correct">(B) LG fault is most common (70%); LLL fault produces maximum fault current
+                            ✓</li>
+                        <li>(C) Both LG and LLL faults occur with equal frequency</li>
+                        <li>(D) LL fault is the most common</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- GATE insight card -->
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">High-Probability Topics in this Chapter</span>
+                </div>
+                <div class="gate-body">
+                    <div class="tw">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Topic</th>
+                                    <th>GATE Freq.</th>
+                                    <th>IES Freq.</th>
+                                    <th>Type of Questions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Base change formula — Eq.(2)</td>
+                                    <td class="t-grn">Every year</td>
+                                    <td class="t-grn">Very common</td>
+                                    <td>1-mark numerical</td>
+                                </tr>
+                                <tr>
+                                    <td>K operator powers &amp; identities</td>
+                                    <td class="t-grn">Almost every year</td>
+                                    <td class="t-grn">Very common</td>
+                                    <td>MCQ + 2-mark</td>
+                                </tr>
+                                <tr>
+                                    <td>Fault type — occurrence vs severity</td>
+                                    <td class="t-org">Alternate years</td>
+                                    <td class="t-grn">Very common</td>
+                                    <td>MCQ conceptual</td>
+                                </tr>
+                                <tr>
+                                    <td>DC offset condition (max/zero)</td>
+                                    <td class="t-org">Every 2–3 years</td>
+                                    <td class="t-amb">Occasional</td>
+                                    <td>2-mark numerical</td>
+                                </tr>
+                                <tr>
+                                    <td>X″_d / X′_d / X_d — application</td>
+                                    <td class="t-grn">Every year</td>
+                                    <td class="t-grn">Very common</td>
+                                    <td>MCQ + conceptual</td>
+                                </tr>
+                                <tr>
+                                    <td>Zero sequence — existence condition</td>
+                                    <td class="t-org">Alternate years</td>
+                                    <td class="t-grn">Common</td>
+                                    <td>MCQ conceptual</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+     SECTION 12 — QUICK REVISION SHEET
+════════════════════════════════════════ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr">
+                <span class="sec-num">3.12</span>
+                <h2 class="sec-t">Quick Revision Sheet — One Page</h2>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">PU Basics</div>
+                    <p>PU = Actual/Base. Choose V<sub>b</sub> &amp; VA<sub>b</sub> freely. Derive I<sub>b</sub> =
+                        VA<sub>b</sub>/(√3 V<sub>b</sub>), Z<sub>b</sub> = V<sub>b</sub>²/VA<sub>b</sub>. Z<sub>PU</sub>
+                        = Z<sub>Ω</sub>·MVA<sub>b</sub>/(kV<sub>b</sub>)². Transformer PU-Z same on both sides.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Base Change</div>
+                    <p>Z<sub>new</sub> = Z<sub>old</sub> × (MVA<sub>new</sub>/MVA<sub>old</sub>) ×
+                        (kV<sub>old</sub>/kV<sub>new</sub>)². MVA ratio = new/old. kV ratio = old/new. Memorise:
+                        <strong>MNVO</strong>.
+                    </p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Symmetrical Components</div>
+                    <p>V<sub>R</sub> = V<sub>R1</sub>+V<sub>R2</sub>+V<sub>R0</sub>. V<sub>Y</sub> =
+                        K²V<sub>1</sub>+KV<sub>2</sub>+V<sub>0</sub>. V<sub>B</sub> =
+                        KV<sub>1</sub>+K²V<sub>2</sub>+V<sub>0</sub>. Inverse:
+                        V<sub>R1</sub>=(V<sub>R</sub>+KV<sub>Y</sub>+K²V<sub>B</sub>)/3.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">K Operator</div>
+                    <p>K = 1∠120°. K² = 1∠240° = −0.5−j0.867. K³ = 1. <strong>1+K+K² = 0</strong>. K⁴=K, K⁵=K², K⁶=1.
+                        Zero sequence exists only with neutral/ground path.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Fault Types</div>
+                    <p>LG: 70% (most common), less severe. LL: 15%. LLG: 10%. LLL: 5% (least common), most severe
+                        I<sub>SC</sub>. Open circuit: 3-phase open = no fault (no load).</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Short-Circuit Current</div>
+                    <p>i = i<sub>s</sub> + i<sub>t</sub>. DC offset k = −(√2V/Z)sin(α−φ). Zero DC: α=φ. Max DC: α−φ=90°.
+                        Peak max = 2× peak symmetric. I<sub>SC</sub> = V/Z (RMS, symmetric).</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Generator Reactances</div>
+                    <p>X″_d &lt; X′_d &lt; X_d. Sub-transient: 1st cycle, largest I. Transient: 2–5 cycles.
+                        Steady-state: &gt;30 cycles, smallest I. X″_d used for CB rating; X_d for steady-state analysis.
+                    </p>
+                </div>
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Simulation Network</div>
+                    <p>Generator → V source + X<sub>PU</sub>. Transformer → single X<sub>PU</sub> (no turns ratio). Line
+                        → Z<sub>PU</sub>. Motor → V source + X<sub>PU</sub>. All in Y, per-phase, at PU values.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Common Exam Traps</div>
+                    <p>LG ≠ most severe (it's most common). Max DC ≠ 2×RMS (it's 2×peak = 2√2×RMS). PU transformer Z =
+                        same on both sides (not different). Use kV_line (not phase) in formulas.</p>
+                </div>
+            </div>
+
+            <!-- AI Tutor Widget -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI — Chapter 3 Tutor</div>
+                <p>Ask any question about per-unit system, symmetrical components, fault analysis, DC offset, or
+                    generator reactances. Try the suggested questions below.</p>
+                <div class="ai-input-row">
+                    <input type="text" class="ai-input" id="userQ"
+                        placeholder="e.g. Why is X″_d used for circuit breaker rating?" autocomplete="off"
+                        autocorrect="off" spellcheck="false" />
+                    <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('Derive the formula for Z_PU = Z_Ω × MVA_b / (kV_b)² from first principles — show each step clearly.')">Derive
+                        Z_PU formula</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Prove that the PU impedance of a transformer is the same on both primary and secondary sides. Show the mathematics with turns ratio k.')">Transformer
+                        PU proof</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain what happens physically in a synchronous generator during a 3-phase short circuit — why does fault current decrease from sub-transient to steady state?')">Generator
+                        fault physics</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Why does zero sequence current only flow in circuits with a neutral or ground connection? Explain with phasor diagram.')">Zero
+                        sequence &amp; neutral</span>
+                    <span class="ai-chip"
+                        onclick="setQ('A generator rated 500 MVA, 22 kV has X = 0.25 PU. System base is 1000 MVA, 20 kV. Find new PU reactance and explain why it changed.')">Base
+                        change example</span>
+                    <span class="ai-chip"
+                        onclick="setQ('What is the maximum possible peak fault current if supply voltage is 33 kV (line), circuit Z = 5+j20 Ω per phase? Show the maximum DC offset calculation.')">Max
+                        peak fault current</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <!-- Summary coming next -->
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 4</div>
+                    <p>Performance of Transmission Lines — short line (series impedance model), medium line (nominal-π
+                        and nominal-T), long line (distributed parameters, hyperbolic functions), ABCD parameters,
+                        voltage regulation, transmission efficiency, charging current, and the Ferranti effect with
+                        complete GATE &amp; IES derivations.</p>
+                </div>
+            </div>
+
+            <!-- Citations -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                    the following standard textbooks and learning resources. All explanations, derivations, diagrams,
+                    and examples are original to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Stevenson, William D. <em>Elements of Power System
+                                Analysis</em>, 4th ed. McGraw-Hill, 1982. Chapters 9–11 — Per-unit system, symmetrical
+                            components, and fault calculations.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Kothari, D.P. and Nagrath, I.J. <em>Modern Power System
+                                Analysis</em>, 4th ed. Tata McGraw-Hill, 2011. Chapters 9–10 — Symmetrical and
+                            unsymmetrical fault analysis.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Wadhwa, C.L. <em>Electrical Power Systems</em>, 6th ed.
+                            New Age International, 2012. Chapters 9–11 — Per-unit system, symmetrical components, fault
+                            analysis.</span></li>
+                    <li><span class="cite-num">[4]</span><span>IIT Kharagpur NPTEL. <em>Power Systems Engineering —
+                                Lectures 20–28: Fault Analysis</em>. National Programme on Technology Enhanced Learning.
+                            nptel.ac.in. Symmetrical components, fault types, generator reactances.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Power Systems Series &nbsp;·&nbsp; Chapter 3 of 8<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations,
+                    derivations, and diagrams are original to Aarova AI. Derived from standard textbooks [1–4].</span>
+            </footer>
+        </div><!-- /.section -->
+
+    </div><!-- /.page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Power Systems. Topic: Per-Unit System, Symmetrical Components, and Fault Analysis (Chapter 3). Cover per-unit normalisation, base quantities, base change formula, Fortescue theorem, K operator, fault types, short-circuit current, DC offset, and generator reactances (X-double-prime, X-prime, Xd). Answer with step-by-step working for numericals. Base answers on Stevenson, Kothari & Nagrath, Wadhwa. All explanations are original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Mobile SVG scroll hints */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

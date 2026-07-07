@@ -1,0 +1,3121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — PS Ch.2 Reactive Power Control &amp; Underground Cables</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']],
+                tags: 'ams'
+            },
+            options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 20%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h4.subsub {
+            font-family: 'Lora', serif;
+            font-size: clamp(14px, 2vw, 16px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: 16px 0 8px;
+            padding-left: 12px;
+            border-left: 3px solid var(--border2);
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        ul.content-list {
+            margin: 10px 0 14px 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        ul.content-list li {
+            font-size: clamp(13.5px, 1.9vw, 16px);
+            color: var(--text2);
+            padding: 5px 0 5px 22px;
+            position: relative;
+            line-height: 1.72;
+        }
+
+        ul.content-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--orange-lt);
+            font-size: 12px;
+            top: 7px;
+        }
+
+        ol.content-ol {
+            margin: 10px 0 14px 0;
+            padding-left: 22px;
+        }
+
+        ol.content-ol li {
+            font-size: clamp(13.5px, 1.9vw, 16px);
+            color: var(--text2);
+            padding: 4px 0;
+            line-height: 1.72;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .fblock .MathJax {
+            font-size: 1.1em !important;
+        }
+
+        mjx-container {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        .sol-step {
+            display: flex;
+            gap: 10px;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--bg3);
+        }
+
+        .sol-step:last-child {
+            border-bottom: none;
+        }
+
+        .sol-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--orange);
+            background: var(--orange-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            height: fit-content;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+
+        .sol-t {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            line-height: 1.72;
+        }
+
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        .ans-reveal {
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--green);
+            background: var(--green-bg);
+            border: 1px solid var(--green-bdr);
+            padding: 3px 10px;
+            border-radius: 5px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 20px;
+            border-bottom: 1px solid var(--bg3);
+            position: relative;
+            display: block;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            position: absolute;
+            left: 0;
+            top: 6px;
+        }
+
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        .prob-high::after {
+            content: '🟢 High Probability';
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-med::after {
+            content: '🟡 Medium Probability';
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-low::after {
+            content: '🔴 Low Probability';
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+        }
+
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div>
+            <span class="logo">Aarova AI<span class="logo-sub">— Power Systems</span></span>
+        </div>
+        <div class="hbadges">
+            <span class="hbadge">Ch.2</span>
+            <span class="hbadge">GATE EE</span>
+            <span class="hbadge">IES/ESE</span>
+            <span class="hbadge">PSU</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <section class="hero">
+            <div class="eyebrow">Power Systems · Chapter 2</div>
+            <h1 class="hero-title">Reactive Power <em>Control</em> &amp; Underground Cables</h1>
+            <p class="hero-desc">Master voltage regulation, reactive compensation devices — shunt capacitors, shunt
+                reactors, series capacitors, synchronous condensers — and the complete theory of underground cables.
+                High-yield GATE and IES topics with deep conceptual derivations, SVG diagrams, and PYQs.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge badge-p">IES/ESE</span>
+                <span class="badge">PSU Interview</span>
+                <span class="badge">ACE Academy Notes</span>
+                <span class="badge">Ch. 2 — Pages 42–52</span>
+            </div>
+        </section>
+
+        <div class="progress-bar">
+            <span class="pl">Course Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Ch 2 / 10</span>
+        </div>
+
+        <nav class="toc" aria-label="Chapter contents">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a class="toc-item" href="#sec1"><span class="toc-n">01</span>Why Reactive Power Matters</a>
+                <a class="toc-item" href="#sec2"><span class="toc-n">02</span>Reactive Power — Core Theory</a>
+                <a class="toc-item" href="#sec3"><span class="toc-n">03</span>Shunt Capacitor</a>
+                <a class="toc-item" href="#sec4"><span class="toc-n">04</span>Shunt Reactor</a>
+                <a class="toc-item" href="#sec5"><span class="toc-n">05</span>Series Capacitor</a>
+                <a class="toc-item" href="#sec6"><span class="toc-n">06</span>Synchronous Condenser &amp; Coil</a>
+                <a class="toc-item" href="#sec7"><span class="toc-n">07</span>Underground Cables — Theory</a>
+                <a class="toc-item" href="#sec8"><span class="toc-n">08</span>Cable Dielectric Stress &amp; Grading</a>
+                <a class="toc-item" href="#sec9"><span class="toc-n">09</span>Numerical Examples</a>
+                <a class="toc-item" href="#sec10"><span class="toc-n">10</span>GATE &amp; IES PYQs</a>
+                <a class="toc-item" href="#sec11"><span class="toc-n">11</span>Memory Tricks &amp; Mnemonics</a>
+                <a class="toc-item" href="#sec12"><span class="toc-n">12</span>Quick Revision Sheet</a>
+                <a class="toc-item" href="#sec13"><span class="toc-n">13</span>References</a>
+            </div>
+        </nav>
+
+        <!-- ══════════════════════════════════
+     SECTION 1 — WHY REACTIVE POWER MATTERS
+══════════════════════════════════ -->
+        <section class="section" id="sec1">
+            <div class="sec-hdr">
+                <span class="sec-num">01</span>
+                <h2 class="sec-t">Why Reactive Power Matters</h2>
+            </div>
+
+            <p>Imagine you order a glass of beer at a restaurant. The glass contains actual beer (the useful part) and
+                foam at the top (the useless part that takes up space). In electrical engineering, <strong>real power
+                    (P)</strong> is the beer — it does actual work. <strong>Reactive power (Q)</strong> is the foam — it
+                sloshes back and forth between source and load, doing no net work but occupying current-carrying
+                capacity in every wire and transformer.</p>
+
+            <p>Every induction motor, transformer, and fluorescent light ballast in the grid <em>demands</em> this foam.
+                If you don't manage it, your voltage profile collapses, lines overheat, and the grid becomes unstable.
+                Reactive power control is therefore the art of minimising the foam while maintaining healthy voltages
+                everywhere.</p>
+
+            <div class="callout c-key">
+                <span class="ci">⚡</span>
+                <div class="cb">
+                    <div class="ct">The Fundamental Problem</div>
+                    <p>Reactive power cannot be transmitted economically over long distances — each km of line consumes
+                        reactive power proportional to \(I^2 X_L\). The solution is to <strong>generate Q
+                            locally</strong>, close to the load, using compensation devices.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Reactive Nature of Electrical Equipment</h3>
+            <p>Understanding which equipment absorbs Q (sink) and which generates Q (source) is the first step. The
+                table below is a high-frequency GATE topic:</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Equipment</th>
+                            <th>Reactive Power Nature</th>
+                            <th>Condition</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Induction Motor</td>
+                            <td class="t-red">Absorbs Q (Sink)</td>
+                            <td>Always — needs magnetising current</td>
+                        </tr>
+                        <tr>
+                            <td>Transformer</td>
+                            <td class="t-red">Absorbs Q (Sink)</td>
+                            <td>Always — due to leakage reactance</td>
+                        </tr>
+                        <tr>
+                            <td>Transmission Line</td>
+                            <td class="t-amb">Sink</td>
+                            <td>Loading &gt; SIL (heavy load)</td>
+                        </tr>
+                        <tr>
+                            <td>Transmission Line</td>
+                            <td class="t-grn">Source</td>
+                            <td>Loading &lt; SIL (light/no load) — Ferranti effect</td>
+                        </tr>
+                        <tr>
+                            <td>Underground Cable</td>
+                            <td class="t-grn">Always Source</td>
+                            <td>High charging capacitance dominates</td>
+                        </tr>
+                        <tr>
+                            <td>Sync. Generator (Over-excited)</td>
+                            <td class="t-grn">Source of Q (lagging pf)</td>
+                            <td>|E| &gt; |V|</td>
+                        </tr>
+                        <tr>
+                            <td>Sync. Generator (Under-excited)</td>
+                            <td class="t-red">Sink of Q (leading pf)</td>
+                            <td>|E| &lt; |V|</td>
+                        </tr>
+                        <tr>
+                            <td>Sync. Motor (Over-excited)</td>
+                            <td class="t-grn">Source of Q (leading pf)</td>
+                            <td>|E| &gt; |V|</td>
+                        </tr>
+                        <tr>
+                            <td>Sync. Motor (Under-excited)</td>
+                            <td class="t-red">Sink of Q (lagging pf)</td>
+                            <td>|E| &lt; |V|</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-info">
+                <span class="ci">💡</span>
+                <div class="cb">
+                    <div class="ct">Memory Anchor</div>
+                    <p><strong>"GUM"</strong> — Generator Under-excited → Must absorb Q. Generator Over-excited → Must
+                        supply Q. Same logic applies to synchronous motors but roles swap.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 2 — CORE THEORY
+══════════════════════════════════ -->
+        <section class="section" id="sec2">
+            <div class="sec-hdr">
+                <span class="sec-num">02</span>
+                <h2 class="sec-t">Reactive Power — Core Theory &amp; Voltage Relationship</h2>
+            </div>
+
+            <h3 class="sub">The Receiving End Voltage Equation</h3>
+            <p>Consider a simple lossless line with series reactance \(X\) connecting a sending end
+                \(|V_s|\angle\delta\) to a receiving end \(|V_r|\angle 0°\). The complex power at the sending end is:
+            </p>
+
+            <div class="fblock">
+                <span class="flbl">Sending End Complex Power</span>
+                \[\bar{S}_s = P_s + jQ_s = \bar{V}_s \bar{I}_s^*\]
+            </div>
+
+            <p>After expanding (derivation shown below), the reactive power at the sending end simplifies — assuming the
+                system is stable so \(\cos\delta \approx 1\) — to:</p>
+
+            <div class="fblock">
+                <span class="flbl">Net Reactive Power &amp; Receiving End Voltage</span>
+                \[Q_s = \frac{|V_s|}{X}\bigl(|V_s| - |V_r|\bigr)\]
+                \[\boxed{|V_r| = |V_s| - \frac{X}{|V_s|} Q_s}\]
+            </div>
+
+            <p>This is the single most important equation in reactive power control. It tells us:</p>
+            <ul class="content-list">
+                <li>When \(Q_s &gt; 0\) (net reactive power flowing into the line from source), \(|V_r| &lt; |V_s|\) —
+                    voltage drops.</li>
+                <li>When \(Q_s &lt; 0\) (net reactive power returning to source), \(|V_r| &gt; |V_s|\) — voltage rises
+                    (Ferranti-like condition).</li>
+                <li>To raise \(|V_r|\) without changing \(|V_s|\): <em>inject reactive power at the load bus</em>
+                    (reduce \(Q_s\)).</li>
+            </ul>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" font-family="'Lora',serif">
+                    <!-- Bus bars -->
+                    <rect x="30" y="70" width="8" height="60" fill="#c95f1a" rx="3" />
+                    <rect x="662" y="70" width="8" height="60" fill="#1e6b68" rx="3" />
+                    <!-- Line -->
+                    <line x1="38" y1="100" x2="280" y2="100" stroke="#3d2010" stroke-width="2.5" />
+                    <!-- jX box -->
+                    <rect x="280" y="80" width="140" height="40" fill="#f8ede0" stroke="#ddc8b0" stroke-width="1.5"
+                        rx="6" />
+                    <text x="350" y="98" text-anchor="middle" font-size="13" fill="#c95f1a" font-style="italic">j</text>
+                    <text x="360" y="98" text-anchor="middle" font-size="13" fill="#3d2010">X</text>
+                    <text x="350" y="113" text-anchor="middle" font-size="10" fill="#9a6e50">(Series Reactance)</text>
+                    <line x1="420" y1="100" x2="662" y2="100" stroke="#3d2010" stroke-width="2.5" />
+                    <!-- Return wire -->
+                    <line x1="38" y1="140" x2="662" y2="140" stroke="#9a6e50" stroke-width="1.5"
+                        stroke-dasharray="6,4" />
+                    <!-- Labels -->
+                    <text x="34" y="66" text-anchor="middle" font-size="12" font-weight="600"
+                        fill="#c95f1a">|Vs|∠δ</text>
+                    <text x="666" y="66" text-anchor="middle" font-size="12" font-weight="600"
+                        fill="#1e6b68">|Vr|∠0°</text>
+                    <!-- Current arrow -->
+                    <defs>
+                        <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                            <path d="M0,0 L8,3 L0,6 Z" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <line x1="100" y1="88" x2="200" y2="88" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr)" />
+                    <text x="150" y="82" text-anchor="middle" font-size="11" fill="#c95f1a">I →</text>
+                    <!-- Q annotation -->
+                    <text x="350" y="170" text-anchor="middle" font-size="11" fill="#6b3e22">Ps + jQs flows from Vs
+                        towards Vr</text>
+                </svg>
+                <div class="svg-cap">Fig 2.1 — Simple lossless transmission line model for reactive power analysis</div>
+            </div>
+
+            <h3 class="sub">Complete Derivation of the Voltage Equation</h3>
+            <p>Starting from the definition of complex power at the sending end:</p>
+            <div class="fblock">
+                <span class="flbl">Step-by-step Derivation</span>
+                \[\bar{S}_s = \bar{V}_s \bar{I}_s^* \quad\text{where}\quad \bar{I}_s = \frac{\bar{V}_s -
+                \bar{V}_r}{jX}\]
+                \[\bar{S}_s = |V_s|\angle\delta \cdot \left(\frac{|V_s|\angle\delta - |V_r|\angle 0°}{jX}\right)^*\]
+                \[Q_s = \frac{|V_s|^2}{X}\sin 90° - \frac{|V_s||V_r|}{X}\sin(90°+\delta)\]
+                \[Q_s = \frac{|V_s|^2}{X} - \frac{|V_s||V_r|}{X}\cos\delta\]
+                \[\text{Since system is stable, }\cos\delta \approx 1:\]
+                \[Q_s \approx \frac{|V_s|}{X}\bigl(|V_s| - |V_r|\bigr)\]
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 3 — SHUNT CAPACITOR
+══════════════════════════════════ -->
+        <section class="section" id="sec3">
+            <div class="sec-hdr">
+                <span class="sec-num">03</span>
+                <h2 class="sec-t">Shunt Capacitor — Power Factor Correction Device</h2>
+            </div>
+
+            <p>A shunt capacitor is connected in parallel with the load. Think of it as a local Q-factory: it generates
+                leading reactive power right at the load bus, so the line upstream no longer needs to carry that Q from
+                the distant generator. The result is reduced line current, improved voltage profile, and lower losses.
+            </p>
+
+            <div class="callout c-tip">
+                <span class="ci">🎯</span>
+                <div class="cb">
+                    <div class="ct">Key Insight</div>
+                    <p>A shunt capacitor is primarily a <strong>power factor correction device</strong>, not a voltage
+                        control device. The improvement in power factor is much larger compared to the improvement in
+                        voltage. It does <em>not</em> change real power demand.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Before &amp; After — Voltage Profile</h3>
+            <p>Without the shunt capacitor, the full reactive load current flows from the source through the line:</p>
+            <div class="fblock">
+                <span class="flbl">Without Shunt Capacitor</span>
+                \[|V_{r1}| = |V_s| - \frac{X}{|V_s|} Q_{\text{load}} \quad \Rightarrow \quad |V_{r1}| < |V_s|\] </div>
+                    <p>With the shunt capacitor supplying \(Q_{\text{shcap}}\) locally at the load bus:</p>
+                    <div class="fblock">
+                        <span class="flbl">With Shunt Capacitor</span>
+                        \[Q_s = Q_{\text{load}} - Q_{\text{shcap}}\]
+                        \[|V_{r2}| = |V_s| - \frac{X}{|V_s|}\bigl(Q_{\text{load}} - Q_{\text{shcap}}\bigr) \quad
+                        \Rightarrow \quad |V_{r2}| > |V_{r1}|\]
+                    </div>
+
+                    <div class="callout c-warn">
+                        <span class="ci">⚠️</span>
+                        <div class="cb">
+                            <div class="ct">Economic Constraint</div>
+                            <p>It is economical to keep \(|V_{r2}| \leq |V_s|\). Compensating fully so \(|V_{r2}| =
+                                |V_s|\) requires an extremely large (and expensive) capacitor bank, since \(Q_s\) must
+                                become zero.</p>
+                        </div>
+                    </div>
+
+                    <h3 class="sub">Reactive Power Supplied by Shunt Capacitor</h3>
+                    <p>When power factor is improved from \(\phi_1\) to \(\phi_2\) for a load consuming real power
+                        \(P\):</p>
+                    <div class="fblock">
+                        <span class="flbl">GATE Formula — Shunt Capacitor Rating</span>
+                        \[\boxed{Q_{\text{shcap}} = P(\tan\phi_1 - \tan\phi_2)}\]
+                        \[\text{For 3-phase operation: } Q_{\text{shcap}}(3\phi) = 3\,V_{ph}^2\,\omega C/\text{ph}
+                        \propto V^2 f\]
+                        \[\text{Capacitance: } C/\text{ph} = \frac{Q_{\text{shcap}}(3\phi)}{3\,V_{ph}^2\,\omega}\]
+                    </div>
+
+                    <div class="callout c-info">
+                        <span class="ci">📐</span>
+                        <div class="cb">
+                            <div class="ct">Circuit Connection</div>
+                            <p>Shunt capacitors are almost always connected in <strong>delta configuration</strong> in
+                                practice (not star), because delta connection gives a 3× higher Q for the same capacitor
+                                value.</p>
+                        </div>
+                    </div>
+
+                    <!-- SVG: Phasor diagram for power factor improvement -->
+                    <div class="svg-wrap svg-simple">
+                        <svg viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg" font-family="'Lora',serif">
+                            <defs>
+                                <marker id="a1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                    <path d="M0,0 L8,3 L0,6 Z" fill="#c95f1a" />
+                                </marker>
+                                <marker id="a2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                    <path d="M0,0 L8,3 L0,6 Z" fill="#1e6b68" />
+                                </marker>
+                                <marker id="a3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                    <path d="M0,0 L8,3 L0,6 Z" fill="#2d6648" />
+                                </marker>
+                            </defs>
+                            <!-- Title -->
+                            <text x="240" y="22" text-anchor="middle" font-size="13" font-weight="600"
+                                fill="#3d2010">Power Factor Improvement — Phasor Diagram</text>
+                            <!-- Axes -->
+                            <line x1="60" y1="220" x2="420" y2="220" stroke="#ddc8b0" stroke-width="1"
+                                stroke-dasharray="4,4" />
+                            <line x1="60" y1="30" x2="60" y2="230" stroke="#ddc8b0" stroke-width="1"
+                                stroke-dasharray="4,4" />
+                            <!-- P axis label -->
+                            <text x="425" y="224" font-size="11" fill="#9a6e50">P →</text>
+                            <!-- S1 vector (before) -->
+                            <line x1="60" y1="220" x2="330" y2="80" stroke="#c95f1a" stroke-width="2.5"
+                                marker-end="url(#a1)" />
+                            <text x="215" y="125" font-size="12" fill="#c95f1a" transform="rotate(-27,215,125)">S₁
+                                (before)</text>
+                            <!-- S2 vector (after) -->
+                            <line x1="60" y1="220" x2="330" y2="130" stroke="#1e6b68" stroke-width="2.5"
+                                marker-end="url(#a2)" />
+                            <text x="218" y="188" font-size="12" fill="#1e6b68" transform="rotate(-16,218,188)">S₂
+                                (after)</text>
+                            <!-- P component -->
+                            <line x1="60" y1="220" x2="330" y2="220" stroke="#2d6648" stroke-width="2"
+                                marker-end="url(#a3)" />
+                            <text x="195" y="236" text-anchor="middle" font-size="12" fill="#2d6648">P₁ = P₂ = P</text>
+                            <!-- Q1 vertical -->
+                            <line x1="330" y1="80" x2="330" y2="220" stroke="#c95f1a" stroke-width="1.5"
+                                stroke-dasharray="5,3" />
+                            <text x="345" y="155" font-size="11" fill="#c95f1a">Q₁</text>
+                            <!-- Q2 vertical -->
+                            <line x1="330" y1="130" x2="330" y2="220" stroke="#1e6b68" stroke-width="1.5"
+                                stroke-dasharray="5,3" />
+                            <text x="347" y="185" font-size="11" fill="#1e6b68">Q₂</text>
+                            <!-- Qcap arrow -->
+                            <line x1="338" y1="82" x2="338" y2="128" stroke="#a05c00" stroke-width="2"
+                                marker-end="url(#a1)" />
+                            <text x="358" y="108" font-size="11" fill="#a05c00">Qcap</text>
+                            <!-- Angle arcs -->
+                            <path d="M 130,220 A 70,70 0 0,0 118,163" stroke="#c95f1a" fill="none" stroke-width="1.5" />
+                            <text x="140" y="195" font-size="11" fill="#c95f1a">φ₁</text>
+                            <path d="M 110,220 A 50,50 0 0,0 103,185" stroke="#1e6b68" fill="none" stroke-width="1.5" />
+                            <text x="116" y="208" font-size="11" fill="#1e6b68">φ₂</text>
+                        </svg>
+                        <div class="svg-cap">Fig 3.1 — Phasor diagram showing power factor improvement from φ₁ to φ₂.
+                            The capacitor supplies Qcap = Q₁ − Q₂ = P(tanφ₁ − tanφ₂)</div>
+                    </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 4 — SHUNT REACTOR
+══════════════════════════════════ -->
+        <section class="section" id="sec4">
+            <div class="sec-hdr">
+                <span class="sec-num">04</span>
+                <h2 class="sec-t">Shunt Reactor — Ferranti Effect Control Device</h2>
+            </div>
+
+            <p>The Ferranti effect is the rise in receiving-end voltage above the sending-end voltage when a long
+                transmission line operates at light or no load. This happens because a lightly loaded line behaves as a
+                capacitor — its distributed charging capacitance generates reactive power that raises the receiving end
+                voltage dangerously.</p>
+
+            <div class="callout c-danger">
+                <span class="ci">🔴</span>
+                <div class="cb">
+                    <div class="ct">Ferranti Effect — Physical Cause</div>
+                    <p>At no-load, the line charging current \(I_C = V \cdot \omega C\) flows through the line
+                        inductance \(L\), creating a voltage rise. For a 400 kV line, an uncompensated no-load receiving
+                        end can reach 420–440 kV — well above equipment ratings.</p>
+                </div>
+            </div>
+
+            <p>The shunt inductor is connected at the receiving (load) bus when the line is lightly loaded. It absorbs
+                the excess reactive power, bringing the voltage back to nominal. However, a shunt reactor only helps
+                when the load is <em>leading</em> (capacitive), which is rarely the case in normal operation — hence it
+                is purely a <strong>Ferranti effect control device</strong>.</p>
+
+            <div class="fblock">
+                <span class="flbl">No-Load Condition (Without Shunt Inductor)</span>
+                \[|V_{r1}| = |V_s| + \frac{X}{|V_s|} Q_{\text{load}} \quad \Rightarrow \quad |V_{r1}| > |V_s|\]
+                <span class="flbl" style="margin-top:14px;">With Shunt Inductor</span>
+                \[Q_s = -Q_{\text{load}} + Q_{\text{shind}}\]
+                \[|V_{r2}| = |V_s| - \frac{X}{|V_s|}(-Q_{\text{load}} + Q_{\text{shind}})\]
+                \[Q_{\text{shind}} = P(\tan\phi_2 - \tan\phi_1) \quad \text{(for pf improvement from }\phi_1\text{ to
+                }\phi_2\text{)}\]
+                \[C/\text{ph} = \frac{Q_{\text{shind}}(3\phi)}{3\,V_{ph}^2\,\omega}, \quad Q_{\text{shind}} \propto
+                \frac{V^2}{f}, \quad L/\text{ph} = \frac{3V_{ph}^2}{\omega Q_{\text{shind}}(3\phi)}\]
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 5 — SERIES CAPACITOR
+══════════════════════════════════ -->
+        <section class="section" id="sec5">
+            <div class="sec-hdr">
+                <span class="sec-num">05</span>
+                <h2 class="sec-t">Series Capacitor — Stability Improvement Device</h2>
+            </div>
+
+            <p>A series capacitor is inserted <em>in series</em> with the transmission line. It does not inject reactive
+                power in the same way a shunt capacitor does — instead, it <strong>reduces the effective inductive
+                    reactance of the line</strong>. Since maximum power transfer \(P_{\max} =
+                |V_s||V_r|/X_{\text{eff}}\), reducing \(X\) directly raises power transfer capability.</p>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg" font-family="'Lora',serif">
+                    <defs>
+                        <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                            <path d="M0,0 L8,3 L0,6 Z" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <!-- Bus bars -->
+                    <rect x="30" y="60" width="8" height="60" fill="#c95f1a" rx="3" />
+                    <rect x="662" y="60" width="8" height="60" fill="#1e6b68" rx="3" />
+                    <!-- Line segments -->
+                    <line x1="38" y1="90" x2="220" y2="90" stroke="#3d2010" stroke-width="2.5" />
+                    <!-- R+jXL box -->
+                    <rect x="220" y="70" width="130" height="40" fill="#f8ede0" stroke="#ddc8b0" stroke-width="1.5"
+                        rx="6" />
+                    <text x="285" y="88" text-anchor="middle" font-size="12" fill="#3d2010">R + j</text>
+                    <text x="316" y="88" text-anchor="middle" font-size="12" fill="#c95f1a"
+                        font-style="italic">X</text><text x="328" y="88" font-size="9" fill="#c95f1a">L</text>
+                    <text x="285" y="102" text-anchor="middle" font-size="10" fill="#9a6e50">Line impedance</text>
+                    <!-- series cap box -->
+                    <line x1="350" y1="90" x2="400" y2="90" stroke="#3d2010" stroke-width="2.5" />
+                    <rect x="400" y="73" width="60" height="34" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5"
+                        rx="5" />
+                    <!-- capacitor symbol -->
+                    <line x1="422" y1="78" x2="422" y2="102" stroke="#2d6648" stroke-width="2.5" />
+                    <line x1="428" y1="78" x2="428" y2="102" stroke="#2d6648" stroke-width="2.5" />
+                    <text x="430" y="95" font-size="10" fill="#2d6648" font-style="italic"> −jX</text><text x="452"
+                        y="96" font-size="8" fill="#2d6648">C</text>
+                    <line x1="460" y1="90" x2="662" y2="90" stroke="#3d2010" stroke-width="2.5" />
+                    <!-- Return line -->
+                    <line x1="38" y1="130" x2="662" y2="130" stroke="#9a6e50" stroke-width="1.5"
+                        stroke-dasharray="5,4" />
+                    <!-- Labels -->
+                    <text x="34" y="56" text-anchor="middle" font-size="12" font-weight="600" fill="#c95f1a">|Vs|</text>
+                    <text x="666" y="56" text-anchor="middle" font-size="12" font-weight="600"
+                        fill="#1e6b68">|Vr|</text>
+                    <!-- Voltage boost annotation -->
+                    <text x="350" y="158" text-anchor="middle" font-size="11" fill="#2d6648">ΔV₂ = IR cosφᵣ + I(X_L −
+                        X_C) sinφᵣ &lt; ΔV₁ → |Vr₂| &gt; |Vr₁|</text>
+                </svg>
+                <div class="svg-cap">Fig 5.1 — Transmission line with series capacitor. The net reactance becomes (X_L −
+                    X_C), boosting power transfer.</div>
+            </div>
+
+            <div class="fblock">
+                <span class="flbl">Series Compensation Formulae</span>
+                \[\text{Percentage series compensation} = \frac{X_C}{X_L} \times 100\%\]
+                \[P_{\max(\text{new})} = \frac{|V_s||V_r|}{X_L - X_C} = \frac{P_{\max(\text{old})}}{1 -
+                \frac{X_C}{X_L}}\]
+                \[Q_{\text{sercap}}/\text{ph} = I^2 X_C/\text{ph}\]
+                \[\Delta V_C = I X_C \sin\phi_r \quad \text{(voltage boost due to series cap)}\]
+            </div>
+
+            <h3 class="sub">Advantages &amp; Dangers of Series Capacitor</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Advantages</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Maximum power transfer capability increases significantly</li>
+                        <li><span class="dot">▸</span>Steady-state stability limit (SSSL) improves</li>
+                        <li><span class="dot">▸</span>Voltage regulation improves at load buses</li>
+                        <li><span class="dot">▸</span>Lower reactive power required for same voltage boost vs shunt cap
+                        </li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Dangers</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Fault level in the system increases — equipment must be rated
+                            higher</li>
+                        <li><span class="dot">▸</span>During fault, large voltage appears across capacitor → may damage
+                            it</li>
+                        <li><span class="dot">▸</span>Protected using a <strong>spark gap</strong> across series cap
+                        </li>
+                        <li><span class="dot">▸</span><strong>Subsynchronous resonance (SSR)</strong> — shaft of
+                            alternator may be damaged at resonant frequency \(f_r = f\sqrt{X_C/X_L}\)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub prob-high">Shunt vs Series Capacitor — GATE Favourite Comparison</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Shunt Capacitor</th>
+                            <th>Series Capacitor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Voltage distribution</td>
+                            <td class="t-grn">Uniform along line</td>
+                            <td class="t-amb">Sudden boost at point of insertion</td>
+                        </tr>
+                        <tr>
+                            <td>Stability</td>
+                            <td class="t-red">No improvement</td>
+                            <td class="t-grn">Improves stability</td>
+                        </tr>
+                        <tr>
+                            <td>Power factor</td>
+                            <td class="t-grn">Improves load pf</td>
+                            <td class="t-red">No improvement in pf</td>
+                        </tr>
+                        <tr>
+                            <td>Reactive power (same ΔV)</td>
+                            <td class="t-red">Higher rating needed</td>
+                            <td class="t-grn">Lower rating needed</td>
+                        </tr>
+                        <tr>
+                            <td>100% compensation risk</td>
+                            <td>Safe</td>
+                            <td class="t-red">Series resonance at 50 Hz → dangerous</td>
+                        </tr>
+                        <tr>
+                            <td>Use case</td>
+                            <td>Load end power factor correction</td>
+                            <td>Long line stability, heavy load</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 6 — SYNCHRONOUS CONDENSER & COIL
+══════════════════════════════════ -->
+        <section class="section" id="sec6">
+            <div class="sec-hdr">
+                <span class="sec-num">06</span>
+                <h2 class="sec-t">Synchronous Condenser, Coil &amp; Phase Modifier</h2>
+            </div>
+
+            <h3 class="sub">Synchronous Condenser (Capacitor)</h3>
+            <p>A synchronous condenser is an <strong>over-excited synchronous motor running at no load</strong>. Since
+                it has no mechanical load, the real power it draws is nearly zero (only enough to cover copper and iron
+                losses). However, in the over-excited state \(|E| &gt; |V|\), it injects reactive power (leading
+                current) into the bus — behaving exactly like a capacitor, but with continuously variable and smooth
+                output.</p>
+
+            <div class="fblock">
+                <span class="flbl">Reactive Power Supplied by Synchronous Condenser</span>
+                \[Q_{SM}(\text{supply}) = \frac{|V|}{X_s}\bigl(|E| - |V|\bigr) \quad \text{when } |E| > |V|\]
+                \[Q_{\text{syncond}} = P(\tan\phi_1 - \tan\phi_2)\]
+                <span class="flbl" style="margin-top:14px;">Power factor of synchronous condenser</span>
+                \[\text{pf} = \text{ZPF lead}\]
+            </div>
+
+            <h3 class="sub">Synchronous Coil (Inductor)</h3>
+            <p>A synchronous coil is an <strong>under-excited synchronous motor running at no load</strong>. In this
+                state \(|E| &lt; |V|\), it absorbs reactive power from the bus — behaving like an inductor or shunt
+                reactor. It is used as a <strong>Ferranti effect control device</strong> just like the shunt reactor.
+            </p>
+
+            <div class="fblock">
+                <span class="flbl">Reactive Power Absorbed by Synchronous Coil</span>
+                \[Q_{SM}(\text{abs}) = \frac{|V|}{X_s}\bigl(|V| - |E|\bigr) \quad \text{when } |E| < |V|\]
+                    \[\text{pf}=\text{ZPF lag}\] </div>
+
+                    <div class="callout c-key">
+                        <span class="ci">🔑</span>
+                        <div class="cb">
+                            <div class="ct">Key Difference — Shunt Cap vs Synchronous Condenser</div>
+                            <p><strong>Shunt Capacitor:</strong> Step (discrete) control, low cost, no real power loss,
+                                no stability effect, no fault current change.<br>
+                                <strong>Synchronous Condenser:</strong> Smooth (continuous) control, high cost, real
+                                power loss (mechanical losses), raises fault levels, may lose synchronism on voltage
+                                swings.
+                            </p>
+                        </div>
+                    </div>
+
+                    <h3 class="sub">Synchronous Phase Modifier</h3>
+                    <p>A <strong>loaded synchronous motor with over-excitation</strong> is called a synchronous phase
+                        modifier. Unlike the condenser, it draws real power from the bus to drive a mechanical load
+                        while simultaneously injecting reactive power.</p>
+
+                    <div class="fblock">
+                        <span class="flbl">Phase Modifier Power Equations</span>
+                        \[P_{PM} = \frac{|E||V|}{X_s}\sin\delta, \quad Q_{PM} = \frac{|V|}{X_s}\bigl[|E|\cos\delta -
+                        |V|\bigr]\]
+                        \[\text{Phase modifier injects Q only when } |E|\cos\delta > |V|\]
+                        \[Q_{PM}(\text{supply}) = P_1\tan\phi_1 - P_2\tan\phi_2\]
+                    </div>
+
+                    <!-- Comprehensive device summary table -->
+                    <h3 class="sub prob-high">Complete Comparison — All Reactive Compensation Devices</h3>
+                    <div class="tw">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Device</th>
+                                    <th>Q Nature</th>
+                                    <th>Control</th>
+                                    <th>Cost</th>
+                                    <th>Stability</th>
+                                    <th>pf</th>
+                                    <th>Primary Use</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Shunt Capacitor</td>
+                                    <td class="t-grn">Source</td>
+                                    <td>Step</td>
+                                    <td class="t-grn">Low</td>
+                                    <td>No change</td>
+                                    <td class="t-grn">Improves</td>
+                                    <td>Load end pf correction</td>
+                                </tr>
+                                <tr>
+                                    <td>Shunt Reactor</td>
+                                    <td class="t-red">Sink</td>
+                                    <td>Step</td>
+                                    <td class="t-grn">Low</td>
+                                    <td>No change</td>
+                                    <td>—</td>
+                                    <td>Ferranti control</td>
+                                </tr>
+                                <tr>
+                                    <td>Series Capacitor</td>
+                                    <td class="t-grn">Source</td>
+                                    <td>Fixed</td>
+                                    <td>Medium</td>
+                                    <td class="t-grn">Improves</td>
+                                    <td>No change</td>
+                                    <td>Long line stability</td>
+                                </tr>
+                                <tr>
+                                    <td>Sync. Condenser</td>
+                                    <td class="t-grn">Source (OE)</td>
+                                    <td>Smooth</td>
+                                    <td class="t-red">High</td>
+                                    <td class="t-amb">Raises fault level</td>
+                                    <td class="t-grn">ZPF lead</td>
+                                    <td>Bus voltage control</td>
+                                </tr>
+                                <tr>
+                                    <td>Sync. Coil</td>
+                                    <td class="t-red">Sink (UE)</td>
+                                    <td>Smooth</td>
+                                    <td class="t-red">High</td>
+                                    <td class="t-amb">Raises fault level</td>
+                                    <td class="t-red">ZPF lag</td>
+                                    <td>Ferranti control</td>
+                                </tr>
+                                <tr>
+                                    <td>Sync. Phase Modifier</td>
+                                    <td class="t-grn">Source (OE)</td>
+                                    <td>Smooth</td>
+                                    <td class="t-red">High</td>
+                                    <td class="t-amb">Raises fault level</td>
+                                    <td class="t-grn">Leading</td>
+                                    <td>Loaded bus pf correction</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 7 — UNDERGROUND CABLES
+══════════════════════════════════ -->
+        <section class="section" id="sec7">
+            <div class="sec-hdr">
+                <span class="sec-num">07</span>
+                <h2 class="sec-t">Underground Cables — Construction &amp; Theory</h2>
+            </div>
+
+            <p>An underground cable is a conductor surrounded by successive layers of insulation and protection,
+                designed to carry power beneath the ground surface. Unlike overhead lines, cables have very high
+                capacitance (due to the proximity of conductor and sheath), negligible inductance, and always act as
+                reactive power <em>sources</em>.</p>
+
+            <h3 class="sub">Essential Construction of Every Cable</h3>
+
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 460 260" xmlns="http://www.w3.org/2000/svg" font-family="'Lora',serif">
+                    <!-- Background -->
+                    <rect x="0" y="0" width="460" height="260" fill="#f8ede0" rx="12" />
+                    <!-- Serving (outermost) -->
+                    <circle cx="230" cy="130" r="105" fill="#dff0e8" stroke="#8ecaaa" stroke-width="2" />
+                    <!-- Armouring -->
+                    <circle cx="230" cy="130" r="90" fill="#f8ede0" stroke="#c95f1a" stroke-width="2.5"
+                        stroke-dasharray="8,4" />
+                    <!-- Bedding -->
+                    <circle cx="230" cy="130" r="75" fill="#fef0d0" stroke="#f0c060" stroke-width="2" />
+                    <!-- Metal Sheath -->
+                    <circle cx="230" cy="130" r="60" fill="#f0e0cc" stroke="#9a6e50" stroke-width="2.5" />
+                    <!-- Insulation -->
+                    <circle cx="230" cy="130" r="42" fill="#fdebd8" stroke="#e07235" stroke-width="2" />
+                    <!-- Conductor -->
+                    <circle cx="230" cy="130" r="22" fill="#c95f1a" stroke="#3d2010" stroke-width="1.5" />
+                    <text x="230" y="135" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">Core</text>
+                    <!-- Labels with lines -->
+                    <!-- Insulation -->
+                    <line x1="272" y1="100" x2="310" y2="68" stroke="#e07235" stroke-width="1.2" />
+                    <text x="314" y="64" font-size="11" fill="#e07235">Insulation</text>
+                    <!-- Metal Sheath -->
+                    <line x1="288" y1="118" x2="330" y2="100" stroke="#9a6e50" stroke-width="1.2" />
+                    <text x="334" y="96" font-size="11" fill="#9a6e50">Metal Sheath (Al/Pb)</text>
+                    <!-- Bedding -->
+                    <line x1="299" y1="142" x2="340" y2="155" stroke="#a05c00" stroke-width="1.2" />
+                    <text x="344" y="159" font-size="11" fill="#a05c00">Bedding (Jute)</text>
+                    <!-- Armouring -->
+                    <line x1="293" y1="175" x2="330" y2="195" stroke="#c95f1a" stroke-width="1.2" />
+                    <text x="334" y="199" font-size="11" fill="#c95f1a">Armouring (Steel)</text>
+                    <!-- Serving -->
+                    <line x1="258" y1="228" x2="280" y2="243" stroke="#2d6648" stroke-width="1.2" />
+                    <text x="284" y="247" font-size="11" fill="#2d6648">Serving (Jute)</text>
+                    <!-- Title -->
+                    <text x="100" y="22" font-size="12" font-weight="600" fill="#3d2010">Single-Core Cable Cross
+                        Section</text>
+                    <!-- d and D labels -->
+                    <line x1="230" y1="108" x2="230" y2="88" stroke="#3d2010" stroke-width="1" stroke-dasharray="3,2" />
+                    <text x="215" y="85" font-size="10" fill="#3d2010">d</text>
+                    <line x1="230" y1="72" x2="230" y2="52" stroke="#3d2010" stroke-width="1" stroke-dasharray="3,2" />
+                    <text x="215" y="49" font-size="10" fill="#3d2010">D</text>
+                </svg>
+                <div class="svg-cap">Fig 7.1 — Cross-section of a single-core cable showing all layers. 'd' = conductor
+                    diameter, 'D' = internal sheath diameter.</div>
+            </div>
+
+            <h3 class="sub">Classification by Voltage Level</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Voltage Range</th>
+                            <th>Insulation Method</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Low Tension (LT)</td>
+                            <td>Up to 1 kV</td>
+                            <td>Rubber / PVC</td>
+                        </tr>
+                        <tr>
+                            <td>High Tension (HT)</td>
+                            <td>Up to 11 kV</td>
+                            <td>Impregnated paper</td>
+                        </tr>
+                        <tr>
+                            <td>Super Tension (ST)</td>
+                            <td>22 kV – 33 kV</td>
+                            <td>Impregnated paper + oil</td>
+                        </tr>
+                        <tr>
+                            <td>Extra High Tension (EHT)</td>
+                            <td>33 kV – 66 kV</td>
+                            <td>Oil-filled / gas pressure</td>
+                        </tr>
+                        <tr>
+                            <td>Extra Super Voltage (ESV)</td>
+                            <td>Beyond 132 kV</td>
+                            <td>Oil-filled or compressed gas</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Insulation Resistance of a Single-Core Cable</h3>
+            <p>The insulation resistance is not the resistance of the conductor — it is the resistance offered by the
+                dielectric material between the conductor and the sheath, measured <em>radially</em>. It is inversely
+                proportional to the cable length:</p>
+
+            <div class="fblock">
+                <span class="flbl">Insulation Resistance Formula</span>
+                \[R_i = \frac{\rho}{2\pi\ell}\ln\!\left(\frac{R}{r}\right)\]
+                where \(\rho\) = resistivity of insulator (Ω·m), \(\ell\) = length of cable (m), \(R\) = internal sheath
+                radius, \(r\) = conductor radius.
+                \[\text{Note: } R_i \propto \frac{1}{\ell}\]
+            </div>
+
+            <h3 class="sub">Capacitance of a Single-Core Cable</h3>
+            <p>The cable acts as a coaxial capacitor with the conductor as the inner plate and the metallic sheath as
+                the outer plate, with the dielectric as the insulator between them:</p>
+
+            <div class="fblock">
+                <span class="flbl">Cable Capacitance Formula</span>
+                \[C = \frac{2\pi\varepsilon_0\varepsilon_r}{\ell\ln(R/r)} \text{ F/m}\]
+                where \(\varepsilon_0 = 8.854 \times 10^{-12}\) F/m (permittivity of free space), \(\varepsilon_r\) =
+                relative permittivity of insulation.
+            </div>
+
+            <div class="callout c-info">
+                <span class="ci">💡</span>
+                <div class="cb">
+                    <div class="ct">Why Cables Always Generate Q</div>
+                    <p>The insulation charging current \(I_C = V / (1/\omega C) = \omega CV\) always flows, regardless
+                        of load. This current leads the voltage by 90° and represents reactive power <em>generated</em>
+                        by the cable. For a 132 kV cable 10 km long, \(Q_{\text{generated}}\) can exceed the load Q
+                        requirement — hence cables "over-compensate" and must be paired with shunt reactors.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Power Factor of a Cable</h3>
+            <p>The dielectric of a cable is not a perfect insulator — it has a small conductance \(G\) that causes a
+                tiny in-phase leakage current alongside the main capacitive charging current. The angle \(\delta\)
+                between the total current and the 90° position is the loss angle:</p>
+            <div class="fblock">
+                <span class="flbl">Cable Power Factor</span>
+                \[\cos\phi = \cos(90° - \delta) = \sin\delta \approx \tan\delta = \delta \quad (\text{for small
+                }\delta)\]
+                \[\delta = \frac{V/R_i}{V\cdot\omega C} = \frac{1}{\omega C R_i} = \frac{G}{\omega C}\]
+                \[\therefore \text{ Power factor of cable} = \frac{G}{\omega C}\]
+            </div>
+
+            <h3 class="sub">Capacitance in a 3-Core Cable</h3>
+            <p>A 3-core cable is more complex because there is capacitance between cores (\(C_C\)) and also between each
+                core and the sheath (\(C_S\)). Two measurement methods are used in practice:</p>
+
+            <div class="fblock">
+                <span class="flbl">Method 1 — Cores 2 &amp; 3 shorted to sheath</span>
+                \[C_1 = C_S + 2C_C \quad \cdots(1)\]
+                <span class="flbl" style="margin-top:12px;">Method 2 — All cores shorted together</span>
+                \[C_2 = 3C_S \Rightarrow C_S = C_2/3 \quad \cdots(2)\]
+                <span class="flbl" style="margin-top:12px;">From (1) &amp; (2)</span>
+                \[C_C = \frac{1}{2}(C_1 - C_S) = \frac{C_1}{2} - \frac{C_2}{6} = \frac{1}{6}(3C_1 - C_2)\]
+                \[C_n = C_S + 3C_C = \frac{3}{2}C_1 - \frac{C_2}{6} \quad \text{(capacitance per phase to neutral)}\]
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 8 — DIELECTRIC STRESS & GRADING
+══════════════════════════════════ -->
+        <section class="section" id="sec8">
+            <div class="sec-hdr">
+                <span class="sec-num">08</span>
+                <h2 class="sec-t">Dielectric Stress, Grading &amp; Most Economical Radius</h2>
+            </div>
+
+            <p>The electric field (stress) inside a cable's insulation is not uniform — it is highest at the conductor
+                surface and decreases logarithmically towards the sheath. If the maximum stress exceeds the dielectric
+                strength, the insulation breaks down. Cable design is about distributing this stress as uniformly as
+                possible.</p>
+
+            <div class="fblock">
+                <span class="flbl">Electric Field at Any Point x (Conductor at r, Sheath at R)</span>
+                \[E_x = \frac{V}{x \ln(R/r)} \text{ kV/cm}\]
+                \[E_{\max} = \frac{V}{r\ln(R/r)} \quad \text{(at conductor surface, }x = r\text{)}\]
+                \[E_{\min} = \frac{V}{R\ln(R/r)} \quad \text{(at sheath surface, }x = R\text{)}\]
+            </div>
+
+            <div class="callout c-warn">
+                <span class="ci">⚠️</span>
+                <div class="cb">
+                    <div class="ct">Key Observation — Stress Distribution</div>
+                    <p>Stress is <strong>maximum at the conductor surface</strong> and <strong>minimum at the sheath
+                            surface</strong>. The ratio \(E_{\max}/E_{\min} = R/r\). For a thin conductor (small r) with
+                        thick insulation (large R), this ratio becomes very large — meaning most of the insulation near
+                        the sheath is underutilised while the thin layer near the conductor is overstressed.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Most Economical Radius of Core</h3>
+            <p>To minimise \(E_{\max}\) for a given operating voltage \(V\) and external sheath radius \(R\),
+                differentiate \(E_{\max} = V/[r\ln(R/r)]\) with respect to \(r\) and set to zero:</p>
+
+            <div class="fblock">
+                <span class="flbl">Optimisation Condition</span>
+                \[\frac{d}{dr}\left[\frac{V}{r\ln(R/r)}\right] = 0 \Rightarrow \ln\frac{R}{r} = 1\]
+                \[\therefore \frac{R}{r} = e = 2.718 \quad \Rightarrow \quad \frac{r}{R} = \frac{1}{e} = 0.368\]
+                \[\boxed{r_{\text{opt}} = 0.368\, R}\]
+            </div>
+
+            <p>This is the radius of core that minimises peak electrical stress. Designing with \(r = 0.368R\) gives the
+                most economical use of insulating material.</p>
+
+            <h3 class="sub">Intersheath Grading</h3>
+            <p>To distribute stress uniformly, metallic cylindrical inter-sheaths are inserted in the dielectric. Each
+                inter-sheath is held at an intermediate potential, so the radial stress in each layer becomes equal.
+                With two inter-sheaths (three layers):</p>
+
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg" font-family="'Lora',serif">
+                    <rect x="0" y="0" width="460" height="220" fill="#f8ede0" rx="10" />
+                    <!-- layers -->
+                    <circle cx="200" cy="100" r="90" fill="none" stroke="#9a6e50" stroke-width="2"
+                        stroke-dasharray="6,3" />
+                    <circle cx="200" cy="100" r="68" fill="none" stroke="#c95f1a" stroke-width="2"
+                        stroke-dasharray="5,3" />
+                    <circle cx="200" cy="100" r="46" fill="none" stroke="#e07235" stroke-width="2"
+                        stroke-dasharray="4,3" />
+                    <circle cx="200" cy="100" r="22" fill="#c95f1a" stroke="#3d2010" stroke-width="1.5" />
+                    <text x="200" y="104" text-anchor="middle" font-size="10" fill="#fff">Core d</text>
+                    <!-- Labels -->
+                    <text x="200" y="18" text-anchor="middle" font-size="12" font-weight="600"
+                        fill="#3d2010">Intersheath Grading (2 Intersheaths)</text>
+                    <text x="295" y="60" font-size="11" fill="#9a6e50">Sheath D (V=0)</text>
+                    <text x="298" y="80" font-size="11" fill="#c95f1a">Intersheath d₂ (V₂)</text>
+                    <text x="298" y="100" font-size="11" fill="#e07235">Intersheath d₁ (V₁)</text>
+                    <!-- arrows -->
+                    <line x1="290" y1="56" x2="258" y2="62" stroke="#9a6e50" stroke-width="1" />
+                    <line x1="290" y1="76" x2="248" y2="82" stroke="#c95f1a" stroke-width="1" />
+                    <line x1="290" y1="96" x2="234" y2="96" stroke="#e07235" stroke-width="1" />
+                    <text x="120" y="210" font-size="11" fill="#3d2010">d₁/d = d₂/d₁ = D/d₂ = α = ∛(D/d)</text>
+                </svg>
+                <div class="svg-cap">Fig 8.1 — Intersheath grading with 2 intersheaths. Potentials V₁, V₂ are chosen so
+                    g₁max = g₂max = g₃max</div>
+            </div>
+
+            <div class="fblock">
+                <span class="flbl">Intersheath Grading — Key Results</span>
+                \[\alpha = \sqrt[3]{D/d}, \quad d_1 = \alpha d, \quad d_2 = \alpha^2 d\]
+                \[g_{\max}\,\text{(with 2 intersheaths)} = \frac{V}{d/2 \cdot \ln(D/d)} \cdot
+                \frac{3}{1+\alpha+\alpha^2} < 1\] \[\text{Ratio: } \frac{g_{\max}\text{(with
+                    2IS)}}{g_{\max}\text{(without IS)}}=\frac{3}{1+\alpha+\alpha^2} < 1\] </div>
+
+                    <h3 class="sub">Capacitance Grading</h3>
+                    <p>Instead of metallic inter-sheaths, capacitance grading uses dielectric materials of <em>different
+                            permittivities</em> in successive layers. The layer near the conductor has the highest
+                        permittivity \(\varepsilon_{r1}\), and the outer layer has the lowest \(\varepsilon_{r2}\). This
+                        makes the displacement \(\varepsilon E\) more uniform, reducing peak stress.</p>
+
+                    <div class="fblock">
+                        <span class="flbl">Capacitance Grading Formula (2 dielectrics)</span>
+                        \[g_{1\max} = \frac{2V}{d\!\left[\ln(d_1/d) + \frac{k_1}{k_2}\ln(D/d_1)\right]}\]
+                        where \(k_1 = \varepsilon_{r1}\) and \(k_2 = \varepsilon_{r2}\) are the relative permittivities.
+                    </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 9 — NUMERICAL EXAMPLES
+══════════════════════════════════ -->
+        <section class="section" id="sec9">
+            <div class="sec-hdr">
+                <span class="sec-num">09</span>
+                <h2 class="sec-t">Numerical Examples</h2>
+            </div>
+
+            <!-- Example 1 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 2.1</span>
+                    <span class="ex-title">Industrial Substation — Shunt Capacitor Power Factor (ACE Academy)</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An industrial substation has a 4 MW load. A capacitor of 2 MVAR is installed to
+                        maintain load power factor at 0.97 lag. If the capacitor bank is out of service, find the load
+                        power factor.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="sol-step"><span class="sol-n">S1</span>
+                        <div class="sol-t">Use the formula: \(Q_{\text{shcap}} = P(\tan\phi_1 - \tan\phi_2)\). Here
+                            \(Q_{\text{shcap}} = 2\) MVAR, \(P = 4\) MW, \(\phi_2 = \cos^{-1}(0.97)\).</div>
+                    </div>
+                    <div class="sol-step"><span class="sol-n">S2</span>
+                        <div class="sol-t">\(\tan\phi_2 = \tan(\cos^{-1}0.97)\). Since \(\cos\phi_2 = 0.97\),
+                            \(\sin\phi_2 = \sqrt{1-0.97^2} = 0.2431\), so \(\tan\phi_2 = 0.2431/0.97 = 0.2506\).</div>
+                    </div>
+                    <div class="sol-step"><span class="sol-n">S3</span>
+                        <div class="sol-t">\(2 = 4(\tan\phi_1 - 0.2506)\) → \(\tan\phi_1 = 0.5 + 0.2506 = 0.7506\)</div>
+                    </div>
+                    <div class="sol-step"><span class="sol-n">S4</span>
+                        <div class="sol-t">\(\phi_1 = \tan^{-1}(0.7506) = 36.87°\) → Power factor without capacitor \(=
+                            \cos(36.87°) = \mathbf{0.8 \text{ lag}}\)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 2.2</span>
+                    <span class="ex-title">Shunt Reactor Rating at Reduced Voltage (ACE Academy)</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">In a 400 kV power network, 360 kV is recorded at a 400 kV bus. The reactive power
+                        absorbed by a shunt reactor rated for 50 MVAR, 400 kV connected at the bus is ___.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="sol-step"><span class="sol-n">S1</span>
+                        <div class="sol-t">Key relation: \(Q_{\text{reactor}} \propto V^2\). At rated voltage 400 kV,
+                            \(Q_{\text{rated}} = 50\) MVAR.</div>
+                    </div>
+                    <div class="sol-step"><span class="sol-n">S2</span>
+                        <div class="sol-t">\(Q_{\text{new}} = Q_{\text{rated}} \times \left(\frac{V_2}{V_1}\right)^2 =
+                            50 \times \left(\frac{360}{400}\right)^2 = 50 \times 0.81 = \mathbf{40.5 \text{ MVAR}}\)
+                        </div>
+                    </div>
+                    <div class="sol-step"><span class="sol-n">Key</span>
+                        <div class="sol-t">Both \(Q_{\text{shcap}} \propto V^2 f\) and \(Q_{\text{shind}} \propto
+                            V^2/f\). For same frequency but different voltage, both scale as \(V^2\). This is a
+                            recurring GATE trap — don't confuse the two formulas.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 2.3</span>
+                    <span class="ex-title">Series Compensation and Stability Limit (ACE Academy)</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">The steady state stability limit of a transmission line is 400 MW. If 30% series
+                        compensation is added, find the new SSSL. (Resistance and capacitance neglected; voltages at
+                        both ends unchanged.)</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="sol-step"><span class="sol-n">S1</span>
+                        <div class="sol-t">\(P_{\max} = |V_s||V_r|/X_{\text{line}} = 400\) MW.</div>
+                    </div>
+                    <div class="sol-step"><span class="sol-n">S2</span>
+                        <div class="sol-t">30% compensation: \(X_C = 0.3\,X_{\text{line}}\). New effective reactance:
+                            \(X_{\text{eff}} = X_{\text{line}} - X_C = 0.7\,X_{\text{line}}\).</div>
+                    </div>
+                    <div class="sol-step"><span class="sol-n">S3</span>
+                        <div class="sol-t">\(P_{\max(\text{new})} = \frac{|V_s||V_r|}{0.7\,X_{\text{line}}} =
+                            \frac{400}{0.7} = \mathbf{571.4 \text{ MW}}\)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 4 — Cable -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 2.4</span>
+                    <span class="ex-title">Single-Core Cable — Insulation Resistance at Most Economical Radius</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A single-core cable, length 5 km, core diameter 2 cm, cable diameter 4 cm.
+                        Resistivity of dielectric = \(1.6 \times 10^{12}\) Ω·m, \(\varepsilon_r = 4\). Find insulation
+                        resistance for most economical radius of core.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="sol-step"><span class="sol-n">S1</span>
+                        <div class="sol-t">Most economical radius: \(r/R = 1/e \Rightarrow r = R/e = 2/2.718 = 0.736\)
+                            cm. But we're given cable diameter = 4 cm, so \(R = 2\) cm (internal sheath radius).</div>
+                    </div>
+                    <div class="sol-step"><span class="sol-n">S2</span>
+                        <div class="sol-t">\(R_i = \frac{\rho}{2\pi\ell}\ln\!\left(\frac{R}{r}\right) =
+                            \frac{1.6\times10^{12}}{2\pi\times 5000}\ln(e) = \frac{1.6\times10^{12}}{31416}\times 1\)
+                        </div>
+                    </div>
+                    <div class="sol-step"><span class="sol-n">S3</span>
+                        <div class="sol-t">\(R_i = \frac{1.6\times10^{12}}{2\pi\times 5000} = 50.93\) MΩ</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 5 — Synchronous Motor -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 2.5</span>
+                    <span class="ex-title">Synchronous Motor as Phase Modifier (ACE Academy)</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An induction motor operating at 0.8 pf lag consuming 300 kW. A zero real power
+                        synchronous motor is connected across it to raise the pf to 0.92 lagging. The reactive power
+                        drawn by the synchronous motor is:</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="sol-step"><span class="sol-n">S1</span>
+                        <div class="sol-t">The synchronous motor supplies lagging reactive power (leading reactive power
+                            absorption means it supplies leading vars = lagging supply). Here it <em>supplies</em>
+                            leading reactive power to improve the circuit pf.</div>
+                    </div>
+                    <div class="sol-step"><span class="sol-n">S2</span>
+                        <div class="sol-t">\(Q_{\text{supplied}} = P(\tan\phi_1 - \tan\phi_2) = 300[\tan(\cos^{-1}0.8) -
+                            \tan(\cos^{-1}0.92)]\)</div>
+                    </div>
+                    <div class="sol-step"><span class="sol-n">S3</span>
+                        <div class="sol-t">\(= 300[\tan 36.87° - \tan 23.07°] = 300[0.75 - 0.4252] = 300 \times 0.3248 =
+                            97.4 \approx \mathbf{97.2 \text{ kVAr lead}}\)</div>
+                    </div>
+                    <div class="sol-step"><span class="sol-n">Key</span>
+                        <div class="sol-t">The synchronous motor <em>draws</em> 97.2 kVAr <strong>lead</strong> from the
+                            circuit's perspective (leading current = lagging reactive power absorption → the motor is
+                            over-excited). Answer: <strong>97.2 kVAr lead</strong>.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 10 — GATE & IES PYQs
+══════════════════════════════════ -->
+        <section class="section" id="sec10">
+            <div class="sec-hdr">
+                <span class="sec-num">10</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">A synchronous machine connected to an infinite bus operates at unity power
+                        factor. To raise its terminal voltage above the infinite bus voltage, it should be:</span>
+                    <span class="pyq-year">GATE 2019</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(a) Under-excited as a generator</li>
+                        <li class="correct">(b) Over-excited as a generator</li>
+                        <li>(c) Under-excited as a motor</li>
+                        <li>(d) Operated at unity pf always</li>
+                    </ul>
+                    <span class="ans-reveal">✓ Answer: (b)</span>
+                    <p style="margin-top:10px;font-size:14px;">An over-excited synchronous generator supplies reactive
+                        power (Q) to the bus. From \(|V_r| = |V_s| - (X/|V_s|)Q_s\), injecting Q reduces the net \(Q_s\)
+                        seen by the line, raising \(|V_r|\). Over-excited generator → source of Q → raises bus voltage.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">If a line is 100% series compensated it may result in series resonance
+                        at:</span>
+                    <span class="pyq-year">GATE 2017</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li class="correct">(a) Power frequency (50 Hz)</li>
+                        <li>(b) 100 Hz</li>
+                        <li>(c) 150 Hz</li>
+                        <li>(d) None</li>
+                    </ul>
+                    <span class="ans-reveal">✓ Answer: (a)</span>
+                    <p style="margin-top:10px;font-size:14px;">At 100% series compensation \(X_C = X_L\). Series
+                        resonance \(f_r = f\sqrt{X_C/X_L} = 50\sqrt{1} = 50\) Hz. The line is in series resonance at
+                        power frequency — zero effective impedance → extremely large fault current → catastrophic for
+                        equipment.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES / ESE</span>
+                    <span class="pyq-title pyq-title-ies">A synchronous condenser is essentially an over-excited
+                        synchronous motor running at no load. Its power factor is:</span>
+                    <span class="pyq-year">IES 2016</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(a) Unity pf</li>
+                        <li>(b) Lagging pf</li>
+                        <li class="correct">(c) ZPF lead</li>
+                        <li>(d) ZPF lag</li>
+                    </ul>
+                    <span class="ans-reveal">✓ Answer: (c)</span>
+                    <p style="margin-top:10px;font-size:14px;">At no load, real power \(P \approx 0\). Apparent power
+                        \(S = Q\) entirely. Over-excited → supplies Q (leading vars). Leading Q means leading current,
+                        so power factor = ZPF lead (zero power factor, current leading voltage by 90°).</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">The maximum stress in the insulation of a single-core cable occurs at
+                        the:</span>
+                    <span class="pyq-year">GATE 2015</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li class="correct">(a) Surface of the conductor</li>
+                        <li>(b) Surface of the sheath</li>
+                        <li>(c) Mid-radius of insulation</li>
+                        <li>(d) Uniform throughout</li>
+                    </ul>
+                    <span class="ans-reveal">✓ Answer: (a)</span>
+                    <p style="margin-top:10px;font-size:14px;">From \(E_x = V/[x\ln(R/r)]\), stress is inversely
+                        proportional to \(x\). So \(E\) is maximum at smallest \(x = r\) (conductor surface) and minimum
+                        at \(x = R\) (sheath surface).</p>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES / ESE</span>
+                    <span class="pyq-title pyq-title-ies">The most economical core radius of a single-core cable with
+                        sheath radius R is:</span>
+                    <span class="pyq-year">IES 2014</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(a) 0.5 R</li>
+                        <li>(b) 0.5/e R</li>
+                        <li class="correct">(c) R/e = 0.368 R</li>
+                        <li>(d) R/2e</li>
+                    </ul>
+                    <span class="ans-reveal">✓ Answer: (c)</span>
+                    <p style="margin-top:10px;font-size:14px;">Differentiating \(E_{\max} = V/[r\ln(R/r)]\) and setting
+                        to zero gives \(\ln(R/r) = 1\), i.e., \(R/r = e\), so \(r = R/e = 0.368R\).</p>
+                </div>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">High Probability Topic — Shunt Capacitor Rating Calculation</span>
+                </div>
+                <div class="gate-body">
+                    <p>Questions of the type "A load of P kW at pf cos φ₁ is to be improved to cos φ₂ — find capacitor
+                        rating" appear in almost every GATE exam. The formula \(Q_C = P(\tan\phi_1 - \tan\phi_2)\) must
+                        be recalled instantly. Practice converting pf → angle → tan without a calculator for GATE speed.
+                    </p>
+                    <p>Also remember: <strong>\(Q \propto V^2\)</strong> for both capacitors and reactors — a 10% drop
+                        in voltage means 19% drop in reactive power output/absorption. This is tested indirectly in
+                        network analysis questions.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 11 — MEMORY TRICKS
+══════════════════════════════════ -->
+        <section class="section" id="sec11">
+            <div class="sec-hdr">
+                <span class="sec-num">11</span>
+                <h2 class="sec-t">Memory Tricks &amp; Mnemonics</h2>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">🧠 CIVIL — Capacitor/Inductor Behaviour</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>C-I-V-I-L:</strong> In a <strong>C</strong>apacitor,
+                            <strong>I</strong> (current) leads <strong>V</strong> (voltage). In an
+                            <strong>I</strong>nductor, <strong>V</strong> leads <strong>I</strong>.</li>
+                        <li><span class="dot">▸</span>Over-excited machines behave like capacitors → supply leading Q.
+                            Under-excited → behave like inductors → absorb Q.</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">🧠 Reactive Device Quick Rule</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>"CATS" supply Q:</strong> Capacitors, Alternators (OE),
+                            Transmission lines (light load), Synchronous condensers (OE)</li>
+                        <li><span class="dot">▸</span><strong>"LIT" absorb Q:</strong> Loads (inductive), Inductors
+                            (shunt reactors), Transformers</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">🧠 Series vs Shunt Capacitor</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>S</strong>eries → <strong>S</strong>tability improves</li>
+                        <li><span class="dot">▸</span><strong>Sh</strong>unt → <strong>Sh</strong>ift power factor
+                            (improves pf)</li>
+                        <li><span class="dot">▸</span>Only series cap has SSR danger</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">🧠 Cable Stress — "Closer = More Stressed"</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>The dielectric closest to the conductor (high voltage) is under
+                            maximum stress. Like being close to a fire — closer = hotter.</li>
+                        <li><span class="dot">▸</span>Most economical r = 0.368R ≈ 37% of sheath radius. Remember: "37
+                            is 1/e percent"</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">🧠 \(Q \propto V^2\) — "The Square Squeeze"</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>All reactive devices (caps, reactors, condensers) scale with
+                            \(V^2\). A 10% voltage dip → 19% reactive loss.</li>
+                        <li><span class="dot">▸</span>During a voltage collapse, reactive support collapses faster than
+                            voltage — a vicious cycle.</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">🧠 Cable Classification — "LHoSE-ESV"</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>L</strong>T (1 kV) → <strong>H</strong>T (11 kV) →
+                            S<strong>T</strong> (33 kV) → <strong>E</strong>HT (66 kV) → <strong>E</strong>SV (&gt;132
+                            kV)</li>
+                        <li><span class="dot">▸</span>Each step roughly triples the voltage level. Beyond 33 kV, paper
+                            insulation must be oil-impregnated.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <span class="ci">⚠️</span>
+                <div class="cb">
+                    <div class="ct">Common Mistakes — GATE Traps</div>
+                    <p>1. <strong>Shunt cap raises pf, not stability.</strong> Series cap raises stability, not pf.
+                        Confusing these costs marks.<br>
+                        2. <strong>\(Q \propto V^2\)</strong> for both shunt caps and reactors. Forgetting the square
+                        when voltage changes is the #1 numerical error.<br>
+                        3. <strong>Synchronous condenser pf = ZPF lead</strong> (not unity, not lagging). Real power ≈
+                        0.<br>
+                        4. <strong>100% series compensation → resonance at 50 Hz</strong> — catastrophic. Series
+                        resonance frequency \(f_r = 50\sqrt{X_C/X_L}\).<br>
+                        5. <strong>Most economical radius</strong>: \(r = 0.368R\), not \(0.5R\). Forgetting the \(1/e\)
+                        factor is common.<br>
+                        6. <strong>Insulation resistance inversely proportional to length</strong> — longer cable, lower
+                        \(R_i\). Don't confuse with conductor resistance (which is proportional to length).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 12 — QUICK REVISION
+══════════════════════════════════ -->
+        <section class="section" id="sec12">
+            <div class="sec-hdr">
+                <span class="sec-num">12</span>
+                <h2 class="sec-t">Quick Revision Sheet</h2>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Voltage–Q Relationship</div>
+                    <p>\(|V_r| = |V_s| - \frac{X}{|V_s|}Q_s\). Inject Q locally → raise Vr. Absorb Q → lower Vr.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Shunt Capacitor Rating</div>
+                    <p>\(Q_C = P(\tan\phi_1 - \tan\phi_2)\). Primary purpose: pf correction. \(Q_C \propto V^2 f\).</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Series Capacitor</div>
+                    <p>\(P_{\max(\text{new})} = P_{\max}/(1-k)\) where \(k = X_C/X_L\). SSR at \(f_r = 50\sqrt{k}\) Hz.
+                    </p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Sync. Condenser / Coil</div>
+                    <p>OE at no-load = Condenser (ZPF lead, source Q). UE at no-load = Coil (ZPF lag, sink Q). Both:
+                        smooth control.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Cable Insulation Resistance</div>
+                    <p>\(R_i = \frac{\rho}{2\pi\ell}\ln(R/r)\). Inversely proportional to length. Capacitance \(C =
+                        \frac{2\pi\varepsilon_0\varepsilon_r}{\ell\ln(R/r)}\).</p>
+                </div>
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Cable Dielectric Stress</div>
+                    <p>\(E_x = V/[x\ln(R/r)]\). Max at conductor (\(x=r\)), min at sheath (\(x=R\)). Most economical \(r
+                        = 0.368R\).</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">3-Core Cable Capacitance</div>
+                    <p>\(C_C = (3C_1 - C_2)/6\), \(C_S = C_2/3\), \(C_n = 3C_1/2 - C_2/6\).</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Intersheath Grading</div>
+                    <p>\(\alpha = \sqrt[3]{D/d}\). Two intersheaths reduce peak stress by factor
+                        \(3/(1+\alpha+\alpha^2)\) compared to ungraded cable.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Device Purpose Summary</div>
+                    <p>Shunt Cap: pf ↑. Shunt Reactor: Ferranti ↓. Series Cap: stability ↑. Sync. Condenser: smooth V
+                        control. Phase Modifier: loaded pf correction.</p>
+                </div>
+            </div>
+
+        <!-- ═══ CITATIONS ═══ -->
+        <div class="citations" id="citations">
+            <div class="cite-h">References &amp; Citations</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from the following standard textbooks and learning resources. All explanations, derivations, diagrams, and examples are original to Aarova AI.</p>
+            <ul class="cite-list">
+                <li><span class="cite-num">[1]</span><span>Stevenson, William D. <em>Elements of Power System Analysis</em>. McGraw-Hill. Used for standard definitions and concepts.</span></li>
+                <li><span class="cite-num">[2]</span><span>Kothari, D.P. and Nagrath, I.J. <em>Modern Power System Analysis</em>. Tata McGraw-Hill. Used for derivations and analytical concepts.</span></li>
+                <li><span class="cite-num">[3]</span><span>Wadhwa, C.L. <em>Electrical Power Systems</em>. New Age International. Used for cable grading and shunt/series compensation.</span></li>
+            </ul>
+        </div>
+
+            <!-- ASK AAROVA AI WIDGET -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI</div>
+                <p>Have a doubt about Reactive Power Control or Underground Cables? Ask anything — GATE concepts,
+                    numericals, or exam tips!</p>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="ai-q" type="text"
+                        placeholder="e.g. What is subsynchronous resonance in series compensated lines?" />
+                    <button class="ai-btn" onclick="askAarova()">Ask →</button>
+                </div>
+                <div class="ai-suggest">
+                    <button class="ai-chip"
+                        onclick="setQ('Why does shunt capacitor improve power factor but not stability?')">Shunt Cap vs
+                        Stability</button>
+                    <button class="ai-chip"
+                        onclick="setQ('Explain subsynchronous resonance in series compensated lines')">SSR
+                        Explained</button>
+                    <button class="ai-chip"
+                        onclick="setQ('Why is electric stress maximum at conductor surface in cables?')">Cable
+                        Stress</button>
+                    <button class="ai-chip"
+                        onclick="setQ('Difference between synchronous condenser and synchronous coil')">Condenser vs
+                        Coil</button>
+                    <button class="ai-chip" onclick="setQ('Derive most economical radius of cable core')">Economical
+                        Radius</button>
+                </div>
+                <div class="ai-response" id="ai-resp"></div>
+            </div>
+
+        </section>
+
+        <hr>
+        <footer>
+            <strong>Aarova AI</strong> &nbsp;·&nbsp; Power Systems Series &nbsp;·&nbsp; Chapter 2 of 8<br>
+            <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+            <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and diagrams are original to Aarova AI. Derived from standard textbooks [1–3].</span>
+        </footer>
+
+    </div><!-- .page -->
+
+    <script>
+        async function askAarova() {
+            const q = document.getElementById('ai-q').value.trim();
+            if (!q) return;
+            const resp = document.getElementById('ai-resp');
+            resp.style.display = 'block';
+            resp.textContent = '⏳ Aarova AI is thinking...';
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1000,
+                        system: `You are Aarova AI — a senior electrical engineering professor specialising in Power Systems for GATE EE, IES/ESE, and PSU exam aspirants in India.
+Your personality: warm, encouraging, exam-focused. You explain every concept with:
+1. Intuitive analogy first
+2. Core theory / formula
+3. Physical significance
+4. GATE exam tips
+5. A memory trick if relevant
+Keep answers concise (under 280 words). Use LaTeX for equations where appropriate. Context: Chapter 2 — Reactive Power Control (shunt capacitor, shunt reactor, series capacitor, synchronous condenser/coil/phase modifier) and Underground Cables (construction, insulation resistance, capacitance, dielectric stress, grading).`,
+                        messages: [{ role: 'user', content: q }]
+                    })
+                });
+                const data = await res.json();
+                resp.textContent = data.content?.[0]?.text || 'Sorry, unable to get a response. Please try again.';
+            } catch (e) {
+                resp.textContent = '⚠️ Network error. Please try again.';
+            }
+        }
+
+        function setQ(txt) {
+            document.getElementById('ai-q').value = txt;
+            document.getElementById('ai-q').focus();
+        }
+
+        document.getElementById('ai-q').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') askAarova();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aarova AI — EM Ch.3 Transformer Equivalent Circuit</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fdf6ee;--bg2:#f8ede0;--bg3:#f0e0cc;--bg4:#e8d0b8;
+  --text:#1e1208;--text2:#3d2010;--text3:#6b3e22;--muted:#9a6e50;
+  --orange:#c95f1a;--orange-md:#e07235;--orange-lt:#f5956a;
+  --orange-bg:#fdebd8;--orange-bdr:#f0b48a;
+  --green:#2d6648;--green-bg:#dff0e8;--green-bdr:#8ecaaa;
+  --teal:#1e6b68;--teal-bg:#d8eeed;--teal-bdr:#7ec4c2;
+  --amber:#a05c00;--amber-bg:#fef0d0;--amber-bdr:#f0c060;
+  --red:#9a2020;--red-bg:#fde8e8;--red-bdr:#e89090;
+  --purple:#5b2d8e;--purple-bg:#ede8f8;--purple-bdr:#b8a0e0;
+  --border:#ddc8b0;--border2:#c8a888;
+  --radius:14px;
+  --shadow:0 2px 16px rgba(150,80,20,0.10);
+  --shadow-md:0 6px 28px rgba(150,80,20,0.14);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;font-size:18px;}
+body{background:var(--bg);color:var(--text2);font-family:'Lora',Georgia,serif;line-height:1.85;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.page{max-width:900px;margin:0 auto;padding:0 clamp(16px,4vw,48px) 100px;}
+
+/* ── HEADER ── */
+.site-header{position:sticky;top:0;z-index:100;background:rgba(253,246,238,0.95);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--border);padding:14px clamp(16px,4vw,48px);display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.logo{font-family:'Playfair Display',serif;font-size:clamp(15px,2.5vw,18px);font-weight:700;color:var(--orange);}
+.logo-sub{font-family:'Lora',serif;font-size:12px;color:var(--muted);margin-left:10px;font-weight:400;}
+.hbadges{display:flex;gap:6px;flex-wrap:wrap;}
+.hbadge{font-size:11px;font-weight:600;padding:3px 11px;border-radius:20px;background:var(--orange-bg);border:1px solid var(--orange-bdr);color:var(--orange);white-space:nowrap;}
+
+/* ── HERO ── */
+.hero{padding:clamp(36px,6vw,64px) 0 clamp(28px,4vw,44px);border-bottom:1.5px solid var(--border);margin-bottom:clamp(28px,4vw,44px);}
+.eyebrow{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.16em;color:var(--orange);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.eyebrow::before{content:'';display:inline-block;width:28px;height:2.5px;background:var(--orange);border-radius:2px;}
+h1.hero-title{font-family:'Playfair Display',serif;font-size:clamp(30px,6vw,50px);font-weight:800;color:var(--text);line-height:1.12;margin-bottom:18px;}
+h1.hero-title em{font-style:italic;color:var(--orange);}
+.hero-desc{font-size:clamp(15px,2vw,17px);color:var(--text3);max-width:640px;line-height:1.75;font-weight:400;margin-bottom:26px;}
+.badge-row{display:flex;flex-wrap:wrap;gap:8px;}
+.badge{font-size:13px;padding:5px 15px;border-radius:22px;border:1.5px solid var(--border2);color:var(--text3);background:var(--bg2);font-family:'Lora',serif;}
+.badge-p{background:var(--orange-bg);border-color:var(--orange-bdr);color:var(--orange);font-weight:600;}
+
+/* ── PROGRESS ── */
+.progress-bar{display:flex;align-items:center;gap:14px;background:var(--orange-bg);border:1.5px solid var(--orange-bdr);border-radius:10px;padding:13px 20px;margin-bottom:clamp(24px,4vw,40px);}
+.pl{font-size:13px;font-weight:600;color:var(--orange);white-space:nowrap;}
+.pt{flex:1;height:7px;background:rgba(201,95,26,0.18);border-radius:4px;overflow:hidden;min-width:40px;}
+.pf{height:100%;width:37.5%;background:var(--orange);border-radius:4px;}
+.pp{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--orange);white-space:nowrap;}
+
+/* ── TOC ── */
+.toc{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--orange);border-radius:var(--radius);padding:clamp(18px,3vw,28px);margin-bottom:clamp(32px,5vw,52px);}
+.toc-h{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:18px;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0 28px;}
+.toc-item{display:flex;align-items:baseline;gap:10px;font-size:15px;color:var(--text3);text-decoration:none;padding:7px 0;border-bottom:1px dashed transparent;transition:color .2s,border-color .2s;line-height:1.5;}
+.toc-item:hover{color:var(--orange);border-bottom-color:var(--orange-lt);}
+.toc-n{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--orange);min-width:30px;flex-shrink:0;}
+
+/* ── RACE STEP LABELS ── */
+.race-step{display:inline-flex;align-items:center;gap:8px;background:var(--purple-bg);border:1.5px solid var(--purple-bdr);border-radius:8px;padding:4px 14px;margin-bottom:14px;}
+.race-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--purple);background:#fff;border-radius:4px;padding:2px 7px;}
+.race-label{font-size:12px;font-weight:600;color:var(--purple);text-transform:uppercase;letter-spacing:.07em;}
+
+/* ── SECTIONS ── */
+.section{margin-bottom:clamp(40px,6vw,64px);}
+.sec-hdr{display:flex;align-items:center;gap:14px;margin-bottom:clamp(16px,3vw,24px);padding-bottom:14px;border-bottom:1.5px solid var(--border);}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-bdr);padding:3px 11px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+h2.sec-t{font-family:'Playfair Display',serif;font-size:clamp(20px,3.5vw,26px);font-weight:700;color:var(--text);}
+h3.sub{font-family:'Playfair Display',serif;font-size:clamp(16px,2.5vw,19px);font-weight:600;color:var(--text2);margin:clamp(22px,3vw,32px) 0 12px;display:flex;align-items:center;gap:10px;}
+h3.sub::before{content:'';display:inline-block;width:4px;height:17px;background:var(--orange-lt);border-radius:2px;flex-shrink:0;}
+p{margin-bottom:16px;color:var(--text2);font-size:clamp(15px,2vw,17px);line-height:1.85;}
+strong{font-weight:600;color:var(--text);}
+sup.cite{font-size:10px;color:var(--teal);font-weight:700;cursor:default;vertical-align:super;margin-left:1px;}
+ul.prose-list{margin:12px 0 16px 0;padding-left:0;list-style:none;}
+ul.prose-list li{font-size:clamp(15px,2vw,16.5px);color:var(--text2);padding:6px 0 6px 22px;border-bottom:1px solid var(--bg3);position:relative;line-height:1.7;}
+ul.prose-list li:last-child{border-bottom:none;}
+ul.prose-list li::before{content:'→';position:absolute;left:0;color:var(--orange-lt);font-weight:600;}
+
+/* ── CALLOUTS ── */
+.callout{border-radius:10px;padding:clamp(12px,2vw,16px) clamp(14px,2vw,20px);margin:18px 0;display:flex;gap:12px;align-items:flex-start;}
+.ci{font-size:18px;flex-shrink:0;margin-top:2px;}.cb{flex:1;}
+.ct{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;}
+.cb p{margin:0;font-size:clamp(14px,1.8vw,15.5px);line-height:1.7;}
+.c-info{background:var(--orange-bg);border-left:4px solid var(--orange);}.c-info .ct{color:var(--orange);}.c-info p{color:var(--text2);}
+.c-tip{background:var(--green-bg);border-left:4px solid var(--green);}.c-tip .ct{color:var(--green);}.c-tip p{color:#1e4d38;}
+.c-key{background:var(--teal-bg);border-left:4px solid var(--teal);}.c-key .ct{color:var(--teal);}.c-key p{color:#154e4c;}
+.c-warn{background:var(--amber-bg);border-left:4px solid var(--amber);}.c-warn .ct{color:var(--amber);}.c-warn p{color:#6e3f00;}
+.c-danger{background:var(--red-bg);border-left:4px solid var(--red);}.c-danger .ct{color:var(--red);}.c-danger p{color:#6e1515;}
+.c-insight{background:var(--purple-bg);border-left:4px solid var(--purple);}.c-insight .ct{color:var(--purple);}.c-insight p{color:#3d1d6e;}
+
+/* ── TABLES ── */
+.tw{overflow-x:auto;margin:18px 0;border-radius:12px;border:1.5px solid var(--border);box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:clamp(13px,1.8vw,15px);}
+thead tr{background:var(--bg3);}
+thead th{padding:12px 18px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--text3);border-bottom:1.5px solid var(--border);white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--bg3);transition:background .12s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg2);}
+tbody td{padding:11px 18px;color:var(--text2);vertical-align:top;line-height:1.6;}
+tbody td:first-child{font-weight:600;color:var(--text);}
+.t-org{color:var(--orange)!important;font-weight:600!important;}
+.t-grn{color:var(--green)!important;font-weight:600!important;}
+.t-red{color:var(--red)!important;font-weight:600!important;}
+.t-amb{color:var(--amber)!important;font-weight:600!important;}
+.t-tel{color:var(--teal)!important;font-weight:600!important;}
+.t-dim{color:var(--muted)!important;}
+
+/* ── FORMULA BLOCKS ── */
+.fblock{background:var(--bg3);border:1.5px solid var(--border2);border-left:4px solid var(--orange-lt);border-radius:10px;padding:clamp(14px,2vw,20px) clamp(16px,2vw,24px);margin:16px 0;font-family:'JetBrains Mono',monospace;font-size:clamp(12.5px,1.8vw,14px);color:var(--text);line-height:2.1;overflow-x:auto;white-space:pre;}
+.fblock .flbl{font-family:'Lora',serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:6px;white-space:normal;}
+.fv{color:var(--orange);}.feq{color:var(--green);font-weight:500;}.fh{color:var(--teal);}
+
+/* ── SVG / DIAGRAMS ── */
+.svg-wrap{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:clamp(14px,3vw,24px);margin:18px 0;overflow-x:auto;box-shadow:var(--shadow);}
+.svg-wrap svg{width:100%;height:auto;min-width:300px;}
+.svg-cap{font-size:12.5px;color:var(--muted);text-align:center;margin-top:10px;font-style:italic;}
+.svg-cite{font-size:11px;color:var(--teal);text-align:center;margin-top:4px;}
+
+/* ── EXAMPLES ── */
+.example{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);margin:24px 0;box-shadow:var(--shadow);overflow:hidden;}
+.ex-hdr{background:var(--bg3);padding:10px clamp(14px,2vw,20px);display:flex;align-items:center;gap:10px;border-bottom:1.5px solid var(--border);flex-wrap:wrap;}
+.ex-num{font-size:10px;font-weight:700;background:var(--orange);color:#fff;padding:3px 10px;border-radius:5px;letter-spacing:.06em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.ex-num.gate{background:var(--teal);}
+.ex-num.concept{background:var(--green);}
+.ex-title{font-size:14px;font-weight:600;color:var(--text2);line-height:1.4;}
+.ex-body{padding:clamp(14px,2vw,22px) clamp(16px,2vw,22px);}
+.ex-q{font-size:clamp(14px,2vw,16px);color:var(--text);background:var(--orange-bg);border-left:4px solid var(--orange);padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:16px;line-height:1.65;}
+.sol-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--green);margin-bottom:10px;}
+
+/* ── GATE PROBABILITY TAGS ── */
+.prob-row{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0;}
+.prob-tag{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;padding:6px 14px;border-radius:8px;font-weight:600;}
+.prob-high{background:var(--green-bg);border:1.5px solid var(--green-bdr);color:var(--green);}
+.prob-med{background:var(--amber-bg);border:1.5px solid var(--amber-bdr);color:var(--amber);}
+.prob-low{background:var(--red-bg);border:1.5px solid var(--red-bdr);color:var(--red);}
+
+/* ── CBQ SECTION ── */
+.cbq{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);margin:20px 0;overflow:hidden;box-shadow:var(--shadow);}
+.cbq-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:10px 18px;}
+.cbq-title{font-size:13px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.07em;}
+.cbq-body{padding:16px 20px;}
+.cbq-q{font-size:14.5px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.cbq-a{font-size:14px;color:var(--text2);padding-left:14px;border-left:3px solid var(--orange-lt);line-height:1.7;margin-bottom:14px;}
+.cbq-a:last-child{margin-bottom:0;}
+
+/* ── MEMORY TRICKS ── */
+.memory-box{background:linear-gradient(135deg,var(--amber-bg),var(--orange-bg));border:2px solid var(--amber-bdr);border-radius:var(--radius);padding:clamp(16px,3vw,24px);margin:20px 0;}
+.memory-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--amber);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.memory-item{background:#fff;border-radius:8px;padding:12px 16px;margin-bottom:10px;border:1px solid var(--amber-bdr);}
+.memory-item:last-child{margin-bottom:0;}
+.memory-key{font-size:13px;font-weight:700;color:var(--amber);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;}
+.memory-val{font-size:14px;color:var(--text2);line-height:1.6;}
+
+/* ── REVISION SHEET ── */
+.revision{background:var(--bg2);border:2px solid var(--orange-bdr);border-radius:var(--radius);padding:clamp(18px,3vw,28px);margin:20px 0;}
+.revision-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:800;color:var(--orange);margin-bottom:18px;text-align:center;border-bottom:1.5px solid var(--border);padding-bottom:12px;}
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+.rev-card{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;}
+.rev-card-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--orange);margin-bottom:8px;}
+.rev-card p{font-size:13px;color:var(--text2);margin:0;line-height:1.65;font-family:'JetBrains Mono',monospace;}
+
+/* ── CITATIONS ── */
+.citations{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--teal);border-radius:var(--radius);padding:clamp(18px,3vw,28px);margin-top:40px;}
+.cite-h{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:18px;}
+.cite-list{list-style:none;}
+.cite-list li{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid var(--border);font-size:clamp(13px,1.8vw,14.5px);color:var(--text2);line-height:1.65;}
+.cite-list li:last-child{border-bottom:none;}
+.cite-num{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--teal);background:var(--teal-bg);padding:2px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0;height:fit-content;margin-top:2px;}
+.cite-list em{color:var(--orange-md);font-style:italic;}
+
+/* ── AI PROMPT ── */
+.ai-prompt{background:linear-gradient(135deg,var(--teal-bg),var(--orange-bg));border:2px solid var(--teal-bdr);border-radius:var(--radius);padding:clamp(18px,3vw,28px);margin:32px 0;box-shadow:var(--shadow-md);}
+.ai-prompt-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--teal);margin-bottom:10px;}
+.ai-prompt p{color:var(--text2);font-size:14.5px;margin-bottom:14px;}
+.ai-input-row{display:flex;gap:10px;flex-wrap:wrap;}
+.ai-input{flex:1;min-width:200px;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Lora',serif;font-size:14px;color:var(--text);outline:none;}
+.ai-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(30,107,104,0.12);}
+.ai-btn{padding:10px 22px;border-radius:8px;background:var(--teal);color:#fff;border:none;font-family:'Lora',serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .18s,transform .12s;white-space:nowrap;}
+.ai-btn:hover{background:#155250;transform:translateY(-1px);}
+.ai-suggest{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;}
+.ai-chip{font-size:12px;padding:5px 12px;border-radius:20px;border:1.5px solid var(--teal-bdr);color:var(--teal);background:var(--bg);cursor:pointer;font-family:'Lora',serif;transition:all .15s;}
+.ai-chip:hover{background:var(--teal-bg);}
+.ai-response{margin-top:16px;padding:14px 16px;background:#fff;border-radius:8px;border:1.5px solid var(--border);font-size:14.5px;color:var(--text2);display:none;line-height:1.75;white-space:pre-wrap;}
+
+hr{border:none;border-top:1.5px solid var(--border);margin:44px 0;}
+footer{text-align:center;padding:30px 0;font-size:13px;color:var(--muted);border-top:1.5px solid var(--border);}
+footer strong{color:var(--orange);}
+.section{opacity:0;transform:translateY(14px);animation:rise .45s forwards;}
+@keyframes rise{to{opacity:1;transform:none;}}
+.section:nth-child(1){animation-delay:.04s}.section:nth-child(2){animation-delay:.08s}
+.section:nth-child(3){animation-delay:.12s}.section:nth-child(4){animation-delay:.16s}
+.section:nth-child(5){animation-delay:.20s}.section:nth-child(6){animation-delay:.24s}
+.section:nth-child(7){animation-delay:.28s}.section:nth-child(8){animation-delay:.32s}
+.section:nth-child(9){animation-delay:.36s}.section:nth-child(10){animation-delay:.40s}
+.section:nth-child(11){animation-delay:.44s}.section:nth-child(12){animation-delay:.48s}
+.section:nth-child(13){animation-delay:.52s}.section:nth-child(14){animation-delay:.56s}
+@media(max-width:768px){html{font-size:17px;}.logo-sub{display:none;}.fblock{white-space:pre-wrap;word-break:break-word;}}
+@media(max-width:480px){html{font-size:16px;}.hbadges{display:none;}.toc-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">Aarova AI <span class="logo-sub">Electrical Machines Series</span></div>
+  <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span class="hbadge">PSU</span></div>
+</header>
+
+<div class="page">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="eyebrow">Chapter 03 &nbsp;·&nbsp; Electrical Machines &nbsp;·&nbsp; Single-Phase Transformer</div>
+  <h1 class="hero-title">Equivalent Circuit, Phasor Diagram, Tests, <em>Regulation &amp; Efficiency</em></h1>
+  <p class="hero-desc">A complete professor-style chapter — intuitive explanations, step-by-step derivations, real-world applications, GATE/IES exam insights, memory tricks, and worked numericals. Sourced from Chapman, Kothari &amp; Nagrath, and Fitzgerald.</p>
+  <div class="badge-row">
+    <span class="badge badge-p">GATE EE — High Priority</span>
+    <span class="badge">IES E&amp;T</span>
+    <span class="badge">PSU Electrical</span>
+    <span class="badge">RACE Framework</span>
+  </div>
+</div>
+
+<div class="progress-bar">
+  <span class="pl">Series Progress</span>
+  <div class="pt"><div class="pf"></div></div>
+  <span class="pp">Chapter 3 of 8</span>
+</div>
+
+<div class="toc">
+  <div class="toc-h">Contents</div>
+  <div class="toc-grid">
+    <a href="#s1"  class="toc-item"><span class="toc-n">3.1</span>Why This Topic Matters</a>
+    <a href="#s8"  class="toc-item"><span class="toc-n">3.8</span>OC &amp; SC Tests</a>
+    <a href="#s2"  class="toc-item"><span class="toc-n">3.2</span>Intuitive Understanding</a>
+    <a href="#s9"  class="toc-item"><span class="toc-n">3.9</span>Voltage Regulation</a>
+    <a href="#s3"  class="toc-item"><span class="toc-n">3.3</span>Real-World Applications</a>
+    <a href="#s10" class="toc-item"><span class="toc-n">3.10</span>Efficiency</a>
+    <a href="#s4"  class="toc-item"><span class="toc-n">3.4</span>Exact Equivalent Circuit</a>
+    <a href="#s11" class="toc-item"><span class="toc-n">3.11</span>Concept Building Questions</a>
+    <a href="#s5"  class="toc-item"><span class="toc-n">3.5</span>Approximate Circuits</a>
+    <a href="#s12" class="toc-item"><span class="toc-n">3.12</span>Common Mistakes</a>
+    <a href="#s6"  class="toc-item"><span class="toc-n">3.6</span>Phasor Diagram</a>
+    <a href="#s13" class="toc-item"><span class="toc-n">3.13</span>Worked Examples</a>
+    <a href="#s7"  class="toc-item"><span class="toc-n">3.7</span>GATE Insights</a>
+    <a href="#s14" class="toc-item"><span class="toc-n">3.14</span>Quick Revision Sheet</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S1 — WHY THIS TOPIC MATTERS
+═══════════════════════════════════ -->
+<div class="section" id="s1">
+  <div class="sec-hdr"><span class="sec-num">3.1</span><h2 class="sec-t">Why This Topic Matters</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">Big Picture Introduction</span></div>
+
+  <p>An ideal transformer simply steps voltage up or down. But every real transformer has <strong>resistances, leakage reactances, and a core that consumes power</strong>. The <strong>equivalent circuit</strong> is the tool that makes a real transformer mathematically tractable — it replaces the actual transformer with a network of resistors, inductors, and an ideal transformer that you can analyse with Kirchhoff's laws.</p>
+
+  <p>Without the equivalent circuit, you cannot answer any of these engineering questions:</p>
+  <ul class="prose-list">
+    <li>What is the terminal voltage at full load? (Voltage Regulation)</li>
+    <li>How much power is wasted as heat in the windings and core? (Efficiency)</li>
+    <li>What are the winding parameters? (OC and SC Tests)</li>
+    <li>Will the transformer overheat at 110% load? (Thermal design)</li>
+    <li>What fault current flows during a secondary short circuit? (Protection design)</li>
+  </ul>
+
+  <div class="callout c-info">
+    <div class="ci">🌍</div>
+    <div class="cb"><div class="ct">Engineering Reality</div>
+    <p>A 315 kVA distribution transformer serving a city block has a nameplate efficiency of 99.1%. That missing 0.9% = 2.8 kW dissipated as heat, 24 hours/day, 365 days/year = 24,500 kWh/year wasted — worth ₹1.8 lakh in electricity at ₹7/unit. The equivalent circuit is how engineers calculate this and design for better efficiency.</p></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S2 — INTUITIVE UNDERSTANDING
+═══════════════════════════════════ -->
+<div class="section" id="s2">
+  <div class="sec-hdr"><span class="sec-num">3.2</span><h2 class="sec-t">Intuitive Understanding</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">Intuitive Explanation — Analogy First</span></div>
+
+  <p>Think of the transformer as a <strong>water pipe system with a pressure converter</strong>:</p>
+  <ul class="prose-list">
+    <li><strong>Primary resistance R₁:</strong> friction in the input pipe — water pressure drops as flow increases</li>
+    <li><strong>Leakage reactance X₁:</strong> some water squirts sideways and never reaches the converter — wasted effort</li>
+    <li><strong>Core (Rc ∥ Xm):</strong> the pressure converter itself — Rc is the friction inside it (core loss), Xm is the inertia it takes to spin up (magnetising energy)</li>
+    <li><strong>Secondary resistance R₂, reactance X₂:</strong> same friction and leakage in the output pipe</li>
+    <li><strong>Load ZL:</strong> the end user — tap, motor, house</li>
+  </ul>
+
+  <p>The equivalent circuit simply <strong>draws this as an electrical circuit</strong> so we can apply KVL and KCL to calculate voltage drops and losses exactly.</p>
+
+  <div class="callout c-key">
+    <div class="ci">🔑</div>
+    <div class="cb"><div class="ct">The Central Idea</div>
+    <p>A transformer has <strong>two physically separate circuits</strong> linked only by a magnetic field. The equivalent circuit <em>refers</em> all quantities to one side using the turns ratio, collapsing the two circuits into one. Now you can treat it like a simple series–parallel AC circuit.</p></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S3 — REAL-WORLD APPLICATIONS
+═══════════════════════════════════ -->
+<div class="section" id="s3">
+  <div class="sec-hdr"><span class="sec-num">3.3</span><h2 class="sec-t">Real-World Applications</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">5 Engineering Applications</span></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Application</th><th>How Equivalent Circuit Is Used</th><th>Key Parameter</th></tr></thead>
+      <tbody>
+        <tr><td>Distribution substation (11kV/415V)</td><td>Calculate voltage at consumer terminals under peak load — determines tap-changer position needed</td><td>Voltage Regulation %</td></tr>
+        <tr><td>Solar inverter transformer</td><td>Model leakage inductance to calculate harmonic current injection into grid</td><td>Leakage reactance X_eq</td></tr>
+        <tr><td>EV fast charger transformer</td><td>Calculate copper loss under continuous full-load DC charging current for thermal design</td><td>R_eq, copper loss</td></tr>
+        <tr><td>Arc furnace transformer</td><td>Design for inherently high short-circuit impedance to limit fault current during arc ignition</td><td>%Z (impedance voltage)</td></tr>
+        <tr><td>Medical isolation transformer (ICU)</td><td>Determine leakage current to ground — must be &lt;500 μA for patient safety (IEC 60601)</td><td>Insulation + stray capacitance</td></tr>
+        <tr><td>Railway traction transformer</td><td>Predict voltage regulation under heavily fluctuating locomotive loads</td><td>Xeq (dominates at high current)</td></tr>
+        <tr><td>SMPS (laptop charger)</td><td>High-frequency equivalent circuit — leakage inductance causes voltage spikes, must be designed out</td><td>X₁, X₂ at 100 kHz</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S4 — EXACT EQUIVALENT CIRCUIT
+═══════════════════════════════════ -->
+<div class="section" id="s4">
+  <div class="sec-hdr"><span class="sec-num">3.4</span><h2 class="sec-t">Exact Equivalent Circuit — Derivation</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">Core Theory + Mathematical Derivation</span></div>
+
+  <h3 class="sub">Step 1 — Non-Ideal Effects in a Real Transformer</h3>
+  <p>Four non-ideal effects must be modelled:<sup class="cite">[1,2]</sup></p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Non-ideal Effect</th><th>Physical Cause</th><th>Circuit Element</th></tr></thead>
+      <tbody>
+        <tr><td class="t-org">Primary winding resistance</td><td>Copper conductor has finite resistivity</td><td>R₁ in series with primary</td></tr>
+        <tr><td class="t-org">Primary leakage reactance</td><td>Flux that links primary but NOT secondary</td><td>jX₁ in series with primary</td></tr>
+        <tr><td class="t-amb">Core loss (hysteresis + eddy)</td><td>Iron core dissipates real power</td><td>Rc in shunt (parallel)</td></tr>
+        <tr><td class="t-amb">Magnetising reactance</td><td>Core needs reactive power to sustain flux</td><td>jXm in shunt (parallel)</td></tr>
+        <tr><td class="t-tel">Secondary leakage reactance</td><td>Flux that links secondary but NOT primary</td><td>jX₂ in series with secondary</td></tr>
+        <tr><td class="t-tel">Secondary winding resistance</td><td>Copper conductor in secondary</td><td>R₂ in series with secondary</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub">Step 2 — The Exact Equivalent Circuit</h3>
+
+  <!-- SVG: Exact Equivalent Circuit -->
+  <div class="svg-wrap">
+    <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <!-- Top wire: V1 → R1 → X1 → (junction) → R2' → X2' → V2 -->
+      <!-- V1 source -->
+      <line x1="30" y1="60" x2="30" y2="160" stroke="#c95f1a" stroke-width="2"/>
+      <text x="22" y="115" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#c95f1a" font-weight="600">V₁</text>
+      <line x1="30" y1="60" x2="70" y2="60" stroke="#c95f1a" stroke-width="1.8"/>
+      <line x1="30" y1="160" x2="650" y2="160" stroke="#3d2010" stroke-width="1.8"/>
+
+      <!-- R1 box -->
+      <rect x="70" y="48" width="60" height="24" rx="4" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5"/>
+      <text x="100" y="64" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#c95f1a" font-weight="600">R₁</text>
+      <line x1="130" y1="60" x2="155" y2="60" stroke="#c95f1a" stroke-width="1.8"/>
+
+      <!-- X1 box -->
+      <rect x="155" y="48" width="60" height="24" rx="4" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5"/>
+      <text x="185" y="64" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#c95f1a" font-weight="600">jX₁</text>
+      <line x1="215" y1="60" x2="255" y2="60" stroke="#c95f1a" stroke-width="1.8"/>
+
+      <!-- Shunt branch junction -->
+      <circle cx="255" cy="60" r="3.5" fill="#a05c00"/>
+      <line x1="255" y1="60" x2="255" y2="80" stroke="#a05c00" stroke-width="1.8"/>
+
+      <!-- Rc box (shunt) -->
+      <rect x="225" y="80" width="60" height="22" rx="4" fill="#fef0d0" stroke="#f0c060" stroke-width="1.5"/>
+      <text x="255" y="95" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#a05c00" font-weight="600">Rc</text>
+
+      <!-- Xm box (shunt) -->
+      <rect x="225" y="110" width="60" height="22" rx="4" fill="#fef0d0" stroke="#f0c060" stroke-width="1.5"/>
+      <text x="255" y="125" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#a05c00" font-weight="600">jXm</text>
+
+      <line x1="255" y1="132" x2="255" y2="160" stroke="#a05c00" stroke-width="1.8"/>
+
+      <!-- E1 label between shunt and R2' -->
+      <text x="295" y="55" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#9a6e50">E₁</text>
+
+      <!-- Ideal transformer symbol -->
+      <line x1="330" y1="40" x2="330" y2="170" stroke="#ddc8b0" stroke-width="1" stroke-dasharray="5 4"/>
+      <text x="338" y="108" font-family="Lora,serif" font-size="10" fill="#9a6e50">a:1</text>
+
+      <!-- R2' box -->
+      <rect x="360" y="48" width="60" height="24" rx="4" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5"/>
+      <text x="390" y="64" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#1e6b68" font-weight="600">R₂'</text>
+      <line x1="255" y1="60" x2="360" y2="60" stroke="#3d2010" stroke-width="1.8"/>
+      <line x1="420" y1="60" x2="450" y2="60" stroke="#1e6b68" stroke-width="1.8"/>
+
+      <!-- X2' box -->
+      <rect x="450" y="48" width="60" height="24" rx="4" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5"/>
+      <text x="480" y="64" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#1e6b68" font-weight="600">jX₂'</text>
+      <line x1="510" y1="60" x2="560" y2="60" stroke="#1e6b68" stroke-width="1.8"/>
+
+      <!-- Load ZL -->
+      <rect x="560" y="48" width="60" height="24" rx="4" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5"/>
+      <text x="590" y="64" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#2d6648" font-weight="600">ZL</text>
+      <line x1="620" y1="60" x2="650" y2="60" stroke="#2d6648" stroke-width="1.8"/>
+      <line x1="650" y1="60" x2="650" y2="160" stroke="#2d6648" stroke-width="1.8"/>
+      <!-- V2 label -->
+      <text x="660" y="115" font-family="JetBrains Mono,monospace" font-size="12" fill="#2d6648" font-weight="600">V₂'</text>
+
+      <!-- Current labels -->
+      <text x="52" y="50" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a">I₁→</text>
+      <text x="245" y="72" font-family="JetBrains Mono,monospace" font-size="10" fill="#a05c00">I₀</text>
+      <text x="540" y="50" font-family="JetBrains Mono,monospace" font-size="11" fill="#2d6648">→I₂'</text>
+    </svg>
+    <div class="svg-cap">Fig 3.1 — Exact equivalent circuit referred to primary side. R₂' = a²R₂, X₂' = a²X₂, where a = N₁/N₂</div>
+    <div class="svg-cite">Basis: Chapman [1] §2.4–2.5; Kothari &amp; Nagrath [2] §2.5</div>
+  </div>
+
+  <h3 class="sub">Step 3 — Referring Secondary Quantities to Primary</h3>
+  <div class="fblock"><div class="flbl">Referring Secondary Parameters to Primary Side (a = N₁/N₂)</div><span class="fv">R₂'</span>  <span class="feq">=</span>  a² · R₂       (referred secondary resistance)
+<span class="fv">X₂'</span>  <span class="feq">=</span>  a² · X₂       (referred secondary leakage reactance)
+<span class="fv">V₂'</span>  <span class="feq">=</span>  a · V₂        (referred secondary voltage)
+<span class="fv">I₂'</span>  <span class="feq">=</span>  I₂ / a        (referred secondary current)
+<span class="fv">Z_L'</span> <span class="feq">=</span>  a² · Z_L      (referred load impedance)
+
+Equivalently, referred to secondary side:
+<span class="fv">R₁'</span>  <span class="feq">=</span>  R₁ / a²,   <span class="fv">X₁'</span> <span class="feq">=</span> X₁ / a²
+<span class="fv">Rc'</span>  <span class="feq">=</span>  Rc / a²,   <span class="fv">Xm'</span> <span class="feq">=</span> Xm / a²</div>
+
+  <div class="callout c-warn">
+    <div class="ci">⚠️</div>
+    <div class="cb"><div class="ct">GATE Trap — Impedance Scales as a², Not a</div>
+    <p>Voltage and current scale by a and 1/a respectively. But impedance (= V/I) scales as (a)/(1/a) = <strong>a²</strong>. Students who write R₂' = a·R₂ will get the wrong answer. Always: impedances → a², voltages → a, currents → 1/a.</p></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S5 — APPROXIMATE CIRCUITS
+═══════════════════════════════════ -->
+<div class="section" id="s5">
+  <div class="sec-hdr"><span class="sec-num">3.5</span><h2 class="sec-t">Approximate Equivalent Circuits</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">Simplifications for Practical Analysis</span></div>
+
+  <p>The exact circuit is accurate but algebraically tedious. Two standard approximations exist, each valid for different purposes.<sup class="cite">[1,2]</sup></p>
+
+  <!-- SVG: Three versions side by side -->
+  <div class="svg-wrap">
+    <svg viewBox="0 0 680 310" xmlns="http://www.w3.org/2000/svg">
+      <!-- ── Version 1: Shunt branch at INPUT terminals ── -->
+      <text x="215" y="22" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" fill="#c95f1a" font-weight="700">Approx. 1 — Shunt at Input</text>
+      <!-- Shunt at V1 -->
+      <line x1="30" y1="50" x2="30" y2="140" stroke="#c95f1a" stroke-width="2"/>
+      <text x="22" y="98" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a">V₁</text>
+      <line x1="30" y1="50" x2="80" y2="50" stroke="#c95f1a" stroke-width="1.8"/>
+      <line x1="30" y1="140" x2="420" y2="140" stroke="#3d2010" stroke-width="1.8"/>
+      <!-- Shunt at input -->
+      <circle cx="80" cy="50" r="3" fill="#a05c00"/>
+      <line x1="80" y1="50" x2="80" y2="68" stroke="#a05c00" stroke-width="1.8"/>
+      <rect x="52" y="68" width="56" height="20" rx="4" fill="#fef0d0" stroke="#f0c060" stroke-width="1.2"/>
+      <text x="80" y="81" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#a05c00">Rc‖jXm</text>
+      <line x1="80" y1="88" x2="80" y2="140" stroke="#a05c00" stroke-width="1.8"/>
+      <!-- Req box -->
+      <line x1="80" y1="50" x2="110" y2="50" stroke="#c95f1a" stroke-width="1.8"/>
+      <rect x="110" y="38" width="70" height="24" rx="4" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5"/>
+      <text x="145" y="54" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a" font-weight="600">Req</text>
+      <line x1="180" y1="50" x2="210" y2="50" stroke="#c95f1a" stroke-width="1.8"/>
+      <!-- Xeq box -->
+      <rect x="210" y="38" width="70" height="24" rx="4" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5"/>
+      <text x="245" y="54" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a" font-weight="600">jXeq</text>
+      <line x1="280" y1="50" x2="330" y2="50" stroke="#c95f1a" stroke-width="1.8"/>
+      <!-- ZL -->
+      <rect x="330" y="38" width="60" height="24" rx="4" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5"/>
+      <text x="360" y="54" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#2d6648" font-weight="600">ZL</text>
+      <line x1="390" y1="50" x2="420" y2="50" stroke="#2d6648" stroke-width="1.8"/>
+      <line x1="420" y1="50" x2="420" y2="140" stroke="#2d6648" stroke-width="1.8"/>
+      <text x="428" y="98" font-family="JetBrains Mono,monospace" font-size="11" fill="#2d6648">V₂'</text>
+      <!-- use case -->
+      <text x="215" y="160" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a6e50">Use when: accurate voltage regulation needed</text>
+
+      <!-- ── Version 2: Shunt NEGLECTED — series impedance only ── -->
+      <text x="215" y="185" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" fill="#1e6b68" font-weight="700">Approx. 2 — Shunt Branch Neglected</text>
+      <line x1="30" y1="210" x2="30" y2="295" stroke="#1e6b68" stroke-width="2"/>
+      <text x="22" y="256" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#1e6b68">V₁</text>
+      <line x1="30" y1="210" x2="90" y2="210" stroke="#1e6b68" stroke-width="1.8"/>
+      <line x1="30" y1="295" x2="420" y2="295" stroke="#3d2010" stroke-width="1.8"/>
+      <!-- Req -->
+      <rect x="90" y="198" width="70" height="24" rx="4" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5"/>
+      <text x="125" y="214" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#1e6b68" font-weight="600">Req</text>
+      <line x1="160" y1="210" x2="200" y2="210" stroke="#1e6b68" stroke-width="1.8"/>
+      <!-- Xeq -->
+      <rect x="200" y="198" width="70" height="24" rx="4" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5"/>
+      <text x="235" y="214" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#1e6b68" font-weight="600">jXeq</text>
+      <line x1="270" y1="210" x2="330" y2="210" stroke="#1e6b68" stroke-width="1.8"/>
+      <!-- ZL -->
+      <rect x="330" y="198" width="60" height="24" rx="4" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.5"/>
+      <text x="360" y="214" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#2d6648" font-weight="600">ZL</text>
+      <line x1="390" y1="210" x2="420" y2="210" stroke="#2d6648" stroke-width="1.8"/>
+      <line x1="420" y1="210" x2="420" y2="295" stroke="#2d6648" stroke-width="1.8"/>
+      <!-- use case -->
+      <text x="215" y="308" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a6e50">Use when: quick VR estimate, SC test analysis, fault currents</text>
+    </svg>
+    <div class="svg-cap">Fig 3.2 — Two approximate equivalent circuits. Approx 1: shunt branch moved to input. Approx 2: shunt neglected entirely. Both referred to primary.</div>
+    <div class="svg-cite">Basis: Chapman [1] §2.5, p.92; Kothari &amp; Nagrath [2] §2.5</div>
+  </div>
+
+  <div class="fblock"><div class="flbl">Combined Equivalent Impedances (referred to primary)</div><span class="fv">Req</span>   <span class="feq">=</span>  R₁ + a²R₂  =  R₁ + R₂'        (total series resistance)
+<span class="fv">Xeq</span>   <span class="feq">=</span>  X₁ + a²X₂  =  X₁ + X₂'        (total leakage reactance)
+<span class="fv">Zeq</span>   <span class="feq">=</span>  Req + jXeq                       (total series impedance)
+<span class="fv">|Zeq|</span> <span class="feq">=</span>  √(Req² + Xeq²)
+
+Referred to secondary:
+<span class="fv">Req2</span>  <span class="feq">=</span>  R₂ + R₁/a²
+<span class="fv">Xeq2</span>  <span class="feq">=</span>  X₂ + X₁/a²</div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S6 — PHASOR DIAGRAM
+═══════════════════════════════════ -->
+<div class="section" id="s6">
+  <div class="sec-hdr"><span class="sec-num">3.6</span><h2 class="sec-t">Phasor Diagram</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">Visual Learning — Phasor Construction Step-by-Step</span></div>
+
+  <p>The phasor diagram shows the phase relationships between all voltages and currents in the transformer. It is constructed from the secondary side outward to the primary.<sup class="cite">[1,2]</sup></p>
+
+  <h3 class="sub">Construction Steps (Lagging Load — Most Common)</h3>
+  <ul class="prose-list">
+    <li><strong>Step 1:</strong> Draw V₂ as reference phasor (horizontal, pointing right)</li>
+    <li><strong>Step 2:</strong> Draw I₂ lagging V₂ by angle φ₂ (for inductive/lagging load)</li>
+    <li><strong>Step 3:</strong> Add I₂R₂ (in phase with I₂) to V₂ → gives a point along the way to E₂</li>
+    <li><strong>Step 4:</strong> Add jI₂X₂ (90° ahead of I₂) → the tip is E₂ (= E₁/a)</li>
+    <li><strong>Step 5:</strong> The core current I₀ = Ic (in phase with E₁) + Im (lagging E₁ by 90°)</li>
+    <li><strong>Step 6:</strong> Total primary current I₁ = I₂' + I₀ (phasor sum)</li>
+    <li><strong>Step 7:</strong> Add I₁R₁ (in phase with I₁) and jI₁X₁ (90° ahead) to E₁ → gives V₁</li>
+  </ul>
+
+  <!-- SVG: Phasor Diagram for Lagging Load -->
+  <div class="svg-wrap">
+    <svg viewBox="0 0 680 360" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M1 1L9 5L1 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <!-- Origin -->
+      <circle cx="200" cy="240" r="3" fill="#3d2010"/>
+      <text x="188" y="255" font-family="Lora,serif" font-size="11" fill="#9a6e50">O</text>
+
+      <!-- V2 (reference, horizontal) -->
+      <line x1="200" y1="240" x2="440" y2="240" stroke="#2d6648" stroke-width="2.5" marker-end="url(#ph)"/>
+      <text x="450" y="244" font-family="JetBrains Mono,monospace" font-size="13" fill="#2d6648" font-weight="600">V₂</text>
+
+      <!-- I2 (lagging V2 by ~30°) -->
+      <line x1="200" y1="240" x2="420" y2="300" stroke="#1e6b68" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#ph)"/>
+      <text x="425" y="310" font-family="JetBrains Mono,monospace" font-size="12" fill="#1e6b68" font-weight="600">I₂</text>
+
+      <!-- I2R2 (along I2 direction) -->
+      <line x1="440" y1="240" x2="472" y2="252" stroke="#c95f1a" stroke-width="2" marker-end="url(#ph)"/>
+      <text x="476" y="247" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a">I₂R₂</text>
+
+      <!-- jI2X2 (90° ahead of I2) pointing up-right from R2 tip -->
+      <line x1="472" y1="252" x2="458" y2="218" stroke="#c95f1a" stroke-width="2" marker-end="url(#ph)"/>
+      <text x="462" y="212" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a">jI₂X₂</text>
+
+      <!-- E2 = E1 at 458,218 -->
+      <line x1="200" y1="240" x2="458" y2="218" stroke="#a05c00" stroke-width="2.5" marker-end="url(#ph)"/>
+      <text x="464" y="214" font-family="JetBrains Mono,monospace" font-size="13" fill="#a05c00" font-weight="600">E₁</text>
+
+      <!-- Im (lagging E1 by 90°) -->
+      <line x1="200" y1="240" x2="220" y2="175" stroke="#a05c00" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ph)"/>
+      <text x="224" y="168" font-family="JetBrains Mono,monospace" font-size="11" fill="#a05c00">Im</text>
+
+      <!-- Ic (in phase with E1) -->
+      <line x1="200" y1="240" x2="242" y2="234" stroke="#a05c00" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ph)"/>
+      <text x="246" y="228" font-family="JetBrains Mono,monospace" font-size="11" fill="#a05c00">Ic</text>
+
+      <!-- I0 = Ic + Im (phasor sum) -->
+      <line x1="200" y1="240" x2="240" y2="170" stroke="#9a2020" stroke-width="2" marker-end="url(#ph)"/>
+      <text x="242" y="164" font-family="JetBrains Mono,monospace" font-size="12" fill="#9a2020" font-weight="600">I₀</text>
+
+      <!-- I1 = I2' + I0 (approximately along I2 direction but shifted) -->
+      <line x1="200" y1="240" x2="410" y2="283" stroke="#c95f1a" stroke-width="2.5" marker-end="url(#ph)"/>
+      <text x="414" y="294" font-family="JetBrains Mono,monospace" font-size="13" fill="#c95f1a" font-weight="600">I₁</text>
+
+      <!-- I1R1 -->
+      <line x1="458" y1="218" x2="487" y2="227" stroke="#c95f1a" stroke-width="2" marker-end="url(#ph)"/>
+      <text x="490" y="224" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a">I₁R₁</text>
+
+      <!-- jI1X1 -->
+      <line x1="487" y1="227" x2="472" y2="192" stroke="#c95f1a" stroke-width="2" marker-end="url(#ph)"/>
+      <text x="475" y="186" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a">jI₁X₁</text>
+
+      <!-- V1 (big phasor from origin to tip of jI1X1) -->
+      <line x1="200" y1="240" x2="472" y2="192" stroke="#9a2020" stroke-width="3" marker-end="url(#ph)"/>
+      <text x="478" y="188" font-family="JetBrains Mono,monospace" font-size="14" fill="#9a2020" font-weight="700">V₁</text>
+
+      <!-- Phase angle labels -->
+      <path d="M 260 240 A 60 60 0 0 1 258 273" fill="none" stroke="#1e6b68" stroke-width="1.2" stroke-dasharray="3 2"/>
+      <text x="276" y="268" font-family="Lora,serif" font-size="11" fill="#1e6b68">φ₂</text>
+
+      <!-- Legend -->
+      <rect x="30" y="30" width="150" height="110" rx="8" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+      <text x="105" y="50" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a6e50" font-weight="600">LEGEND</text>
+      <line x1="40" y1="65" x2="70" y2="65" stroke="#2d6648" stroke-width="2.5" marker-end="url(#ph)"/>
+      <text x="75" y="69" font-family="Lora,serif" font-size="11" fill="#2d6648">V₂ (reference)</text>
+      <line x1="40" y1="85" x2="70" y2="85" stroke="#9a2020" stroke-width="3" marker-end="url(#ph)"/>
+      <text x="75" y="89" font-family="Lora,serif" font-size="11" fill="#9a2020">V₁ (input)</text>
+      <line x1="40" y1="105" x2="70" y2="105" stroke="#a05c00" stroke-width="2" marker-end="url(#ph)"/>
+      <text x="75" y="109" font-family="Lora,serif" font-size="11" fill="#a05c00">E₁ (induced)</text>
+      <line x1="40" y1="125" x2="70" y2="125" stroke="#c95f1a" stroke-width="2" marker-end="url(#ph)"/>
+      <text x="75" y="129" font-family="Lora,serif" font-size="11" fill="#c95f1a">Drops, I₁</text>
+
+      <!-- Title -->
+      <text x="340" y="345" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#9a6e50" font-style="italic">Phasor diagram — lagging (inductive) load | V₁ > E₁ > V₂</text>
+    </svg>
+    <div class="svg-cap">Fig 3.3 — Phasor diagram for lagging power factor load. Note: V₁ leads E₁ which leads V₂. The voltage regulation is positive for lagging loads.</div>
+    <div class="svg-cite">Basis: Chapman [1] §2.5, Fig.2-17; Kothari &amp; Nagrath [2] §2.5, Fig.2.14</div>
+  </div>
+
+  <h3 class="sub">Phasor Diagram — Leading Load</h3>
+  <div class="callout c-insight">
+    <div class="ci">💡</div>
+    <div class="cb"><div class="ct">Leading Load — Voltage Regulation Can Be Negative!</div>
+    <p>For a capacitive (leading p.f.) load: I₂ leads V₂. The jI₂X₂ drop partially cancels the I₂R₂ drop. In some cases, V₁ &lt; V₂' — meaning the secondary voltage actually <strong>rises</strong> when load is applied. This is why voltage regulation can be negative for leading loads — a counterintuitive but important GATE concept.</p></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S7 — GATE INSIGHTS
+═══════════════════════════════════ -->
+<div class="section" id="s7">
+  <div class="sec-hdr"><span class="sec-num">3.7</span><h2 class="sec-t">GATE Insights — Probability &amp; Patterns</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">GATE Perspective</span></div>
+
+  <div class="prob-row">
+    <span class="prob-tag prob-high">🟢 Equivalent circuit referred to primary/secondary — Almost every year</span>
+    <span class="prob-tag prob-high">🟢 OC &amp; SC test calculations — Very high probability</span>
+    <span class="prob-tag prob-high">🟢 Voltage regulation formula — High probability</span>
+    <span class="prob-tag prob-med">🟡 Phasor diagram construction — Moderate</span>
+    <span class="prob-tag prob-med">🟡 Maximum efficiency condition — Moderate</span>
+    <span class="prob-tag prob-low">🔴 Exact circuit analysis — Low (approx circuit preferred)</span>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>GATE Pattern</th><th>What Is Tested</th><th>Time-Saving Tip</th></tr></thead>
+      <tbody>
+        <tr><td class="t-org">Find R_eq, X_eq from OC/SC test data</td><td>Use SC test data directly — that gives Zeq</td><td>P_sc = I_sc² × Req → Req = P_sc/I_sc²</td></tr>
+        <tr><td class="t-org">Find Rc, Xm from OC test data</td><td>Use OC test data directly — that gives shunt branch</td><td>Rc = V_oc²/P_oc; Im = √(I_oc²−Ic²); Xm = V_oc/Im</td></tr>
+        <tr><td class="t-grn">Voltage regulation at given p.f.</td><td>Approximate VR formula</td><td>VR% ≈ ε_R cosφ + ε_X sinφ (use this, not phasor)</td></tr>
+        <tr><td class="t-grn">Maximum efficiency load</td><td>x = √(P_i/P_cu_FL)</td><td>Memorise: max η when iron loss = copper loss</td></tr>
+        <tr><td class="t-amb">Refer impedance to other side</td><td>Multiply by a² (primary) or divide by a² (secondary)</td><td>Always: Z' = a² Z (going to primary)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S8 — OC & SC TESTS
+═══════════════════════════════════ -->
+<div class="section" id="s8">
+  <div class="sec-hdr"><span class="sec-num">3.8</span><h2 class="sec-t">Open-Circuit &amp; Short-Circuit Tests</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">Core Theory — Test Procedures and Calculations</span></div>
+
+  <!-- SVG: OC and SC test setups -->
+  <div class="svg-wrap">
+    <svg viewBox="0 0 680 210" xmlns="http://www.w3.org/2000/svg">
+      <!-- OC TEST (left) -->
+      <text x="155" y="22" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" fill="#c95f1a" font-weight="700">Open Circuit Test</text>
+      <text x="155" y="36" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a6e50">(LV side energised, HV open)</text>
+      <!-- Source -->
+      <circle cx="40" cy="120" r="16" fill="none" stroke="#c95f1a" stroke-width="1.8"/>
+      <text x="40" y="124" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#c95f1a">V_oc</text>
+      <!-- Ammeter -->
+      <rect x="70" y="55" width="28" height="22" rx="4" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5"/>
+      <text x="84" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#c95f1a" font-weight="700">A</text>
+      <!-- Wattmeter -->
+      <rect x="110" y="55" width="28" height="22" rx="4" fill="#fdef0d0" stroke="#f0c060" stroke-width="1.5"/>
+      <text x="124" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#a05c00" font-weight="700">W</text>
+      <!-- Wires top -->
+      <line x1="56" y1="66" x2="70" y2="66" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="98" y1="66" x2="110" y2="66" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="138" y1="66" x2="165" y2="66" stroke="#c95f1a" stroke-width="1.5"/>
+      <!-- Transformer box -->
+      <rect x="165" y="55" width="80" height="130" rx="6" fill="var(--bg3)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="205" y="98" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">LV</text>
+      <text x="205" y="128" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50" font-weight="600">Transformer</text>
+      <text x="205" y="148" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">HV</text>
+      <!-- HV open terminal -->
+      <line x1="245" y1="66" x2="290" y2="66" stroke="#ddc8b0" stroke-width="1.5"/>
+      <circle cx="290" cy="66" r="4" fill="none" stroke="#ddc8b0" stroke-width="1.5"/>
+      <text x="298" y="70" font-family="Lora,serif" font-size="11" fill="#9a6e50">Open</text>
+      <!-- Bottom wire -->
+      <line x1="40" y1="136" x2="40" y2="185" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="40" y1="185" x2="245" y2="185" stroke="#c95f1a" stroke-width="1.5"/>
+      <line x1="245" y1="185" x2="245" y2="170" stroke="#c95f1a" stroke-width="1.5"/>
+      <!-- Reads -->
+      <text x="155" y="200" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#a05c00">Reads: V_oc  I_oc  P_oc</text>
+
+      <!-- SC TEST (right) -->
+      <text x="510" y="22" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" fill="#1e6b68" font-weight="700">Short Circuit Test</text>
+      <text x="510" y="36" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a6e50">(HV side energised at low V, LV shorted)</text>
+      <!-- Source -->
+      <circle cx="390" cy="120" r="16" fill="none" stroke="#1e6b68" stroke-width="1.8"/>
+      <text x="390" y="124" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#1e6b68">V_sc</text>
+      <!-- Ammeter -->
+      <rect x="420" y="55" width="28" height="22" rx="4" fill="#d8eeed" stroke="#7ec4c2" stroke-width="1.5"/>
+      <text x="434" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#1e6b68" font-weight="700">A</text>
+      <!-- Wattmeter -->
+      <rect x="460" y="55" width="28" height="22" rx="4" fill="#fef0d0" stroke="#f0c060" stroke-width="1.5"/>
+      <text x="474" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#a05c00" font-weight="700">W</text>
+      <!-- Wires top -->
+      <line x1="406" y1="66" x2="420" y2="66" stroke="#1e6b68" stroke-width="1.5"/>
+      <line x1="448" y1="66" x2="460" y2="66" stroke="#1e6b68" stroke-width="1.5"/>
+      <line x1="488" y1="66" x2="515" y2="66" stroke="#1e6b68" stroke-width="1.5"/>
+      <!-- Transformer box -->
+      <rect x="515" y="55" width="80" height="130" rx="6" fill="var(--bg3)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="555" y="98" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">HV</text>
+      <text x="555" y="128" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50" font-weight="600">Transformer</text>
+      <text x="555" y="148" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">LV</text>
+      <!-- LV short -->
+      <line x1="595" y1="66" x2="640" y2="66" stroke="#9a2020" stroke-width="1.8"/>
+      <line x1="640" y1="66" x2="640" y2="185" stroke="#9a2020" stroke-width="1.8"/>
+      <line x1="595" y1="185" x2="640" y2="185" stroke="#9a2020" stroke-width="1.8"/>
+      <line x1="595" y1="170" x2="595" y2="185" stroke="#9a2020" stroke-width="1.8"/>
+      <text x="648" y="130" font-family="Lora,serif" font-size="11" fill="#9a2020">Short</text>
+      <!-- Bottom wire -->
+      <line x1="390" y1="136" x2="390" y2="185" stroke="#1e6b68" stroke-width="1.5"/>
+      <line x1="390" y1="185" x2="595" y2="185" stroke="#1e6b68" stroke-width="1.5"/>
+      <!-- Reads -->
+      <text x="510" y="200" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#a05c00">Reads: V_sc  I_sc  P_sc</text>
+    </svg>
+    <div class="svg-cap">Fig 3.4 — OC test (left): LV energised at rated voltage, HV open. SC test (right): HV energised at reduced voltage (~5–10% rated), LV shorted.</div>
+    <div class="svg-cite">Basis: Chapman [1] §2.5, pp.95–101; Kothari &amp; Nagrath [2] §2.6</div>
+  </div>
+
+  <h3 class="sub">Calculations from Test Data</h3>
+  <div class="fblock"><div class="flbl">Open Circuit Test → Core Branch Parameters</div>Applied to LV side at rated voltage V_oc, I_oc, P_oc:
+
+Core loss component (active current):
+  <span class="fv">Ic</span>   <span class="feq">=</span>  P_oc / V_oc
+
+Magnetising current (reactive):
+  <span class="fv">Im</span>   <span class="feq">=</span>  √(I_oc² − Ic²)
+
+Core resistance:   <span class="fv">Rc</span>  <span class="feq">=</span>  V_oc / Ic  =  V_oc² / P_oc
+Magnetising Xm:    <span class="fv">Xm</span>  <span class="feq">=</span>  V_oc / Im
+
+No-load power factor: cosφ₀ = P_oc / (V_oc · I_oc)</div>
+
+  <div class="fblock"><div class="flbl">Short Circuit Test → Series Branch Parameters</div>Applied to HV side at reduced voltage V_sc (to give rated I_sc = I₁_rated):
+
+Equivalent impedance:  <span class="fv">|Zeq|</span>  <span class="feq">=</span>  V_sc / I_sc
+Equivalent resistance: <span class="fv">Req</span>   <span class="feq">=</span>  P_sc / I_sc²
+Equivalent reactance:  <span class="fv">Xeq</span>   <span class="feq">=</span>  √(|Zeq|² − Req²)
+
+Full-load copper loss ≈ P_sc  (since I_sc = I_rated)
+% Impedance voltage    = (V_sc / V_rated) × 100%</div>
+
+  <div class="callout c-tip">
+    <div class="ci">💡</div>
+    <div class="cb"><div class="ct">Why LV Side for OC Test?</div>
+    <p>Safety: the LV side has a lower voltage rating. If you energised the HV side and the LV side was open, you would measure the correct parameters — but handling a live 11kV terminal is dangerous. The LV side at 415V is safe to energise in a lab. The measured Rc and Xm must then be referred to the HV side if you want the HV-referred equivalent circuit.<sup class="cite">[1]</sup></p></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S9 — VOLTAGE REGULATION
+═══════════════════════════════════ -->
+<div class="section" id="s9">
+  <div class="sec-hdr"><span class="sec-num">3.9</span><h2 class="sec-t">Voltage Regulation</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">Core Theory — Derivation and Engineering Significance</span></div>
+
+  <p>Voltage regulation (VR) quantifies how much the secondary terminal voltage <em>drops</em> (or rises) from no-load to full-load, expressed as a percentage of the full-load voltage.<sup class="cite">[1]</sup></p>
+
+  <div class="fblock"><div class="flbl">Voltage Regulation — Exact and Approximate Formulas</div>Exact definition:
+  <span class="fv">VR</span>  <span class="feq">=</span>  (|V₂_NL| − |V₂_FL|) / |V₂_FL|  ×  100%
+
+Referred to primary:
+  <span class="fv">VR</span>  <span class="feq">=</span>  (|V₁| − |aV₂_FL|) / |aV₂_FL|  ×  100%
+
+Approximate formula (per-unit drops, valid when Zeq &lt;&lt; V):
+  <span class="fv">VR%</span> <span class="feq">≈</span>  ε_R cosφ  +  ε_X sinφ     (lagging load)
+  <span class="fv">VR%</span> <span class="feq">≈</span>  ε_R cosφ  −  ε_X sinφ     (leading load)
+
+Where:
+  ε_R = (I₂ · Req) / V₂  × 100%  =  per-unit resistance drop
+  ε_X = (I₂ · Xeq) / V₂  × 100%  =  per-unit reactance drop</div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Load Type</th><th>VR Sign</th><th>Physical Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td class="t-org">Lagging (inductive)</td><td class="t-red">Positive (+)</td><td>V₂ drops under load — VR is positive</td><td>Motor loads, induction furnaces</td></tr>
+        <tr><td class="t-grn">Unity p.f.</td><td>Positive (+)</td><td>V₂ still drops, but less than lagging</td><td>Resistive heaters</td></tr>
+        <tr><td class="t-tel">Leading (capacitive)</td><td class="t-grn">Can be negative!</td><td>V₂ actually rises under load</td><td>Capacitor banks, lightly loaded cables</td></tr>
+        <tr><td>Zero VR condition</td><td>Zero</td><td>V₂ under load = V₂ at no load</td><td>At specific leading p.f.: cosφ = Xeq/Zeq</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout c-key">
+    <div class="ci">🔑</div>
+    <div class="cb"><div class="ct">Key Insight — Why Reactance Matters More Than Resistance</div>
+    <p>For a typical distribution transformer, Xeq ≈ 4–6% and Req ≈ 1–2%. For a lagging load at cosφ = 0.8 (sinφ = 0.6): VR% ≈ (2)(0.8) + (5)(0.6) = 1.6 + 3.0 = 4.6%. The reactance term contributes 3% while resistance contributes only 1.6%. This is why reducing leakage inductance is the primary design strategy for low-regulation transformers.</p></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S10 — EFFICIENCY
+═══════════════════════════════════ -->
+<div class="section" id="s10">
+  <div class="sec-hdr"><span class="sec-num">3.10</span><h2 class="sec-t">Efficiency</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">Core Theory — Losses, Efficiency, and Optimal Loading</span></div>
+
+  <div class="fblock"><div class="flbl">Efficiency Formula and Maximum Efficiency Condition</div>η = P_out / P_in = P_out / (P_out + P_core + P_cu)
+
+For a transformer supplying fraction x of full load at power factor cosφ:
+  P_out  = x · S_rated · cosφ
+  P_core = P_i                  (constant — independent of load)
+  P_cu   = x² · P_cu_FL         (varies as square of load)
+
+  <span class="fv">η</span>  <span class="feq">=</span>  (x · S · cosφ) / (x · S · cosφ + P_i + x²·P_cu_FL)
+
+Condition for maximum efficiency:
+  dη/dx = 0  ⟹  <span class="fv">P_i = x² · P_cu_FL</span>   (iron loss = copper loss)
+
+Load fraction at maximum efficiency:
+  <span class="fv">x_max_η</span>  <span class="feq">=</span>  √(P_i / P_cu_FL)
+
+All-day efficiency (for distribution transformers):
+  <span class="fv">η_all_day</span>  <span class="feq">=</span>  Σ(P_out · t) / [Σ(P_out · t) + 24·P_i + Σ(x²·P_cu_FL·t)]</div>
+
+  <div class="callout c-insight">
+    <div class="ci">💡</div>
+    <div class="cb"><div class="ct">Why P_core = P_copper for Maximum η — Intuition</div>
+    <p>Think of it this way: as load increases, copper loss (∝ I²) grows faster than output power (∝ I). Meanwhile core loss stays fixed. There is a sweet spot where the <em>marginal increase</em> in output exactly offsets the <em>marginal increase</em> in total losses — that sweet spot occurs when P_core = P_copper. Beyond that, further load increase makes the denominator (losses) grow faster than the numerator (output).</p></div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Loss</th><th>Type</th><th>Varies With</th><th>Minimised By</th></tr></thead>
+      <tbody>
+        <tr><td class="t-amb">Hysteresis loss</td><td>Core (constant)</td><td>B_max^1.6, f</td><td>CRGO steel, lower B_max</td></tr>
+        <tr><td class="t-amb">Eddy current loss</td><td>Core (constant)</td><td>B_max², f², thickness²</td><td>Thin laminations, high ρ steel</td></tr>
+        <tr><td class="t-red">Copper loss (primary)</td><td>Variable</td><td>I₁² · R₁</td><td>Larger conductor cross-section</td></tr>
+        <tr><td class="t-red">Copper loss (secondary)</td><td>Variable</td><td>I₂² · R₂</td><td>Larger conductor cross-section</td></tr>
+        <tr><td class="t-dim">Stray losses</td><td>Small, variable</td><td>Leakage flux, eddy in tank</td><td>Good design, shielding</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S11 — CONCEPT BUILDING QUESTIONS
+═══════════════════════════════════ -->
+<div class="section" id="s11">
+  <div class="sec-hdr"><span class="sec-num">3.11</span><h2 class="sec-t">Concept Building Questions</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">Teach Yourself by Questioning</span></div>
+
+  <div class="cbq">
+    <div class="cbq-hdr"><div class="cbq-title">CBQ Set — Equivalent Circuit</div></div>
+    <div class="cbq-body">
+      <div class="cbq-q">Q1. Why is the shunt branch (Rc ∥ Xm) placed in parallel, not in series?</div>
+      <div class="cbq-a">Because core loss and magnetisation are driven by the applied voltage across the core — not by the load current. They exist even at no-load. A parallel branch carries current proportional to the voltage across it, which is exactly what core phenomena do. A series element would carry load current, which is wrong.</div>
+
+      <div class="cbq-q">Q2. What happens to Xm if the core material is changed to air (no iron)?</div>
+      <div class="cbq-a">Xm would decrease dramatically (by a factor of ~1000–10000× depending on original permeability). Air has μ_r ≈ 1 vs iron μ_r ≈ 5000. The magnetising current would become enormous — the transformer would draw a huge no-load current and be impractical.</div>
+
+      <div class="cbq-q">Q3. Why does voltage regulation increase (worsen) as power factor becomes more lagging?</div>
+      <div class="cbq-a">The leakage reactance voltage drop jI₂X_eq is 90° ahead of I₂. For a lagging load, I₂ lags V₂, so jI₂X_eq adds almost directly in phase with V₂ — maximum voltage drop. For a leading load, the jI₂X_eq component partially cancels the resistive drop.</div>
+
+      <div class="cbq-q">Q4. If transformer rating doubles (2× kVA, same voltage), what happens to R_eq and X_eq?</div>
+      <div class="cbq-a">Larger kVA → larger conductor cross-section → lower R_eq (halves). Core is larger → lower X_eq (approximately halves). Per-unit values remain approximately the same. This is why %Z is a more meaningful design parameter than the ohmic values.</div>
+
+      <div class="cbq-q">Q5. Why is a transformer rated in kVA, not kW?</div>
+      <div class="cbq-a">Transformer losses (copper + core) depend on current and voltage — not on load power factor. The transformer doesn't know whether the current is going to a motor (lagging) or a capacitor bank (leading). kVA captures the total current (which determines copper loss) and voltage (which determines core loss), regardless of phase angle.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S12 — COMMON MISTAKES
+═══════════════════════════════════ -->
+<div class="section" id="s12">
+  <div class="sec-hdr"><span class="sec-num">3.12</span><h2 class="sec-t">Common Student Mistakes</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">Misconceptions and GATE Traps</span></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Mistake</th><th>Correct Understanding</th><th>GATE Impact</th></tr></thead>
+      <tbody>
+        <tr><td class="t-red">R₂' = a · R₂</td><td>R₂' = <strong>a² · R₂</strong>. Impedance scales as the square of the turns ratio.</td><td>Direct numerical error in equivalent circuit problems</td></tr>
+        <tr><td class="t-red">OC test gives Req, Xeq</td><td>OC test gives <strong>Rc, Xm</strong> (shunt branch). SC test gives <strong>Req, Xeq</strong> (series branch).</td><td>Swap leads to completely wrong circuit values</td></tr>
+        <tr><td class="t-red">P_oc = copper loss</td><td>P_oc ≈ <strong>core loss</strong> (no-load current is small, so I₀²R₁ ≈ 0). P_sc ≈ copper loss at rated current.</td><td>Wrong loss assignment in efficiency questions</td></tr>
+        <tr><td class="t-red">VR is always positive</td><td>VR can be <strong>negative</strong> for sufficiently leading power factor loads. The capacitive reactive component causes V₂ to rise above no-load voltage.</td><td>Wrong sign in VR numerical</td></tr>
+        <tr><td class="t-red">Max efficiency at full load</td><td>Max η occurs when <strong>P_core = P_copper</strong>, which is typically at 50–70% of full load for distribution transformers.</td><td>Wrong value for x_max_η</td></tr>
+        <tr><td class="t-red">SC test on LV side</td><td>SC test is done on the <strong>HV side</strong> (primary). LV side is shorted. OC test is on LV side.</td><td>Wrong referred values if sides are confused</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S13 — WORKED EXAMPLES
+═══════════════════════════════════ -->
+<div class="section" id="s13">
+  <div class="sec-hdr"><span class="sec-num">3.13</span><h2 class="sec-t">Worked Examples</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">Basic → GATE-Level → Conceptual</span></div>
+
+  <!-- Example 1: Basic -->
+  <div class="example">
+    <div class="ex-hdr"><span class="ex-num">BASIC</span><span class="ex-title">Find equivalent circuit from OC and SC test data</span></div>
+    <div class="ex-body">
+      <div class="ex-q">A 10 kVA, 2200/220 V, 50 Hz single-phase transformer has the following test data:
+OC test (LV side): V_oc = 220 V, I_oc = 0.45 A, P_oc = 70 W
+SC test (HV side): V_sc = 112 V, I_sc = 4.55 A, P_sc = 215 W
+Find the equivalent circuit parameters referred to HV (primary) side.</div>
+      <div class="sol-lbl">Solution</div>
+      <div class="fblock">Turns ratio: a = 2200/220 = 10
+
+─── FROM OC TEST → Shunt Branch (referred to LV then × a²) ───
+Ic  = P_oc / V_oc = 70/220 = 0.318 A
+Im  = √(0.45² − 0.318²) = √(0.2025 − 0.1011) = √0.1014 = 0.318 A
+Rc_LV  = V_oc / Ic = 220/0.318 = 692 Ω
+Xm_LV  = V_oc / Im = 220/0.318 = 692 Ω
+
+Referred to HV (primary) side:
+<span class="feq">Rc  = a² × Rc_LV  = 100 × 692  = 69,200 Ω  ≈ 69.2 kΩ</span>
+<span class="feq">Xm  = a² × Xm_LV  = 100 × 692  = 69,200 Ω  ≈ 69.2 kΩ</span>
+
+─── FROM SC TEST → Series Branch (already on HV side) ───
+|Zeq| = V_sc / I_sc = 112/4.55 = 24.6 Ω
+<span class="feq">Req   = P_sc / I_sc² = 215/(4.55²) = 215/20.7 = 10.4 Ω</span>
+<span class="feq">Xeq   = √(24.6² − 10.4²) = √(605 − 108) = √497 = 22.3 Ω</span>
+
+Rated primary current = 10,000/2200 = 4.55 A ← same as I_sc ✓</div>
+    </div>
+  </div>
+
+  <!-- Example 2: GATE Level -->
+  <div class="example">
+    <div class="ex-hdr"><span class="ex-num gate">GATE LEVEL</span><span class="ex-title">Voltage regulation and efficiency at given load and power factor</span></div>
+    <div class="ex-body">
+      <div class="ex-q">Using the transformer from Example 1, find: (a) Voltage regulation at full load, 0.8 p.f. lagging. (b) Efficiency at full load, 0.8 p.f. lagging. (c) Load at which maximum efficiency occurs and the maximum efficiency value.</div>
+      <div class="sol-lbl">Solution</div>
+      <div class="fblock">(a) Voltage Regulation:
+ε_R = (I_FL × Req) / V₁_rated = (4.55 × 10.4) / 2200 = 47.3/2200 = 0.0215 = 2.15%
+ε_X = (I_FL × Xeq) / V₁_rated = (4.55 × 22.3) / 2200 = 101.5/2200 = 0.0461 = 4.61%
+cosφ = 0.8,  sinφ = 0.6
+
+<span class="feq">VR% ≈ ε_R cosφ + ε_X sinφ = 2.15(0.8) + 4.61(0.6) = 1.72 + 2.77 = 4.49%</span>
+
+(b) Full-Load Efficiency:
+P_out = 10,000 × 0.8 = 8,000 W
+P_core = P_oc = 70 W   (from OC test)
+P_cu_FL = P_sc = 215 W (from SC test, at rated current)
+
+<span class="feq">η = 8000 / (8000 + 70 + 215) = 8000/8285 = 96.56%</span>
+
+(c) Maximum Efficiency:
+x_max_η = √(P_core/P_cu_FL) = √(70/215) = √0.326 = <span class="feq">0.571</span>
+→ Maximum η at 57.1% of full load = 5.71 kVA
+
+P_out at max η = 0.571 × 10,000 × 0.8 = 4,568 W
+P_cu at max η  = (0.571)² × 215 = 0.326 × 215 = 70 W = P_core ✓
+
+<span class="feq">η_max = 4568/(4568 + 70 + 70) = 4568/4708 = 97.03%</span></div>
+      <div class="callout c-tip" style="margin-top:12px">
+        <div class="ci">💡</div>
+        <div class="cb"><div class="ct">Notice</div><p>At maximum efficiency (57.1% load), η = 97.03% — slightly higher than full-load efficiency (96.56%). Distribution transformers are deliberately designed for x_max_η ≈ 50–70% because they operate lightly loaded most of the day. If max η were at 100% load, the transformer would waste more energy averaged over 24 hours.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Example 3: Conceptual -->
+  <div class="example">
+    <div class="ex-hdr"><span class="ex-num concept">CONCEPTUAL</span><span class="ex-title">Zero voltage regulation — at what power factor?</span></div>
+    <div class="ex-body">
+      <div class="ex-q">For the transformer in Example 1, at what leading power factor is the voltage regulation exactly zero?</div>
+      <div class="sol-lbl">Solution</div>
+      <div class="fblock">For zero VR with leading load:
+  VR% = ε_R cosφ − ε_X sinφ = 0
+
+  ε_R cosφ = ε_X sinφ
+  tanφ = ε_R / ε_X = 2.15 / 4.61 = 0.466
+  φ = arctan(0.466) = 25°
+
+  <span class="feq">cosφ = cos(25°) = 0.906  (leading)</span>
+
+Physical meaning: At 0.906 leading power factor, the capacitive reactive
+current reduces the secondary voltage by exactly the amount the resistance
+would raise it — net effect: V₂ under load = V₂ at no load.
+
+For cosφ > 0.906 leading: VR becomes negative (V₂ rises under load)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     S14 — MEMORY TRICKS + REVISION
+═══════════════════════════════════ -->
+<div class="section" id="s14">
+  <div class="sec-hdr"><span class="sec-num">3.14</span><h2 class="sec-t">Memory Tricks &amp; Quick Revision Sheet</h2></div>
+  <div class="race-step"><span class="race-num">RACE</span><span class="race-label">Memory Techniques + One-Page Revision</span></div>
+
+  <div class="memory-box">
+    <div class="memory-title">🧠 Memory Techniques</div>
+    <div class="memory-item">
+      <div class="memory-key">Which test gives which parameters?</div>
+      <div class="memory-val"><strong>"OC = Open Core"</strong> — OC test gives <em>Core</em> parameters (Rc, Xm). <strong>"SC = Short Copper"</strong> — SC test gives <em>Copper</em> (series) parameters (Req, Xeq).</div>
+    </div>
+    <div class="memory-item">
+      <div class="memory-key">Which side for which test?</div>
+      <div class="memory-val"><strong>"Low-Open, High-Short"</strong> — OC test on <em>Low</em>-voltage side; SC test on <em>High</em>-voltage side. The side with the ammeter and wattmeter is the energised side.</div>
+    </div>
+    <div class="memory-item">
+      <div class="memory-key">Impedance scaling rule</div>
+      <div class="memory-val"><strong>"Impedance is Angry (a²)"</strong> — When referring to primary, Z' = <em>a²</em> × Z. Voltage scales by a, current by 1/a, impedance by a × a = a².</div>
+    </div>
+    <div class="memory-item">
+      <div class="memory-key">Maximum efficiency condition</div>
+      <div class="memory-val"><strong>"Iron Equals Copper at the Peak"</strong> — Maximum efficiency occurs when P_iron (core) = P_copper. Not at full load unless deliberately designed so.</div>
+    </div>
+    <div class="memory-item">
+      <div class="memory-key">VR sign rule</div>
+      <div class="memory-val"><strong>"Lagging Lowers, Leading Lifts"</strong> — Lagging load always gives positive VR (voltage drops). Leading load can give negative VR (voltage rises). Unity is always small and positive.</div>
+    </div>
+  </div>
+
+  <div class="revision">
+    <div class="revision-title">⚡ Quick Revision Sheet — Chapter 3</div>
+    <div class="rev-grid">
+      <div class="rev-card">
+        <div class="rev-card-h">Referring to Primary (a = N₁/N₂)</div>
+        <p>R₂' = a²R₂
+X₂' = a²X₂
+V₂' = a·V₂
+I₂' = I₂/a
+Z_L' = a²Z_L</p>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-h">OC Test → Core Branch</div>
+        <p>Ic  = P_oc/V_oc
+Im  = √(I_oc²−Ic²)
+Rc  = V_oc/Ic
+Xm  = V_oc/Im
+cosφ₀= P_oc/(V_oc·I_oc)</p>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-h">SC Test → Series Branch</div>
+        <p>|Zeq| = V_sc/I_sc
+Req  = P_sc/I_sc²
+Xeq  = √(|Zeq|²−Req²)
+%Z   = (V_sc/V_rated)×100</p>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-h">Voltage Regulation</div>
+        <p>VR% = ε_R·cosφ ± ε_X·sinφ
+(+ for lagging, − for leading)
+ε_R = I·Req/V × 100
+ε_X = I·Xeq/V × 100</p>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-h">Efficiency</div>
+        <p>η = x·S·cosφ /
+    (x·S·cosφ+P_i+x²P_cu)
+Max η: P_i = x²·P_cu_FL
+x_opt = √(P_i/P_cu_FL)</p>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-h">Key Facts</div>
+        <p>kVA rated: not kW
+P_core = constant
+P_copper ∝ I² ∝ x²
+VR_leading can be −ve
+Max η ≠ full load (usually)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASK CLAUDE -->
+  <div class="ai-prompt">
+    <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+    <p>Type any question about transformer equivalent circuits, tests, VR, or efficiency — or click a suggestion below.</p>
+    <div class="ai-input-row">
+      <input class="ai-input" id="userQ" type="text" placeholder="e.g. Derive voltage regulation from the phasor diagram...">
+      <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+    </div>
+    <div class="ai-suggest">
+      <span class="ai-chip" onclick="setQ('Solve a complete GATE-level problem on transformer OC and SC tests with all four parameters')">Full OC/SC GATE problem</span>
+      <span class="ai-chip" onclick="setQ('Explain the phasor diagram of a transformer for leading power factor load with diagram description')">Leading p.f. phasor diagram</span>
+      <span class="ai-chip" onclick="setQ('What is the effect of operating a transformer above rated voltage on core loss, copper loss, and efficiency?')">Over-voltage effects</span>
+      <span class="ai-chip" onclick="setQ('Derive the condition for zero voltage regulation and explain its engineering significance')">Zero VR derivation</span>
+      <span class="ai-chip" onclick="setQ('Compare exact vs approximate equivalent circuit — when should I use each in GATE problems?')">Exact vs Approximate circuit</span>
+      <span class="ai-chip" onclick="setQ('Explain all-day efficiency with a 24-hour load schedule numerical example')">All-day efficiency numerical</span>
+    </div>
+    <div class="ai-response" id="aiResp"></div>
+  </div>
+
+  <div class="callout c-tip" style="margin-top:22px">
+    <div class="ci">➡️</div>
+    <div class="cb"><div class="ct">Coming Next — Chapter 4</div>
+    <p>Induction Motors — Rotating magnetic field, slip, equivalent circuit, torque-speed characteristics, starting methods, and speed control with GATE/IES exam concepts.</p></div>
+  </div>
+</div>
+
+<!-- CITATIONS -->
+<div class="citations">
+  <div class="cite-h">References &amp; Citations</div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from the standard textbooks listed below. Every explanation, worked example, numerical value, diagram, and analogy is original to Aarova AI. No content has been reproduced from any coaching material including ACE Engineering Academy.</p>
+  <ul class="cite-list">
+    <li>
+      <span class="cite-num">[1]</span>
+      <span>Chapman, Stephen J. <em>Electric Machinery Fundamentals</em>, 5th edition. McGraw-Hill, 2012. ISBN: 978-0-07-352954-7. §2.4 Theory of Operation of Real Single-Phase Transformers; §2.5 The Equivalent Circuit of a Transformer; §2.7 Transformer Voltage Regulation and Efficiency.</span>
+    </li>
+    <li>
+      <span class="cite-num">[2]</span>
+      <span>Kothari, D.P. and Nagrath, I.J. <em>Electric Machines</em>, 4th edition. Tata McGraw-Hill, 2010. ISBN: 978-0-07-069967-0. §2.4 Transformer on Load; §2.5 Exact Equivalent Circuit; §2.6 Tests on Transformers; §2.7 Voltage Regulation; §2.8 Efficiency.</span>
+    </li>
+    <li>
+      <span class="cite-num">[3]</span>
+      <span>Fitzgerald, A.E., Kingsley, C. and Umans, S.D. <em>Electric Machinery</em>, 6th edition. McGraw-Hill, 2003. ISBN: 978-0-07-366009-7. Chapter 2: Transformers — §2.2 No-Load Conditions; §2.3 Effect of Secondary Current; §2.4 Transformer Reactances and Equivalent Circuits.</span>
+    </li>
+    <li>
+      <span class="cite-num">[4]</span>
+      <span>Sen, P.C. <em>Principles of Electric Machines and Power Electronics</em>, 3rd edition. John Wiley &amp; Sons, 2013. ISBN: 978-1-118-07571-0. Chapter 2: Transformers — §2.5 Equivalent Circuit, §2.6 Voltage Regulation, §2.7 Efficiency. Particularly useful for the per-unit system treatment.</span>
+    </li>
+    <li>
+      <span class="cite-num">[5]</span>
+      <span>IIT Kharagpur NPTEL. <em>Basic Electrical Technology — Lectures 21–25: Single-Phase Transformers</em>. National Programme on Technology Enhanced Learning. Covers equivalent circuit derivation, phasor diagrams for lagging and leading loads, and OC/SC test procedures. Available at nptel.ac.in.</span>
+    </li>
+  </ul>
+</div>
+
+<hr>
+<footer>
+  <strong>Aarova AI</strong> &nbsp;·&nbsp; Electrical Machines Series &nbsp;·&nbsp; Chapter 3 of 8<br>
+  <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+  <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">Content derived from standard textbooks [1–5]. All explanations, analogies, and diagrams are original to Aarova AI.</span>
+</footer>
+
+</div>
+
+<script>
+function setQ(t){document.getElementById('userQ').value=t;document.getElementById('userQ').focus();}
+async function askClaude(){
+  const q=document.getElementById('userQ').value.trim();if(!q)return;
+  const btn=document.querySelector('.ai-btn');const resp=document.getElementById('aiResp');
+  btn.textContent='Thinking...';btn.disabled=true;
+  resp.style.display='block';resp.textContent='Generating answer...';
+  const sys=`You are Aarova AI, an expert GATE EE and IES professor. You are helping a student study Single-Phase Transformer Equivalent Circuit, Phasor Diagram, OC/SC Tests, Voltage Regulation and Efficiency (Chapter 3 of Electrical Machines).
+Answer in the style of a senior professor: intuitive explanation first, then precise theory, then worked steps if numerical.
+Base your answers on: Chapman "Electric Machinery Fundamentals" 5th ed, Kothari & Nagrath "Electric Machines" 4th ed, and Fitzgerald "Electric Machinery" 6th ed.
+Write all equations as plain text formulas. Show step-by-step working for all numericals.
+All content must be 100% original — do not reproduce text from ACE Engineering Academy, Made Easy, or any coaching material.`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:sys,messages:[{role:'user',content:q}]})});
+    const d=await r.json();
+    resp.textContent=d.content?.map(c=>c.text||'').join('\n')||'No response.';
+  }catch(e){resp.textContent='Could not connect. Please try again.';}
+  btn.textContent='Ask Claude';btn.disabled=false;
+}
+document.getElementById('userQ').addEventListener('keydown',e=>{if(e.key==='Enter')askClaude();});
+</script>
+</body>
+</html>

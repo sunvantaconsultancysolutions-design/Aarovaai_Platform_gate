@@ -1,0 +1,3121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Power Systems Ch.7 Circuit Breakers</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 87.5%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .section:nth-child(13) {
+            animation-delay: .53s
+        }
+
+        .section:nth-child(14) {
+            animation-delay: .57s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            vertical-align: super;
+            margin-left: 2px;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        /* CALLOUT */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(12px, 2vw, 18px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 13px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 1px
+        }
+
+        .cb {
+            flex: 1
+        }
+
+        .ct {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* FORMULA BLOCK */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* MATH */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* SVG */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* EXAMPLES */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px)
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px
+        }
+
+        /* GATE / PYQ */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* TWO-COL */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        /* SUMMARY GRID */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* PROB TAG */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* ASK AI */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px
+        }
+
+        .ai-prompt-sub {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 200px;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: 8px;
+            padding: 10px 13px;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            background: var(--bg);
+            outline: none;
+            transition: border-color .2s;
+            min-height: 44px
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal)
+        }
+
+        .ai-btn {
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background .18s;
+            min-height: 44px
+        }
+
+        .ai-btn:hover {
+            background: #155957
+        }
+
+        .ai-btn:disabled {
+            opacity: .6;
+            cursor: default
+        }
+
+        .ai-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px
+        }
+
+        .ai-chip {
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: var(--bg);
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s, color .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            line-height: 1.4
+        }
+
+        .ai-chip:hover {
+            background: var(--teal-bg)
+        }
+
+        .ai-response {
+            display: none;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 14px;
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            line-height: 1.8;
+            white-space: pre-wrap
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 28px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+            border-top: 1.5px solid var(--border);
+            margin-top: 20px
+        }
+
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 32px 0
+        }
+
+        /* MOBILE */
+        @media(max-width:480px) {
+            .toc-grid {
+                grid-template-columns: 1fr
+            }
+
+            .two-col {
+                grid-template-columns: 1fr
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr
+            }
+
+            .hbadge {
+                display: none
+            }
+
+            .logo-sub {
+                display: none
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div>
+            <span class="logo">Aarova AI</span>
+            <span class="logo-sub">Power Systems Series</span>
+        </div>
+        <div class="hbadges">
+            <span class="hbadge">GATE EE</span>
+            <span class="hbadge">IES E&amp;T</span>
+            <span class="hbadge">PSU Prep</span>
+            <span class="hbadge">Chapter 7</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="eyebrow">Power Systems · Chapter 7</div>
+            <h1 class="hero-title">Circuit <em>Breakers</em></h1>
+            <p class="hero-desc">
+                The guardian of the power grid — from arc initiation to modern SF₆ vacuum breakers. Master arc physics,
+                interruption theories, ratings, and GATE-level numericals with intuitive derivations and inline SVG
+                diagrams.
+            </p>
+            <div class="badge-row">
+                <span class="badge badge-p">🟢 High GATE Weight</span>
+                <span class="badge">Arc Phenomenon</span>
+                <span class="badge">Breaking Capacity</span>
+                <span class="badge">CB Types</span>
+                <span class="badge">RRRV &amp; Restriking</span>
+                <span class="badge">IES Numericals</span>
+            </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-bar">
+            <span class="pl">Course Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Ch. 7 / 8</span>
+        </div>
+
+        <!-- TOC -->
+        <div class="toc">
+            <div class="toc-h">Chapter Contents</div>
+            <div class="toc-grid">
+                <a class="toc-item" href="#s1"><span class="toc-n">7.1</span>Introduction &amp; Protective Switches</a>
+                <a class="toc-item" href="#s2"><span class="toc-n">7.2</span>Types of Protective Switches</a>
+                <a class="toc-item" href="#s3"><span class="toc-n">7.3</span>Purpose of Circuit Breakers</a>
+                <a class="toc-item" href="#s4"><span class="toc-n">7.4</span>Arc Phenomenon</a>
+                <a class="toc-item" href="#s5"><span class="toc-n">7.5</span>Arc Interruption Methods</a>
+                <a class="toc-item" href="#s6"><span class="toc-n">7.6</span>Arc Voltage &amp; Recovery Voltage</a>
+                <a class="toc-item" href="#s7"><span class="toc-n">7.7</span>Restriking Voltage &amp; RRRV</a>
+                <a class="toc-item" href="#s8"><span class="toc-n">7.8</span>Current Chopping</a>
+                <a class="toc-item" href="#s9"><span class="toc-n">7.9</span>Resistance Switching</a>
+                <a class="toc-item" href="#s10"><span class="toc-n">7.10</span>CB Ratings</a>
+                <a class="toc-item" href="#s11"><span class="toc-n">7.11</span>Classification of CB Types</a>
+                <a class="toc-item" href="#s12"><span class="toc-n">7.12</span>Worked Examples</a>
+                <a class="toc-item" href="#s13"><span class="toc-n">7.13</span>GATE &amp; IES Questions</a>
+                <a class="toc-item" href="#s14"><span class="toc-n">7.14</span>Summary &amp; Revision</a>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- SECTION 1 -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">7.1</span>
+                <h2 class="sec-t">Introduction &amp; Why Circuit Breakers Exist</h2>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Big Picture</div>
+                    <p>Imagine a highway with thousands of vehicles. A single accident can cause a chain reaction. Power
+                        systems are the same — a fault anywhere sends enormous currents through every line and machine
+                        connected to the same grid. Circuit breakers are the traffic police that isolate the accident
+                        and let the rest of the highway keep moving.</p>
+                </div>
+            </div>
+
+            <p>The entire protective switchgear of a power system is designed on the basis of <strong>fault
+                    analysis</strong>. When a fault occurs — a broken insulator, a tree falling on a line, or equipment
+                failure — the fault current can be <strong>2 to 10 times the full-load current</strong>. This surge is
+                not restricted to the faulted section; it flows through every healthy section of the system too.<sup
+                    class="cite">[1]</sup></p>
+
+            <p>The key components of the protection chain are:</p>
+
+            <div class="callout c-key">
+                <div class="ci">🔗</div>
+                <div class="cb">
+                    <div class="ct">Protection Chain</div>
+                    <p><strong>Relay</strong> (senses abnormality) → sends trip signal → <strong>Circuit
+                            Breaker</strong> (isolates the faulty section) → healthy system continues to operate
+                        normally.</p>
+                </div>
+            </div>
+
+            <p>A <strong>relay</strong> is the brain — it senses abnormal operating conditions and issues a trip
+                command. The <strong>circuit breaker</strong> is the muscle — it physically separates the contacts and
+                interrupts the fault current. Together they form the primary protection system of any power network.</p>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="min-width:300px">
+                    <defs>
+                        <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L8,3 z" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <!-- boxes -->
+                    <rect x="20" y="75" width="120" height="50" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="80" y="97" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#3d2010"
+                        font-weight="600">Power System</text>
+                    <text x="80" y="113" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#9a6e50">(Fault occurs)</text>
+
+                    <rect x="200" y="75" width="120" height="50" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="260" y="97" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#1e6b68"
+                        font-weight="600">Relay</text>
+                    <text x="260" y="113" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#9a6e50">Senses abnormality</text>
+
+                    <rect x="380" y="75" width="130" height="50" rx="8" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="445" y="97" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#2d6648"
+                        font-weight="600">Circuit Breaker</text>
+                    <text x="445" y="113" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#9a6e50">Receives trip signal</text>
+
+                    <rect x="570" y="75" width="110" height="50" rx="8" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.5" />
+                    <text x="625" y="97" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#9a2020"
+                        font-weight="600">Faulty Section</text>
+                    <text x="625" y="113" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#9a6e50">Isolated</text>
+
+                    <!-- arrows -->
+                    <line x1="140" y1="100" x2="198" y2="100" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr)" />
+                    <line x1="320" y1="100" x2="378" y2="100" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr)" />
+                    <line x1="510" y1="100" x2="568" y2="100" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr)" />
+
+                    <text x="160" y="93" font-family="Lora,serif" font-size="10" fill="#c95f1a"
+                        font-style="italic">fault I↑</text>
+                    <text x="328" y="93" font-family="Lora,serif" font-size="10" fill="#1e6b68" font-style="italic">trip
+                        cmd</text>
+                    <text x="515" y="93" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        font-style="italic">opens</text>
+                </svg>
+                <div class="svg-cap">Fig 7.1 — Protection chain: fault → relay → circuit breaker → isolation</div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 2 -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">7.2</span>
+                <h2 class="sec-t">Types of Protective Switches</h2>
+            </div>
+
+            <p>Power systems use four types of protective switching devices, each suited for a specific operating
+                condition. Understanding their differences is critical for both GATE and IES examinations.<sup
+                    class="cite">[1]</sup></p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Device</th>
+                            <th>Operating Condition</th>
+                            <th>Breaking Capacity</th>
+                            <th>Key Property</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Fuse</td>
+                            <td>Abnormal only (self-operated)</td>
+                            <td>Rated current</td>
+                            <td class="t-org">Low melting point element; primary protection in distribution</td>
+                        </tr>
+                        <tr>
+                            <td>Load Interrupter</td>
+                            <td>Full-load conditions only</td>
+                            <td>Full load capacity</td>
+                            <td class="t-amb">Used for energy management, load shedding</td>
+                        </tr>
+                        <tr>
+                            <td>Line Isolator</td>
+                            <td>No-load only</td>
+                            <td class="t-red">Zero</td>
+                            <td>Provides clearance; opened only after load interrupter operates</td>
+                        </tr>
+                        <tr>
+                            <td>Circuit Breaker</td>
+                            <td>No-load, full-load <em>and</em> abnormal</td>
+                            <td class="t-grn">3-ϕ short circuit MVA</td>
+                            <td>Most versatile; replaces fuse + load interrupter</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">7.2.1 — The Fuse in Detail</h3>
+            <p>The fuse element is made of a material with a <strong>low melting point</strong> (tin, lead, zinc) that
+                is free from oxidation deterioration and low-cost. It operates on a simple principle: when the heat
+                energy developed (\(I^2 R \cdot t\)) exceeds the thermal capacity of the element, it melts and
+                disconnects the faulty section.</p>
+
+            <div class="fblock">
+                <span class="flbl">Fuse Current Law (diameter relationship)</span><span class="fv">I</span> <span
+                    class="feq">∝</span> <span class="fh">d^(3/2)</span> where d = diameter of the fuse wire
+            </div>
+
+            <p>In a <strong>distribution system</strong>, the fuse is the <em>primary</em> protective device. In a
+                <strong>substation</strong>, it serves as a <em>backup</em> protection device. Since it is self-operated
+                (operates under abnormal conditions without external command), it cannot be used for routine switching.
+            </p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Sequence for Line Isolator Operation</div>
+                    <p>Load Interrupter must operate first → then Line Isolator opens. Reversing this order will cause a
+                        destructive arc since the Line Isolator has zero breaking capacity.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 3 -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">7.3</span>
+                <h2 class="sec-t">Purpose of Circuit Breakers</h2>
+            </div>
+
+            <p>A circuit breaker must perform four functions that no other switching device can handle
+                simultaneously:<sup class="cite">[2]</sup></p>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Normal Operations</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">→</span>Switch normal load currents ON and OFF</li>
+                        <li><span class="dot">→</span>Make on to a fault (close onto a short circuit)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Fault Operations</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">→</span>Break fault current reliably</li>
+                        <li><span class="dot">→</span>Carry fault current without damage until interruption</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub">Key Performance Characteristics</h3>
+
+            <p>From a protection standpoint, two characteristics define circuit breaker quality:</p>
+            <p><strong>1. Opening Time (Tripping Time):</strong> Time from the instant of applying tripping power to the
+                instant of main contact separation. Modern high-speed circuit breakers open in \(1\tfrac{1}{2}\) to 8
+                cycles (on a 50 Hz base, 1 cycle = 20 ms).</p>
+            <p><strong>2. Arcing Time:</strong> Time from contact separation to arc extinction.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">CB Operating Time</div>
+                $$\text{CB Operating Time} = \text{Opening Time} + \text{Arcing Time}$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Why Speed Matters</div>
+                    <p>Faster fault clearing means less thermal damage to equipment, reduced voltage dips felt by other
+                        consumers, and lower mechanical stress on generators. High-speed breakers (1½ cycles) are used
+                        on EHV lines where stability margins are small.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 4 — ARC PHENOMENON -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">7.4</span>
+                <h2 class="sec-t">Arc Phenomenon</h2>
+            </div>
+
+            <p>When a circuit breaker separates its contacts under load, a <strong>plasma arc</strong> forms between the
+                contacts. This arc is not a simple spark — it is a self-sustaining column of highly ionized gas that
+                conducts current. Understanding arc initiation, maintenance, and extinction is the core of circuit
+                breaker design.<sup class="cite">[1][2]</sup></p>
+
+            <h3 class="sub">7.4.1 — Arc Initiation (Field Ionization)</h3>
+
+            <p>At the instant of contact separation \((t = 0^+)\), the gap \(\Delta x\) is extremely small — on the
+                order of <strong>0.1 μm</strong> for a 132 kV breaker. The voltage across the gap \(\Delta V\) is
+                approximately 100 V in the initial instant.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Electric Field at Contact Separation (132 kV CB)</div>
+                $$E = \frac{\Delta V}{\Delta x} = \frac{100\text{ V}}{0.1\,\mu\text{m}} = 1000\text{ kV/cm}$$
+            </div>
+
+            <p>This field of 1000 kV/cm is <strong>far greater than the dielectric strength</strong> of any medium
+                between the contacts. Therefore, <em>gap breakdown is inevitable</em> at contact separation — the arc is
+                initiated by <strong>field ionization</strong>, not thermal ionization.</p>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Timeline: t=0, t=0⁺, t=30ms -->
+                    <!-- Panel 1: t=0 contacts closed -->
+                    <rect x="10" y="10" width="200" height="230" rx="10" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1.5" />
+                    <text x="110" y="35" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11"
+                        fill="#c95f1a">t = 0 (closed)</text>
+                    <!-- Fixed contact -->
+                    <rect x="40" y="80" width="55" height="30" rx="5" fill="#c95f1a" />
+                    <text x="67" y="100" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#fff">F.C</text>
+                    <!-- Moving contact -->
+                    <rect x="115" y="80" width="55" height="30" rx="5" fill="#1e6b68" />
+                    <text x="143" y="100" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#fff">M.C</text>
+                    <!-- Current line -->
+                    <line x1="95" y1="95" x2="115" y2="95" stroke="#2d6648" stroke-width="3" />
+                    <text x="110" y="145" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#6b3e22">No
+                        trip signal</text>
+                    <text x="110" y="162" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#6b3e22">Fault current</text>
+                    <text x="110" y="178" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#6b3e22">flowing freely</text>
+                    <line x1="170" y1="75" x2="190" y2="95" stroke="#c95f1a" stroke-width="1.5"
+                        stroke-dasharray="3,2" />
+                    <text x="185" y="72" font-family="Lora,serif" font-size="10" fill="#c95f1a">→ I_f</text>
+
+                    <!-- Panel 2: t=0⁺ contacts just separated -->
+                    <rect x="230" y="10" width="210" height="230" rx="10" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1.5" />
+                    <text x="335" y="35" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11"
+                        fill="#c95f1a">t = 0⁺ (separating)</text>
+                    <rect x="255" y="80" width="55" height="30" rx="5" fill="#c95f1a" />
+                    <text x="282" y="100" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#fff">F.C</text>
+                    <rect x="345" y="80" width="55" height="30" rx="5" fill="#1e6b68" />
+                    <text x="372" y="100" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#fff">M.C</text>
+                    <!-- Arc -->
+                    <path d="M310,95 Q328,75 345,95" stroke="#e07235" stroke-width="2.5" fill="none"
+                        stroke-dasharray="4,2" />
+                    <ellipse cx="327" cy="95" rx="18" ry="8" fill="rgba(240,160,80,0.3)" stroke="#e07235"
+                        stroke-width="1" />
+                    <text x="327" y="99" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#c95f1a">ARC</text>
+                    <!-- Δx arrow -->
+                    <line x1="313" y1="118" x2="342" y2="118" stroke="#9a6e50" stroke-width="1"
+                        marker-end="url(#arr)" />
+                    <line x1="342" y1="118" x2="313" y2="118" stroke="#9a6e50" stroke-width="1"
+                        marker-end="url(#arr)" />
+                    <text x="327" y="132" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Δx=0.1μm</text>
+                    <text x="335" y="160" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#6b3e22">E
+                        = 1000 kV/cm</text>
+                    <text x="335" y="178" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#c95f1a">Field ionization</text>
+                    <text x="335" y="195" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#c95f1a">Arc initiated!</text>
+
+                    <!-- Panel 3: t=30ms contacts fully separated -->
+                    <rect x="460" y="10" width="210" height="230" rx="10" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1.5" />
+                    <text x="565" y="35" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11"
+                        fill="#2d6648">t = 30ms (open)</text>
+                    <rect x="480" y="80" width="55" height="30" rx="5" fill="#c95f1a" />
+                    <text x="507" y="100" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#fff">F.C</text>
+                    <rect x="575" y="80" width="55" height="30" rx="5" fill="#1e6b68" />
+                    <text x="603" y="100" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#fff">M.C</text>
+                    <!-- Long arc -->
+                    <path d="M535,90 Q555,60 575,90" stroke="#e07235" stroke-width="3" fill="none" />
+                    <path d="M535,100 Q555,130 575,100" stroke="#e07235" stroke-width="2" fill="none" opacity="0.5" />
+                    <!-- x=1cm annotation -->
+                    <line x1="537" y1="125" x2="573" y2="125" stroke="#9a6e50" stroke-width="1" />
+                    <text x="555" y="140" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">x = 1 cm</text>
+                    <text x="565" y="165" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#6b3e22">E
+                        = 2.29 kV/cm</text>
+                    <text x="565" y="183" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#6b3e22">Arc maintained by</text>
+                    <text x="565" y="200" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#c95f1a">thermal ionization</text>
+                </svg>
+                <div class="svg-cap">Fig 7.2 — Arc initiation sequence: field ionization at contact separation → arc
+                    maintained by thermal ionization</div>
+                <div class="svg-cite">Derived from Stevenson [1] and ACE Academy [4]</div>
+            </div>
+
+            <h3 class="sub">7.4.2 — Arc Maintenance (Thermal Ionization)</h3>
+
+            <p>Once contacts are fully separated (e.g. at t = 30 ms for a 1½-cycle breaker with 30 ms open time), the
+                gap is approximately <strong>1 cm</strong>. At 132 kV, the field gradient reduces to about 2.29 kV/cm —
+                far below the dielectric strength of the medium.</p>
+
+            <p>So why does the arc persist? The answer is <strong>thermal ionization</strong>. The arc itself generates
+                enormous heat, which keeps the gas column ionized. This is why simply increasing contact separation does
+                not immediately extinguish the arc.</p>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Critical Insight for GATE</div>
+                    <p>Arc initiation is by <strong>field ionization</strong>. Arc maintenance is by <strong>thermal
+                            ionization</strong>. These are two distinct mechanisms. The arc resistance is purely
+                        resistive and has a <strong>negative temperature coefficient</strong> — as temperature
+                        increases, \(R_{arc}\) decreases.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">7.4.3 — Properties of the Arc</h3>
+            <p>The arc is a column of ionized gases with the following key properties:</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Behaviour</th>
+                            <th>Engineering Significance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Conductance</td>
+                            <td>∝ free electrons; ∝ cross-section; ∝ 1/length</td>
+                            <td>Longer arc → lower conductance → harder to maintain</td>
+                        </tr>
+                        <tr>
+                            <td>Resistance</td>
+                            <td>Highly non-linear; negative temp. coeff.</td>
+                            <td>R decreases as temp rises — arc becomes more conductive</td>
+                        </tr>
+                        <tr>
+                            <td>Electrical nature</td>
+                            <td>Purely resistive</td>
+                            <td>V<sub>arc</sub> and I<sub>arc</sub> are in phase; arc pf = 1</td>
+                        </tr>
+                        <tr>
+                            <td>Arc voltage</td>
+                            <td>V<sub>arc</sub> ≈ const (I×R ≈ const)</td>
+                            <td>As I rises, R drops proportionally — V stays nearly constant</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- SECTION 5 — ARC INTERRUPTION -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">7.5</span>
+                <h2 class="sec-t">Arc Interruption Methods</h2>
+            </div>
+
+            <p>There are two fundamentally different methods for extinguishing the arc:<sup class="cite">[1][3]</sup>
+            </p>
+
+            <h3 class="sub">7.5.1 — High Resistance Method</h3>
+
+            <p>In this method, the <strong>resistance of the arc is increased</strong> progressively until the current
+                falls to a value insufficient to maintain the arc. Think of it as "strangling" the arc.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Heat Energy in Arc</div>
+                $$\text{Heat energy} = I^2 R_{arc} \cdot t = \frac{V_{arc}^2}{R_{arc}} \cdot t \;\propto\;
+                \frac{1}{R_{arc}}$$
+            </div>
+
+            <p>Arc resistance can be increased by four physical means:</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Lengthening the Arc</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">1</span>Conductance ∝ 1/length → increasing length reduces conductance
+                        </li>
+                        <li><span class="dot">→</span>Done by rapidly separating contacts</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Constraining the Arc</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">2</span>Forcing arc into a narrow channel increases resistance</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Cooling the Arc</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">3</span>Reduces thermal ionization → reduces conductance</li>
+                        <li><span class="dot">→</span>Oil, gas, or air blast provides cooling</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Reducing Cross-Section</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">4</span>Conductance ∝ cross-section area → smaller area → higher R</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Limitation of High Resistance Method</div>
+                    <p>When current is interrupted, the magnetic energy \(\tfrac{1}{2}LI^2\) associated with the circuit
+                        converts to electrostatic energy — producing a <strong>high voltage transient</strong> across
+                        the breaker contacts. If this voltage exceeds the withstand capacity of the gap, the arc
+                        restrike occurs. Therefore, this method is <strong>not suitable for high current
+                            interruption</strong> and is used only for low-power AC and DC circuit breakers.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">7.5.2 — Current Zero Interruption Method <span class="prob prob-h">🟢 HIGH</span></h3>
+
+            <p>This method is applicable <strong>only to AC circuit breakers</strong>. In a 50 Hz system, the current
+                waveform naturally passes through zero <strong>100 times per second</strong> (twice per cycle). At each
+                current zero, the arc plasma is at its minimum ionization state. If the circuit breaker can prevent
+                re-ionization after current zero, the arc is extinguished.</p>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Key Condition for Arc Extinction</div>
+                    <p>Arc is extinguished when: <strong>Rate of rise of dielectric strength &gt; Rate of rise of
+                            restriking voltage.</strong> If the gap recovers its insulating strength faster than the
+                        transient voltage can build up across it, the arc is permanently extinguished.</p>
+                </div>
+            </div>
+
+            <p>There are two theories explaining the current zero interruption process:</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Recovery Rate Theory (Slepain)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">•</span>Arc extinguished if dielectric strength recovers faster than
+                            restriking voltage rises</li>
+                        <li><span class="dot">•</span>Rate of ionization depends on restriking voltage magnitude</li>
+                        <li><span class="dot">•</span>Ions/electrons removed by recombination or by inserting insulating
+                            medium</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Energy Balance Theory (Cassie)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">•</span>Arc extinguished when heat dissipation rate &gt; heat generation
+                            rate</li>
+                        <li><span class="dot">•</span>CB design: rapidly cool gap at current zero (air blast, oil flow)
+                        </li>
+                        <li><span class="dot">•</span>Heat generation peaks at R=0 and R=∞ (contact about to open, fully
+                            open)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="svg-wrap">
+                <!-- Recovery Rate Theory diagrams side by side -->
+                <svg viewBox="0 0 660 230" xmlns="http://www.w3.org/2000/svg">
+                    <!-- ARC NOT EXTINGUISHED -->
+                    <text x="165" y="20" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#9a2020"
+                        font-weight="600">Arc NOT Extinguished</text>
+                    <!-- axes -->
+                    <line x1="30" y1="190" x2="290" y2="190" stroke="#ddc8b0" stroke-width="1.5" />
+                    <line x1="30" y1="190" x2="30" y2="30" stroke="#ddc8b0" stroke-width="1.5" />
+                    <text x="160" y="215" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#9a6e50">Time →</text>
+                    <text x="18" y="110" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a6e50"
+                        transform="rotate(-90,18,110)">Voltage →</text>
+                    <!-- Restriking voltage (rises faster) -->
+                    <path d="M30,190 Q120,40 280,60" stroke="#c95f1a" stroke-width="2" fill="none" />
+                    <text x="230" y="52" font-family="Lora,serif" font-size="11" fill="#c95f1a">Restriking V</text>
+                    <!-- Dielectric strength (rises slower) -->
+                    <path d="M30,190 Q130,120 280,140" stroke="#1e6b68" stroke-width="2" fill="none"
+                        stroke-dasharray="5,3" />
+                    <text x="200" y="155" font-family="Lora,serif" font-size="11" fill="#1e6b68">Dielectric Str.</text>
+                    <!-- intersection -->
+                    <circle cx="110" cy="115" r="4" fill="#9a2020" />
+                    <text x="115" y="110" font-family="Lora,serif" font-size="10" fill="#9a2020">Restrike!</text>
+
+                    <!-- ARC EXTINGUISHED -->
+                    <text x="490" y="20" text-anchor="middle" font-family="Lora,serif" font-size="13" fill="#2d6648"
+                        font-weight="600">Arc Extinguished</text>
+                    <line x1="355" y1="190" x2="615" y2="190" stroke="#ddc8b0" stroke-width="1.5" />
+                    <line x1="355" y1="190" x2="355" y2="30" stroke="#ddc8b0" stroke-width="1.5" />
+                    <text x="490" y="215" text-anchor="middle" font-family="Lora,serif" font-size="11"
+                        fill="#9a6e50">Time →</text>
+                    <!-- Dielectric strength recovers faster -->
+                    <path d="M355,190 Q420,40 600,50" stroke="#1e6b68" stroke-width="2" fill="none"
+                        stroke-dasharray="5,3" />
+                    <text x="540" y="45" font-family="Lora,serif" font-size="11" fill="#1e6b68">Dielectric Str.</text>
+                    <!-- Restriking voltage rises slower -->
+                    <path d="M355,190 Q430,130 600,110" stroke="#c95f1a" stroke-width="2" fill="none" />
+                    <text x="530" y="105" font-family="Lora,serif" font-size="11" fill="#c95f1a">Restriking V</text>
+                    <!-- No intersection — success -->
+                    <text x="490" y="170" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648">✓
+                        No restrike</text>
+                </svg>
+                <div class="svg-cap">Fig 7.3 — Recovery Rate Theory (Slepain): dielectric strength vs restriking voltage
+                    determines arc extinction</div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 6 — ARC VOLTAGE TERMS -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">7.6</span>
+                <h2 class="sec-t">Arc Voltage &amp; Recovery Voltage</h2>
+            </div>
+
+            <h3 class="sub">7.6.1 — Arc Voltage (V<sub>arc</sub>)</h3>
+            <p>The voltage across the circuit breaker <em>during the arcing period</em> is called the arc voltage. Since
+                the arc is purely resistive, \(V_{arc}\) and \(I_{arc}\) are in phase. Fault current is nearly
+                zero-power-factor lagging, so arc power factor (≈1) and fault power factor (≈0 lagging) are very
+                different.<sup class="cite">[2]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Arc Voltage Equation</div>
+                $$V_{arc} = I_{arc} \cdot R_{arc}$$
+                <p style="font-size:13px;color:var(--text3);margin-top:8px;text-align:left;">As \(I_{arc}\) increases →
+                    temperature rises → \(R_{arc}\) decreases → \(V_{arc} \approx\) constant</p>
+            </div>
+
+            <h3 class="sub">7.6.2 — Active Recovery Voltage (V<sub>arv</sub>) <span class="prob prob-h">🟢 HIGH</span>
+            </h3>
+            <p>The instantaneous voltage at the instant of arc extinction is called the <strong>Active Recovery
+                    Voltage</strong>. This is the system voltage that appears across the breaker contacts immediately
+                after the arc is extinguished. It depends on:</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Factor</th>
+                            <th>Effect on V<sub>arv</sub></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Power factor of fault current (sin ϕ)</td>
+                            <td>V<sub>arv</sub> is maximum when fault pf = 0 (purely inductive)</td>
+                        </tr>
+                        <tr>
+                            <td>Armature reaction (K₁ ≤ 1)</td>
+                            <td>Reduces effective V<sub>m</sub>; K₁ accounts for demagnetization</td>
+                        </tr>
+                        <tr>
+                            <td>First pole clearing factor (K₂)</td>
+                            <td>Depends on fault type and system grounding — see table below</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Active Recovery Voltage Formula</div>
+                $$V_{arv} = K_1 K_2 V_m \sin\phi$$
+                <p style="font-size:13px;color:var(--text3);margin-top:8px;text-align:left;">where \(V_m\) = peak phase
+                    voltage, \(\phi\) = power factor angle of fault current</p>
+            </div>
+
+            <h3 class="sub">First Pole Clearing Factor K₂</h3>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fault Type</th>
+                            <th>LG</th>
+                            <th>LL</th>
+                            <th>LLG</th>
+                            <th>LLL</th>
+                            <th>LLLG</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Grounded System</td>
+                            <td>K₂ = 1</td>
+                            <td class="t-org">K₂ = 1.5</td>
+                            <td>K₂ = 1</td>
+                            <td class="t-org">K₂ = 1.5</td>
+                            <td>K₂ = 1</td>
+                        </tr>
+                        <tr>
+                            <td>Ungrounded System</td>
+                            <td>—</td>
+                            <td class="t-org">K₂ = 1.5</td>
+                            <td class="t-org">K₂ = 1.5</td>
+                            <td class="t-org">K₂ = 1.5</td>
+                            <td class="t-org">K₂ = 1.5</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Physical Meaning of K₂</div>
+                    <p>\(K_2 = \dfrac{\text{Voltage across first pole that clears the fault}}{\text{Voltage across C.B
+                        after all poles cleared}}\). For a 3-phase fault on an ungrounded system, the first pole to open
+                        carries 1.5 times the phase voltage — this is why K₂ = 1.5 is the critical design case.</p>
+                </div>
+            </div>
+
+            <p><strong>Line value of active recovery voltage</strong> (for line-to-line quantities) requires multiplying
+                the above by \(\sqrt{3}\).</p>
+
+        </div>
+
+        <!-- SECTION 7 — RESTRIKING VOLTAGE -->
+        <div class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">7.7</span>
+                <h2 class="sec-t">Restriking Voltage &amp; RRRV</h2>
+            </div>
+
+            <p>The <strong>restriking voltage</strong> is the transient voltage that appears across the circuit breaker
+                contacts at the instant of arc extinction. It is caused by the LC oscillation in the circuit and is more
+                severe than the steady-state recovery voltage.<sup class="cite">[1][2]</sup></p>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Analogy for Restriking Voltage</div>
+                    <p>Imagine stretching a spring and suddenly releasing it — the spring overshoots its rest position.
+                        Similarly, when the arc is extinguished, the circuit (which has inductance L and capacitance C)
+                        oscillates, and the voltage across the breaker overshoots the steady-state value — this
+                        overshoot is the restriking voltage.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">7.7.1 — Derivation of Restriking Voltage <span class="prob prob-h">🟢 HIGH</span></h3>
+
+            <p>When the arc is extinguished, the equivalent circuit is the system voltage \(E\) (active recovery
+                voltage) driving an LC circuit (system inductance L and shunt capacitance C to ground).</p>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 500 180" xmlns="http://www.w3.org/2000/svg" style="min-width:300px">
+                    <!-- Circuit diagram: E - L - C to ground, fault on right -->
+                    <!-- Voltage source -->
+                    <circle cx="50" cy="90" r="28" fill="none" stroke="#c95f1a" stroke-width="2" />
+                    <text x="50" y="87" text-anchor="middle" font-family="Lora,serif" font-size="13"
+                        fill="#c95f1a">E</text>
+                    <text x="50" y="104" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#9a6e50">(V_arv)</text>
+
+                    <!-- top wire E to L -->
+                    <line x1="78" y1="75" x2="155" y2="75" stroke="#3d2010" stroke-width="2" />
+                    <!-- Inductor L -->
+                    <path d="M155,75 Q163,55 171,75 Q179,95 187,75 Q195,55 203,75 Q211,95 219,75" stroke="#1e6b68"
+                        stroke-width="2" fill="none" />
+                    <text x="187" y="55" text-anchor="middle" font-family="Lora,serif" font-size="12"
+                        fill="#1e6b68">L</text>
+                    <!-- wire L to open switch (CB) -->
+                    <line x1="219" y1="75" x2="290" y2="75" stroke="#3d2010" stroke-width="2" />
+                    <!-- CB open symbol -->
+                    <circle cx="290" cy="75" r="4" fill="#c95f1a" />
+                    <line x1="294" y1="75" x2="320" y2="58" stroke="#c95f1a" stroke-width="2" />
+                    <circle cx="326" cy="75" r="4" fill="#3d2010" />
+                    <!-- wire to fault -->
+                    <line x1="330" y1="75" x2="420" y2="75" stroke="#3d2010" stroke-width="2" />
+                    <text x="378" y="68" font-family="Lora,serif" font-size="11" fill="#9a2020">Fault</text>
+                    <line x1="420" y1="75" x2="420" y2="130" stroke="#9a2020" stroke-width="2" />
+                    <line x1="400" y1="130" x2="440" y2="130" stroke="#9a2020" stroke-width="2" />
+                    <line x1="410" y1="138" x2="430" y2="138" stroke="#9a2020" stroke-width="1.5" />
+                    <line x1="416" y1="146" x2="424" y2="146" stroke="#9a2020" stroke-width="1" />
+
+                    <!-- Capacitor C -->
+                    <line x1="290" y1="79" x2="290" y2="107" stroke="#3d2010" stroke-width="2" />
+                    <line x1="270" y1="107" x2="310" y2="107" stroke="#e07235" stroke-width="3" />
+                    <line x1="270" y1="115" x2="310" y2="115" stroke="#e07235" stroke-width="3" />
+                    <text x="316" y="113" font-family="Lora,serif" font-size="12" fill="#e07235">C</text>
+                    <line x1="290" y1="119" x2="290" y2="150" stroke="#3d2010" stroke-width="2" />
+
+                    <!-- Bottom wire -->
+                    <line x1="78" y1="105" x2="290" y2="150" stroke="#3d2010" stroke-width="1.5"
+                        stroke-dasharray="4,2" />
+                    <line x1="290" y1="150" x2="420" y2="150" stroke="#3d2010" stroke-width="2" />
+
+                    <!-- V_C label -->
+                    <text x="240" y="100" font-family="Lora,serif" font-size="11" fill="#a05c00">V_C</text>
+                    <text x="240" y="115" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#a05c00">(restriking V)</text>
+                </svg>
+                <div class="svg-cap">Fig 7.4 — Equivalent circuit for restriking voltage analysis (fault on CB
+                    terminals)</div>
+            </div>
+
+            <p>The circuit equation after arc extinction:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">LC Circuit Differential Equation</div>
+                $$LC\frac{d^2V_C}{dt^2} + V_C = E$$
+            </div>
+
+            <p>Taking Laplace transform with initial conditions \(V_C(0)=0\) and solving:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Restriking Voltage (Time Domain)</div>
+                $$V_C(t) = E(1 - \cos\omega_n t) \qquad \text{where } \omega_n = \frac{1}{\sqrt{LC}}$$
+            </div>
+
+            <div class="fblock">
+                <span class="flbl">Key Results from Restriking Voltage Analysis</span>
+                <span class="fv">V_C(t)</span> = <span class="feq">E(1 − cos ω_n t)</span> [restriking voltage waveform]
+
+                Max restriking voltage = <span class="feq">2E_peak</span> [= 2 × peak active recovery voltage]
+
+                <span class="fv">RRRV</span> = <span class="feq">ω_n · E · sin(ω_n t)</span> [rate of rise of restriking
+                voltage]
+                Max RRRV = <span class="feq">ω_n · E_peak</span> [at t = 0, when sin(ω_n·0⁺) is maximum]
+
+                Natural oscillation frequency:
+                <span class="fh">f_n</span> = <span class="feq">1 / (2π√(LC))</span> Hz
+                <span class="fh">ω_n</span> = <span class="feq">1 / √(LC)</span> rad/s
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">GATE Memory Trick — Restriking Voltage</div>
+                    <p><strong>"Double E oscillates"</strong> — The peak restriking voltage is always <em>twice</em> the
+                        active recovery voltage (peak). The waveform is a \(1 - \cos\) shape, not a sine. RRRV is
+                        maximum at \(t = 0\) and equals \(\omega_n E_{peak}\).</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 8 — CURRENT CHOPPING -->
+        <div class="section" id="s8">
+            <div class="sec-hdr">
+                <span class="sec-num">7.8</span>
+                <h2 class="sec-t">Current Chopping</h2>
+            </div>
+
+            <p>When a circuit breaker interrupts a <strong>low inductive current</strong> (e.g., shunt reactor or
+                magnetising current of a transformer), the current may be forced to zero <em>before</em> its natural
+                zero crossing. This abrupt interruption is called <strong>current chopping</strong>.<sup
+                    class="cite">[2]</sup></p>
+
+            <div class="callout c-danger">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Danger: Current Chopping Overvoltage</div>
+                    <p>When current is abruptly chopped, all the magnetic energy stored in the inductance
+                        (\(\tfrac{1}{2}LI_{ch}^2\)) instantaneously converts to electrostatic energy
+                        (\(\tfrac{1}{2}CV^2\)). The resulting overvoltage can be extremely high and may cause insulation
+                        failure.</p>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Prospective Voltage due to Current Chopping</div>
+                $$\frac{1}{2}LI_{ch}^2 = \frac{1}{2}CV^2 \implies V_{prospective} = I_{ch}\sqrt{\frac{L}{C}} =
+                I_{ch}\sqrt{\frac{L_{eq}}{C_{eq}}}$$
+            </div>
+
+            <p>Current chopping is most severe when:</p>
+            <ul style="margin:0 0 14px 20px;color:var(--text2);font-size:clamp(14px,2vw,16px)">
+                <li style="margin-bottom:8px">Interrupting <strong>low magnetising currents</strong> (e.g., transformer
+                    no-load current)</li>
+                <li style="margin-bottom:8px">Using <strong>air blast circuit breakers</strong> (high deionising
+                    pressure → aggressive arc extinction → premature current zero)</li>
+            </ul>
+            <p>To prevent insulation failure, the prospective voltage must be less than the withstand capacity (standing
+                capacity) of the circuit breaker. <strong>Resistance switching</strong> (Section 7.9) is the cure.</p>
+
+        </div>
+
+        <!-- SECTION 9 — RESISTANCE SWITCHING -->
+        <div class="section" id="s9">
+            <div class="sec-hdr">
+                <span class="sec-num">7.9</span>
+                <h2 class="sec-t">Resistance Switching</h2>
+            </div>
+
+            <p>Resistance switching involves connecting a <strong>resistor in parallel</strong> with the circuit breaker
+                contacts during the opening operation. This resistor serves a dual purpose: it damps restriking voltage
+                oscillations and prevents current chopping overvoltages.<sup class="cite">[1][2]</sup></p>
+
+            <h3 class="sub">Condition for No Oscillation</h3>
+
+            <p>With resistance switching, the circuit becomes a series RLC. For no transient oscillation (critical or
+                over damping), all roots of the characteristic equation must be real. This requires:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Critical Resistance for No Oscillation</div>
+                $$R \leq \frac{1}{2}\sqrt{\frac{L}{C}}$$
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Damping Condition</th>
+                            <th>Value of R</th>
+                            <th>Behaviour</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Critical Damping</td>
+                            <td>\(R = \tfrac{1}{2}\sqrt{L/C}\)</td>
+                            <td class="t-grn">No oscillation, fastest return to steady state</td>
+                        </tr>
+                        <tr>
+                            <td>Over Damping</td>
+                            <td class="t-org">\(R &lt; \tfrac{1}{2}\sqrt{L/C}\)</td>
+                            <td>No oscillation, but slower response</td>
+                        </tr>
+                        <tr>
+                            <td>Under Damping</td>
+                            <td class="t-red">\(R &gt; \tfrac{1}{2}\sqrt{L/C}\)</td>
+                            <td class="t-red">Oscillations present — restriking possible</td>
+                        </tr>
+                        <tr>
+                            <td>Un-damped</td>
+                            <td class="t-red">\(R = \infty\) (no resistor)</td>
+                            <td class="t-red">Full undamped oscillation, maximum RRRV</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>The <strong>damped frequency</strong> of oscillation with resistance switching:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Damped Oscillation Frequency</div>
+                $$f_d = \frac{1}{2\pi}\sqrt{\frac{1}{LC} - \frac{1}{4C^2R^2}}$$
+            </div>
+
+        </div>
+
+        <!-- SECTION 10 — CB RATINGS -->
+        <div class="section" id="s10">
+            <div class="sec-hdr">
+                <span class="sec-num">7.10</span>
+                <h2 class="sec-t">Ratings of Circuit Breakers</h2>
+            </div>
+
+            <h3 class="sub">7.10.1 — Symmetrical Breaking Capacity <span class="prob prob-h">🟢 HIGH</span></h3>
+
+            <p>The breaking capacity of a circuit breaker is its ability to interrupt fault current. <strong>Symmetrical
+                    breaking capacity</strong> is defined as the rms value of the <em>AC component</em> of fault current
+                that the CB is capable of breaking.<sup class="cite">[1][4]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Symmetrical Breaking Capacity</div>
+                $$I_{sy} = \frac{OA}{\sqrt{2}} = \frac{V_{pre}}{Z_{th}}$$
+                $$\text{SBC (MVA)} = \sqrt{3} \times V_{LL}\text{(rated)} \times I_{sy} = |SCMVA|_{3\phi\,fault}$$
+            </div>
+
+            <h3 class="sub">7.10.2 — Asymmetrical Breaking Capacity <span class="prob prob-m">🟡 MEDIUM</span></h3>
+
+            <p>This is the rms value of the <em>total current</em> (AC + DC offset components) that the CB can break.
+                The DC offset is present during the transient period of a fault.</p>
+
+            <div class="fblock">
+                <span class="flbl">Asymmetrical Current (First Cycle)</span>
+                <span class="fv">I_asym</span> = √[ (OA/√2)² + (AB)² ] = <span class="feq">x × I_sy</span>
+
+                x = 1.6 (for first cycle — the worst case)
+
+                <span class="fv">Asymmetrical Breaking Capacity</span>
+                = √3 × V_rated × I_asym
+                = <span class="feq">x × Symmetrical Breaking Capacity</span>
+
+                Note: Default (without qualification) = SYMMETRICAL breaking capacity
+            </div>
+
+            <h3 class="sub">7.10.3 — Making Capacity <span class="prob prob-h">🟢 HIGH</span></h3>
+
+            <p>The <strong>making capacity</strong> is the ability to close (make) the CB onto a short circuit. It is
+                defined as the <em>peak value</em> of the total current (including DC offset) in the first cycle.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Making Capacity</div>
+                $$I_{make} = OC = \sqrt{2} \times 1.8 \times I_{sy} = 2.55 \times I_{sy}$$
+                $$\text{Making Capacity (MVA)} = 2.55 \times \text{Symmetrical Breaking Capacity (MVA)}$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Memory Aid: Making vs Breaking</div>
+                    <p><strong>Making = 2.55 × SBC</strong> (peak value, first cycle, worst DC offset).
+                        <strong>Asymmetrical Breaking = x × SBC</strong> where x = 1.6 for first cycle. Making capacity
+                        is always larger than asymmetrical breaking capacity because making occurs at the absolute worst
+                        instant.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Other CB Ratings</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rating</th>
+                            <th>Definition</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Short Time Current</td>
+                            <td>Max current CB can carry for short period without damage</td>
+                            <td>Based on thermal + mechanical considerations</td>
+                        </tr>
+                        <tr>
+                            <td>Rated Voltage</td>
+                            <td>L-L rms; generally more than nominal system voltage</td>
+                            <td>e.g. 11 kV system → 12 kV rated</td>
+                        </tr>
+                        <tr>
+                            <td>Rated Current</td>
+                            <td>rms of current under normal load operation</td>
+                            <td>Continuous current rating</td>
+                        </tr>
+                        <tr>
+                            <td>Rated Frequency</td>
+                            <td>System frequency (50 Hz in India)</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td>No. of Operations</td>
+                            <td>Specified on nameplate; after which CB needs maintenance</td>
+                            <td>1 operation = 1 break + 1 make</td>
+                        </tr>
+                        <tr>
+                            <td>Operating Duty</td>
+                            <td>B-3-MB-3-MB (no auto-reclose); B-D_t-MB (auto-reclose)</td>
+                            <td>D_t ≈ 300 ms dead time</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- SECTION 11 — CB TYPES -->
+        <div class="section" id="s11">
+            <div class="sec-hdr">
+                <span class="sec-num">7.11</span>
+                <h2 class="sec-t">Classification of Circuit Breakers</h2>
+            </div>
+
+            <p>Circuit breakers are classified by the <strong>arc quenching medium</strong> (insulating medium between
+                contacts). Solid insulating materials are never used for arc quenching — only fluid media (gas, oil,
+                vacuum).<sup class="cite">[1][3][4]</sup></p>
+
+            <div class="svg-wrap">
+                <svg viewBox="0 0 680 340" xmlns="http://www.w3.org/2000/svg" style="min-width:320px">
+                    <!-- Root node -->
+                    <rect x="240" y="10" width="200" height="44" rx="8" fill="#c95f1a" />
+                    <text x="340" y="30" text-anchor="middle" font-family="Playfair Display,serif" font-size="14"
+                        fill="#fff" font-weight="700">Circuit Breakers</text>
+                    <text x="340" y="47" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#fdebd8">(by
+                        arc quenching medium)</text>
+
+                    <!-- Branches -->
+                    <line x1="340" y1="54" x2="340" y2="80" stroke="#ddc8b0" stroke-width="1.5" />
+                    <line x1="80" y1="80" x2="600" y2="80" stroke="#ddc8b0" stroke-width="1.5" />
+
+                    <!-- 5 children: Air Break, Air Blast, Oil, SF6, Vacuum -->
+                    <!-- Air Break -->
+                    <line x1="80" y1="80" x2="80" y2="100" stroke="#ddc8b0" stroke-width="1.5" />
+                    <rect x="20" y="100" width="120" height="50" rx="7" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="80" y="120" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#c95f1a"
+                        font-weight="600">Air Break</text>
+                    <text x="80" y="137" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#9a6e50">400V – 11 kV</text>
+
+                    <!-- Air Blast -->
+                    <line x1="200" y1="80" x2="200" y2="100" stroke="#ddc8b0" stroke-width="1.5" />
+                    <rect x="145" y="100" width="115" height="50" rx="7" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="203" y="120" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#1e6b68"
+                        font-weight="600">Air Blast</text>
+                    <text x="203" y="137" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">12
+                        kV – 525 kV</text>
+
+                    <!-- Oil -->
+                    <line x1="340" y1="80" x2="340" y2="100" stroke="#ddc8b0" stroke-width="1.5" />
+                    <rect x="280" y="100" width="120" height="50" rx="7" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="340" y="120" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#a05c00"
+                        font-weight="600">Oil CB</text>
+                    <text x="340" y="137" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#9a6e50">3.3 kV – 220 kV</text>
+
+                    <!-- SF6 -->
+                    <line x1="480" y1="80" x2="480" y2="100" stroke="#ddc8b0" stroke-width="1.5" />
+                    <rect x="415" y="100" width="130" height="50" rx="7" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="480" y="120" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#2d6648"
+                        font-weight="600">SF₆ Gas CB</text>
+                    <text x="480" y="137" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#9a6e50">6.6 kV – 800 kV</text>
+
+                    <!-- Vacuum -->
+                    <line x1="600" y1="80" x2="600" y2="100" stroke="#ddc8b0" stroke-width="1.5" />
+                    <rect x="545" y="100" width="120" height="50" rx="7" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.5" />
+                    <text x="605" y="120" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#9a2020"
+                        font-weight="600">Vacuum CB</text>
+                    <text x="605" y="137" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#9a6e50">3.3 kV – 66 kV</text>
+
+                    <!-- Air Blast sub-types -->
+                    <line x1="200" y1="150" x2="200" y2="170" stroke="#7ec4c2" stroke-width="1.2" />
+                    <line x1="155" y1="170" x2="245" y2="170" stroke="#7ec4c2" stroke-width="1.2" />
+                    <line x1="155" y1="170" x2="155" y2="185" stroke="#7ec4c2" stroke-width="1" />
+                    <line x1="200" y1="170" x2="200" y2="185" stroke="#7ec4c2" stroke-width="1" />
+                    <line x1="245" y1="170" x2="245" y2="185" stroke="#7ec4c2" stroke-width="1" />
+                    <rect x="120" y="185" width="70" height="30" rx="5" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1" />
+                    <text x="155" y="198" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Axial</text>
+                    <text x="155" y="210" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#9a6e50">blast</text>
+                    <rect x="165" y="185" width="70" height="30" rx="5" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1" />
+                    <text x="200" y="198" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Cross</text>
+                    <text x="200" y="210" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#9a6e50">blast</text>
+                    <rect x="210" y="185" width="70" height="30" rx="5" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1" />
+                    <text x="245" y="198" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Radial</text>
+                    <text x="245" y="210" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#9a6e50">blast</text>
+
+                    <!-- Oil sub-types -->
+                    <line x1="340" y1="150" x2="340" y2="170" stroke="#f0c060" stroke-width="1.2" />
+                    <line x1="305" y1="170" x2="375" y2="170" stroke="#f0c060" stroke-width="1.2" />
+                    <line x1="305" y1="170" x2="305" y2="185" stroke="#f0c060" stroke-width="1" />
+                    <line x1="375" y1="170" x2="375" y2="185" stroke="#f0c060" stroke-width="1" />
+                    <rect x="260" y="185" width="90" height="30" rx="5" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1" />
+                    <text x="305" y="198" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#a05c00">Bulk Oil</text>
+                    <text x="305" y="210" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#9a6e50">(large tank)</text>
+                    <rect x="330" y="185" width="90" height="30" rx="5" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1" />
+                    <text x="375" y="198" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#a05c00">Min. Oil</text>
+                    <text x="375" y="210" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#9a6e50">(porcelain ins.)</text>
+
+                    <!-- Key property labels below each type -->
+                    <text x="80" y="268" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">No
+                        external</text>
+                    <text x="80" y="281" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a6e50">arc
+                        action</text>
+                    <text x="480" y="268" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#2d6648">Electronegative</text>
+                    <text x="480" y="281" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">80
+                        kV/cm str.</text>
+                    <text x="605" y="268" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#9a2020">10⁻⁵ torr vacuum</text>
+                    <text x="605" y="281" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#9a2020">10⁷ V/cm str.</text>
+                </svg>
+                <div class="svg-cap">Fig 7.5 — Classification of circuit breakers by arc quenching medium and voltage
+                    range</div>
+            </div>
+
+            <h3 class="sub">Comparison Table <span class="prob prob-h">🟢 HIGH</span></h3>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Air Break</th>
+                            <th>Air Blast</th>
+                            <th>Oil CB</th>
+                            <th>SF₆</th>
+                            <th>Vacuum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Arc Quenching Medium</td>
+                            <td>Atm. air</td>
+                            <td>Compressed air (20–30 kg/cm²)</td>
+                            <td>Transformer oil</td>
+                            <td>SF₆ at 5 kg/cm²</td>
+                            <td>High vacuum (10⁻⁵ torr)</td>
+                        </tr>
+                        <tr>
+                            <td>Dielectric Strength</td>
+                            <td>30 kV/cm</td>
+                            <td>High (compressed)</td>
+                            <td>Good insulator</td>
+                            <td class="t-grn">80 kV/cm</td>
+                            <td class="t-grn">10⁷ V/cm (10000 kV/cm)</td>
+                        </tr>
+                        <tr>
+                            <td>Voltage Range</td>
+                            <td>400V–11kV</td>
+                            <td class="t-grn">66kV–1100kV</td>
+                            <td>3.3kV–220kV</td>
+                            <td class="t-grn">3.3kV–800kV</td>
+                            <td>3.3kV–66kV</td>
+                        </tr>
+                        <tr>
+                            <td>Breaking Capacity</td>
+                            <td>5–750 MVA</td>
+                            <td class="t-grn">2500–60000 MVA</td>
+                            <td>150–25000 MVA</td>
+                            <td class="t-grn">1000–50000 MVA</td>
+                            <td>1000–50000 MVA</td>
+                        </tr>
+                        <tr>
+                            <td>Fire Hazard</td>
+                            <td class="t-grn">None</td>
+                            <td class="t-grn">None</td>
+                            <td class="t-red">High (oil flammable)</td>
+                            <td class="t-grn">None</td>
+                            <td class="t-grn">None</td>
+                        </tr>
+                        <tr>
+                            <td>Maintenance</td>
+                            <td>Contact replacement</td>
+                            <td>Compressor upkeep</td>
+                            <td class="t-red">Regular oil change</td>
+                            <td class="t-grn">Minimum lubrication</td>
+                            <td class="t-grn">Minimum</td>
+                        </tr>
+                        <tr>
+                            <td>Environment</td>
+                            <td>Emits hot ionised air</td>
+                            <td>Emits hot air</td>
+                            <td class="t-red">Humidity affects oil</td>
+                            <td class="t-grn">Fully sealed</td>
+                            <td class="t-grn">Sealed — no effect</td>
+                        </tr>
+                        <tr>
+                            <td>Size</td>
+                            <td>Medium</td>
+                            <td>Large</td>
+                            <td class="t-red">Quite large</td>
+                            <td class="t-grn">Smaller</td>
+                            <td class="t-grn">Smallest</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">SF₆ Circuit Breaker — Special Properties</h3>
+            <p>SF₆ gas has an <strong>electronegative</strong> property — it attracts free electrons from the arc
+                plasma. The electrons attach to SF₆ molecules to form heavy, slow-moving negative ions, which reduces
+                the conductivity of the arc plasma and accelerates deionisation. This is why SF₆ breaks the arc at
+                current zero with exceptional efficiency.</p>
+
+            <div class="fblock">
+                <span class="flbl">SF₆ Properties Summary</span>
+                Dielectric strength = <span class="feq">80 kV/cm</span> (2–3× air strength)
+                Relative permittivity = <span class="feq">ε_r = 1.0</span> (same as air for capacitance)
+                Operating range = <span class="feq">6.6 kV to 800 kV</span>
+                Arc quenching = Electronegative + cooling property
+                At current zero = Turbulence force created → better heat dissipation → arc extinguished
+            </div>
+
+            <h3 class="sub">Vacuum Circuit Breaker — Special Properties</h3>
+            <p>Vacuum means zero pressure (ideally 0 torr or '0' mm Hg). In practice, a high vacuum of \(10^{-5}\) torr
+                is created. The dielectric strength of vacuum is \(10^7\) V/cm = 10,000 kV/cm — extraordinarily high
+                compared to any other medium.</p>
+            <p>When contacts separate in vacuum, a small amount of <strong>metal vapour</strong> is released due to
+                mechanical friction. At current zero, electromagnetic forces become zero and the metal vapour falls to
+                the bottom of the chamber under gravity — no gaseous atoms remain to sustain the arc. The arc is
+                interrupted at the <em>first current zero</em>.</p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Vacuum CB Limitation</div>
+                    <p>Operating voltage is limited to <strong>66 kV</strong>. Above 66 kV, creating and maintaining
+                        high vacuum becomes technically difficult and economically unviable. SF₆ is preferred above 66
+                        kV.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Voltage vs. Preferred CB Type</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rated Voltage</th>
+                            <th>Preferred CB Type</th>
+                            <th>Why</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Below 1 kV</td>
+                            <td class="t-tel">Air Break, Vacuum, or SF₆</td>
+                            <td>Vacuum preferred for fast, reliable operation</td>
+                        </tr>
+                        <tr>
+                            <td>1 kV – 132 kV</td>
+                            <td class="t-org">Min. Oil, SF₆, Air Blast</td>
+                            <td>SF₆ preferred for reliability and zero fire risk</td>
+                        </tr>
+                        <tr>
+                            <td>132 kV – 220 kV</td>
+                            <td class="t-grn">SF₆ preferred</td>
+                            <td>High breaking capacity, sealed — no maintenance</td>
+                        </tr>
+                        <tr>
+                            <td>400 kV – 800 kV</td>
+                            <td class="t-grn">SF₆ or Air Blast CB</td>
+                            <td>SF₆ preferred; Air Blast for highest voltages</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- SECTION 12 — WORKED EXAMPLES -->
+        <div class="section" id="s12">
+            <div class="sec-hdr">
+                <span class="sec-num">7.12</span>
+                <h2 class="sec-t">Worked Examples</h2>
+            </div>
+
+            <!-- Example 1 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 7.1</span>
+                    <span class="ex-title">Active Recovery Voltage — LL Fault with Demagnetizing Effect</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An LL fault occurs at the terminals of a solidly grounded 3-ϕ, 11 kV synchronous
+                        generator. The fault current lags system voltage by 60°. The voltage is decreased by 5% due to
+                        the demagnetizing effect of the synchronous machine. Calculate the active recovery voltage.
+                    </div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>Given: V_LL = 11 kV, ϕ = 60°, K₁ = 0.95 (voltage reduced by 5%), K₂ = 1.5 (LL fault on grounded
+                        system)</p>
+                    <div class="math-block">
+                        <div class="math-lbl">Step 1: Peak phase voltage</div>
+                        $$V_m = \frac{11\text{ kV}}{\sqrt{3}} \times \sqrt{2} = \frac{11000}{\sqrt{3}} \times \sqrt{2}$$
+                    </div>
+                    <div class="math-block">
+                        <div class="math-lbl">Step 2: Apply V_arv formula</div>
+                        $$V_{arv} = K_1 K_2 V_m \sin\phi = 0.95 \times 1.5 \times \frac{11000}{\sqrt{3}}\times\sqrt{2}
+                        \times \sin 60°$$
+                        $$= 0.95 \times 1.5 \times \frac{11000 \times 1.4142}{1.732} \times 0.866 = \boxed{11.08\text{
+                        kV}}$$
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 7.2</span>
+                    <span class="ex-title">Symmetrical &amp; Making Capacity — 33 kV Oil CB</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 3-ϕ, 33 kV oil circuit breaker is rated 1200 A, 200 MVA, 4 sec. Find: (i)
+                        Symmetrical breaking current, (ii) Making current.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>Given: SBC = 200 MVA, V_LL = 33 kV</p>
+                    <div class="math-block">
+                        <div class="math-lbl">(i) Symmetrical Breaking Current</div>
+                        $$I_{sy} = \frac{\text{SBC}}{\sqrt{3} \times V_{LL}} = \frac{200 \times 10^6}{\sqrt{3} \times 33
+                        \times 10^3} = 3499.5 \approx \boxed{3.5\text{ kA}}$$
+                    </div>
+                    <div class="math-block">
+                        <div class="math-lbl">(ii) Making Current</div>
+                        $$I_{make} = 2.55 \times I_{sy} = 2.55 \times 3500 = \boxed{8.925\text{ kA (peak)}}$$
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 7.3</span>
+                    <span class="ex-title">Restriking Voltage — Natural Frequency, Max V, and RRRV</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">For a 132 kV, 50 Hz system, the reactance and capacitance up to the CB location
+                        are 3 Ω and 0.015 μF respectively. Calculate: (i) Frequency of transient oscillation, (ii)
+                        Maximum restriking voltage, (iii) Maximum RRRV.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="math-block">
+                        <div class="math-lbl">Step 1: Find L from reactance</div>
+                        $$L = \frac{X}{\omega} = \frac{3}{2\pi \times 50} = \frac{3}{100\pi} = 0.00954 \text{ H}$$
+                    </div>
+                    <div class="math-block">
+                        <div class="math-lbl">(i) Natural Frequency</div>
+                        $$f_n = \frac{1}{2\pi\sqrt{LC}} = \frac{1}{2\pi\sqrt{0.00954 \times 0.015 \times 10^{-6}}} =
+                        \frac{10^5}{2\pi \times 1.196} \approx \boxed{13.29\text{ kHz}}$$
+                    </div>
+                    <div class="math-block">
+                        <div class="math-lbl">(ii) Peak Active Recovery Voltage (E_peak)</div>
+                        $$E_{peak} = \frac{132}{\sqrt{3}} \times \sqrt{2} = 107.8\text{ kV}$$
+                        $$V_{max} = 2E_{peak} = 2 \times 107.8 = \boxed{215.6\text{ kV}}$$
+                    </div>
+                    <div class="math-block">
+                        <div class="math-lbl">(iii) Maximum RRRV</div>
+                        $$\text{RRRV}_{max} = \omega_n \cdot E_{peak} = 2\pi f_n \times E_{peak} = 2\pi \times 13290
+                        \times 107800\text{ V}$$
+                        $$= 2\pi \times 13290 \times \frac{132}{\sqrt{3}} \times \sqrt{2} \;\approx\; \boxed{9.01\text{
+                        kV/μs}}$$
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 4 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 7.4</span>
+                    <span class="ex-title">Current Chopping Overvoltage</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 33 kV, 50 Hz system CB has phase ground capacitance 0.01 μF and inductance 5 mH
+                        up to CB location. The arc is chopped at peak fault current. Find the voltage across CB
+                        contacts.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>Fault current = 2000 A (rms), maximum fault current = \(2000\sqrt{2}\) A</p>
+                    <div class="math-block">
+                        <div class="math-lbl">Prospective voltage due to current chopping</div>
+                        $$v = i_{ch}\sqrt{\frac{L}{C}} = 2000\sqrt{2} \times \sqrt{\frac{5 \times 10^{-3}}{0.01 \times
+                        10^{-6}}} = 2000\sqrt{2} \times \sqrt{5 \times 10^5}$$
+                        $$= 2000\sqrt{2} \times 707.1 \approx \boxed{2\text{ MV}}$$
+                    </div>
+                    <p>This enormous overvoltage (2 MV for a 33 kV system!) illustrates why current chopping must be
+                        avoided — it can destroy transformer insulation catastrophically.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 13 — GATE/IES -->
+        <div class="section" id="s13">
+            <div class="sec-hdr">
+                <span class="sec-num">7.13</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Questions</h2>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">Most Frequently Tested Topics in Chapter 7</span>
+                </div>
+                <div class="gate-body">
+                    <p><span class="prob prob-h">🟢 HIGH</span> Symmetrical &amp; asymmetrical breaking capacity
+                        calculations. Making capacity = 2.55 × SBC.</p>
+                    <p><span class="prob prob-h">🟢 HIGH</span> Restriking voltage derivation: \(V_C(t) =
+                        E(1-\cos\omega_n t)\), maximum = 2E_peak, RRRV = ω_n E_peak.</p>
+                    <p><span class="prob prob-h">🟢 HIGH</span> K₂ (first pole clearing factor) table — grounded vs
+                        ungrounded, fault type.</p>
+                    <p><span class="prob prob-m">🟡 MEDIUM</span> Critical resistance for resistance switching: \(R \leq
+                        \tfrac{1}{2}\sqrt{L/C}\).</p>
+                    <p><span class="prob prob-m">🟡 MEDIUM</span> SF₆ properties: dielectric strength 80 kV/cm,
+                        electronegative, voltage range.</p>
+                    <p><span class="prob prob-l">🔴 LOW</span> Air blast CB subtypes (axial, cross, radial). Line
+                        isolator breaking capacity = zero.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Making capacity and asymmetrical breaking capacity</span>
+                    <span class="pyq-year">2019</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A circuit breaker has a symmetrical breaking capacity of 1000 MVA at 33 kV. Its making capacity
+                        and asymmetrical breaking capacity are respectively:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 2550 MVA and 1600 MVA</li>
+                        <li>(B) 2000 MVA and 1800 MVA</li>
+                        <li class="correct">✓ (C) Making = 2.55 × 1000 = 2550 MVA; Asymm. = 1.6 × 1000 = 1600 MVA</li>
+                        <li>(D) 1800 MVA and 2550 MVA</li>
+                    </ul>
+                    <p style="font-size:13px;color:var(--text3);margin-top:8px;margin-bottom:0"><strong>Key:</strong>
+                        Making = 2.55 × SBC (peak, includes DC offset). Asymmetrical = 1.6 × SBC (rms total, first
+                        cycle).</p>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Restriking voltage maximum value</span>
+                    <span class="pyq-year">2017</span>
+                </div>
+                <div class="pyq-body">
+                    <p>When a circuit breaker interrupts a fault, the restriking voltage is given by \(V_C(t) =
+                        E(1-\cos\omega_n t)\). The maximum value of the restriking voltage is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) E</li>
+                        <li>(B) 1.5E</li>
+                        <li class="correct">✓ (C) 2E — The maximum occurs when \(\cos\omega_n t = -1\), giving \(V_{max}
+                            = 2E\)</li>
+                        <li>(D) √3 × E</li>
+                    </ul>
+                    <p style="font-size:13px;color:var(--text3);margin-top:8px;margin-bottom:0">
+                        <strong>Derivation:</strong> \(V_{max} = E(1-\cos\pi) = E(1-(-1)) = 2E\). This is 2× the active
+                        recovery voltage peak.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 3 IES -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Arc interruption — property of vacuum CB</span>
+                    <span class="pyq-year">2018</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In a vacuum circuit breaker, the arc is interrupted at:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Peak current</li>
+                        <li>(B) When contacts fully separate</li>
+                        <li class="correct">✓ (C) First current zero — because no gaseous atoms remain to support
+                            re-ionization after current zero in vacuum</li>
+                        <li>(D) Any instant after contact separation</li>
+                    </ul>
+                    <p style="font-size:13px;color:var(--text3);margin-top:8px;margin-bottom:0"><strong>Reason:</strong>
+                        Metal vapour produced at contact separation falls under gravity at current zero. No medium
+                        exists for arc re-striking.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 4 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Critical resistance for no oscillation in resistance switching</span>
+                    <span class="pyq-year">2015</span>
+                </div>
+                <div class="pyq-body">
+                    <p>For a circuit with L = 10 mH and C = 0.04 μF connected across a circuit breaker, the value of
+                        resistance for critical damping (no oscillation) is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 500 Ω</li>
+                        <li class="correct">✓ (B) \(R = \tfrac{1}{2}\sqrt{L/C} =
+                            \tfrac{1}{2}\sqrt{10\times10^{-3}/0.04\times10^{-6}} = \tfrac{1}{2}\times500 = 250\,\Omega\)
+                        </li>
+                        <li>(C) 1000 Ω</li>
+                        <li>(D) 100 Ω</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ASK AI -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">⚡ Ask Aarova AI — Circuit Breakers Tutor</div>
+                <div class="ai-prompt-sub">Ask any GATE-level doubt on Circuit Breakers. Numericals, concepts,
+                    derivations — all covered.</div>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="userQ" type="text"
+                        placeholder="e.g. Derive the restriking voltage equation from first principles…">
+                    <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+                </div>
+                <div class="ai-chips">
+                    <span class="ai-chip"
+                        onclick="setQ('What is the physical difference between arc initiation and arc maintenance? Why is field ionization responsible for initiation?')">Arc
+                        initiation vs maintenance</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain why the making current of a circuit breaker is 2.55 times the symmetrical breaking current.')">Why
+                        making = 2.55 × SBC?</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Why does SF₆ have better arc quenching than air? Explain electronegative property in detail.')">SF₆
+                        electronegative property</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Derive the critical resistance condition R ≤ ½√(L/C) for no transient oscillation in resistance switching.')">Resistance
+                        switching derivation</span>
+                    <span class="ai-chip"
+                        onclick="setQ('A 220 kV CB has X = 8Ω and C = 0.025μF. Find natural frequency, max restriking voltage, and RRRV.')">220
+                        kV CB numerical</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+        </div>
+
+        <!-- SECTION 14 — SUMMARY -->
+        <div class="section" id="s14">
+            <div class="sec-hdr">
+                <span class="sec-num">7.14</span>
+                <h2 class="sec-t">Chapter Summary &amp; Quick Revision</h2>
+            </div>
+
+            <h3 class="sub">Key Formulas — One-Page Revision Sheet</h3>
+
+            <div class="fblock">
+                <span class="flbl">Circuit Breakers — Master Formula Sheet</span>
+                <span class="fh">ARC PHYSICS</span>
+                Arc initiation : Field ionization (E = ΔV/Δx >> dielectric strength)
+                Arc maintenance : Thermal ionization (heat keeps gas ionized)
+                Arc resistance : Negative temp. coeff. — R_arc decreases as temp rises
+                Arc nature : Purely resistive (V_arc and I_arc in phase; arc pf = 1)
+
+                <span class="fh">ARC INTERRUPTION</span>
+                High Resistance : R_arc increased → current reduced → arc extinguished
+                (for low-power AC & DC only)
+                Current Zero : Extinguish at natural AC zero (100 times/sec for 50 Hz)
+                Condition : Rate of dielectric recovery > Rate of restriking voltage rise
+
+                <span class="fh">RECOVERY VOLTAGE</span>
+                Active Recovery : <span class="fv">V_arv = K₁K₂V_m sinϕ</span> (phase value)
+                Line value : Multiply by √3
+
+                <span class="fh">RESTRIKING VOLTAGE</span>
+                Waveform : <span class="fv">V_C(t) = E(1 − cos ω_n t)</span>
+                Maximum : <span class="feq">V_max = 2E_peak</span>
+                RRRV max : <span class="feq">ω_n · E_peak</span>
+                Natural freq : <span class="feq">f_n = 1/(2π√(LC))</span>
+
+                <span class="fh">CURRENT CHOPPING</span>
+                Prospective V : <span class="fv">v = i_ch × √(L/C)</span> [dangerous for low-current interruption]
+
+                <span class="fh">RESISTANCE SWITCHING</span>
+                No oscillation : <span class="fv">R ≤ ½√(L/C)</span>
+                Damped freq : <span class="feq">f_d = (1/2π)√(1/LC − 1/4C²R²)</span>
+
+                <span class="fh">CB RATINGS</span>
+                Sym. Breaking : <span class="feq">I_sy = V_pre/Z_th</span> ; SBC (MVA) = √3 × V_LL × I_sy
+                Asym. Breaking : <span class="fv">= x × SBC</span> (x = 1.6 for first cycle)
+                Making Capacity : <span class="fv">= 2.55 × SBC</span> (= √2 × 1.8 × I_sy peak)
+
+                <span class="fh">K₂ VALUES</span>
+                LL fault (any system) : K₂ = 1.5
+                LG, LLL (grounded) : K₂ = 1.0
+                All faults (ungrounded) : K₂ = 1.5
+            </div>
+
+            <h3 class="sub">Summary Cards</h3>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Protective Switches</div>
+                    <p>Fuse: self-operated, low melting point. Load interrupter: full-load only. Isolator: no-load, zero
+                        breaking. CB: all conditions. Sequence: interrupter first, then isolator.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Arc Physics</div>
+                    <p>Initiation: field ionization at Δx = 0.1 μm. Maintenance: thermal ionization. Properties:
+                        resistive, negative temp coeff. V_arc ≈ constant as I rises.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Arc Extinction Theories</div>
+                    <p>Slepain (Recovery Rate): dielectric recovery rate vs restriking voltage rate. Cassie (Energy
+                        Balance): heat dissipation rate vs heat generation rate.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Restriking Voltage</div>
+                    <p>V_C(t) = E(1−cosωₙt). Max = 2E_peak. RRRV_max = ωₙE_peak. fₙ = 1/2π√(LC). Higher L,C → lower fₙ →
+                        lower RRRV.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">CB Ratings</div>
+                    <p>SBC in MVA = √3 V_LL × I_sy. Making = 2.55 × SBC. Asymmetrical = 1.6 × SBC. Default = SBC
+                        (symmetrical). K₂ = 1.5 for LL fault.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">CB Types Selection</div>
+                    <p>Below 1 kV: air break. Up to 66 kV: vacuum preferred. Up to 220 kV: SF₆ preferred. EHV (400–1100
+                        kV): SF₆ or air blast. SF₆ = 80 kV/cm; vacuum = 10⁷ V/cm.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 8</div>
+                    <p>Protective Relays — Overcurrent relays (IDMT, DMT), distance relays (impedance, MHO, reactance),
+                        differential protection, earth fault protection, feeder protection, and Buchholz relay. Complete
+                        GATE &amp; IES coverage with numericals and relay coordination problems.</p>
+                </div>
+            </div>
+
+            <!-- CITATIONS -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical explanations,
+                    derivations, SVG diagrams, and examples are original to Aarova AI, derived from the following
+                    standard references. No content is reproduced from ACE Academy materials.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Stevenson, William D. <em>Elements of Power System
+                                Analysis</em>, 4th ed. McGraw-Hill, 1982. Chapter 10 — Symmetrical &amp; unsymmetrical
+                            faults, CB ratings, restriking voltage analysis.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Kothari, D.P. and Nagrath, I.J. <em>Modern Power System
+                                Analysis</em>, 4th ed. Tata McGraw-Hill, 2011. Chapter 11 — Power system protection:
+                            circuit breakers, arc phenomenon, interruption methods.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Wadhwa, C.L. <em>Electrical Power Systems</em>, 6th ed.
+                            New Age International, 2012. Chapter 17 — Circuit breakers: types, ratings, arc extinction,
+                            resistance switching.</span></li>
+                    <li><span class="cite-num">[4]</span><span>ACE Engineering Academy. <em>Power Systems Study
+                                Material</em>, Chapter 7. Hyderabad. Used for problem sets and topic outline reference
+                            only. All explanations are original.</span></li>
+                    <li><span class="cite-num">[5]</span><span>IIT Kharagpur NPTEL. <em>Power Systems Engineering —
+                                Lectures 36–42: Protective Switchgear &amp; Circuit Breakers</em>. National Programme on
+                            Technology Enhanced Learning. nptel.ac.in. Arc theory and CB types.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Power Systems Series &nbsp;·&nbsp; Chapter 7 of 8<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations,
+                    derivations, and SVG diagrams are original to Aarova AI. Derived from standard textbooks
+                    [1–5].</span>
+            </footer>
+
+        </div><!-- end section 14 -->
+
+    </div><!-- end .page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Power Systems. Topic: Circuit Breakers (Chapter 7). Cover: protective switches (fuse, load interrupter, isolator, CB), arc phenomenon (initiation, maintenance, extinction), arc interruption methods (high resistance, current zero), recovery voltage, restriking voltage, RRRV derivation, current chopping, resistance switching, CB ratings (symmetrical/asymmetrical breaking capacity, making capacity, K2 factor), CB types (air break, air blast, oil, SF6, vacuum). Answer with step-by-step working for numericals. Base answers on Stevenson, Kothari & Nagrath, Wadhwa. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        // Mobile SVG scroll hints
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

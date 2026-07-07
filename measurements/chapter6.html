@@ -1,0 +1,3028 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Measurement Errors and Their Analysis</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 12.5%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TOC ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .section:nth-child(13) {
+            animation-delay: .53s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* ── CALLOUT ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COL ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── AI WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* ════ TABLET ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* ════ LARGE DESKTOP ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Electrical Measurements Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 01 &nbsp;·&nbsp; Electrical Measurements</div>
+            <h1 class="hero-title">Measurement Errors &amp; <em>Their Analysis</em></h1>
+            <p class="hero-desc">A rigorous treatment of measurement errors — their classification, mathematical
+                analysis, instrument characteristics, statistical tools, and the propagation of uncertainty — following
+                standard textbooks and aligned to GATE EE, IES E&T, and PSU exam patterns.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Electrical Measurements — Ch.1</span>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Chapter 1 of 8</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">1.1</span>Why Measurement Matters</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">1.8</span>Resolution &amp; Threshold</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">1.2</span>Definitions &amp; Error Types</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">1.9</span>Dead Time, Dead Zone, Drift</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">1.3</span>Static &amp; Dynamic Errors</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">1.10</span>Statistical Analysis</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">1.4</span>Instrument Characteristics</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">1.11</span>Uncertainty &amp; Propagation</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">1.5</span>Accuracy, Precision &amp; GAE</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">1.12</span>GATE &amp; IES Questions</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">1.6</span>Limiting Error &amp; Loading Effect</a>
+                <a href="#s13" class="toc-item"><span class="toc-n">1.13</span>Memory Tricks &amp; Revision</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">1.7</span>Sensitivity &amp; Hysteresis</a>
+                <a href="#citations" class="toc-item"><span class="toc-n">Ref</span>References</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: BIG PICTURE ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">1.1</span>
+                <h2 class="sec-t">Why Measurement Matters — The Big Picture</h2>
+            </div>
+            <p>Every engineered system — from a power grid to a hospital monitor to a spacecraft — depends on
+                <strong>measuring physical quantities accurately</strong>. Measurement is the bridge between the
+                physical world and human understanding. Without it, we cannot verify a design, control a process, or
+                assure product quality.</p>
+            <p>An instrument does not measure perfectly. The gap between what an instrument reads and what truly exists
+                in nature is the subject of this chapter. Understanding this gap — its sources, its magnitude, and how
+                to reduce it — is fundamental to every branch of electrical engineering.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>In power systems, a 1% error in a CT or PT used for energy billing can mean crores of rupees of
+                        discrepancy annually across a distribution network. In medical instrumentation, a 2% error in a
+                        blood-pressure transducer can lead to dangerous clinical decisions. Measurement accuracy is not
+                        academic — it is mission-critical.</p>
+                </div>
+            </div>
+
+            <!-- Flow diagram: Measurement chain -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <text x="350" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">The Measurement Chain — Where Errors Enter</text>
+                    <!-- Boxes -->
+                    <rect x="10" y="35" width="100" height="44" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="60" y="53" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="600">Physical</text>
+                    <text x="60" y="68" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="600">Quantity</text>
+
+                    <rect x="140" y="35" width="110" height="44" rx="8" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="195" y="53" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648"
+                        font-weight="600">Transducer /</text>
+                    <text x="195" y="68" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648"
+                        font-weight="600">Sensor</text>
+
+                    <rect x="280" y="35" width="110" height="44" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="335" y="53" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="600">Signal</text>
+                    <text x="335" y="68" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="600">Conditioning</text>
+
+                    <rect x="420" y="35" width="110" height="44" rx="8" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="475" y="53" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#a05c00"
+                        font-weight="600">Indicator /</text>
+                    <text x="475" y="68" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#a05c00"
+                        font-weight="600">Recorder</text>
+
+                    <rect x="560" y="35" width="130" height="44" rx="8" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.5" />
+                    <text x="625" y="53" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a2020"
+                        font-weight="600">Observer &amp;</text>
+                    <text x="625" y="68" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a2020"
+                        font-weight="600">Interpretation</text>
+
+                    <line x1="110" y1="57" x2="138" y2="57" stroke="#c95f1a" stroke-width="2" marker-end="url(#arr)" />
+                    <line x1="250" y1="57" x2="278" y2="57" stroke="#c95f1a" stroke-width="2" marker-end="url(#arr)" />
+                    <line x1="390" y1="57" x2="418" y2="57" stroke="#c95f1a" stroke-width="2" marker-end="url(#arr)" />
+                    <line x1="530" y1="57" x2="558" y2="57" stroke="#c95f1a" stroke-width="2" marker-end="url(#arr)" />
+
+                    <!-- Error labels below -->
+                    <text x="195" y="100" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a2020">Instrumental error</text>
+                    <text x="335" y="100" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">Environmental error</text>
+                    <text x="475" y="100" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">Loading / drift</text>
+                    <text x="625" y="100" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a2020">Parallax / gross error</text>
+
+                    <rect x="10" y="115" width="680" height="36" rx="7" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1" />
+                    <text x="350" y="133" text-anchor="middle" font-family="Lora,serif" font-size="10.5"
+                        fill="#3d2010">Every stage in the chain introduces error. Total measurement error = sum of all
+                        stage errors (with sign).</text>
+                    <text x="350" y="147" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9.5"
+                        fill="#9a6e50">Ref: Golding &amp; Widdis — Electrical Measurements and Measuring Instruments,
+                        Ch.1</text>
+                </svg>
+                <div class="svg-cap">Figure 1.1 — The generalised measurement chain. Errors accumulate at each stage.
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: DEFINITIONS ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">1.2</span>
+                <h2 class="sec-t">Fundamental Definitions</h2>
+            </div>
+            <p>Before analysing errors, precise definitions are essential. The language of metrology is exact —
+                confusing "accuracy" with "precision," for instance, is a common and costly mistake.</p>
+
+            <h3 class="sub">Measurand, True Value, and Measured Value</h3>
+            <p>The <strong>measurand</strong> is the quantity being measured — for example, the RMS voltage across a
+                resistor. The <strong>true value</strong> \(A_t\) is the actual, ideal value that would be obtained by a
+                perfect measurement. In practice, the true value is never known exactly; it is approximated by a highly
+                accurate standard or by the average of a very large number of measurements.<sup class="cite">[1]</sup>
+            </p>
+            <p>The <strong>measured value</strong> \(A_m\) is what the instrument actually indicates. The difference
+                between these two quantities defines error.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Definition — Absolute Error</div>
+                $$\varepsilon = A_m - A_t$$
+                <p style="font-size:13px;color:var(--text3);margin-top:8px;text-align:left;">where \(\varepsilon\) =
+                    absolute error, \(A_m\) = measured value, \(A_t\) = true value. Error may be positive (over-reading)
+                    or negative (under-reading).</p>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Terminology Alert</div>
+                    <p>In general usage, "error" means absolute error with sign: \(\varepsilon = A_m - A_t\). However,
+                        colloquially "error" often means magnitude only, i.e. \(|\varepsilon|\). In engineering
+                        specifications, error is always represented with ± to indicate bidirectional uncertainty. Be
+                        precise about which you mean.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Correction Factor</h3>
+            <p>The <strong>correction factor</strong> (CF) is the quantity that must be added algebraically to the
+                measured value to obtain the true value. It is always equal and opposite to the error:</p>
+            <div class="math-block">
+                <div class="math-lbl">Correction Factor</div>
+                $$\text{CF} = A_t - A_m = -\varepsilon$$
+                <p style="font-size:13px;color:var(--text3);margin-top:8px;text-align:left;">If a voltmeter reads 102 V
+                    but the true voltage is 100 V, then \(\varepsilon = +2\,\text{V}\) and CF = \(-2\,\text{V}\). Apply
+                    CF to the reading to recover the true value.</p>
+            </div>
+
+            <h3 class="sub">Relative Static Error and Percentage Error</h3>
+            <p>Absolute error alone is insufficient. A 1 V error when measuring 1000 V is trivial; the same 1 V error
+                when measuring 2 V is catastrophic. The <strong>relative static error</strong> normalises the error
+                against the true value:<sup class="cite">[2]</sup></p>
+            <div class="math-block">
+                <div class="math-lbl">Relative Static Error (RSE)</div>
+                $$\varepsilon_r = \frac{\varepsilon}{A_t} = \frac{A_m - A_t}{A_t}$$
+                $$\%\,\text{RSE} = \varepsilon_r \times 100 = \frac{A_m - A_t}{A_t} \times 100$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Intuition — Why normalise by true value?</div>
+                    <p>Think of a sniper versus a dart player. The sniper misses by 5 cm at 1000 m range — excellent
+                        accuracy. The dart player misses by 5 cm at 2.37 m range — terrible accuracy. Relative error
+                        captures this relative performance. Absolute error alone is physically meaningless without
+                        knowing the quantity being measured.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: ERROR TYPES ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">1.3</span>
+                <h2 class="sec-t">Classification of Errors</h2>
+            </div>
+            <p>Errors are first divided by their time behaviour, then by their physical origin. This two-level
+                classification is the foundation of all error analysis.</p>
+
+            <!-- SVG: Error classification tree -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 700 290" xmlns="http://www.w3.org/2000/svg">
+                    <text x="350" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Error Classification Tree</text>
+                    <!-- Root -->
+                    <rect x="270" y="30" width="160" height="38" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="350" y="52" text-anchor="middle" font-family="Lora,serif" font-size="12" fill="#c95f1a"
+                        font-weight="600">Measurement Error</text>
+
+                    <!-- Level 1 branches -->
+                    <line x1="350" y1="68" x2="180" y2="100" stroke="#c8a888" stroke-width="1.5" />
+                    <line x1="350" y1="68" x2="520" y2="100" stroke="#c8a888" stroke-width="1.5" />
+
+                    <rect x="100" y="100" width="160" height="38" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="180" y="122" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="600">Static Error</text>
+
+                    <rect x="440" y="100" width="160" height="38" rx="8" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="520" y="122" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#a05c00"
+                        font-weight="600">Dynamic Error</text>
+
+                    <!-- Static sub-branches -->
+                    <line x1="180" y1="138" x2="80" y2="170" stroke="#c8a888" stroke-width="1.2" />
+                    <line x1="180" y1="138" x2="180" y2="170" stroke="#c8a888" stroke-width="1.2" />
+                    <line x1="180" y1="138" x2="280" y2="170" stroke="#c8a888" stroke-width="1.2" />
+
+                    <rect x="20" y="170" width="120" height="36" rx="7" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.2" />
+                    <text x="80" y="188" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a2020"
+                        font-weight="600">Gross Errors</text>
+                    <text x="80" y="200" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">(human mistakes)</text>
+
+                    <rect x="115" y="170" width="130" height="36" rx="7" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.2" />
+                    <text x="180" y="188" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        font-weight="600">Systematic Errors</text>
+                    <text x="180" y="200" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">(constant bias)</text>
+
+                    <rect x="220" y="170" width="120" height="36" rx="7" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.2" />
+                    <text x="280" y="188" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#a05c00"
+                        font-weight="600">Random Errors</text>
+                    <text x="280" y="200" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">(statistical scatter)</text>
+
+                    <!-- Systematic sub-branches -->
+                    <line x1="180" y1="206" x2="80" y2="240" stroke="#c8a888" stroke-width="1.1" />
+                    <line x1="180" y1="206" x2="180" y2="240" stroke="#c8a888" stroke-width="1.1" />
+                    <line x1="180" y1="206" x2="280" y2="240" stroke="#c8a888" stroke-width="1.1" />
+
+                    <rect x="22" y="240" width="116" height="36" rx="6" fill="#f0e0cc" stroke="#ddc8b0"
+                        stroke-width="1.1" />
+                    <text x="80" y="258" text-anchor="middle" font-family="Lora,serif" font-size="9.5"
+                        fill="#3d2010">Instrumental</text>
+                    <text x="80" y="270" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#9a6e50">inherent defect</text>
+
+                    <rect x="118" y="240" width="124" height="36" rx="6" fill="#f0e0cc" stroke="#ddc8b0"
+                        stroke-width="1.1" />
+                    <text x="180" y="258" text-anchor="middle" font-family="Lora,serif" font-size="9.5"
+                        fill="#3d2010">Environmental</text>
+                    <text x="180" y="270" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#9a6e50">temp, humidity, EMI</text>
+
+                    <rect x="222" y="240" width="116" height="36" rx="6" fill="#f0e0cc" stroke="#ddc8b0"
+                        stroke-width="1.1" />
+                    <text x="280" y="258" text-anchor="middle" font-family="Lora,serif" font-size="9.5"
+                        fill="#3d2010">Observational</text>
+                    <text x="280" y="270" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#9a6e50">parallax, timing</text>
+
+                    <!-- Dynamic annotation -->
+                    <rect x="440" y="170" width="240" height="100" rx="8" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1.1" />
+                    <text x="560" y="192" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#3d2010"
+                        font-weight="600">Dynamic Error</text>
+                    <text x="560" y="210" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">Due to: inertia of pointer,</text>
+                    <text x="560" y="224" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">friction, backlash, damping</text>
+                    <text x="560" y="242" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Error changes with time.</text>
+                    <text x="560" y="258" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Analysed via step response,</text>
+                    <text x="560" y="272" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">frequency response of instrument.</text>
+                </svg>
+                <div class="svg-cap">Figure 1.2 — Complete error classification tree. <span class="svg-cite">Ref:
+                        Doebelin, E.O. — Measurement Systems, Application and Design, McGraw-Hill, Ch.3</span></div>
+            </div>
+
+            <h3 class="sub">1. Gross Errors (Human Errors)</h3>
+            <p>Gross errors arise from <strong>human mistakes</strong> during the measurement process. Examples include
+                misreading a scale, using the wrong range on a multimeter, recording a wrong value, or making arithmetic
+                errors in post-processing. They are <em>not</em> universal — different observers make different gross
+                errors. Because they are random in character (different from random errors in the statistical sense),
+                they cannot be eliminated by statistical averaging.<sup class="cite">[1]</sup></p>
+            <div class="callout c-danger">
+                <div class="ci">❌</div>
+                <div class="cb">
+                    <div class="ct">Prevention</div>
+                    <p>Gross errors are prevented by: (a) taking at least two or three independent readings, (b) reading
+                        the scale with the eye directly above the pointer (eliminating parallax), (c) never estimating
+                        beyond the last calibrated division, and (d) using a mirror strip scale when available. No
+                        mathematical technique can substitute for careful observation.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">2. Systematic Errors (Bias Errors)</h3>
+            <p>Systematic errors are <strong>reproducible inaccuracies</strong> that always occur with the same sign and
+                magnitude for the same measurement conditions. They shift the measured value consistently above or below
+                the true value. Because they are constant for all observers under the same conditions, they are
+                sometimes called <em>determinate errors</em>.<sup class="cite">[3]</sup></p>
+            <p>Systematic errors have three main sub-categories:</p>
+            <div class="two-col">
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Instrumental Errors</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Inherent shortcomings of the instrument design</li>
+                        <li><span class="dot">▸</span>Ageing and wear of components</li>
+                        <li><span class="dot">▸</span>Friction in the bearing of moving-coil meters</li>
+                        <li><span class="dot">▸</span>Hysteresis in iron-cored instruments</li>
+                        <li><span class="dot">▸</span>Loading effect (instrument alters the circuit)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Environmental Errors</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Ambient temperature deviating from calibration temperature</li>
+                        <li><span class="dot">▸</span>Stray electromagnetic fields</li>
+                        <li><span class="dot">▸</span>Mechanical vibration on the instrument</li>
+                        <li><span class="dot">▸</span>Humidity affecting insulation resistance</li>
+                        <li><span class="dot">▸</span>Barometric pressure changes (electrostatic instruments)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Observational Errors</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Parallax error: eye not directly above pointer</li>
+                        <li><span class="dot">▸</span>Wrong interpolation between scale divisions</li>
+                        <li><span class="dot">▸</span>Reading before pointer reaches steady state</li>
+                        <li><span class="dot">▸</span>Eliminated by mirror-strip scales and digital displays</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub">3. Random Errors (Accidental Errors)</h3>
+            <p>Random errors arise from <strong>unknown or uncontrollable sources</strong> that produce small,
+                unpredictable fluctuations in the measured value. They occur even after all systematic errors are
+                corrected. Their defining characteristics are: they are equally likely to be positive or negative, they
+                follow a Gaussian (normal) probability distribution, and they can be <em>reduced — but not eliminated —
+                    by statistical averaging</em> over many repeated measurements.<sup class="cite">[2]</sup></p>
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Key Insight — The Central Limit Theorem in Measurement</div>
+                    <p>The reason random errors follow a Gaussian distribution is the Central Limit Theorem: the sum of
+                        many small, independent random contributions converges to a normal distribution regardless of
+                        the distribution of each individual contribution. This is why standard deviation and the normal
+                        curve are the universal tools for random error analysis.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S4: INSTRUMENT CHARACTERISTICS ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">1.4</span>
+                <h2 class="sec-t">Basic Characteristics of an Instrument</h2>
+            </div>
+            <p>The performance of a measuring instrument is described by a well-defined set of characteristics — some
+                desirable (to be maximised) and some undesirable (to be minimised). Knowing these is essential for
+                selecting the correct instrument for an application.</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Characteristic</th>
+                            <th>Definition</th>
+                            <th>Ideal Value</th>
+                            <th>Exam Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Accuracy</td>
+                            <td>Closeness of measured value to true value; conformity to truth</td>
+                            <td class="t-grn">Maximise</td>
+                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                        </tr>
+                        <tr>
+                            <td>Precision</td>
+                            <td>Closeness of repeated readings to each other; repeatability measure</td>
+                            <td class="t-grn">Maximise</td>
+                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                        </tr>
+                        <tr>
+                            <td>Sensitivity (S)</td>
+                            <td>Change in output per unit change in input: S = Δoutput / Δinput = tan θ</td>
+                            <td class="t-grn">S = 1 preferred</td>
+                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                        </tr>
+                        <tr>
+                            <td>Resolution</td>
+                            <td>Smallest change in input detectable as a definite change in output</td>
+                            <td class="t-grn">Minimise</td>
+                            <td><span class="prob prob-m">🟡 MED</span></td>
+                        </tr>
+                        <tr>
+                            <td>Repeatability</td>
+                            <td>Agreement among readings for same measurand by same observer, same conditions</td>
+                            <td class="t-grn">Maximise</td>
+                            <td><span class="prob prob-m">🟡 MED</span></td>
+                        </tr>
+                        <tr>
+                            <td>Reproducibility</td>
+                            <td>Agreement among readings by different observers or at different times</td>
+                            <td class="t-grn">Maximise</td>
+                            <td><span class="prob prob-m">🟡 MED</span></td>
+                        </tr>
+                        <tr>
+                            <td>Hysteresis</td>
+                            <td>Difference in output for same input depending on direction of approach</td>
+                            <td class="t-red">Zero</td>
+                            <td><span class="prob prob-m">🟡 MED</span></td>
+                        </tr>
+                        <tr>
+                            <td>Dead Time</td>
+                            <td>Minimum time before pointer starts moving after measurand changes</td>
+                            <td class="t-red">Zero</td>
+                            <td><span class="prob prob-m">🟡 MED</span></td>
+                        </tr>
+                        <tr>
+                            <td>Dead Zone</td>
+                            <td>Range of input over which no output change occurs (friction band)</td>
+                            <td class="t-red">Zero</td>
+                            <td><span class="prob prob-l">🔴 LOW</span></td>
+                        </tr>
+                        <tr>
+                            <td>Drift</td>
+                            <td>Slow change in output not caused by input change (thermal instability)</td>
+                            <td class="t-red">Zero</td>
+                            <td><span class="prob prob-m">🟡 MED</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S5: ACCURACY & PRECISION ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">1.5</span>
+                <h2 class="sec-t">Accuracy, Precision, and Guaranteed Accuracy Error</h2>
+            </div>
+
+            <h3 class="sub">Accuracy vs Precision — The Classic Distinction</h3>
+            <!-- SVG: Target analogy -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+                    <text x="350" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Target Analogy: Accuracy vs Precision</text>
+                    <!-- Target 1: High accuracy, high precision -->
+                    <circle cx="120" cy="120" r="70" fill="none" stroke="#ddc8b0" stroke-width="1" />
+                    <circle cx="120" cy="120" r="50" fill="none" stroke="#ddc8b0" stroke-width="1" />
+                    <circle cx="120" cy="120" r="30" fill="none" stroke="#ddc8b0" stroke-width="1" />
+                    <circle cx="120" cy="120" r="12" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5" />
+                    <circle cx="118" cy="118" r="4" fill="#2d6648" />
+                    <circle cx="123" cy="122" r="4" fill="#2d6648" />
+                    <circle cx="116" cy="124" r="4" fill="#2d6648" />
+                    <circle cx="122" cy="116" r="4" fill="#2d6648" />
+                    <text x="120" y="205" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648"
+                        font-weight="600">High Accuracy</text>
+                    <text x="120" y="218" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">High Precision</text>
+
+                    <!-- Target 2: Low accuracy, high precision -->
+                    <circle cx="350" cy="120" r="70" fill="none" stroke="#ddc8b0" stroke-width="1" />
+                    <circle cx="350" cy="120" r="50" fill="none" stroke="#ddc8b0" stroke-width="1" />
+                    <circle cx="350" cy="120" r="30" fill="none" stroke="#ddc8b0" stroke-width="1" />
+                    <circle cx="350" cy="120" r="12" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5" />
+                    <circle cx="375" cy="95" r="4" fill="#c95f1a" />
+                    <circle cx="378" cy="91" r="4" fill="#c95f1a" />
+                    <circle cx="372" cy="97" r="4" fill="#c95f1a" />
+                    <circle cx="380" cy="94" r="4" fill="#c95f1a" />
+                    <text x="350" y="205" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="600">Low Accuracy</text>
+                    <text x="350" y="218" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">High Precision</text>
+
+                    <!-- Target 3: Low accuracy, low precision -->
+                    <circle cx="580" cy="120" r="70" fill="none" stroke="#ddc8b0" stroke-width="1" />
+                    <circle cx="580" cy="120" r="50" fill="none" stroke="#ddc8b0" stroke-width="1" />
+                    <circle cx="580" cy="120" r="30" fill="none" stroke="#ddc8b0" stroke-width="1" />
+                    <circle cx="580" cy="120" r="12" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.5" />
+                    <circle cx="555" cy="95" r="4" fill="#9a2020" />
+                    <circle cx="600" cy="145" r="4" fill="#9a2020" />
+                    <circle cx="565" cy="150" r="4" fill="#9a2020" />
+                    <circle cx="608" cy="100" r="4" fill="#9a2020" />
+                    <text x="580" y="205" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a2020"
+                        font-weight="600">Low Accuracy</text>
+                    <text x="580" y="218" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Low Precision</text>
+                </svg>
+                <div class="svg-cap">Figure 1.3 — The target analogy. Accuracy = closeness to true value (bull's-eye).
+                    Precision = closeness of readings to each other. A high-precision instrument may have a consistent
+                    bias — that is systematic error, correctable by calibration.</div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The Critical Relationship</div>
+                    <p><strong>High accuracy always implies high precision</strong> — if readings are close to the true
+                        value, they must also be close to each other. But <strong>high precision does NOT imply high
+                            accuracy</strong> — readings can cluster tightly around a wrong value. This is the most
+                        important distinction in error analysis, tested repeatedly in GATE.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Guaranteed Accuracy Error (%GAE)</h3>
+            <p>Manufacturers specify instrument accuracy as <strong>Percentage Guaranteed Accuracy Error
+                    (%GAE)</strong>, also called <em>Percentage Full-Scale Deflection error</em>. It is a constant
+                specified at the factory, expressed with respect to the full-scale deflection (FSD) of the instrument,
+                not the actual reading:<sup class="cite">[1]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">%GAE Definition</div>
+                $$\%\text{GAE} = \frac{\text{Limiting Error}}{\text{Full Scale Deflection}} \times 100$$
+                $$\text{Limiting Error (L.E.)} = \frac{\%\text{GAE}}{100} \times \text{FSD}$$
+            </div>
+
+            <p>Because L.E. is constant (fixed in voltage/current) for an instrument, the <strong>percentage limiting
+                    error increases as the reading decreases</strong>. This is why you should always use a range where
+                the pointer deflects to at least 2/3 of full scale.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">%Accuracy and %Limiting Error Relationship</div>
+                $$\%\text{Accuracy} = (1 - |\varepsilon_r|) \times 100$$
+                $$\%\text{Limiting Error} = \frac{L.E.}{\text{Actual Reading}} \times 100$$
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Exam Trap — %GAE vs %LE</div>
+                    <p>%GAE is expressed w.r.t. FSD (constant, manufacturer-specified). %Limiting Error (%LE) is
+                        expressed w.r.t. the actual reading (variable — increases as reading decreases). All indicating
+                        instruments give higher %LE for readings below half-scale. Never confuse these two percentages.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: LOADING EFFECT ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">1.6</span>
+                <h2 class="sec-t">Limiting Error &amp; Loading Effect</h2>
+            </div>
+
+            <h3 class="sub">Limiting Error (Guaranteed Error)</h3>
+            <p>The <strong>limiting error</strong> is the maximum possible error that can occur in a measurement when
+                using a specified instrument on a specified range. It is derived from the %GAE and represents the bounds
+                within which the true value must lie, given the measured value. It is always expressed as ±, since the
+                error can be in either direction.<sup class="cite">[3]</sup></p>
+
+            <div class="callout c-info">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">Key Rule for Meter Selection</div>
+                    <p>For a good measurement: <strong>minimise %GAE</strong> (choose a more accurate instrument) and
+                        <strong>maximise deflection</strong> (choose a range where the needle deflects near full scale).
+                        Both reduce the %Limiting Error in the measurement. The worst measurement is when you use a
+                        high-range instrument to measure a small quantity.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Loading Effect of Voltmeters</h3>
+            <p>When a voltmeter is connected across a circuit element to measure voltage, the voltmeter's internal
+                resistance \(R_V\) appears in parallel with the element. This creates a new parallel combination whose
+                resistance is less than the original — and the voltage measured is less than the open-circuit voltage.
+                This systematic error is called the <strong>loading effect</strong>.<sup class="cite">[2]</sup></p>
+
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
+                    <text x="340" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Voltmeter Loading Effect</text>
+
+                    <!-- Circuit without meter -->
+                    <text x="150" y="45" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648"
+                        font-weight="600">Without Voltmeter</text>
+                    <line x1="40" y1="65" x2="40" y2="140" stroke="#3d2010" stroke-width="2" />
+                    <line x1="40" y1="65" x2="260" y2="65" stroke="#3d2010" stroke-width="2" />
+                    <line x1="40" y1="140" x2="260" y2="140" stroke="#3d2010" stroke-width="2" />
+                    <!-- R1 -->
+                    <rect x="80" y="55" width="60" height="22" rx="4" fill="#f0e0cc" stroke="#c8a888"
+                        stroke-width="1.5" />
+                    <text x="110" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#3d2010">R₁</text>
+                    <!-- R2 -->
+                    <rect x="175" y="80" width="22" height="60" rx="4" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="186" y="114" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9.5"
+                        fill="#1e6b68">R₂</text>
+                    <line x1="186" y1="65" x2="186" y2="80" stroke="#3d2010" stroke-width="2" />
+                    <line x1="186" y1="140" x2="186" y2="140" stroke="#3d2010" stroke-width="2" />
+                    <text x="220" y="115" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">V = V_s ×
+                        R₂/(R₁+R₂)</text>
+                    <!-- Source -->
+                    <text x="40" y="107" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a">Vs</text>
+                    <text x="150" y="175" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#2d6648">True voltage across R₂</text>
+
+                    <!-- Circuit with meter -->
+                    <text x="520" y="45" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#9a2020"
+                        font-weight="600">With Voltmeter</text>
+                    <line x1="400" y1="65" x2="400" y2="140" stroke="#3d2010" stroke-width="2" />
+                    <line x1="400" y1="65" x2="640" y2="65" stroke="#3d2010" stroke-width="2" />
+                    <line x1="400" y1="140" x2="640" y2="140" stroke="#3d2010" stroke-width="2" />
+                    <rect x="440" y="55" width="60" height="22" rx="4" fill="#f0e0cc" stroke="#c8a888"
+                        stroke-width="1.5" />
+                    <text x="470" y="70" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#3d2010">R₁</text>
+                    <!-- R2 + Rv parallel -->
+                    <rect x="540" y="80" width="22" height="60" rx="4" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="551" y="114" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9.5"
+                        fill="#1e6b68">R₂</text>
+                    <rect x="572" y="80" width="22" height="60" rx="4" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.5" />
+                    <text x="583" y="107" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#9a2020">RV</text>
+                    <text x="583" y="118" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#9a2020">Meter</text>
+                    <line x1="551" y1="65" x2="551" y2="80" stroke="#3d2010" stroke-width="2" />
+                    <line x1="583" y1="65" x2="583" y2="80" stroke="#3d2010" stroke-width="2" />
+                    <text x="400" y="107" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a">Vs</text>
+                    <text x="520" y="175" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a2020">Reads LESS than true value</text>
+                    <text x="520" y="190" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">R_parallel = R₂‖RV &lt; R₂</text>
+                </svg>
+                <div class="svg-cap">Figure 1.4 — Loading effect of a voltmeter. The meter resistance RV appears in
+                    parallel with R₂, reducing the effective resistance and pulling the reading below the true voltage.
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Loading Error Formula</div>
+                $$V_{\text{measured}} = V_s \cdot \frac{R_2 \| R_V}{R_1 + R_2 \| R_V}$$
+                $$\%\,\text{Loading Error} = \frac{V_{\text{measured}} - V_{\text{true}}}{V_{\text{true}}} \times 100$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Rule — Reducing Loading Error</div>
+                    <p>To minimise loading error, the voltmeter resistance must be very large compared to the source
+                        resistance: \(R_V \gg R_2\). Electronic (FET-input) voltmeters achieve \(R_V \geq
+                        10\,\text{M}\Omega\), making loading error negligible in most circuits. Ammeter loading error is
+                        reduced by minimising ammeter resistance \(R_A \ll R_\text{circuit}\).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: SENSITIVITY & HYSTERESIS ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">1.7</span>
+                <h2 class="sec-t">Sensitivity, Figure of Merit, and Hysteresis</h2>
+            </div>
+
+            <h3 class="sub">Sensitivity (Scale Factor)</h3>
+            <p>Sensitivity \(S\) describes how strongly an instrument responds to its input. Formally, it is the ratio
+                of the change in output to the change in input that caused it. Graphically, it is the slope of the
+                input-output characteristic curve.<sup class="cite">[3]</sup></p>
+            <div class="math-block">
+                <div class="math-lbl">Sensitivity Definition</div>
+                $$S = \frac{\Delta\,\text{Output}}{\Delta\,\text{Input}} = \tan\theta$$
+                <p style="font-size:13px;color:var(--text3);margin-top:8px;text-align:left;">For a linear instrument
+                    (PMMC), \(\theta\) is constant → \(S = 1\), linear scale. For MI instruments \(\theta \propto I^2\)
+                    → \(S \neq 1\), non-linear (cramped) scale.</p>
+            </div>
+
+            <!-- SVG: Linear vs non-linear sensitivity -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 680 230" xmlns="http://www.w3.org/2000/svg">
+                    <text x="340" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Input-Output Characteristics: Linear vs Non-linear
+                        Sensitivity</text>
+
+                    <!-- Linear graph -->
+                    <text x="150" y="45" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#2d6648"
+                        font-weight="600">S = 1 (Linear — PMMC)</text>
+                    <line x1="40" y1="180" x2="280" y2="180" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="40" y1="180" x2="40" y2="55" stroke="#9a6e50" stroke-width="1.5" />
+                    <text x="280" y="194" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Input</text>
+                    <text x="35" y="50" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Output</text>
+                    <line x1="40" y1="180" x2="260" y2="65" stroke="#2d6648" stroke-width="2.5" />
+                    <text x="200" y="90" font-family="Lora,serif" font-size="10" fill="#2d6648">S = 1</text>
+                    <text x="160" y="210" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#9a6e50">Uniform scale divisions</text>
+
+                    <!-- Non-linear graph -->
+                    <text x="510" y="45" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#c95f1a"
+                        font-weight="600">S ≠ 1 (Non-linear — MI)</text>
+                    <line x1="400" y1="180" x2="640" y2="180" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="400" y1="180" x2="400" y2="55" stroke="#9a6e50" stroke-width="1.5" />
+                    <text x="640" y="194" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">Input
+                        (I)</text>
+                    <text x="395" y="50" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">Output
+                        (θ)</text>
+                    <path d="M400,180 Q450,175 500,155 Q550,130 620,70" fill="none" stroke="#c95f1a"
+                        stroke-width="2.5" />
+                    <text x="580" y="88" font-family="JetBrains Mono,monospace" font-size="9" fill="#c95f1a">θ ∝
+                        I²</text>
+                    <text x="430" y="172" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#9a2020">cramped</text>
+                    <text x="560" y="142" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#2d6648">open</text>
+                    <text x="510" y="210" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#9a6e50">Non-uniform scale — crowded at start</text>
+
+                    <!-- Figure of merit note -->
+                    <rect x="40" y="195" width="260" height="28" rx="6" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1" />
+                    <text x="170" y="213" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#2d6648">Figure of Merit = 1/FSD current (Ω/V for voltmeters)</text>
+                </svg>
+                <div class="svg-cap">Figure 1.5 — Linear sensitivity (PMMC: uniform scale) vs. non-linear sensitivity
+                    (MI instrument: cramped at beginning, open at end). For s = 1, output is proportional to input — the
+                    ideal characteristic.</div>
+            </div>
+
+            <h3 class="sub">Hysteresis Error</h3>
+            <p>Hysteresis occurs when an instrument gives a different reading for the same input value depending on
+                <strong>whether the measurand is increasing or decreasing</strong>. If a meter reads lower for ascending
+                values and higher for descending values (or vice versa), the maximum difference between these two curves
+                at any input is the hysteresis error.<sup class="cite">[1]</sup></p>
+            <div class="two-col">
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Electric Hysteresis</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Iron-cored instruments (MI, electrodynamometer)</li>
+                        <li><span class="dot">▸</span>Residual magnetism in core material</li>
+                        <li><span class="dot">▸</span>Different B-H paths for increasing/decreasing current</li>
+                        <li><span class="dot">▸</span>Use low-hysteresis alloys (permalloy, mu-metal)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Mechanical Hysteresis</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Elastic after-effect in pointer springs</li>
+                        <li><span class="dot">▸</span>Stress not fully released when load is removed</li>
+                        <li><span class="dot">▸</span>Causes creep and zero shift over time</li>
+                        <li><span class="dot">▸</span>Reduced by using Phosphor-Bronze springs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S8: RESOLUTION & THRESHOLD ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">1.8</span>
+                <h2 class="sec-t">Resolution, Discrimination, and Threshold</h2>
+            </div>
+            <p><strong>Resolution</strong> (also called discrimination) is the smallest change in the input quantity
+                that produces a <em>detectable</em> change in the instrument's output. It is determined by the
+                instrument's design — the number of scale divisions, the number of display digits, and the sensitivity
+                of the detecting mechanism.<sup class="cite">[2]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Resolution Formula (Analog Instruments)</div>
+                $$\text{Resolution} = \frac{\text{Full Scale Deflection (FSD)}}{\text{Number of Scale Divisions}}$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Resolution vs Accuracy — Don't Confuse These</div>
+                    <p>A 4½-digit digital voltmeter has a resolution of 1 in 19,999 — extremely fine. But if it is
+                        poorly calibrated, its accuracy may be only 0.5%. High resolution does not mean high accuracy.
+                        Resolution is about <em>detectability of change</em>; accuracy is about <em>correctness of
+                            absolute value</em>.</p>
+                </div>
+            </div>
+
+            <p><strong>Threshold</strong> is the minimum input required to produce a detectable output when starting
+                from zero. It is caused by static friction (stiction) in the mechanical mechanism. Once the input
+                exceeds the threshold, the pointer moves. Threshold is effectively the resolution at zero input, but the
+                two may differ in non-linear instruments.</p>
+
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 680 180" xmlns="http://www.w3.org/2000/svg">
+                    <text x="340" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Threshold and Resolution — Graphical Interpretation</text>
+                    <!-- Axes -->
+                    <line x1="60" y1="150" x2="640" y2="150" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="60" y1="150" x2="60" y2="35" stroke="#9a6e50" stroke-width="1.5" />
+                    <text x="645" y="153" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Input</text>
+                    <text x="30" y="32" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Output</text>
+
+                    <!-- Ideal line (dashed) -->
+                    <line x1="60" y1="150" x2="620" y2="50" stroke="#ddc8b0" stroke-width="1.5"
+                        stroke-dasharray="5,4" />
+                    <text x="580" y="45" font-family="Lora,serif" font-size="10" fill="#9a6e50"
+                        font-style="italic">Ideal</text>
+
+                    <!-- Actual with threshold -->
+                    <line x1="60" y1="150" x2="160" y2="150" stroke="#c95f1a" stroke-width="2" />
+                    <line x1="160" y1="150" x2="620" y2="68" stroke="#c95f1a" stroke-width="2" />
+                    <line x1="160" y1="150" x2="160" y2="35" stroke="#c8a888" stroke-width="1" stroke-dasharray="3,3" />
+                    <text x="160" y="165" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#c95f1a">Threshold</text>
+                    <text x="108" y="155" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a2020">Dead zone</text>
+
+                    <!-- Resolution markers -->
+                    <line x1="310" y1="100" x2="370" y2="100" stroke="#9a6e50" stroke-width="1"
+                        stroke-dasharray="2,2" />
+                    <line x1="310" y1="111" x2="370" y2="111" stroke="#9a6e50" stroke-width="1"
+                        stroke-dasharray="2,2" />
+                    <text x="400" y="107" font-family="JetBrains Mono,monospace" font-size="9" fill="#1e6b68">←
+                        Resolution →</text>
+                    <text x="400" y="118" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a6e50">Smallest
+                        detectable Δoutput</text>
+                    <text x="310" y="142" font-family="JetBrains Mono,monospace" font-size="8" fill="#c95f1a">Actual
+                        response</text>
+                </svg>
+                <div class="svg-cap">Figure 1.6 — Threshold: input required before output starts. Resolution: smallest
+                    detectable change in output thereafter. Dead zone = 2 × threshold (total input range with no
+                    output).</div>
+            </div>
+        </div>
+
+        <!-- ═══ S9: DEAD TIME, DRIFT ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">1.9</span>
+                <h2 class="sec-t">Dead Time, Dead Zone, and Drift</h2>
+            </div>
+            <div class="two-col">
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Dead Time</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Time delay between measurand changing and pointer starting to move
+                        </li>
+                        <li><span class="dot">▸</span>Caused by inertia of moving system and bearing friction</li>
+                        <li><span class="dot">▸</span>A form of dynamic error — instrument has not responded yet</li>
+                        <li><span class="dot">▸</span>Reduced by using lighter pointer and jewelled bearings</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Dead Zone</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Range of input over which there is no change in output</li>
+                        <li><span class="dot">▸</span>Caused by friction in gear trains and control mechanism</li>
+                        <li><span class="dot">▸</span>Dead Zone = 2 × Threshold (symmetric about zero)</li>
+                        <li><span class="dot">▸</span>Also called "backlash" in gear-driven recorders</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Zero Drift</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Gradual change in output when input is constant (or zero)</li>
+                        <li><span class="dot">▸</span>Caused by temperature coefficient of components, ageing</li>
+                        <li><span class="dot">▸</span>Manifests as output ≠ 0 when input = 0 (zero offset)</li>
+                        <li><span class="dot">▸</span>Minimised by temperature-compensated circuits and regular zeroing
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="callout c-info">
+                <div class="ci">📊</div>
+                <div class="cb">
+                    <div class="ct">Desirable vs Undesirable Characteristics — Quick Reference</div>
+                    <p><strong>Desirable (maximise):</strong> Accuracy · Precision · Repeatability · Reproducibility ·
+                        Sensitivity (S = 1) · Resolution · Linearity · Fidelity</p>
+                    <p style="margin-top:6px;"><strong>Undesirable (minimise to zero):</strong> Hysteresis error · Dead
+                        time · Dead zone · Drift · Non-linearity · Loading error</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S10: STATISTICAL ANALYSIS ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">1.10</span>
+                <h2 class="sec-t">Statistical Analysis of Random Errors</h2>
+            </div>
+            <p>Random errors follow the Gaussian (normal) distribution. The mathematical tools of statistics allow us to
+                characterise them quantitatively and reduce their effect by repeated measurement. The following is the
+                standard statistical analysis framework used in all precision measurement.<sup class="cite">[4]</sup>
+            </p>
+
+            <h3 class="sub">Step-by-Step Statistical Framework</h3>
+
+            <!-- SVG: Gaussian distribution -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
+                    <text x="340" y="20" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Gaussian Distribution of Random Errors</text>
+                    <!-- Axes -->
+                    <line x1="50" y1="180" x2="650" y2="180" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="340" y1="185" x2="340" y2="40" stroke="#9a6e50" stroke-width="1.5" />
+
+                    <!-- Gaussian curve (approximate with path) -->
+                    <path
+                        d="M80,178 Q120,177 160,170 Q200,155 240,125 Q280,88 310,62 Q325,50 340,47 Q355,50 370,62 Q400,88 440,125 Q480,155 520,170 Q560,177 600,178"
+                        fill="rgba(201,95,26,0.08)" stroke="#c95f1a" stroke-width="2.5" />
+
+                    <!-- Shade ±σ area -->
+                    <path d="M280,88 Q310,62 325,50 Q325,50 340,47 Q355,50 370,62 Q400,88 400,88 L400,180 L280,180 Z"
+                        fill="rgba(45,102,72,0.12)" />
+                    <!-- Shade ±2σ area (add outer) -->
+                    <path d="M200,155 Q240,125 280,88 L280,180 L200,180 Z" fill="rgba(201,95,26,0.06)" />
+                    <path d="M400,88 Q440,125 480,155 L480,180 L400,180 Z" fill="rgba(201,95,26,0.06)" />
+
+                    <!-- Labels on x-axis -->
+                    <line x1="280" y1="178" x2="280" y2="185" stroke="#9a6e50" stroke-width="1" />
+                    <line x1="400" y1="178" x2="400" y2="185" stroke="#9a6e50" stroke-width="1" />
+                    <line x1="200" y1="178" x2="200" y2="185" stroke="#9a6e50" stroke-width="1" />
+                    <line x1="480" y1="178" x2="480" y2="185" stroke="#9a6e50" stroke-width="1" />
+                    <line x1="130" y1="178" x2="130" y2="185" stroke="#9a6e50" stroke-width="1" />
+                    <line x1="550" y1="178" x2="550" y2="185" stroke="#9a6e50" stroke-width="1" />
+
+                    <text x="280" y="198" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">−σ</text>
+                    <text x="400" y="198" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">+σ</text>
+                    <text x="200" y="198" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">−2σ</text>
+                    <text x="480" y="198" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">+2σ</text>
+                    <text x="130" y="198" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">−3σ</text>
+                    <text x="550" y="198" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">+3σ</text>
+                    <text x="340" y="198" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">x̄ (mean)</text>
+
+                    <!-- Probability labels -->
+                    <text x="340" y="130" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#2d6648" font-weight="600">68.27%</text>
+                    <text x="250" y="160" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#c95f1a">95.45%</text>
+                    <text x="430" y="160" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#c95f1a">total</text>
+                    <text x="155" y="172" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#9a6e50">99.73%</text>
+                    <text x="525" y="172" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#9a6e50">total</text>
+                    <text x="340" y="60" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Peak at x̄</text>
+
+                    <!-- Probable error -->
+                    <line x1="300" y1="178" x2="300" y2="110" stroke="#a05c00" stroke-width="1.2"
+                        stroke-dasharray="3,2" />
+                    <line x1="380" y1="178" x2="380" y2="110" stroke="#a05c00" stroke-width="1.2"
+                        stroke-dasharray="3,2" />
+                    <text x="340" y="108" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8.5"
+                        fill="#a05c00">±r = ±0.6745σ (50% range)</text>
+                </svg>
+                <div class="svg-cap">Figure 1.7 — Gaussian error distribution. 68.27% of readings fall within ±σ; 95.45%
+                    within ±2σ; 99.73% within ±3σ; 50% within ±0.6745σ (probable error).</div>
+            </div>
+
+            <h3 class="sub">Arithmetic Mean</h3>
+            <p>For \(n\) measurements \(x_1, x_2, \ldots, x_n\) of the same quantity, the <strong>arithmetic
+                    mean</strong> (average) is the best estimate of the true value:</p>
+            <div class="math-block">
+                <div class="math-lbl">Arithmetic Mean</div>
+                $$\bar{x} = \frac{x_1 + x_2 + \cdots + x_n}{n} = \frac{1}{n}\sum_{i=1}^{n} x_i$$
+            </div>
+
+            <h3 class="sub">Deviation and Average Deviation</h3>
+            <div class="math-block">
+                <div class="math-lbl">Individual Deviation and Average Deviation</div>
+                $$d_i = x_i - \bar{x} \qquad \text{(individual deviation, may be + or −)}$$
+                $$\bar{D} = \frac{|d_1| + |d_2| + \cdots + |d_n|}{n} = \frac{\sum |d_i|}{n} \qquad \text{(average
+                deviation)}$$
+                <p style="font-size:13px;color:var(--text3);margin-top:8px;text-align:left;">Average deviation uses
+                    absolute values because positive and negative deviations cancel. It measures the average spread of
+                    readings around the mean.</p>
+            </div>
+
+            <h3 class="sub">Standard Deviation (σ)</h3>
+            <p>Standard deviation is the most important single measure of random error. It is the <em>root mean
+                    square</em> of deviations. Two formulas apply depending on sample size:<sup class="cite">[4]</sup>
+            </p>
+            <div class="math-block">
+                <div class="math-lbl">Standard Deviation</div>
+                $$\sigma = \sqrt{\frac{\sum_{i=1}^{n} d_i^2}{n}} \qquad n > 20 \quad\text{(population formula)}$$
+                $$s = \sqrt{\frac{\sum_{i=1}^{n} d_i^2}{n-1}} \qquad n \leq 20 \quad\text{(Bessel's correction — sample
+                formula)}$$
+                <p style="font-size:13px;color:var(--text3);margin-top:8px;text-align:left;">Bessel's correction (n−1)
+                    compensates for the bias introduced when estimating population σ from a small sample. Always use
+                    (n−1) in practice unless specifically told otherwise.</p>
+            </div>
+
+            <h3 class="sub">Probable Error and Standard Error of the Mean</h3>
+            <div class="math-block">
+                <div class="math-lbl">Probable Error and Standard Error of Mean</div>
+                $$r = \pm\,0.6745\,\sigma \qquad\text{(Probable error — 50% of readings lie within }\bar{x} \pm
+                r\text{)}$$
+                $$\sigma_{\bar{x}} = \frac{\sigma}{\sqrt{n}} \qquad\text{(Standard error of mean — how well mean
+                estimates true value)}$$
+                $$r_m = \frac{r}{\sqrt{n}} = \frac{0.6745\,\sigma}{\sqrt{n}} \qquad\text{(Probable error of mean)}$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Why does more measurements improve the mean?</div>
+                    <p>The standard error of the mean decreases as \(1/\sqrt{n}\). So to halve the uncertainty in the
+                        mean, you need 4× as many measurements; to reduce it by 10×, you need 100×. This rapidly
+                        diminishing return means there is an optimal number of measurements beyond which further
+                        repetition is uneconomical.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S11: UNCERTAINTY ═══ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr"><span class="sec-num">1.11</span>
+                <h2 class="sec-t">Uncertainty Analysis and Error Propagation</h2>
+            </div>
+            <p>In practice, a quantity \(X\) is often computed from several independently measured quantities \(x_1,
+                x_2, \ldots, x_n\), each with its own uncertainty. The question is: <em>how does uncertainty in each
+                    measured quantity propagate to uncertainty in the computed result?</em> This is the <strong>law of
+                    propagation of uncertainty</strong>, fundamental to every engineering measurement.<sup
+                    class="cite">[4]</sup></p>
+
+            <h3 class="sub">General Formula — Uncertainty Propagation</h3>
+            <div class="math-block">
+                <div class="math-lbl">Uncertainty Propagation (Combining Independent Uncertainties)</div>
+                $$X = f(x_1, x_2, \ldots, x_n)$$
+                $$W_X = \pm\sqrt{\left(\frac{\partial X}{\partial x_1}\right)^2 W_{x_1}^2 + \left(\frac{\partial
+                X}{\partial x_2}\right)^2 W_{x_2}^2 + \cdots + \left(\frac{\partial X}{\partial x_n}\right)^2
+                W_{x_n}^2}$$
+                <p style="font-size:13px;color:var(--text3);margin-top:8px;text-align:left;">where \(W_{x_i}\) =
+                    uncertainty in each measured quantity (in real units, not percent). This formula assumes the errors
+                    are independent and random.</p>
+            </div>
+
+            <h3 class="sub">Common Special Cases</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Function</th>
+                            <th>Result Uncertainty</th>
+                            <th>Relative Uncertainty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>\(X = x_1 \pm x_2\) (sum/difference)</td>
+                            <td>\(W_X = \pm\sqrt{W_1^2 + W_2^2}\)</td>
+                            <td>Use absolute uncertainties</td>
+                        </tr>
+                        <tr>
+                            <td>\(X = x_1 \cdot x_2\) or \(X = x_1/x_2\)</td>
+                            <td>\(\frac{W_X}{X} = \pm\sqrt{\left(\frac{W_1}{x_1}\right)^2 +
+                                \left(\frac{W_2}{x_2}\right)^2}\)</td>
+                            <td>Add relative uncertainties in quadrature</td>
+                        </tr>
+                        <tr>
+                            <td>\(X = x^n\) (power)</td>
+                            <td>\(\frac{W_X}{X} = n \cdot \frac{W_x}{x}\)</td>
+                            <td>Multiply relative uncertainty by exponent</td>
+                        </tr>
+                        <tr>
+                            <td>Power factor: \(\cos\phi = P/(VI)\)</td>
+                            <td colspan="2">\(\frac{W_{\cos\phi}}{\cos\phi} = \pm\sqrt{\left(\frac{W_P}{P}\right)^2 +
+                                \left(\frac{W_V}{V}\right)^2 + \left(\frac{W_I}{I}\right)^2}\)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Critical Note — Convert % to Real Values First</div>
+                    <p>The uncertainty propagation formula requires absolute uncertainties (in volts, amperes, ohms) not
+                        percentages. Always convert: if \(V = 100\,\text{V} \pm 1\%\), then \(W_V = 1\,\text{V}\).
+                        Substitute \(W_V = 1\,\text{V}\) into the formula. Then convert the result back to percentage
+                        for reporting. Mixing % and absolute values is a very common error.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Standard Error Propagation (for Statistical Uncertainties)</h3>
+            <div class="math-block">
+                <div class="math-lbl">Standard Error Propagation</div>
+                $$\sigma_X = \pm\sqrt{\left(\frac{\partial X}{\partial x_1}\right)^2 \sigma_{x_1}^2 +
+                \left(\frac{\partial X}{\partial x_2}\right)^2 \sigma_{x_2}^2 + \cdots}$$
+                <p style="font-size:13px;color:var(--text3);margin-top:8px;text-align:left;">This is the same structure
+                    as the uncertainty formula, but uses standard deviations instead of limiting uncertainties. It
+                    applies when errors are random (Gaussian) and independent.</p>
+            </div>
+        </div>
+
+        <!-- ═══ S12: GATE & IES ═══ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr"><span class="sec-num">1.12</span>
+                <h2 class="sec-t">GATE &amp; IES Concept Review</h2>
+            </div>
+
+            <h3 class="sub">High-Priority GATE Concepts <span class="prob prob-h">🟢 HIGH</span></h3>
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">%LE increases as reading decreases — most-tested concept</span>
+                </div>
+                <div class="gate-body">
+                    <p>This is asked almost every year in some form. The Limiting Error (absolute) of an instrument is
+                        constant for a given range. Therefore %LE = L.E./Reading × 100 increases as the reading
+                        decreases. For a 0–300 V voltmeter with ±1% accuracy: L.E. = ±3 V. At 300 V, %LE = 1%. At 100 V,
+                        %LE = 3%. At 50 V, %LE = 6%. Always select a range where the reading is at least 50–67% of FSD
+                        to keep %LE acceptable.</p>
+                </div>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">Accuracy guarantee: High accuracy ↔ Low %GAE, NOT 98%GAE</span>
+                </div>
+                <div class="gate-body">
+                    <p>Accuracy = (1 − |ε_r|) × 100. A meter with %GAE = ±1% has Accuracy = 99%. A meter with Accuracy =
+                        98% means %GAE = ±2%. The trap: "Accuracy 1%" means the error is 1% (GAE = 1%), which gives
+                        Accuracy = 99%. Confusing "Accuracy 1%" to mean the meter is only 1% accurate is wrong. Watch
+                        the phrasing carefully in GATE options.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">GATE Previous Year Questions</h3>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">%Limiting error — reading below half scale</span>
+                    <span class="pyq-year">Concept — Frequently Asked</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A voltmeter has a range of 0–200 V and its accuracy is stated as ±2% of full-scale. When
+                        measuring a voltage of 50 V, the percentage limiting error is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) ±2%</li>
+                        <li>(B) ±4%</li>
+                        <li class="correct">(C) ±8%</li>
+                        <li>(D) ±1%</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);"><strong>Solution:</strong> L.E. = 2%
+                        × 200 V = ±4 V (constant). At 50 V reading: %LE = (4/50) × 100 = ±8%. The error is constant in
+                        volts but grows as a percentage as the reading decreases. This is the core testable concept.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Error propagation in KCL node</span>
+                    <span class="pyq-year">Concept — Standard Type</span>
+                </div>
+                <div class="pyq-body">
+                    <p>Three DC currents \(I_1\), \(I_2\) and \(I_3\) meet at a node with \(I_1\) entering and \(I_2\),
+                        \(I_3\) leaving. \(I_1\) and \(I_2\) are measured with ±1% accuracy. Using KCL: \(I_3 = I_1 -
+                        I_2\). If both measurements have the same absolute limiting error \(W\), the limiting error in
+                        \(I_3\) is:</p>
+                    <ul class="pyq-opts">
+                        <li class="correct">(A) \(\pm\sqrt{W_1^2 + W_2^2}\) (quadrature sum — if random)</li>
+                        <li>(B) \(\pm(W_1 + W_2)\) (arithmetic sum — worst case)</li>
+                        <li>(C) \(\pm(W_1 - W_2)\)</li>
+                        <li>(D) \(\pm W_1\) only</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);"><strong>Key Concept:</strong> For
+                        sums and differences: absolute uncertainties add in quadrature (random errors). Worst-case
+                        (guaranteed) errors add arithmetically. The distinction between these two cases is crucial —
+                        GATE may specify "accuracy" (use arithmetic) or "uncertainty" (use quadrature). Read carefully.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&T</span>
+                    <span class="pyq-title pyq-title-ies">Accuracy vs Precision conceptual distinction</span>
+                    <span class="pyq-year">IES — Classic Conceptual</span>
+                </div>
+                <div class="pyq-body">
+                    <p>Which of the following statements is correct regarding accuracy and precision of a measuring
+                        instrument?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) High precision always implies high accuracy</li>
+                        <li>(B) High accuracy does not necessarily imply high precision</li>
+                        <li class="correct">(C) High accuracy always implies high precision, but not vice versa</li>
+                        <li>(D) Accuracy and precision are the same property</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);"><strong>Explanation:</strong>
+                        Accuracy (closeness to true value) implies the readings must also be close to each other (hence
+                        high precision). But high precision (readings close to each other) does NOT imply accuracy —
+                        they may all be consistently wrong due to systematic error. Option (C) is the standard textbook
+                        statement.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&T</span>
+                    <span class="pyq-title pyq-title-ies">Standard deviation probability interval</span>
+                    <span class="pyq-year">IES — Statistical Analysis</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In a set of measurements with random errors following a Gaussian distribution, which deviation
+                        range covers the highest probability of containing the measured data?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) ±0.6745σ (probable error)</li>
+                        <li>(B) ±σ (standard deviation)</li>
+                        <li>(C) ±2σ</li>
+                        <li class="correct">(D) ±3σ — covers 99.73% of all readings</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);"><strong>Key Table to
+                            Memorise:</strong> ±0.6745σ → 50% | ±σ → 68.27% | ±2σ → 95.45% | ±3σ → 99.73%. The ±3σ range
+                        is used in practice as the "virtually certain" interval. Uncertainty distribution (quadrature)
+                        is used for single-sample data.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S13: MEMORY TRICKS & REVISION ═══ -->
+        <div class="section" id="s13">
+            <div class="sec-hdr"><span class="sec-num">1.13</span>
+                <h2 class="sec-t">Memory Tricks, Mnemonics &amp; Quick Revision</h2>
+            </div>
+
+            <h3 class="sub">Mnemonics</h3>
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic: "GAE is for the Full Scale, LE is for the Reading"</div>
+                    <p><strong>G</strong>uaranteed <strong>A</strong>ccuracy <strong>E</strong>rror → always expressed
+                        as % of <strong>F</strong>ull <strong>S</strong>cale. <strong>L</strong>imiting
+                        <strong>E</strong>rror → always expressed as % of the actual <strong>R</strong>eading. G = F, L
+                        = R. Never mix these denominators.</p>
+                </div>
+            </div>
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic: "GRoss errors are GReat — not for all, not always"</div>
+                    <p>Gross errors are caused by humans — they are <strong>GR</strong>eat in magnitude,
+                        <strong>GR</strong>oss in nature, but NOT universal across all observers and NOT constant.
+                        Systematic errors are small but constant (same for ALL observers). Random errors are small,
+                        vary, but cancel on average.</p>
+                </div>
+            </div>
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic: "σ = RMS of deviations, r = 0.6745σ, n↑ → σ_mean↓"</div>
+                    <p>Standard deviation = Root Mean Square of deviations from mean. Probable error r = 0.6745σ
+                        (remember: 0.6745 ≈ ⅔). Standard error of mean = σ/√n — halving uncertainty needs 4×
+                        measurements. For n ≤ 20, use (n−1) in denominator (Bessel's correction).</p>
+                </div>
+            </div>
+
+            <h3 class="sub">One-Page Quick Revision Sheet</h3>
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Error Basics</div>
+                    <p>ε = A_m − A_t · CF = −ε · RSE = ε/A_t · %RSE = RSE × 100 · Types: Gross (human) · Systematic
+                        (bias, constant) · Random (statistical, Gaussian)</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Accuracy &amp; GAE</div>
+                    <p>%GAE = (L.E./FSD) × 100 — constant for an instrument · %LE = (L.E./Reading) × 100 — increases as
+                        reading falls · %Accuracy = (1 − |ε_r|) × 100 · Select range: reading ≥ 2/3 FSD</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Sensitivity &amp; Resolution</div>
+                    <p>S = Δoutput/Δinput = tanθ · S = 1 (linear, PMMC) · S ≠ 1 (non-linear, MI) · Resolution =
+                        FSD/N_divisions · Threshold = min input for any output · FOM = 1/FSD_current (Ω/V)</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Statistical Tools</div>
+                    <p>x̄ = Σxᵢ/n (best estimate of true value) · σ = √(Σd²ᵢ/(n−1)) for n ≤ 20 · r = ±0.6745σ (probable
+                        error, 50%) · σ_mean = σ/√n · ±3σ → 99.73%</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Uncertainty Propagation</div>
+                    <p>Sum/Diff: W = ±√(W₁²+W₂²) · Product/Ratio: W_X/X = ±√((W₁/x₁)²+(W₂/x₂)²) · Power X=xⁿ: W_X/X =
+                        n·W_x/x · Convert % → real units BEFORE applying formula</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Instrument Characteristics</div>
+                    <p>Desirable: accuracy, precision, sensitivity (S=1), resolution, linearity, repeatability ·
+                        Undesirable (zero ideal): hysteresis, dead time, dead zone, drift, non-linearity, loading error
+                    </p>
+                </div>
+            </div>
+
+            <!-- AI Widget -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+                <p>Have a question on measurement errors, statistical analysis, instrument characteristics, or
+                    uncertainty propagation? Type below or pick a suggestion.</p>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="userQ" type="text"
+                        placeholder="e.g. A 0–150 V voltmeter has ±1.5% accuracy. Find %LE when measuring 50 V…">
+                    <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('A 0–300 V voltmeter with ±1% accuracy is used to measure 75 V. Find the absolute limiting error and the %LE. Which range is more suitable?')">%LE
+                        for low reading</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain the physical difference between dead time, dead zone and threshold in measuring instruments with examples.')">Dead
+                        time vs dead zone vs threshold</span>
+                    <span class="ai-chip"
+                        onclick="setQ('The resistance R = V/I where V = 100V ±1% and I = 2A ±1.5%. Find the uncertainty in R. Convert % errors to real values first.')">Uncertainty
+                        in R = V/I</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Five readings of a current: 1.50, 1.52, 1.48, 1.51, 1.49 A. Find mean, standard deviation, probable error, and probable error of mean.')">Statistical
+                        analysis — 5 readings</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Prove that high accuracy always implies high precision, but high precision does not imply high accuracy. Use a numerical example.')">Accuracy
+                        vs precision proof</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 2</div>
+                    <p>Galvanometers, Ammeters, and Voltmeters — PMMC and MI instrument construction, torque equations,
+                        shunts, multipliers, sensitivity, multi-range instruments, Ayrton shunt, the universal shunt,
+                        and complete GATE and IES coverage.</p>
+                </div>
+            </div>
+
+            <!-- Citations -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                    the following standard textbooks. All explanations, derivations, and diagrams are original to Aarova
+                    AI. No content has been reproduced from coaching institute materials.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Golding, E.W. and Widdis, F.C. <em>Electrical
+                                Measurements and Measuring Instruments</em>, 5th ed. A.H. Wheeler, 1963. Chapter 1 —
+                            Errors in measurement, error classification, instrument characteristics, accuracy and
+                            precision.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Sawhney, A.K. <em>A Course in Electrical and Electronic
+                                Measurements and Instrumentation</em>, 19th ed. Dhanpat Rai &amp; Co., 2015. Chapter 2 —
+                            Characteristics of instruments, errors, limiting error, loading effect, sensitivity.</span>
+                    </li>
+                    <li><span class="cite-num">[3]</span><span>Doebelin, E.O. <em>Measurement Systems: Application and
+                                Design</em>, 5th ed. McGraw-Hill, 2004. Chapter 3 — Generalised performance
+                            characteristics of instruments, static and dynamic error analysis.</span></li>
+                    <li><span class="cite-num">[4]</span><span>Beckwith, T.G., Marangoni, R.D. and Lienhard, J.H.
+                            <em>Mechanical Measurements</em>, 6th ed. Pearson, 2007. Chapter 3 — Assurance of
+                            measurements, statistical analysis, uncertainty propagation, Gaussian distribution.</span>
+                    </li>
+                    <li><span class="cite-num">[5]</span><span>IIT Kharagpur NPTEL. <em>Electrical Measurements &amp;
+                                Measuring Instruments — Lectures 1–6</em>. National Programme on Technology Enhanced
+                            Learning. nptel.ac.in. Error analysis, instrument characteristics, statistical tools.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Electrical Measurements Series &nbsp;·&nbsp; Chapter 1 of 8<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                    diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Electrical Measurements and Instrumentation. Topic: Measurement Errors and Their Analysis (Chapter 1). Cover error types (gross, systematic, random), instrument characteristics (accuracy, precision, sensitivity, resolution, hysteresis, drift), limiting error, loading effect, statistical analysis (mean, standard deviation, probable error), uncertainty propagation. Answer with step-by-step working for numericals. Base answers on Golding & Widdis, Sawhney, Doebelin. All content is original to Aarova AI.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

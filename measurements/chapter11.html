@@ -1,0 +1,2986 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Fundamentals of Transducers</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══ DESIGN SYSTEM ═══ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* PROGRESS */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 12.5%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px
+        }
+
+        /* CALLOUTS */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* FORMULA */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* MATH */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* SVG */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* GATE/PYQ */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* TWO COL */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        /* SUMMARY */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* PROB TAGS */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* ASK AI */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12)
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none
+        }
+
+        .ai-btn:hover {
+            background: #155250
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg)
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto
+        }
+
+        /* MISC */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border)
+        }
+
+        footer strong {
+            color: var(--orange)
+        }
+
+        /* TABLET */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .svg-wrap {
+                padding: 12px 10px
+            }
+
+            .svg-wrap svg {
+                min-width: 480px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px
+            }
+
+            .pyq-year {
+                margin-left: 0
+            }
+        }
+
+        /* MOBILE */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .hbadges {
+                display: none
+            }
+
+            .site-header {
+                padding: 10px 14px
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px)
+            }
+
+            .hero-desc {
+                font-size: 14px
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px
+            }
+
+            .progress-bar {
+                flex-wrap: wrap;
+                gap: 8px
+            }
+
+            .pl {
+                width: 100%
+            }
+
+            .pp {
+                width: 100%
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr
+            }
+
+            .svg-wrap {
+                padding: 10px 8px
+            }
+
+            .svg-wrap svg {
+                min-width: 260px
+            }
+
+            .svg-scroll svg {
+                min-width: 460px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75
+            }
+
+            .math-block {
+                padding: 12px 10px
+            }
+
+            .two-col {
+                grid-template-columns: 1fr
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 8px;
+                font-size: 12px
+            }
+
+            .callout {
+                flex-direction: row;
+                gap: 9px
+            }
+
+            .pyq-opts li {
+                min-height: 40px;
+                font-size: 13px
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-btn {
+                width: 100%
+            }
+
+            .ai-suggest {
+                gap: 5px
+            }
+
+            .ai-chip {
+                font-size: 10.5px;
+                padding: 5px 10px
+            }
+
+            .pyq-year {
+                display: none
+            }
+
+            .gate-body p,
+            .pyq-body p {
+                font-size: 13.5px
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div>
+            <span class="logo">Aarova AI<span class="logo-sub">— Instrumentation &amp; Measurement</span></span>
+        </div>
+        <div class="hbadges">
+            <span class="hbadge">GATE EE</span>
+            <span class="hbadge">IES E&amp;T</span>
+            <span class="hbadge">PSU</span>
+            <span class="hbadge">Ch. 1 of 8</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 1 · Instrumentation &amp; Measurement</div>
+            <h1 class="hero-title">Fundamentals of <em>Transducers</em></h1>
+            <p class="hero-desc">From a generalised measurement system to classification, characteristics, and selection
+                criteria — a complete conceptual and mathematical treatment for GATE, IES, and PSU examinations, derived
+                from standard textbooks.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">🟢 High Probability — GATE</span>
+                <span class="badge">Doebelin · Bentley · Golding</span>
+                <span class="badge">Beginner → Advanced</span>
+                <span class="badge">Inline SVG Diagrams</span>
+                <span class="badge">KaTeX Math</span>
+            </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-bar">
+            <span class="pl">Course Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Ch 1 / 8 — 12.5%</span>
+        </div>
+
+        <!-- TOC -->
+        <div class="toc">
+            <div class="toc-h">Contents of this Chapter</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">01</span>Why Measurement Matters</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">02</span>Generalised Measurement System</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">03</span>What is a Transducer?</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">04</span>Classification of Transducers</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">05</span>Mechanical Primary Detectors</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">06</span>Passive Electrical Transducers</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">07</span>Self-Generating Transducers</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">08</span>Transducer Characteristics</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">09</span>Selection of a Transducer</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">10</span>GATE &amp; IES Previous Questions</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">11</span>Quick Revision Sheet</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">12</span>Ask Aarova AI</a>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 1 ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">01</span>
+                <h2 class="sec-t">Why Measurement Matters</h2>
+            </div>
+
+            <p>Every branch of engineering is ultimately about controlling physical quantities — temperature in a
+                furnace, pressure in a pipeline, speed of a motor, displacement of a mechanical arm. But before you can
+                control anything, you must first <strong>measure</strong> it. Measurement is the bridge between the
+                physical world and the engineer's decision-making system.</p>
+
+            <p>An <strong>instrument</strong> is formally defined as a device or system designed to maintain a
+                prescribed functional relationship between a physical variable under observation and a standardised
+                output quantity, while simultaneously providing a means of communication to a human observer.<sup
+                    class="cite">[1]</sup></p>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">The Engineer's Perspective</div>
+                    <p>Think of a thermocouple in a blast furnace: the furnace temperature (a physical phenomenon) is
+                        converted into a millivolt signal (an electrical quantity), which is displayed on a panel meter.
+                        Each stage — sensing, conversion, display — is a distinct functional element of the measurement
+                        system.</p>
+                </div>
+            </div>
+
+            <p>The transformation of a physical quantity into a proportional electrical signal is preferred because
+                electrical signals can be <strong>easily amplified, transmitted over long distances, processed
+                    digitally, and stored</strong>. Modern SCADA and DCS systems in power plants, refineries, and smart
+                grids all depend on this principle.</p>
+        </div>
+
+        <!-- ═══ SECTION 2 ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">02</span>
+                <h2 class="sec-t">Generalised Measurement System</h2>
+            </div>
+
+            <p>Doebelin (2004) proposed the concept of a <strong>Generalised Measurement System</strong> — a universal
+                functional model that describes every measuring instrument, regardless of the physical quantity being
+                measured.<sup class="cite">[1]</sup> The system has five functional stages:</p>
+
+            <!-- SVG: Generalised Measurement System Block Diagram -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 740 320" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+                    <defs>
+                        <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <!-- Background -->
+                    <rect width="740" height="320" fill="#f8ede0" rx="12" />
+                    <!-- Title -->
+                    <text x="370" y="30" text-anchor="middle" font-family="Playfair Display,serif" font-size="14"
+                        font-weight="700" fill="#1e1208">Generalised Measurement System — Block Diagram</text>
+
+                    <!-- Box styles -->
+                    <!-- Block 1: Primary Sensing -->
+                    <rect x="20" y="60" width="130" height="70" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="85" y="89" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#c95f1a">Primary</text>
+                    <text x="85" y="104" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#c95f1a">Sensing</text>
+                    <text x="85" y="119" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#c95f1a">Element</text>
+                    <text x="85" y="145" text-anchor="middle" font-size="9" fill="#9a6e50">(Detector)</text>
+
+                    <!-- Block 2: Variable Conversion -->
+                    <rect x="200" y="60" width="130" height="70" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="265" y="89" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#1e6b68">Variable</text>
+                    <text x="265" y="104" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#1e6b68">Conversion</text>
+                    <text x="265" y="119" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#1e6b68">Element</text>
+                    <text x="265" y="145" text-anchor="middle" font-size="9" fill="#9a6e50">(Transducer)</text>
+
+                    <!-- Block 3: Variable Manipulation -->
+                    <rect x="380" y="60" width="130" height="70" rx="8" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="445" y="89" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#2d6648">Variable</text>
+                    <text x="445" y="104" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#2d6648">Manipulation</text>
+                    <text x="445" y="119" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#2d6648">Element</text>
+                    <text x="445" y="145" text-anchor="middle" font-size="9" fill="#9a6e50">(Amplifier)</text>
+
+                    <!-- Block 4: Data Transmission -->
+                    <rect x="200" y="195" width="130" height="70" rx="8" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="265" y="224" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#a05c00">Data</text>
+                    <text x="265" y="239" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#a05c00">Transmission</text>
+                    <text x="265" y="254" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#a05c00">Element</text>
+                    <text x="265" y="278" text-anchor="middle" font-size="9" fill="#9a6e50">(Telemetry)</text>
+
+                    <!-- Block 5: Data Presentation -->
+                    <rect x="560" y="128" width="160" height="70" rx="8" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.5" />
+                    <text x="640" y="157" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#9a2020">Data</text>
+                    <text x="640" y="172" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#9a2020">Presentation</text>
+                    <text x="640" y="187" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#9a2020">Element</text>
+                    <text x="640" y="211" text-anchor="middle" font-size="9" fill="#9a6e50">(Display / Recorder)</text>
+
+                    <!-- Measurand label -->
+                    <text x="85" y="50" text-anchor="middle" font-size="10" fill="#3d2010" font-style="italic">Measurand
+                        (Input)</text>
+
+                    <!-- Arrows -->
+                    <!-- Measurand → PSE -->
+                    <line x1="85" y1="55" x2="85" y2="60" stroke="#c95f1a" stroke-width="1.8" marker-end="url(#arr)" />
+                    <!-- PSE → VCE -->
+                    <line x1="150" y1="95" x2="198" y2="95" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr)" />
+                    <!-- VCE → VME -->
+                    <line x1="330" y1="95" x2="378" y2="95" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr)" />
+                    <!-- VME → DTE (down then left) -->
+                    <line x1="445" y1="130" x2="445" y2="163" stroke="#c95f1a" stroke-width="1.8" />
+                    <line x1="445" y1="163" x2="332" y2="230" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr)" />
+                    <!-- DTE → DPE (right then down) -->
+                    <line x1="330" y1="230" x2="558" y2="163" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr)" />
+
+                    <!-- Legend -->
+                    <text x="20" y="305" font-size="9.5" fill="#9a6e50" font-style="italic">Ref: Doebelin E.O.,
+                        Measurement Systems: Application and Design, 5th ed., McGraw-Hill, 2004</text>
+                </svg>
+                <div class="svg-cap">Fig. 1.1 — Generalised Measurement System. Each stage converts the signal into a
+                    form suitable for the next stage.</div>
+            </div>
+
+            <h3 class="sub">Stage-by-Stage Explanation</h3>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stage</th>
+                            <th>Function</th>
+                            <th>Physical Example</th>
+                            <th>Electrical Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="t-org">Primary Sensing Element</td>
+                            <td>Makes first contact with the measurand. Detects the physical quantity.</td>
+                            <td>Bourdon tube senses pressure</td>
+                            <td>Thermocouple junction senses temperature</td>
+                        </tr>
+                        <tr>
+                            <td class="t-tel">Variable Conversion Element</td>
+                            <td>Converts the output of the primary element into a different physical form.</td>
+                            <td>Bourdon tube displacement → rack-and-pinion angle</td>
+                            <td>Thermocouple mV → amplified voltage</td>
+                        </tr>
+                        <tr>
+                            <td class="t-grn">Variable Manipulation Element</td>
+                            <td>Operates on the signal preserving its original information content (amplification,
+                                filtering).</td>
+                            <td>Mechanical linkage magnification</td>
+                            <td>Op-amp instrumentation amplifier</td>
+                        </tr>
+                        <tr>
+                            <td class="t-amb">Data Transmission Element</td>
+                            <td>Transmits the conditioned signal to the next stage, often over a distance.</td>
+                            <td>Shaft and pointer linkage</td>
+                            <td>4–20 mA current loop, RS-485 bus</td>
+                        </tr>
+                        <tr>
+                            <td class="t-red">Data Presentation Element</td>
+                            <td>Conveys the information to a human observer or a data acquisition system.</td>
+                            <td>Dial gauge pointer + scale</td>
+                            <td>Digital display, data logger, SCADA HMI</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Key Insight — Energy Source</div>
+                    <p>The ideal measurement system derives no energy from the measurand itself. Energy for detection
+                        and conversion is supplied by an external auxiliary source. This prevents the act of measurement
+                        from disturbing the quantity being measured — known as the <strong>loading effect</strong>.
+                        (Ref: Bentley, 2005, §1.3)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 3 ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">03</span>
+                <h2 class="sec-t">What is a Transducer?</h2>
+            </div>
+
+            <p>In most industrial measurement systems, the physical quantity to be measured is a <em>non-electrical
+                    quantity</em> — pressure, temperature, force, displacement, velocity, light intensity. To exploit
+                the advantages of electrical processing, this non-electrical quantity must be converted into a
+                proportional electrical signal. The device that accomplishes this conversion is called a
+                <strong>transducer</strong>.<sup class="cite">[2]</sup></p>
+
+            <div class="callout c-info">
+                <div class="ci">📖</div>
+                <div class="cb">
+                    <div class="ct">Definition (Golding &amp; Widdis)</div>
+                    <p>A transducer is a device that transforms energy from one form to another. In instrumentation, it
+                        specifically refers to a device that converts a non-electrical physical quantity into a
+                        proportional electrical signal (voltage, current, resistance, capacitance, or inductance).</p>
+                </div>
+            </div>
+
+            <p>The word transducer comes from the Latin <em>transducere</em> — "to lead across." It is also called a
+                <strong>pick-up</strong> or a <strong>sensor</strong> in common usage, though strictly a <em>sensor</em>
+                refers only to the primary sensing element, while a transducer includes the signal conditioning stage.
+            </p>
+
+            <h3 class="sub">Why Convert to Electrical Form?</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Advantages of Electrical Signals</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Easily amplified with high gain using op-amps</li>
+                        <li><span class="dot">▸</span>Transmitted over long distances with minimal loss (4–20 mA)</li>
+                        <li><span class="dot">▸</span>Processed digitally by microcontrollers and PLCs</li>
+                        <li><span class="dot">▸</span>Stored in data loggers for trend analysis</li>
+                        <li><span class="dot">▸</span>Filtered, linearised, and compensated in software</li>
+                        <li><span class="dot">▸</span>Multiplexed — hundreds of channels on one bus</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Two Parts of a Transducer</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Sensing Element:</strong> the part that responds to the
+                            physical phenomenon (e.g. elastic diaphragm for pressure)</li>
+                        <li><span class="dot">▸</span><strong>Transduction Element:</strong> converts the output of the
+                            sensing element into an electrical signal (e.g. strain gauge bonded to the diaphragm)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub">Inverse Transducer</h3>
+            <p>An <strong>inverse transducer</strong> converts an electrical signal into a non-electrical physical
+                quantity. Examples include a loudspeaker (electrical → sound), a galvanometer (current → angular
+                displacement), and a piezoelectric actuator (voltage → mechanical force). These are essential in
+                feedback control systems and electromechanical actuators.<sup class="cite">[3]</sup></p>
+
+            <!-- SVG: Transducer vs Inverse Transducer -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+                    <defs>
+                        <marker id="arr2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                        <marker id="arr3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#2d6648" />
+                        </marker>
+                    </defs>
+                    <rect width="700" height="200" fill="#f8ede0" rx="12" />
+                    <text x="350" y="25" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        font-weight="700" fill="#1e1208">Transducer vs. Inverse Transducer</text>
+
+                    <!-- Top row: Transducer -->
+                    <text x="30" y="70" font-size="11" fill="#c95f1a" font-weight="600">Non-electrical</text>
+                    <text x="30" y="83" font-size="11" fill="#c95f1a" font-weight="600">Quantity</text>
+                    <text x="30" y="96" font-size="10" fill="#9a6e50">(Pressure, Temp…)</text>
+                    <line x1="130" y1="78" x2="195" y2="78" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr2)" />
+                    <rect x="195" y="58" width="160" height="42" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="275" y="82" text-anchor="middle" font-size="12" font-weight="700"
+                        fill="#c95f1a">TRANSDUCER</text>
+                    <line x1="355" y1="78" x2="420" y2="78" stroke="#c95f1a" stroke-width="1.8"
+                        marker-end="url(#arr2)" />
+                    <text x="435" y="70" font-size="11" fill="#1e6b68" font-weight="600">Electrical</text>
+                    <text x="435" y="83" font-size="11" fill="#1e6b68" font-weight="600">Signal</text>
+                    <text x="435" y="96" font-size="10" fill="#9a6e50">(V, I, R, C, L)</text>
+                    <text x="275" y="108" text-anchor="middle" font-size="9.5" fill="#9a6e50" font-style="italic">e.g.
+                        Strain gauge, LVDT, Thermocouple</text>
+
+                    <!-- Bottom row: Inverse Transducer -->
+                    <text x="30" y="148" font-size="11" fill="#1e6b68" font-weight="600">Electrical</text>
+                    <text x="30" y="161" font-size="11" fill="#1e6b68" font-weight="600">Signal</text>
+                    <line x1="110" y1="153" x2="195" y2="153" stroke="#2d6648" stroke-width="1.8"
+                        marker-end="url(#arr3)" />
+                    <rect x="195" y="133" width="160" height="42" rx="8" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="275" y="157" text-anchor="middle" font-size="11" font-weight="700" fill="#2d6648">INVERSE
+                        TRANSDUCER</text>
+                    <line x1="355" y1="153" x2="420" y2="153" stroke="#2d6648" stroke-width="1.8"
+                        marker-end="url(#arr3)" />
+                    <text x="435" y="148" font-size="11" fill="#c95f1a" font-weight="600">Non-electrical</text>
+                    <text x="435" y="161" font-size="11" fill="#c95f1a" font-weight="600">Quantity</text>
+                    <text x="275" y="183" text-anchor="middle" font-size="9.5" fill="#9a6e50" font-style="italic">e.g.
+                        Loudspeaker, Galvanometer, Piezo actuator</text>
+                </svg>
+                <div class="svg-cap">Fig. 1.2 — Direction of energy conversion distinguishes a transducer from an
+                    inverse transducer.</div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 4 ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">04</span>
+                <h2 class="sec-t">Classification of Transducers</h2>
+            </div>
+
+            <p>Transducers are classified along several independent axes. Understanding <em>why</em> each classification
+                exists is more important than memorising the categories, because GATE questions often test conceptual
+                understanding of which class a device belongs to and why.<sup class="cite">[2]</sup></p>
+
+            <!-- SVG: Classification Tree -->
+            <div class="svg-wrap svg-scroll">
+                <svg viewBox="0 0 1080 360" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+                    <rect width="1080" height="360" fill="#f8ede0" rx="12" />
+                    <text x="526" y="28" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        font-weight="700" fill="#1e1208">Classification of Transducers</text>
+
+                    <!-- Root -->
+                    <rect x="436" y="40" width="180" height="38" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="2" />
+                    <text x="526" y="63" text-anchor="middle" font-size="12" font-weight="700"
+                        fill="#c95f1a">TRANSDUCERS</text>
+
+                    <!-- Branch lines from root -->
+                    <line x1="526" y1="78" x2="526" y2="100" stroke="#c95f1a" stroke-width="1.5" />
+                    <line x1="135" y1="100" x2="918" y2="100" stroke="#c95f1a" stroke-width="1.5" />
+
+                    <!-- Branch 1: Active/Passive -->
+                    <line x1="135" y1="100" x2="135" y2="118" stroke="#c95f1a" stroke-width="1.5" />
+                    <rect x="65" y="118" width="140" height="36" rx="6" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="135" y="140" text-anchor="middle" font-size="11" font-weight="600" fill="#1e6b68">Active /
+                        Passive</text>
+                    <line x1="75" y1="154" x2="75" y2="174" stroke="#1e6b68" stroke-width="1.2" />
+                    <rect x="20" y="174" width="110" height="30" rx="5" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.2" />
+                    <text x="75" y="193" text-anchor="middle" font-size="9.5" fill="#2d6648">Active (Self-gen.)</text>
+                    <line x1="195" y1="154" x2="195" y2="174" stroke="#1e6b68" stroke-width="1.2" />
+                    <rect x="140" y="174" width="110" height="30" rx="5" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.2" />
+                    <text x="195" y="193" text-anchor="middle" font-size="9.5" fill="#c95f1a">Passive (Ext. pwr)</text>
+
+                    <!-- Branch 2: Primary/Secondary -->
+                    <line x1="388" y1="100" x2="388" y2="118" stroke="#c95f1a" stroke-width="1.5" />
+                    <rect x="318" y="118" width="140" height="36" rx="6" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="388" y="140" text-anchor="middle" font-size="11" font-weight="600" fill="#a05c00">Primary /
+                        Secondary</text>
+                    <line x1="325" y1="154" x2="325" y2="174" stroke="#a05c00" stroke-width="1.2" />
+                    <rect x="270" y="174" width="110" height="30" rx="5" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.2" />
+                    <text x="325" y="193" text-anchor="middle" font-size="9.5" fill="#a05c00">Primary (direct)</text>
+                    <line x1="450" y1="154" x2="450" y2="174" stroke="#a05c00" stroke-width="1.2" />
+                    <rect x="390" y="174" width="120" height="30" rx="5" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.2" />
+                    <text x="450" y="193" text-anchor="middle" font-size="9.5" fill="#a05c00">Secondary (2-stage)</text>
+
+                    <!-- Branch 3: Analog/Digital -->
+                    <line x1="652" y1="100" x2="652" y2="118" stroke="#c95f1a" stroke-width="1.5" />
+                    <rect x="582" y="118" width="140" height="36" rx="6" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.5" />
+                    <text x="652" y="140" text-anchor="middle" font-size="11" font-weight="600" fill="#9a2020">Analog /
+                        Digital</text>
+                    <line x1="590" y1="154" x2="590" y2="174" stroke="#9a2020" stroke-width="1.2" />
+                    <rect x="530" y="174" width="120" height="30" rx="5" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.2" />
+                    <text x="590" y="193" text-anchor="middle" font-size="9.5" fill="#9a2020">Analog (continuous)</text>
+                    <line x1="715" y1="154" x2="715" y2="174" stroke="#9a2020" stroke-width="1.2" />
+                    <rect x="660" y="174" width="110" height="30" rx="5" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.2" />
+                    <text x="715" y="193" text-anchor="middle" font-size="9.5" fill="#9a2020">Digital (pulses)</text>
+
+                    <!-- Branch 4: Transduction Principle -->
+                    <line x1="918" y1="100" x2="918" y2="118" stroke="#c95f1a" stroke-width="1.5" />
+                    <rect x="833" y="118" width="170" height="36" rx="6" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="918" y="134" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#2d6648">Transduction Principle</text>
+                    <text x="918" y="148" text-anchor="middle" font-size="9.5" fill="#2d6648">(R / L / C / Piezo /
+                        Photo)</text>
+
+                    <line x1="850" y1="154" x2="850" y2="174" stroke="#2d6648" stroke-width="1.2" />
+                    <rect x="790" y="174" width="120" height="30" rx="5" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.2" />
+                    <text x="850" y="193" text-anchor="middle" font-size="9.5" fill="#2d6648">Resistive (R
+                        varies)</text>
+                    <line x1="985" y1="154" x2="985" y2="174" stroke="#2d6648" stroke-width="1.2" />
+                    <rect x="920" y="174" width="130" height="30" rx="5" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.2" />
+                    <text x="985" y="193" text-anchor="middle" font-size="9.5" fill="#2d6648">Inductive /
+                        Capacitive</text>
+
+                    <!-- Transducer/Inverse row -->
+                    <line x1="526" y1="245" x2="526" y2="260" stroke="#9a6e50" stroke-width="1" />
+                    <rect x="426" y="260" width="200" height="36" rx="6" fill="#f0e0cc" stroke="#c8a888"
+                        stroke-width="1.5" />
+                    <text x="526" y="282" text-anchor="middle" font-size="11" font-weight="600"
+                        fill="#6b3e22">Transducer / Inverse Transducer</text>
+
+                    <text x="526" y="340" text-anchor="middle" font-size="9" fill="#9a6e50" font-style="italic">Ref:
+                        Doebelin, 2004 · Golding &amp; Widdis, 2009</text>
+                </svg>
+                <div class="svg-cap">Fig. 1.3 — Classification tree of transducers. The axes of classification are
+                    independent; a single device belongs to one category on each axis simultaneously.</div>
+            </div>
+
+            <h3 class="sub">1. Active vs. Passive Transducers <span class="prob prob-h">🟢 High</span></h3>
+            <p>This is the most frequently tested classification in GATE and IES.</p>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Active (Self-Generating)</th>
+                            <th>Passive (Externally Powered)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Power source</td>
+                            <td class="t-grn">Derives power from the measurand itself</td>
+                            <td class="t-org">Requires auxiliary excitation (DC/AC supply)</td>
+                        </tr>
+                        <tr>
+                            <td>Output form</td>
+                            <td>Generates own voltage or current</td>
+                            <td>Changes R, L, or C value</td>
+                        </tr>
+                        <tr>
+                            <td>Examples</td>
+                            <td>Thermocouple, Piezoelectric, Photovoltaic, Moving-coil generator</td>
+                            <td>Strain gauge (resistance), LVDT (inductance), Capacitive pressure gauge</td>
+                        </tr>
+                        <tr>
+                            <td>Signal conditioning</td>
+                            <td>Simpler (voltage amplifier)</td>
+                            <td>More complex (bridge circuit + amplifier)</td>
+                        </tr>
+                        <tr>
+                            <td>Loading effect</td>
+                            <td>Higher (measurand supplies energy)</td>
+                            <td>Lower (auxiliary source supplies energy)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common GATE Trap</div>
+                    <p>A <strong>photovoltaic cell</strong> is an <em>active</em> transducer — it generates its own
+                        voltage from incident light. A <strong>photoconductive cell (LDR)</strong> is a <em>passive</em>
+                        transducer — it only changes its resistance; it needs an external supply to produce a measurable
+                        current. Don't confuse them.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">2. Primary vs. Secondary Transducers</h3>
+            <p>Some measurements require a two-stage conversion. The device performing the <em>first</em> conversion
+                (physical quantity → intermediate mechanical quantity) is the <strong>primary transducer</strong>. The
+                device performing the <em>second</em> conversion (mechanical → electrical) is the <strong>secondary
+                    transducer</strong>.</p>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Illustration — Bourdon Tube + LVDT</div>
+                    <p>In a pressure measurement system: a Bourdon tube converts pressure → displacement (primary
+                        transducer). An LVDT bonded to the Bourdon tube then converts displacement → AC voltage
+                        (secondary transducer). The output is thus a voltage proportional to the original pressure.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">3. Analog vs. Digital Transducers</h3>
+            <p><strong>Analog transducers</strong> produce a continuous output that varies smoothly with the measurand
+                (e.g. LVDT voltage is a continuous function of displacement). <strong>Digital transducers</strong>
+                produce an output in the form of discrete pulses or a binary code (e.g. an optical encoder produces a
+                train of pulses proportional to angular position).</p>
+        </div>
+
+        <!-- ═══ SECTION 5 ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">05</span>
+                <h2 class="sec-t">Mechanical Devices as Primary Detectors</h2>
+            </div>
+
+            <p>Before the signal reaches the electrical transduction element, many instruments use a <strong>mechanical
+                    primary detector</strong> to convert the original measurand into an intermediate displacement. These
+                are the "muscle" of the measurement system.<sup class="cite">[1]</sup></p>
+
+            <!-- SVG: Mechanical devices illustration -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+                    <rect width="720" height="280" fill="#f8ede0" rx="12" />
+                    <text x="360" y="26" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        font-weight="700" fill="#1e1208">Key Mechanical Primary Detectors</text>
+
+                    <!-- Bourdon Tube -->
+                    <g transform="translate(50,50)">
+                        <path d="M30,90 Q5,55 25,30 Q55,5 80,25 Q100,40 90,65 Q78,85 60,82" fill="none" stroke="#c95f1a"
+                            stroke-width="3" stroke-linecap="round" />
+                        <circle cx="90" cy="65" r="4" fill="#c95f1a" />
+                        <line x1="90" y1="65" x2="118" y2="50" stroke="#c95f1a" stroke-width="1.5"
+                            stroke-dasharray="4,2" />
+                        <text x="0" y="108" font-size="10" font-weight="600" fill="#c95f1a">Bourdon Tube</text>
+                        <text x="0" y="120" font-size="9" fill="#9a6e50">Pressure → Disp.</text>
+                        <!-- pressure arrows -->
+                        <line x1="30" y1="90" x2="15" y2="90" stroke="#a05c00" stroke-width="1.5"
+                            marker-end="url(#arr2)" />
+                        <text x="0" y="93" font-size="8" fill="#a05c00">P</text>
+                    </g>
+
+                    <!-- Diaphragm -->
+                    <g transform="translate(210,50)">
+                        <rect x="0" y="30" width="100" height="8" rx="2" fill="#ddc8b0" />
+                        <path d="M5,38 Q50,65 95,38" fill="#fdebd8" stroke="#c95f1a" stroke-width="2" />
+                        <line x1="50" y1="62" x2="50" y2="85" stroke="#c95f1a" stroke-width="1.5"
+                            stroke-dasharray="4,2" />
+                        <text x="40" y="20" font-size="8" fill="#a05c00">P ↓</text>
+                        <text x="0" y="108" font-size="10" font-weight="600" fill="#c95f1a">Diaphragm</text>
+                        <text x="0" y="120" font-size="9" fill="#9a6e50">Pressure → Disp.</text>
+                    </g>
+
+                    <!-- Proving Ring -->
+                    <g transform="translate(380,48)">
+                        <ellipse cx="55" cy="55" rx="45" ry="40" fill="none" stroke="#1e6b68" stroke-width="3" />
+                        <line x1="55" y1="15" x2="55" y2="5" stroke="#a05c00" stroke-width="2"
+                            marker-end="url(#arr2)" />
+                        <line x1="55" y1="95" x2="55" y2="105" stroke="#a05c00" stroke-width="2" />
+                        <text x="15" y="58" font-size="9" fill="#1e6b68">δ</text>
+                        <line x1="20" y1="55" x2="48" y2="55" stroke="#1e6b68" stroke-width="1"
+                            stroke-dasharray="3,2" />
+                        <text x="0" y="118" font-size="10" font-weight="600" fill="#1e6b68">Proving Ring</text>
+                        <text x="0" y="130" font-size="9" fill="#9a6e50">Force → Disp.</text>
+                    </g>
+
+                    <!-- Seismic Mass -->
+                    <g transform="translate(545,48)">
+                        <rect x="10" y="60" width="70" height="40" rx="4" fill="#fdebd8" stroke="#c95f1a"
+                            stroke-width="1.5" />
+                        <text x="45" y="85" text-anchor="middle" font-size="10" fill="#c95f1a">Mass m</text>
+                        <line x1="25" y1="60" x2="25" y2="20" stroke="#9a6e50" stroke-width="1.5" />
+                        <line x1="65" y1="60" x2="65" y2="20" stroke="#9a6e50" stroke-width="1.5" />
+                        <rect x="10" y="15" width="70" height="8" rx="2" fill="#ddc8b0" />
+                        <line x1="45" y1="100" x2="45" y2="130" stroke="#c95f1a" stroke-width="1.5"
+                            stroke-dasharray="4,2" />
+                        <text x="0" y="148" font-size="10" font-weight="600" fill="#c95f1a">Seismic Mass</text>
+                        <text x="0" y="160" font-size="9" fill="#9a6e50">Vibration → Disp.</text>
+                    </g>
+
+                    <!-- Bottom legend -->
+                    <text x="360" y="220" text-anchor="middle" font-size="10" font-style="italic" fill="#9a6e50">All
+                        mechanical detectors ultimately convert their measurand into a displacement,</text>
+                    <text x="360" y="234" text-anchor="middle" font-size="10" font-style="italic" fill="#9a6e50">which
+                        is then sensed by the secondary (electrical) transduction element.</text>
+                    <text x="360" y="265" text-anchor="middle" font-size="9" fill="#9a6e50">Ref: Doebelin E.O.,
+                        Measurement Systems, McGraw-Hill, 2004</text>
+                </svg>
+                <div class="svg-cap">Fig. 1.4 — Common mechanical primary detectors. Each converts a different measurand
+                    into mechanical displacement.</div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Device</th>
+                            <th>Conversion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="3" class="t-org">Elastic Members</td>
+                            <td>Bourdon tube</td>
+                            <td>Pressure → displacement</td>
+                        </tr>
+                        <tr>
+                            <td>Bellows / Diaphragm</td>
+                            <td>Pressure → displacement</td>
+                        </tr>
+                        <tr>
+                            <td>Proving ring / Spring</td>
+                            <td>Force → displacement</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2" class="t-tel">Mass Elements</td>
+                            <td>Seismic mass</td>
+                            <td>Acceleration/vibration → displacement</td>
+                        </tr>
+                        <tr>
+                            <td>Manometer liquid column</td>
+                            <td>Pressure → displacement (liquid height)</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2" class="t-grn">Thermal Elements</td>
+                            <td>Thermocouple junction</td>
+                            <td>Temperature → EMF (electrical, not mechanical)</td>
+                        </tr>
+                        <tr>
+                            <td>Bimetallic strip</td>
+                            <td>Temperature → displacement (bending)</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2" class="t-amb">Hydropneumatic</td>
+                            <td>Orifice / Venturi</td>
+                            <td>Fluid velocity → differential pressure</td>
+                        </tr>
+                        <tr>
+                            <td>Float</td>
+                            <td>Liquid level → displacement</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 6 ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">06</span>
+                <h2 class="sec-t">Passive Electrical Transducers</h2>
+            </div>
+
+            <p>Passive transducers require an external excitation to produce an output signal. They work by causing a
+                change in an electrical parameter (R, L, or C) in response to the measurand. This change is then
+                detected, typically using a Wheatstone bridge or an AC bridge circuit.<sup class="cite">[2]</sup></p>
+
+            <h3 class="sub">Resistive Transducers <span class="prob prob-h">🟢 High</span></h3>
+
+            <!-- SVG: Resistance Strain Gauge -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+                    <rect width="700" height="220" fill="#f8ede0" rx="12" />
+                    <text x="350" y="25" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        font-weight="700" fill="#1e1208">Resistance Strain Gauge — Working Principle</text>
+
+                    <!-- Unstrained gauge -->
+                    <g transform="translate(40,50)">
+                        <text x="100" y="18" text-anchor="middle" font-size="11" font-weight="600"
+                            fill="#3d2010">Unstrained</text>
+                        <!-- grid pattern of wire -->
+                        <rect x="30" y="28" width="140" height="100" rx="5" fill="#fff" stroke="#ddc8b0"
+                            stroke-width="1.2" />
+                        <line x1="50" y1="40" x2="150" y2="40" stroke="#c95f1a" stroke-width="2" />
+                        <line x1="150" y1="40" x2="150" y2="52" stroke="#c95f1a" stroke-width="2" />
+                        <line x1="50" y1="52" x2="150" y2="52" stroke="#c95f1a" stroke-width="2" />
+                        <line x1="50" y1="52" x2="50" y2="64" stroke="#c95f1a" stroke-width="2" />
+                        <line x1="50" y1="64" x2="150" y2="64" stroke="#c95f1a" stroke-width="2" />
+                        <line x1="150" y1="64" x2="150" y2="76" stroke="#c95f1a" stroke-width="2" />
+                        <line x1="50" y1="76" x2="150" y2="76" stroke="#c95f1a" stroke-width="2" />
+                        <line x1="50" y1="76" x2="50" y2="88" stroke="#c95f1a" stroke-width="2" />
+                        <line x1="50" y1="88" x2="150" y2="88" stroke="#c95f1a" stroke-width="2" />
+                        <line x1="150" y1="88" x2="150" y2="100" stroke="#c95f1a" stroke-width="2" />
+                        <line x1="50" y1="100" x2="150" y2="100" stroke="#c95f1a" stroke-width="2" />
+                        <!-- leads -->
+                        <line x1="50" y1="40" x2="35" y2="35" stroke="#9a6e50" stroke-width="1.5" />
+                        <line x1="50" y1="100" x2="35" y2="105" stroke="#9a6e50" stroke-width="1.5" />
+                        <text x="100" y="145" text-anchor="middle" font-size="9" fill="#9a6e50">R = ρL/A</text>
+                    </g>
+
+                    <!-- Arrow -->
+                    <text x="245" y="120" font-size="14" fill="#c95f1a">→ F →</text>
+
+                    <!-- Strained gauge -->
+                    <g transform="translate(310,50)">
+                        <text x="110" y="18" text-anchor="middle" font-size="11" font-weight="600" fill="#3d2010">Under
+                            Tensile Strain</text>
+                        <!-- stretched grid -->
+                        <rect x="20" y="28" width="180" height="100" rx="5" fill="#fff" stroke="#ddc8b0"
+                            stroke-width="1.2" />
+                        <line x1="40" y1="40" x2="180" y2="40" stroke="#2d6648" stroke-width="2" />
+                        <line x1="180" y1="40" x2="180" y2="52" stroke="#2d6648" stroke-width="2" />
+                        <line x1="40" y1="52" x2="180" y2="52" stroke="#2d6648" stroke-width="2" />
+                        <line x1="40" y1="52" x2="40" y2="64" stroke="#2d6648" stroke-width="2" />
+                        <line x1="40" y1="64" x2="180" y2="64" stroke="#2d6648" stroke-width="2" />
+                        <line x1="180" y1="64" x2="180" y2="76" stroke="#2d6648" stroke-width="2" />
+                        <line x1="40" y1="76" x2="180" y2="76" stroke="#2d6648" stroke-width="2" />
+                        <line x1="40" y1="76" x2="40" y2="88" stroke="#2d6648" stroke-width="2" />
+                        <line x1="40" y1="88" x2="180" y2="88" stroke="#2d6648" stroke-width="2" />
+                        <line x1="180" y1="88" x2="180" y2="100" stroke="#2d6648" stroke-width="2" />
+                        <line x1="40" y1="100" x2="180" y2="100" stroke="#2d6648" stroke-width="2" />
+                        <line x1="40" y1="40" x2="25" y2="35" stroke="#9a6e50" stroke-width="1.5" />
+                        <line x1="40" y1="100" x2="25" y2="105" stroke="#9a6e50" stroke-width="1.5" />
+                        <text x="110" y="145" text-anchor="middle" font-size="9" fill="#2d6648">R+ΔR (length ↑, area
+                            ↓)</text>
+                        <!-- Force arrows -->
+                        <line x1="0" y1="78" x2="20" y2="78" stroke="#a05c00" stroke-width="2"
+                            marker-end="url(#arr2)" />
+                        <line x1="200" y1="78" x2="218" y2="78" stroke="#a05c00" stroke-width="2"
+                            marker-end="url(#arr2)" />
+                    </g>
+                    <text x="350" y="200" text-anchor="middle" font-size="9" fill="#9a6e50" font-style="italic">Gauge
+                        Factor GF = (ΔR/R) / ε, where ε is the mechanical strain. Typical GF ≈ 2 for metallic
+                        gauges.</text>
+                </svg>
+                <div class="svg-cap">Fig. 1.5 — Resistance strain gauge. Tensile strain elongates the wire (L↑) and
+                    reduces its cross-section (A↓), increasing resistance.</div>
+            </div>
+
+            <h3 class="sub">Gauge Factor — The Key Formula</h3>
+            <p>The sensitivity of a strain gauge is characterised by its <strong>Gauge Factor (GF)</strong>, defined as
+                the fractional change in resistance per unit strain:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Gauge Factor (GF) — Strain Gauge Sensitivity</div>
+                $$GF = \frac{\Delta R / R}{\varepsilon} = \frac{\Delta R / R}{\Delta L / L} = 1 + 2\nu + \frac{\Delta
+                \rho / \rho}{\varepsilon}$$
+            </div>
+
+            <p>where \(\nu\) is the Poisson's ratio of the conductor material, \(\varepsilon = \Delta L/L\) is the
+                longitudinal strain, \(\Delta\rho/\rho\) is the piezoresistive component. For most metallic gauges \(GF
+                \approx 2\); for semiconductor (silicon) gauges \(GF\) can reach 100–170.<sup class="cite">[2]</sup></p>
+
+            <h3 class="sub">Thermistor and RTD — Temperature-Sensitive Resistors <span class="prob prob-h">🟢
+                    High</span></h3>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>RTD (Resistance Thermometer)</th>
+                            <th>Thermistor (NTC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Material</td>
+                            <td>Pure metals (Pt, Ni, Cu)</td>
+                            <td>Metal oxides (Mn, Co, Ni oxides)</td>
+                        </tr>
+                        <tr>
+                            <td>TCR</td>
+                            <td class="t-grn">Positive (R increases with T)</td>
+                            <td class="t-red">Negative (R decreases with T — NTC)</td>
+                        </tr>
+                        <tr>
+                            <td>Relationship</td>
+                            <td>\(R_T = R_0(1 + \alpha T)\)</td>
+                            <td>\(R = A\,e^{B/T}\) (exponential)</td>
+                        </tr>
+                        <tr>
+                            <td>Linearity</td>
+                            <td>High (good linearity)</td>
+                            <td>Highly non-linear</td>
+                        </tr>
+                        <tr>
+                            <td>Range</td>
+                            <td>–200°C to +850°C</td>
+                            <td>–50°C to +300°C</td>
+                        </tr>
+                        <tr>
+                            <td>Sensitivity</td>
+                            <td>Lower (Pt100: 0.385 Ω/°C)</td>
+                            <td>Higher (more sensitive)</td>
+                        </tr>
+                        <tr>
+                            <td>Application</td>
+                            <td>Industrial precision thermometry</td>
+                            <td>Temperature compensation, flow sensing</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Inductive Transducers — LVDT <span class="prob prob-h">🟢 High</span></h3>
+            <p>The <strong>Linear Variable Differential Transformer (LVDT)</strong> is the most widely used inductive
+                displacement transducer. It operates on the principle of mutual inductance variation as a ferromagnetic
+                core moves within a transformer winding arrangement.</p>
+
+            <!-- SVG: LVDT Diagram -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+                    <defs>
+                        <marker id="arr4" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+                            <polygon points="0 0,7 2.5,0 5" fill="#1e6b68" />
+                        </marker>
+                    </defs>
+                    <rect width="720" height="280" fill="#f8ede0" rx="12" />
+                    <text x="360" y="25" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        font-weight="700" fill="#1e1208">LVDT — Linear Variable Differential Transformer</text>
+
+                    <!-- Primary coil -->
+                    <rect x="80" y="60" width="560" height="120" rx="8" fill="none" stroke="#ddc8b0" stroke-width="1.5"
+                        stroke-dasharray="6,3" />
+
+                    <!-- Primary winding label -->
+                    <text x="360" y="55" text-anchor="middle" font-size="10" fill="#a05c00" font-weight="600">Primary
+                        Winding (P) — AC Excitation</text>
+                    <!-- Primary coil symbol -->
+                    <path
+                        d="M90,120 Q100,100 110,120 Q120,140 130,120 Q140,100 150,120 Q160,140 170,120 Q180,100 190,120 Q200,140 210,120 Q220,100 230,120 Q240,140 250,120 Q260,100 270,120 Q280,140 290,120 Q300,100 310,120 Q320,140 330,120 Q340,100 350,120 Q360,140 370,120 Q380,100 390,120 Q400,140 410,120 Q420,100 430,120 Q440,140 450,120 Q460,100 470,120 Q480,140 490,120 Q500,100 510,120 Q520,140 530,120 Q540,100 550,120 Q560,140 570,120 Q580,100 590,120 Q600,140 610,120 Q620,100 630,120"
+                        fill="none" stroke="#a05c00" stroke-width="2.2" />
+
+                    <!-- Secondary 1 (S1) -->
+                    <text x="200" y="175" text-anchor="middle" font-size="10" fill="#1e6b68" font-weight="600">Secondary
+                        S₁</text>
+                    <path
+                        d="M90,155 Q100,140 110,155 Q120,170 130,155 Q140,140 150,155 Q160,170 170,155 Q180,140 190,155 Q200,170 210,155 Q220,140 230,155 Q240,170 250,155 Q260,140 270,155 Q280,170 290,155 Q300,140 310,155"
+                        fill="none" stroke="#1e6b68" stroke-width="2" />
+
+                    <!-- Secondary 2 (S2) -->
+                    <text x="530" y="175" text-anchor="middle" font-size="10" fill="#2d6648" font-weight="600">Secondary
+                        S₂</text>
+                    <path
+                        d="M410,155 Q420,140 430,155 Q440,170 450,155 Q460,140 470,155 Q480,170 490,155 Q500,140 510,155 Q520,170 530,155 Q540,140 550,155 Q560,170 570,155 Q580,140 590,155 Q600,170 610,155 Q620,140 630,155"
+                        fill="none" stroke="#2d6648" stroke-width="2" />
+
+                    <!-- Iron core -->
+                    <rect x="290" y="80" width="140" height="110" rx="4" fill="#d8eeed" stroke="#1e6b68"
+                        stroke-width="2" opacity="0.7" />
+                    <text x="360" y="138" text-anchor="middle" font-size="11" font-weight="600" fill="#1e6b68">Iron
+                        Core</text>
+                    <text x="360" y="152" text-anchor="middle" font-size="9" fill="#1e6b68">(movable)</text>
+
+                    <!-- Core displacement arrow -->
+                    <line x1="295" y1="135" x2="235" y2="135" stroke="#c95f1a" stroke-width="1.5"
+                        stroke-dasharray="4,2" />
+                    <text x="255" y="128" font-size="9" fill="#c95f1a">← x</text>
+
+                    <!-- Lead wires -->
+                    <line x1="90" y1="120" x2="60" y2="120" stroke="#a05c00" stroke-width="1.5" />
+                    <line x1="630" y1="120" x2="660" y2="120" stroke="#a05c00" stroke-width="1.5" />
+                    <text x="40" y="116" text-anchor="end" font-size="9" fill="#a05c00">V_exc</text>
+
+                    <!-- Output -->
+                    <line x1="310" y1="155" x2="310" y2="200" stroke="#1e6b68" stroke-width="1.5" />
+                    <line x1="410" y1="155" x2="410" y2="200" stroke="#2d6648" stroke-width="1.5" />
+                    <line x1="310" y1="200" x2="410" y2="200" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="360" y1="200" x2="360" y2="220" stroke="#9a6e50" stroke-width="1.5" />
+                    <text x="360" y="240" text-anchor="middle" font-size="10" fill="#9a2020" font-weight="600">V_out =
+                        V_S1 − V_S2</text>
+
+                    <text x="360" y="265" text-anchor="middle" font-size="9" fill="#9a6e50" font-style="italic">Ref:
+                        Doebelin, 2004 · Bentley, Principles of Measurement Systems, 2005</text>
+                </svg>
+                <div class="svg-cap">Fig. 1.6 — LVDT structure. At null position, V_S1 = V_S2 and V_out = 0. Core
+                    displacement produces a differential output proportional to displacement x.</div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">LVDT Output Voltage</div>
+                $$V_{out} = V_{S1} - V_{S2} = K \cdot x$$
+            </div>
+            <p>where \(K\) is the LVDT sensitivity (V/mm) and \(x\) is the core displacement from the null position. The
+                output is <em>linear</em> over the operating range, and the <em>phase</em> of V_out (relative to V_exc)
+                indicates the <em>direction</em> of displacement — a key advantage over simple resistive sensors.<sup
+                    class="cite">[1]</sup></p>
+
+            <h3 class="sub">Capacitive Transducers <span class="prob prob-m">🟡 Medium</span></h3>
+            <p>Capacitive transducers exploit the relationship between capacitance and the geometry of a parallel-plate
+                capacitor:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Parallel-Plate Capacitance</div>
+                $$C = \frac{\varepsilon_0 \varepsilon_r A}{d}$$
+            </div>
+
+            <p>Three parameters can be varied by the measurand: (1) the plate separation \(d\) — used in pressure and
+                displacement gauges; (2) the effective plate area \(A\) — used in angular displacement sensors; (3) the
+                dielectric constant \(\varepsilon_r\) — used in level and moisture sensors. A decrease in \(d\)
+                increases \(C\) non-linearly, so capacitive sensors used for displacement often employ differential
+                configurations to achieve linearity.</p>
+        </div>
+
+        <!-- ═══ SECTION 7 ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">07</span>
+                <h2 class="sec-t">Self-Generating (Active) Transducers</h2>
+            </div>
+
+            <p>These transducers generate their own EMF or current in response to the measurand, without requiring an
+                external excitation supply.<sup class="cite">[3]</sup></p>
+
+            <h3 class="sub">Thermocouple — Seebeck Effect <span class="prob prob-h">🟢 High</span></h3>
+            <p>When two dissimilar metals are joined at two junctions and the junctions are maintained at different
+                temperatures, an EMF is generated in the circuit. This is the <strong>Seebeck Effect</strong>, the
+                working principle of the thermocouple.</p>
+
+            <!-- SVG: Thermocouple -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+                    <rect width="680" height="200" fill="#f8ede0" rx="12" />
+                    <text x="340" y="24" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        font-weight="700" fill="#1e1208">Thermocouple — Seebeck Effect</text>
+
+                    <!-- Metal A (top wire) -->
+                    <line x1="80" y1="90" x2="600" y2="90" stroke="#c95f1a" stroke-width="4" />
+                    <text x="340" y="80" text-anchor="middle" font-size="11" font-weight="600" fill="#c95f1a">Metal A
+                        (e.g. Chromel)</text>
+
+                    <!-- Metal B (bottom wire) -->
+                    <line x1="80" y1="130" x2="600" y2="130" stroke="#1e6b68" stroke-width="4" />
+                    <text x="340" y="148" text-anchor="middle" font-size="11" font-weight="600" fill="#1e6b68">Metal B
+                        (e.g. Alumel)</text>
+
+                    <!-- Hot junction -->
+                    <circle cx="80" cy="110" r="14" fill="#fdebd8" stroke="#c95f1a" stroke-width="2" />
+                    <text x="80" y="114" text-anchor="middle" font-size="10" font-weight="700" fill="#c95f1a">T_H</text>
+                    <text x="80" y="170" text-anchor="middle" font-size="9" fill="#9a6e50">Hot Junction</text>
+                    <text x="80" y="182" text-anchor="middle" font-size="9" fill="#9a6e50">(measuring)</text>
+
+                    <!-- Cold junction -->
+                    <circle cx="600" cy="110" r="14" fill="#d8eeed" stroke="#1e6b68" stroke-width="2" />
+                    <text x="600" y="114" text-anchor="middle" font-size="10" font-weight="700"
+                        fill="#1e6b68">T_C</text>
+                    <text x="600" y="170" text-anchor="middle" font-size="9" fill="#9a6e50">Cold Junction</text>
+                    <text x="600" y="182" text-anchor="middle" font-size="9" fill="#9a6e50">(reference)</text>
+
+                    <!-- EMF meter -->
+                    <rect x="290" y="55" width="100" height="40" rx="6" fill="#dff0e8" stroke="#2d6648"
+                        stroke-width="1.5" />
+                    <text x="340" y="79" text-anchor="middle" font-size="11" fill="#2d6648" font-weight="600">mV
+                        meter</text>
+                    <line x1="340" y1="95" x2="340" y2="90" stroke="#2d6648" stroke-width="1.5" />
+
+                    <!-- EMF label -->
+                    <text x="340" y="42" text-anchor="middle" font-size="10" fill="#2d6648">E = α(T_H − T_C)</text>
+                </svg>
+                <div class="svg-cap">Fig. 1.7 — Thermocouple circuit. The generated EMF is proportional to the
+                    temperature difference between the hot (measuring) and cold (reference) junctions.</div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Seebeck EMF</div>
+                $$E_{AB} = \alpha_{AB}(T_H - T_C)$$
+            </div>
+            <p>where \(\alpha_{AB}\) is the Seebeck coefficient (or thermoelectric sensitivity) in \(\mu V/°C\) for the
+                metal pair A–B. For a Type K thermocouple (Chromel–Alumel), \(\alpha \approx 41\,\mu V/°C\). Common
+                GATE-relevant thermocouple types are Type J (Fe–Constantan), Type K (Chromel–Alumel), and Type T
+                (Cu–Constantan).<sup class="cite">[2]</sup></p>
+
+            <h3 class="sub">Piezoelectric Transducer <span class="prob prob-m">🟡 Medium</span></h3>
+            <p>Certain crystalline materials — quartz, Rochelle salt, barium titanate — develop an electric charge
+                across their faces when subjected to mechanical stress. This is the <strong>direct piezoelectric
+                    effect</strong>. The charge is proportional to the applied force:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Piezoelectric Charge Generation</div>
+                $$Q = d \cdot F \qquad \Rightarrow \qquad V = \frac{Q}{C_T} = \frac{d \cdot F}{C_T}$$
+            </div>
+
+            <p>where \(d\) is the piezoelectric charge sensitivity (C/N), \(F\) is the applied force, and \(C_T\) is the
+                total capacitance (crystal + cable + amplifier input). Because the crystal is essentially a capacitor,
+                the charge leaks away at low frequencies — piezoelectric sensors are therefore suited to <strong>dynamic
+                    measurements</strong> (vibration, shock, blast pressure) rather than static measurements.<sup
+                    class="cite">[1]</sup></p>
+
+            <h3 class="sub">Photovoltaic Cell (Solar Cell) <span class="prob prob-h">🟢 High</span></h3>
+            <p>A photovoltaic cell generates a voltage when photons strike its P-N junction, generating electron-hole
+                pairs and creating a potential difference. This is a classic <strong>active transducer</strong> — it
+                produces its own voltage directly from light energy. The open-circuit voltage is approximately 0.5–0.7 V
+                for a silicon cell.<sup class="cite">[3]</sup></p>
+        </div>
+
+        <!-- ═══ SECTION 8 ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr">
+                <span class="sec-num">08</span>
+                <h2 class="sec-t">Transducer Characteristics</h2>
+            </div>
+
+            <p>Choosing or evaluating a transducer requires understanding its performance specifications. These
+                characteristics are broadly categorised as input, transfer, and output characteristics.<sup
+                    class="cite">[1]</sup></p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Characteristic</th>
+                            <th>Definition &amp; Significance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="2" class="t-org">Input Characteristics</td>
+                            <td>Operating range / Span</td>
+                            <td>The range of measurand values over which the transducer operates correctly. Operating
+                                beyond the range causes non-linearity or damage.</td>
+                        </tr>
+                        <tr>
+                            <td>Loading effect</td>
+                            <td>Perturbation caused by the measurement process on the measurand. Minimum loading is
+                                desirable.</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3" class="t-tel">Transfer Characteristics</td>
+                            <td>Sensitivity</td>
+                            <td>The ratio of output change to input change: \( S = \Delta V_{out}/\Delta x \). Higher
+                                sensitivity → more detectable output for a small input change.</td>
+                        </tr>
+                        <tr>
+                            <td>Linearity</td>
+                            <td>The degree to which the input-output relationship follows a straight line over the
+                                operating range.</td>
+                        </tr>
+                        <tr>
+                            <td>Resolution</td>
+                            <td>The smallest detectable change in the measurand. In digital transducers, resolution =
+                                full scale / 2ⁿ.</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3" class="t-grn">Transfer Characteristics (contd.)</td>
+                            <td>Accuracy</td>
+                            <td>Closeness of the output to the true value of the measurand.</td>
+                        </tr>
+                        <tr>
+                            <td>Hysteresis</td>
+                            <td>Difference in output for the same input during upscale vs. downscale traversal. Caused
+                                by friction, backlash, or magnetic hysteresis.</td>
+                        </tr>
+                        <tr>
+                            <td>Repeatability / Reproducibility</td>
+                            <td>Ability to produce the same output for the same input under identical conditions.</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2" class="t-amb">Output Characteristics</td>
+                            <td>Output impedance</td>
+                            <td>Determines how much the output is loaded by the measuring circuit. A low output
+                                impedance is preferred for voltage outputs.</td>
+                        </tr>
+                        <tr>
+                            <td>Frequency / Dynamic response</td>
+                            <td>How fast the transducer responds to a step change in measurand. Characterised by natural
+                                frequency, damping ratio, time constant.</td>
+                        </tr>
+                        <tr>
+                            <td class="t-red">Environmental</td>
+                            <td>Cross-sensitivity, stability, drift</td>
+                            <td>Sensitivity to unwanted inputs (temperature, humidity, vibration). Drift is the change
+                                in zero or sensitivity over time.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Sensitivity vs. Resolution — Key Distinction</h3>
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Misconception</div>
+                    <p>Many students confuse <strong>sensitivity</strong> with <strong>resolution</strong>. Sensitivity
+                        is the slope of the input-output curve (output change per unit input change). Resolution is the
+                        smallest detectable input change — limited by noise floor. A highly sensitive transducer does
+                        not necessarily have high resolution if its noise floor is also high.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Output Impedance and Transducer Classification</h3>
+            <p>When the output impedance of a transducer \(Z_{out}\) is much less than the load impedance \(Z_L\), the
+                transducer behaves as a <strong>constant voltage source</strong>:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Transducer Behaviour based on Impedance Ratio</div>
+                $$\text{If } Z_{out} \ll Z_L: \quad V_{load} \approx V_{oc} \quad \text{(voltage source behaviour)}$$
+                $$\text{If } Z_{out} \gg Z_L: \quad I_{load} \approx I_{sc} \quad \text{(current source behaviour)}$$
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 9 ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr">
+                <span class="sec-num">09</span>
+                <h2 class="sec-t">Selection of a Transducer</h2>
+            </div>
+
+            <p>Selecting the right transducer for an application is an engineering decision, not a lookup exercise. The
+                following factors must be systematically evaluated.<sup class="cite">[2]</sup></p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Selection Factor</th>
+                            <th>Question to Ask</th>
+                            <th>Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="t-org">Operating Principle</td>
+                            <td>What physical effect is most directly related to the measurand?</td>
+                            <td>Determines type (R, L, C, piezo…)</td>
+                        </tr>
+                        <tr>
+                            <td class="t-tel">Operating Range</td>
+                            <td>What are the minimum and maximum values of the measurand?</td>
+                            <td>Rules out under-ranged or over-ranged devices</td>
+                        </tr>
+                        <tr>
+                            <td class="t-grn">Sensitivity</td>
+                            <td>What output change is needed per unit input change?</td>
+                            <td>Affects signal-to-noise ratio</td>
+                        </tr>
+                        <tr>
+                            <td class="t-org">Accuracy &amp; Resolution</td>
+                            <td>What measurement uncertainty is acceptable?</td>
+                            <td>Determines specification tier</td>
+                        </tr>
+                        <tr>
+                            <td class="t-red">Environmental Conditions</td>
+                            <td>What are the ambient temperature, humidity, vibration levels?</td>
+                            <td>Affects choice of housing, material, compensation</td>
+                        </tr>
+                        <tr>
+                            <td class="t-amb">Cross-Sensitivity</td>
+                            <td>Will the transducer respond to unwanted quantities?</td>
+                            <td>May require shielding or correction</td>
+                        </tr>
+                        <tr>
+                            <td class="t-tel">Loading Effect</td>
+                            <td>Will the measurement disturb the measurand?</td>
+                            <td>Critical for fragile or low-energy signals</td>
+                        </tr>
+                        <tr>
+                            <td class="t-grn">Frequency Response</td>
+                            <td>Is the measurand static, slowly varying, or dynamic (vibration)?</td>
+                            <td>Determines need for high bandwidth</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✅</div>
+                <div class="cb">
+                    <div class="ct">Memory Trick — "OR SACCEL"</div>
+                    <p><strong>O</strong>perating range, <strong>R</strong>ange of measurand,
+                        <strong>S</strong>ensitivity, <strong>A</strong>ccuracy, <strong>C</strong>ross-sensitivity,
+                        <strong>C</strong>onditions (environment), <strong>E</strong>lectrical output type,
+                        <strong>L</strong>oading effect. Use this mnemonic in answer writing for IES descriptive
+                        questions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 10 ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr">
+                <span class="sec-num">10</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🎯</div>
+                <div class="cb">
+                    <div class="ct">GATE Perspective</div>
+                    <p>Transducers are tested in GATE EE under Electrical and Electronic Measurements (approximately 2–4
+                        marks per year). Key topics: active vs passive classification, LVDT output, gauge factor
+                        formula, thermocouple laws, transducer output impedance. IES descriptive questions often ask for
+                        comparison tables and principle explanations.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Which of the following is a self-generating (active) transducer?</span>
+                    <span class="pyq-year">Pattern: 2018-type</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) Linear variable differential transformer (LVDT)</li>
+                        <li>(B) Resistance strain gauge</li>
+                        <li class="correct">(C) Piezoelectric accelerometer ✓</li>
+                        <li>(D) Capacitive pressure gauge</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> A piezoelectric accelerometer generates its own charge (and hence
+                        voltage) in response to the applied force. LVDT, strain gauge, and capacitive gauge all require
+                        an external supply — they are passive transducers. The phrase "self-generating" is synonymous
+                        with "active."</p>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">A transducer has output impedance 500 Ω and load resistance 500 kΩ. It
+                        behaves as a ___.</span>
+                    <span class="pyq-year">Pattern: 2019-type</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) Constant current source</li>
+                        <li class="correct">(B) Constant voltage source ✓</li>
+                        <li>(C) Constant power source</li>
+                        <li>(D) None of the above</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> Since \(Z_{out} = 500\,\Omega \ll Z_L = 500\,k\Omega\), essentially
+                        all the open-circuit voltage appears across the load. The transducer behaves as a
+                        <strong>constant voltage source</strong>. If instead \(Z_{out} \gg Z_L\), it would behave as a
+                        constant current source.</p>
+                </div>
+            </div>
+
+            <!-- IES PYQ -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">LVDT output voltage at null position is ideally ___.</span>
+                    <span class="pyq-year">IES Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) Maximum</li>
+                        <li>(B) Minimum but not zero</li>
+                        <li class="correct">(C) Zero ✓</li>
+                        <li>(D) Equal to excitation voltage</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> At the null (centre) position, the magnetic core links equally with
+                        both secondary windings S₁ and S₂. Since the secondaries are wound in opposition, V_S1 = V_S2,
+                        and the differential output V_out = V_S1 − V_S2 = 0. Residual voltage (due to imperfect winding)
+                        is a practical limitation, not an ideal characteristic.</p>
+                </div>
+            </div>
+
+            <!-- Gate Insight Card -->
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">Key GATE-Level Concepts with Probability Ratings</span>
+                </div>
+                <div class="gate-body">
+                    <div class="tw">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Topic</th>
+                                    <th>What to Know</th>
+                                    <th>GATE Probability</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Active vs. Passive</td>
+                                    <td>Classification of any given transducer</td>
+                                    <td><span class="prob prob-h">🟢 High</span></td>
+                                </tr>
+                                <tr>
+                                    <td>LVDT</td>
+                                    <td>Output at null, linearity, direction sensitivity</td>
+                                    <td><span class="prob prob-h">🟢 High</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Gauge Factor</td>
+                                    <td>Formula GF = (ΔR/R)/ε, typical values</td>
+                                    <td><span class="prob prob-h">🟢 High</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Thermocouple EMF</td>
+                                    <td>Seebeck effect, EMF formula, types</td>
+                                    <td><span class="prob prob-h">🟢 High</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Output impedance</td>
+                                    <td>Voltage vs. current source classification</td>
+                                    <td><span class="prob prob-h">🟢 High</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Piezoelectric sensor</td>
+                                    <td>Dynamic vs. static limitation</td>
+                                    <td><span class="prob prob-m">🟡 Medium</span></td>
+                                </tr>
+                                <tr>
+                                    <td>RTD vs. Thermistor</td>
+                                    <td>PTC vs. NTC, linearity comparison</td>
+                                    <td><span class="prob prob-m">🟡 Medium</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Primary vs. Secondary</td>
+                                    <td>Two-stage conversion concept</td>
+                                    <td><span class="prob prob-l">🔴 Low</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 11 ═══ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr">
+                <span class="sec-num">11</span>
+                <h2 class="sec-t">Quick Revision Sheet</h2>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Generalised System</div>
+                    <p>5 stages: Primary Sensing → Variable Conversion → Variable Manipulation → Data Transmission →
+                        Data Presentation. Energy from auxiliary source, not measurand.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Transducer Definition</div>
+                    <p>Converts non-electrical quantity → electrical signal (V, I, R, L, C). Also called pick-up or
+                        sensor. Inverse transducer: electrical → non-electrical.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Active vs. Passive</div>
+                    <p>Active: self-generating, no external supply. Examples: thermocouple, piezoelectric, photovoltaic.
+                        Passive: needs external excitation. Examples: strain gauge, LVDT, capacitive gauge.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Gauge Factor</div>
+                    <p>GF = (ΔR/R)/ε. Metallic: GF ≈ 2. Semiconductor: GF ≈ 100–170. Higher GF → more sensitive but
+                        often more temperature-sensitive too.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">LVDT</div>
+                    <p>V_out = K·x. At null: V_out = 0. Phase indicates direction. High linearity, friction-free,
+                        infinite resolution. Frequency range: DC to 20 kHz.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Thermocouple</div>
+                    <p>E = α(T_H − T_C). Seebeck effect. Type K (Chromel–Alumel): ~41 µV/°C. Active transducer. Needs
+                        cold-junction compensation for absolute temperature.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Piezoelectric</div>
+                    <p>Q = d·F; V = Q/C_T. Active transducer. Suitable for dynamic (AC) measurements only — charge leaks
+                        at low frequency. Materials: quartz, BaTiO₃.</p>
+                </div>
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Output Impedance</div>
+                    <p>Z_out ≪ Z_L → constant voltage source. Z_out ≫ Z_L → constant current source. GATE frequently
+                        tests this for 1-mark direct questions.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">RTD vs. Thermistor</div>
+                    <p>RTD: PTC, linear, wider range (−200 to +850°C). Thermistor: NTC, exponential, narrower range,
+                        higher sensitivity. R_T = R_0(1+αT) for RTD.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:20px">
+                <div class="ci">📝</div>
+                <div class="cb">
+                    <div class="ct">Last-Minute Exam Tips</div>
+                    <p>1. For any transducer classification question: first ask "does it produce its own
+                        voltage/current?" → Yes: Active. No: Passive.<br>
+                        2. LVDT is an <em>inductive</em> (not capacitive) transducer — it uses mutual inductance
+                        variation.<br>
+                        3. Piezoelectric cannot measure static (DC) pressure — suitable only for dynamic, fast-changing
+                        quantities.<br>
+                        4. The photovoltaic cell is active; the photoconductive cell (LDR) is passive.<br>
+                        5. Thermocouple EMF depends on <em>temperature difference</em>, not absolute temperature alone.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 12 ═══ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr">
+                <span class="sec-num">12</span>
+                <h2 class="sec-t">Ask Aarova AI</h2>
+            </div>
+
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">⚡ Ask anything about Transducers</div>
+                <p>Type your question or pick a suggested prompt below. Aarova AI will answer with step-by-step
+                    explanations from standard textbooks.</p>
+                <div class="ai-input-row">
+                    <input class="ai-input" type="text" id="userQ"
+                        placeholder="e.g. Derive the output voltage equation of an LVDT…" autocomplete="off">
+                    <button class="ai-btn" onclick="askClaude()">Ask AI</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('Why is a piezoelectric transducer not suitable for static pressure measurement? Explain from first principles.')">Piezo
+                        static limitation</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Derive the gauge factor formula for a metallic strain gauge. Why is GF ≈ 2 for metals?')">Gauge
+                        Factor derivation</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain cold-junction compensation in thermocouples with a diagram.')">Cold-junction
+                        compensation</span>
+                    <span class="ai-chip"
+                        onclick="setQ('How does an LVDT distinguish between positive and negative displacement?')">LVDT
+                        direction sensing</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Compare RTD and Thermistor for temperature measurement. Which is better for industrial use and why?')">RTD
+                        vs. Thermistor</span>
+                    <span class="ai-chip"
+                        onclick="setQ('A transducer has output impedance 2 kΩ and load 1 MΩ. Find the percentage loading error.')">Loading
+                        error calculation</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <!-- SUMMARY CALLOUT -->
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 2</div>
+                    <p>Resistance Strain Gauge in depth — Wheatstone bridge circuit, lead wire compensation, temperature
+                        error correction, rosette strain gauges, and complete GATE and IES worked problems on bridge
+                        output calculation.</p>
+                </div>
+            </div>
+
+            <!-- CITATIONS -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived
+                    exclusively from the following standard textbooks. All explanations, derivations, and diagrams are
+                    original to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Doebelin, Ernest O. <em>Measurement Systems: Application
+                                and Design</em>, 5th ed. McGraw-Hill, 2004. Chapters 1–3 — Generalised measurement
+                            system, transducer types, characteristics, and dynamic response.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Golding, E.W. and Widdis, F.C. <em>Electrical
+                                Measurements and Measuring Instruments</em>, 5th ed. Wheeler Publishing, 2009. Chapters
+                            11–13 — Transducer classification, passive and active types, selection criteria.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Bentley, John P. <em>Principles of Measurement
+                                Systems</em>, 4th ed. Pearson Education, 2005. Chapters 8–12 — Self-generating
+                            transducers, thermoelectricity, piezoelectricity, photovoltaics.</span></li>
+                    <li><span class="cite-num">[4]</span><span>Northrop, Robert B. <em>Introduction to Instrumentation
+                                and Measurements</em>, 3rd ed. CRC Press, 2014. Chapter 2 — Sensors and transducers in
+                            measurement systems.</span></li>
+                    <li><span class="cite-num">[5]</span><span>IIT Madras NPTEL. <em>Instrumentation and Measurement —
+                                Lectures 1–8: Transducers</em>. National Programme on Technology Enhanced Learning.
+                            nptel.ac.in. Used for GATE-relevant problem patterns.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Instrumentation &amp; Measurement Series &nbsp;·&nbsp; Chapter
+                1 of 8<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                    diagrams are original to Aarova AI. Derived from standard textbooks [1–5]. No content reproduced
+                    from ACE Engineering Academy or any coaching material.</span>
+            </footer>
+        </div>
+
+    </div><!-- end .page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Instrumentation and Measurement. Topic: Fundamentals of Transducers (Chapter 1). Cover generalised measurement systems, transducer classification (active/passive, primary/secondary, analog/digital), LVDT, strain gauge, thermocouple, piezoelectric sensors, thermistors, RTDs, transducer characteristics, and selection criteria. Answer with clear conceptual explanations and step-by-step working for numericals. Base all answers on Doebelin (2004), Golding & Widdis, and Bentley (2005). All content is original to Aarova AI.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask AI'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Mobile SVG scroll hints */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

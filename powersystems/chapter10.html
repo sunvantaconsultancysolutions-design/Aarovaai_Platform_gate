@@ -1,0 +1,3265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Power Systems Ch.5 Load Flow Studies</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 62.5%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TOC ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .section:nth-child(13) {
+            animation-delay: .53s
+        }
+
+        .section:nth-child(14) {
+            animation-delay: .57s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* ── CALLOUTS ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COLUMN CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAGS ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── ASK AAROVA AI WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* ════ LARGE DESKTOP 1024+ ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Power Systems Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 05 &nbsp;·&nbsp; Power Systems</div>
+            <h1 class="hero-title">Load Flow <em>Studies</em></h1>
+            <p class="hero-desc">Bus classification, Y-BUS formation, Z-BUS construction, Gauss-Seidel and
+                Newton-Raphson methods — complete conceptual and mathematical treatment for GATE EE, IES, and PSU
+                examinations with fully solved numericals and previous year questions.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Follows Ch.4 — Per-Unit Analysis</span>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Chapter 5 of 8</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">5.1</span>What is Load Flow?</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">5.8</span>Z-BUS Construction</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">5.2</span>Bus Representation</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">5.9</span>Gauss-Seidel Method</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">5.3</span>Classification of Buses</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">5.10</span>Newton-Raphson Method</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">5.4</span>Slack Bus — Why It Matters</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">5.11</span>GS vs NR Comparison</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">5.5</span>Y-BUS Formation</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">5.12</span>Solved Numericals</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">5.6</span>Properties of Y-BUS</a>
+                <a href="#s13" class="toc-item"><span class="toc-n">5.13</span>GATE &amp; IES PYQs</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">5.7</span>Modification of Y-BUS</a>
+                <a href="#s14" class="toc-item"><span class="toc-n">5.14</span>Quick Revision</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: WHAT IS LOAD FLOW ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">5.1</span>
+                <h2 class="sec-t">What is Load Flow Study? — The Big Picture</h2>
+            </div>
+
+            <p>Imagine you are the chief engineer of a state electricity board. The demand grows each year. You need to
+                know: <strong>can our existing network supply this demand without violating any voltage or thermal
+                    limits?</strong> This is precisely what a <strong>load flow study</strong> — also called power flow
+                study — answers.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Definition</div>
+                    <p>Load flow study is the <strong>numerical solution of the steady-state operating
+                            conditions</strong> of a power system. Given specified generation and load data, it
+                        determines the voltage magnitude and phase angle at every bus, and thereby computes all active
+                        and reactive power flows in the network.</p>
+                </div>
+            </div>
+
+            <!-- Power system network flow diagram -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0 0,8 3,0 6" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <text x="350" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Power Flow in an AC Network — Load Flow Sets Up This
+                        Problem</text>
+
+                    <!-- Gen Bus 1 -->
+                    <rect x="10" y="40" width="100" height="52" rx="8" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="60" y="62" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#c95f1a"
+                        font-weight="600">Generator</text>
+                    <text x="60" y="76" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Bus 1 (Slack)</text>
+                    <text x="60" y="88" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#c95f1a">|V|=1∠0°</text>
+
+                    <!-- Gen Bus 2 -->
+                    <rect x="10" y="130" width="100" height="52" rx="8" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="60" y="152" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648"
+                        font-weight="600">Generator</text>
+                    <text x="60" y="166" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#2d6648">Bus 2 (PV Bus)</text>
+                    <text x="60" y="178" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#2d6648">P,|V| known</text>
+
+                    <!-- Transmission network box -->
+                    <rect x="185" y="55" width="200" height="120" rx="10" fill="#f0e0cc" stroke="#ddc8b0"
+                        stroke-width="1.5" />
+                    <text x="285" y="95" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+                        fill="#3d2010" font-weight="700">Transmission</text>
+                    <text x="285" y="110" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+                        fill="#3d2010" font-weight="700">Network</text>
+                    <text x="285" y="128" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Y-BUS / Z-BUS</text>
+                    <text x="285" y="142" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Admittances known</text>
+                    <text x="285" y="156" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">KCL at each node</text>
+
+                    <!-- Load buses -->
+                    <rect x="460" y="40" width="110" height="52" rx="8" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="515" y="62" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#a05c00"
+                        font-weight="600">Load Bus 3</text>
+                    <text x="515" y="76" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">P, Q known</text>
+                    <text x="515" y="88" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">|V|, δ → Find!</text>
+
+                    <rect x="460" y="130" width="110" height="52" rx="8" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="515" y="152" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#1e6b68"
+                        font-weight="600">Load Bus 4</text>
+                    <text x="515" y="166" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">P, Q known</text>
+                    <text x="515" y="178" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">|V|, δ → Find!</text>
+
+                    <!-- Result arrow -->
+                    <rect x="595" y="85" width="95" height="60" rx="8" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.5" />
+                    <text x="642" y="107" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a2020"
+                        font-weight="600">Load Flow</text>
+                    <text x="642" y="120" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#9a2020"
+                        font-weight="600">Solution</text>
+                    <text x="642" y="136" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#9a2020">All V, δ, P, Q</text>
+
+                    <!-- Arrows -->
+                    <line x1="110" y1="66" x2="183" y2="90" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr)" />
+                    <line x1="110" y1="156" x2="183" y2="130" stroke="#2d6648" stroke-width="1.5"
+                        marker-end="url(#arr)" />
+                    <line x1="385" y1="90" x2="458" y2="66" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr)" />
+                    <line x1="385" y1="130" x2="458" y2="156" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr)" />
+                    <line x1="570" y1="107" x2="593" y2="107" stroke="#9a2020" stroke-width="1.5"
+                        marker-end="url(#arr)" />
+                </svg>
+                <div class="svg-cap">Fig 5.1 — Load flow: given network admittances + bus specifications (P, Q, |V|, δ),
+                    find the unknown quantities at every bus in steady state.</div>
+            </div>
+
+            <h3 class="sub">Why Do We Need Load Flow?</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Planning Applications</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Adding new generating stations to existing grid</li>
+                        <li><span class="dot">▸</span>Expanding transmission capacity</li>
+                        <li><span class="dot">▸</span>Locating new substations optimally</li>
+                        <li><span class="dot">▸</span>Voltage profile study across the network</li>
+                        <li><span class="dot">▸</span>Loss minimisation in distribution networks</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Operational Applications</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Real-time security assessment (contingency)</li>
+                        <li><span class="dot">▸</span>Economic dispatch and optimal power flow</li>
+                        <li><span class="dot">▸</span>Reactive power management (FACTS)</li>
+                        <li><span class="dot">▸</span>Checking whether outages cause overloads</li>
+                        <li><span class="dot">▸</span>Setting of relay coordination limits</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p>The system is modelled in <strong>balanced, steady-state, three-phase</strong> form. Each bus is
+                represented by its equivalent single-line (phase) diagram. The load flow equations are <strong>nonlinear
+                    algebraic equations</strong> (not differential equations) because we are at steady state — and this
+                is the fundamental challenge requiring iterative numerical solution.</p>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">GATE Insight — Why Steady-State Only?</div>
+                    <p>Load flow deals with steady-state conditions. Transient stability (rotor swing equations —
+                        differential), short-circuit (fault analysis), and small-signal stability are separate studies.
+                        GATE frequently tests whether students can distinguish these — load flow gives <strong>Δpₑ ≈
+                            0</strong> (small steady load variations ignored).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: BUS REPRESENTATION ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">5.2</span>
+                <h2 class="sec-t">Bus Representation — Four Variables per Node</h2>
+            </div>
+
+            <p>In a power system, each bus (node) is completely described by <strong>four electrical
+                    quantities</strong>. The entire load flow problem is about determining the unknown two from the
+                known two at each bus.</p>
+
+            <!-- Bus variable diagram -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+                    <text x="300" y="18" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Bus p — Four Electrical Variables</text>
+
+                    <!-- Central bus bar -->
+                    <line x1="220" y1="100" x2="380" y2="100" stroke="#3d2010" stroke-width="4" />
+                    <text x="300" y="120" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11"
+                        fill="#3d2010" font-weight="600">Bus p</text>
+
+                    <!-- P_p arrow -->
+                    <line x1="100" y1="80" x2="218" y2="80" stroke="#c95f1a" stroke-width="2" marker-end="url(#arr)" />
+                    <text x="90" y="77" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12"
+                        fill="#c95f1a">Pₚ</text>
+                    <text x="155" y="73" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#9a6e50">Real Power (MW)</text>
+
+                    <!-- Q_p arrow -->
+                    <line x1="100" y1="100" x2="218" y2="100" stroke="#2d6648" stroke-width="2"
+                        marker-end="url(#arr)" />
+                    <text x="90" y="97" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="12"
+                        fill="#2d6648">Qₚ</text>
+                    <text x="155" y="93" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#9a6e50">React. Power (MVAr)</text>
+
+                    <!-- |V| arrow -->
+                    <line x1="382" y1="80" x2="500" y2="80" stroke="#1e6b68" stroke-width="2" marker-end="url(#arr)" />
+                    <text x="510" y="83" text-anchor="start" font-family="JetBrains Mono,monospace" font-size="12"
+                        fill="#1e6b68">|Vₚ|</text>
+                    <text x="442" y="73" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#9a6e50">Voltage Magnitude</text>
+
+                    <!-- delta_p arrow -->
+                    <line x1="382" y1="100" x2="500" y2="100" stroke="#a05c00" stroke-width="2"
+                        marker-end="url(#arr)" />
+                    <text x="510" y="103" text-anchor="start" font-family="JetBrains Mono,monospace" font-size="12"
+                        fill="#a05c00">δₚ</text>
+                    <text x="442" y="93" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#9a6e50">Voltage Angle (rad)</text>
+
+                    <!-- Rule box -->
+                    <rect x="140" y="138" width="320" height="48" rx="8" fill="#f0e0cc" stroke="#ddc8b0"
+                        stroke-width="1.5" />
+                    <text x="300" y="158" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#3d2010"
+                        font-weight="600">Rule: 2 specified + 2 unknown = 4 per bus</text>
+                    <text x="300" y="175" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">Total unknowns in n-bus system = 2(n−1) [slack bus fixes 2]</text>
+                </svg>
+                <div class="svg-cap">Fig 5.2 — Each bus p has four variables: Pₚ, Qₚ, |Vₚ|, δₚ. Load flow specifies two
+                    and finds the other two.</div>
+            </div>
+
+            <p>For an n-bus power system, there are <strong>4n variables</strong> total. Load flow equations provide
+                <strong>2n nonlinear equations</strong>. With 2 quantities specified at each bus, the system has
+                <strong>2n unknowns</strong> and is fully determined (in theory). The slack bus is special — it
+                specifies both |V| and δ, supplying whatever P and Q is needed to balance losses.
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">Power Injected at Bus p (sum over all n buses)</div>
+                $$P_p = \sum_{q=1}^{n}|V_p||V_q|\big(G_{pq}\cos\delta_{pq} + B_{pq}\sin\delta_{pq}\big)$$
+                $$Q_p = \sum_{q=1}^{n}|V_p||V_q|\big(G_{pq}\sin\delta_{pq} - B_{pq}\cos\delta_{pq}\big)$$
+                <div style="font-size:12px;color:var(--muted);margin-top:6px;">where \(\delta_{pq} = \delta_p -
+                    \delta_q\), \(G_{pq}\) = conductance, \(B_{pq}\) = susceptance elements of Y-BUS</div>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">🔍</div>
+                <div class="cb">
+                    <div class="ct">Physical Meaning of these Equations</div>
+                    <p>These are simply KCL applied at each bus, converted from currents to powers using \(S_p = V_p
+                        I_p^*\). The nonlinearity arises from the product of voltage magnitudes and the trigonometric
+                        terms — which is why iterative methods are needed. A linearised version would give an easy
+                        matrix solution, but real power systems have significant nonlinearities that cannot be ignored.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: CLASSIFICATION OF BUSES ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">5.3</span>
+                <h2 class="sec-t">Classification of Buses <span class="prob prob-h">🟢 HIGH GATE</span></h2>
+            </div>
+
+            <p>Based on which two of the four variables are specified, buses are classified into three types.
+                Understanding this deeply is essential — it is the most frequently tested conceptual topic from load
+                flow in GATE and IES.</p>
+
+            <!-- Bus classification diagram -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+                    <text x="350" y="16" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Classification of Buses in Load Flow</text>
+
+                    <!-- Load Bus -->
+                    <rect x="20" y="30" width="195" height="155" rx="10" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="117" y="52" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+                        fill="#a05c00" font-weight="700">Load Bus (PQ Bus)</text>
+                    <text x="117" y="68" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#6b3e22">~90% of system buses</text>
+                    <rect x="40" y="78" width="155" height="24" rx="5" fill="#a05c00" />
+                    <text x="117" y="94" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="white" font-weight="600">Specified: Pₚ, Qₚ</text>
+                    <rect x="40" y="108" width="155" height="24" rx="5" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1" />
+                    <text x="117" y="124" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#c95f1a">Unknown: |Vₚ|, δₚ</text>
+                    <text x="117" y="150" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">Pure load nodes</text>
+                    <text x="117" y="165" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#6b3e22">No
+                        generation attached</text>
+                    <text x="117" y="179" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">Also: PD &amp; QD specified</text>
+
+                    <!-- Generator Bus -->
+                    <rect x="252" y="30" width="195" height="155" rx="10" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="349" y="52" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+                        fill="#2d6648" font-weight="700">Generator Bus (PV)</text>
+                    <text x="349" y="68" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#2d6648">Voltage-controlled bus</text>
+                    <rect x="272" y="78" width="155" height="24" rx="5" fill="#2d6648" />
+                    <text x="349" y="94" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="white" font-weight="600">Specified: Pₚ, |Vₚ|</text>
+                    <rect x="272" y="108" width="155" height="24" rx="5" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1" />
+                    <text x="349" y="124" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#2d6648">Unknown: Qₚ, δₚ</text>
+                    <text x="349" y="150" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#2d6648">AVR controls |V|</text>
+                    <text x="349" y="165" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">Q
+                        must stay in Q_min/Q_max</text>
+                    <text x="349" y="179" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#2d6648">If
+                        Q violates → becomes PQ</text>
+
+                    <!-- Slack Bus -->
+                    <rect x="484" y="30" width="200" height="155" rx="10" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="584" y="52" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+                        fill="#1e6b68" font-weight="700">Slack/Swing Bus</text>
+                    <text x="584" y="68" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#1e6b68">Reference bus (only 1)</text>
+                    <rect x="504" y="78" width="160" height="24" rx="5" fill="#1e6b68" />
+                    <text x="584" y="94" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="white" font-weight="600">Specified: |Vₚ|=1, δₚ=0°</text>
+                    <rect x="504" y="108" width="160" height="24" rx="5" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1" />
+                    <text x="584" y="124" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10"
+                        fill="#1e6b68">Unknown: Pₚ, Qₚ</text>
+                    <text x="584" y="150" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Balances real losses</text>
+                    <text x="584" y="165" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Largest generator used</text>
+                    <text x="584" y="179" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Angle reference for system</text>
+                </svg>
+                <div class="svg-cap">Fig 5.3 — Three bus types: Load Bus (PQ), Generator Bus (PV), and Slack/Reference
+                    Bus. In a real system ≈90% PQ, ≈10% PV, exactly 1 slack.</div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bus Type</th>
+                            <th>Specified (Known)</th>
+                            <th>Unknown (Find)</th>
+                            <th>Typical %</th>
+                            <th>Physical Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Load Bus (PQ)</td>
+                            <td class="t-amb">P_D, Q_D</td>
+                            <td class="t-org">|V|, δ</td>
+                            <td class="t-org">~90%</td>
+                            <td>Pure load; no generator; voltage floats</td>
+                        </tr>
+                        <tr>
+                            <td>Generator Bus (PV)</td>
+                            <td class="t-grn">P_G, |V|</td>
+                            <td class="t-grn">Q_G, δ</td>
+                            <td class="t-grn">~10%</td>
+                            <td>AVR holds voltage; governor sets real power</td>
+                        </tr>
+                        <tr>
+                            <td>Slack/Swing Bus</td>
+                            <td class="t-tel">|V|=1∠0°</td>
+                            <td class="t-tel">P, Q</td>
+                            <td class="t-tel">1 bus</td>
+                            <td>Absorbs P/Q imbalance including line losses</td>
+                        </tr>
+                        <tr>
+                            <td>Voltage-Controlled Bus</td>
+                            <td>P, |V|</td>
+                            <td>Q=0 (net)</td>
+                            <td>Special</td>
+                            <td>Shunt capacitor/reactor + slack; net Q=0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S4: SLACK BUS ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">5.4</span>
+                <h2 class="sec-t">Importance of the Slack Bus — Why It Must Exist</h2>
+            </div>
+
+            <p>Students often wonder: why can't we specify P and Q for all buses? The answer lies in a fundamental
+                problem of power system physics — <strong>line losses are unknown before the load flow is
+                    solved</strong>.</p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">The Core Problem with Specifying All Buses</div>
+                    <p>In balanced steady-state: Generation = Load + Losses. But \(P_L = I^2 R\) requires current, which
+                        requires voltages — which are unknown before solving! The slack bus acts as a <strong>"power
+                            buffer"</strong> that automatically supplies whatever P and Q is needed to satisfy KCL
+                        everywhere, including all losses.</p>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Power Balance at Slack Bus — after solution</div>
+                $$\sum P_{PG} - \sum P_{Pd} = P_L \quad \text{(transmission losses)}$$
+                $$\sum Q_{PG} - \sum Q_{Pd} = Q_L \quad \text{(reactive losses)}$$
+            </div>
+
+            <h3 class="sub">Why Choose the Largest Generator as Slack Bus?</h3>
+            <p>The slack bus absorbs P and Q imbalances due to losses. A small generator might not have enough
+                generation capacity to supply these — it would violate its limits and the load flow would diverge. The
+                <strong>largest generator</strong> has the widest P and Q operating range, so it can tolerate the widest
+                variation in unknown generation, making the solution more robust.
+            </p>
+
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Slack Bus Properties</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Exactly <strong>one</strong> slack bus per power system</li>
+                        <li><span class="dot">▸</span>Angle δ = 0° (reference; all other angles measured from this)</li>
+                        <li><span class="dot">▸</span>|V| = 1.0 p.u. (controlled by AVR of generator)</li>
+                        <li><span class="dot">▸</span>P and Q are both unknown — found after solution</li>
+                        <li><span class="dot">▸</span>Selection of slack bus affects convergence (GS method)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Voltage-Controlled Bus (Special)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Load bus with shunt capacitor or inductor added</li>
+                        <li><span class="dot">▸</span>Capacitor supplies Q → voltage rises; Inductor absorbs Q → voltage
+                            falls</li>
+                        <li><span class="dot">▸</span>Net reactive power at bus = 0 (self-compensated)</li>
+                        <li><span class="dot">▸</span>Specified: P_p, |V_p| &nbsp;|&nbsp; Unknowns: δ_p, Q=0</li>
+                        <li><span class="dot">▸</span>Used in industrial feeders and distribution networks</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S5: Y-BUS FORMATION ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">5.5</span>
+                <h2 class="sec-t">Y-BUS (Bus Admittance Matrix) — Formation <span class="prob prob-h">🟢 HIGH
+                        GATE</span></h2>
+            </div>
+
+            <p>The Y-BUS matrix is the mathematical backbone of load flow. It captures how every bus is connected to
+                every other bus through the network admittances. Think of it as the "connectivity fingerprint" of the
+                power system.</p>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Intuitive Analogy — City Road Network</div>
+                    <p>Imagine buses are cities. Y-BUS is like a toll-road connectivity map: the diagonal entry
+                        (self-admittance) at city A is the total "connectivity" of all roads meeting at A. The
+                        off-diagonal entry between A and B is the negative of the direct road admittance from A to B. If
+                        there's no road → entry is zero → sparse matrix!</p>
+                </div>
+            </div>
+
+            <!-- Y-BUS construction diagram -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="arr2" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+                            <polygon points="0 0,7 2.5,0 5" fill="#c95f1a" />
+                        </marker>
+                    </defs>
+                    <text x="350" y="16" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">2-Bus Network → Y-BUS Formation (π-model)</text>
+
+                    <!-- Bus 1 -->
+                    <circle cx="100" cy="130" r="20" fill="#fdebd8" stroke="#c95f1a" stroke-width="2" />
+                    <text x="100" y="135" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12"
+                        fill="#c95f1a" font-weight="700">1</text>
+                    <text x="100" y="165" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#6b3e22">V₁</text>
+
+                    <!-- Shunt y₁₂/2 at bus 1 -->
+                    <line x1="100" y1="150" x2="100" y2="210" stroke="#9a6e50" stroke-width="1.5" />
+                    <rect x="85" y="213" width="30" height="12" fill="none" stroke="#9a6e50" stroke-width="1.5" />
+                    <rect x="85" y="228" width="30" height="12" fill="none" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="100" y1="240" x2="100" y2="255" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="85" y1="258" x2="115" y2="258" stroke="#9a6e50" stroke-width="2" />
+                    <line x1="90" y1="262" x2="110" y2="262" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="95" y1="266" x2="105" y2="266" stroke="#9a6e50" stroke-width="1" />
+                    <text x="130" y="225" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">y₁₂/2</text>
+                    <text x="130" y="238" font-family="Lora,serif" font-size="9" fill="#9a6e50">shunt cap</text>
+
+                    <!-- Series element z₁₂ -->
+                    <line x1="120" y1="130" x2="200" y2="130" stroke="#3d2010" stroke-width="1.5" />
+                    <!-- resistor symbol -->
+                    <rect x="200" y="122" width="50" height="16" rx="3" fill="none" stroke="#3d2010"
+                        stroke-width="1.5" />
+                    <text x="225" y="133" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#3d2010">z₁₂=R+jX</text>
+                    <text x="225" y="115" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#9a6e50">Series element</text>
+                    <line x1="250" y1="130" x2="335" y2="130" stroke="#3d2010" stroke-width="1.5" />
+
+                    <!-- Shunt y₁₂/2 at bus 2 -->
+                    <line x1="335" y1="130" x2="335" y2="210" stroke="#9a6e50" stroke-width="1.5" />
+                    <rect x="320" y="213" width="30" height="12" fill="none" stroke="#9a6e50" stroke-width="1.5" />
+                    <rect x="320" y="228" width="30" height="12" fill="none" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="335" y1="240" x2="335" y2="255" stroke="#9a6e50" stroke-width="1.5" />
+                    <line x1="320" y1="258" x2="350" y2="258" stroke="#9a6e50" stroke-width="2" />
+                    <text x="360" y="225" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a6e50">y₁₂/2</text>
+
+                    <!-- Bus 2 -->
+                    <circle cx="355" cy="130" r="20" fill="#dff0e8" stroke="#2d6648" stroke-width="2" />
+                    <text x="355" y="135" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12"
+                        fill="#2d6648" font-weight="700">2</text>
+                    <text x="355" y="165" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#2d6648">V₂</text>
+
+                    <!-- Y-BUS matrix result -->
+                    <rect x="450" y="70" width="235" height="180" rx="10" fill="#f8ede0" stroke="#ddc8b0"
+                        stroke-width="1.5" />
+                    <text x="567" y="92" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+                        fill="#1e1208" font-weight="700">Y-BUS Result</text>
+
+                    <text x="468" y="115" font-family="JetBrains Mono,monospace" font-size="9" fill="#1e6b68"
+                        font-weight="600">Y₁₁ = y₁₂ + y₁₂'/2</text>
+                    <text x="468" y="130" font-family="JetBrains Mono,monospace" font-size="9" fill="#6b3e22">(Self —
+                        sum of all admittances at bus 1)</text>
+
+                    <text x="468" y="152" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a2020"
+                        font-weight="600">Y₁₂ = Y₂₁ = −y₁₂</text>
+                    <text x="468" y="167" font-family="JetBrains Mono,monospace" font-size="9" fill="#6b3e22">(Mutual —
+                        negative of series admittance)</text>
+
+                    <text x="468" y="189" font-family="JetBrains Mono,monospace" font-size="9" fill="#1e6b68"
+                        font-weight="600">Y₂₂ = y₁₂ + y₁₂'/2</text>
+                    <text x="468" y="204" font-family="JetBrains Mono,monospace" font-size="9" fill="#6b3e22">(Self —
+                        sum at bus 2)</text>
+
+                    <text x="468" y="226" font-family="JetBrains Mono,monospace" font-size="8" fill="#1e6b68">where
+                        y₁₂=1/z₁₂=G−jB (series admittance)</text>
+                    <text x="468" y="240" font-family="JetBrains Mono,monospace" font-size="8" fill="#9a6e50">y₁₂' =
+                        line charge susceptance (shunt cap)</text>
+
+                    <!-- Arrow -->
+                    <line x1="390" y1="130" x2="445" y2="130" stroke="#c95f1a" stroke-width="2"
+                        marker-end="url(#arr)" />
+                    <text x="417" y="122" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="#c95f1a"
+                        font-style="italic">Apply KCL</text>
+                </svg>
+                <div class="svg-cap">Fig 5.4 — π-model of transmission line with series impedance z₁₂ and half shunt
+                    capacitances at each bus. Applying KCL gives the Y-BUS entries.</div>
+            </div>
+
+            <h3 class="sub">Formal Rules for Y-BUS Construction</h3>
+            <div class="fblock"><span class="flbl">Y-BUS Formation Rules — Memorise These</span><span
+                    class="fh">Diagonal (Self-Admittance):</span>
+                <span class="feq"> Y_pp = Σ(all admittances connected to bus p, including shunt elements)</span>
+                <span class="feq"> Y_pp = y_p0 + Σ y_pq (sum over all buses q connected to p)</span>
+                <span class="fh">Off-Diagonal (Mutual Admittance):</span>
+                <span class="feq"> Y_pq = −y_pq (negative of the admittance of element between bus p and q)</span>
+                <span class="feq"> Y_pq = 0 (if there is no direct element between buses p and q)</span>
+                <span class="fh">Note:</span>
+                → Y-BUS is SYMMETRIC (Y_pq = Y_qp) — because network is bilateral
+                → Diagonal entries are LARGE in magnitude
+                → Off-diagonal entries are SMALL (≤ diagonal) in magnitude
+                → If no shunt elements: det(Y-BUS) = 0 → singular matrix!
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Critical: When is Y-BUS Singular?</div>
+                    <p>When there are <strong>no shunt elements</strong> at any bus (no capacitors, inductors, or ground
+                        connections), the sum of every row of Y-BUS = 0. This means the determinant = 0 →
+                        <strong>singular matrix</strong>. Physical meaning: without any path to ground, the voltage
+                        reference is undefined, so the node voltages cannot be uniquely determined. Shunt elements break
+                        this singularity.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: PROPERTIES OF Y-BUS ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">5.6</span>
+                <h2 class="sec-t">Properties of Y-BUS — Sparse Matrix &amp; Memory</h2>
+            </div>
+
+            <p>In a real power system with hundreds or thousands of buses, the Y-BUS matrix has a special structure that
+                makes it computationally efficient to handle: it is <strong>sparse</strong>.</p>
+
+            <div class="callout c-key">
+                <div class="ci">📊</div>
+                <div class="cb">
+                    <div class="ct">Why Y-BUS is Sparse</div>
+                    <p>In a large power system network, each bus is typically connected to only 2–5 other buses, not to
+                        all n buses. So for an n-bus system with n² possible entries, the vast majority of off-diagonal
+                        entries are <strong>zero</strong>. In practice, 90% or more of a large Y-BUS is zero — this is
+                        called a <strong>sparse matrix</strong>.</p>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Sparsity and Number of Transmission Lines</div>
+                $$\text{Size of } Y_{BUS} = n \times n$$
+                $$\text{Non-zero elements} = (1-s)\times n^2 \quad \text{where } s = \text{sparsity fraction}$$
+                $$\text{Diagonal elements} = n \quad \text{(always non-zero)}$$
+                $$\text{Mutual elements (non-zero)} = 2 \times \text{(number of lines)} \quad \text{(bilateral)}$$
+                $$\therefore \text{Min. number of lines} = \frac{\text{non-zero mutual}}{2}$$
+            </div>
+
+            <!-- Example 5.1 from PDF -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 5.1</span>
+                    <span class="ex-title">Y-BUS Sparsity — Finding Minimum Number of Transmission Lines</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 20-bus power system has a Y-BUS matrix that is 80% sparse. Find the minimum
+                        number of transmission lines existing in the system.</div>
+                    <div class="sol-lbl">▸ Solution</div>
+                    <p>Size of Y-BUS = 20 × 20 = 400 elements</p>
+                    <div class="math-block">
+                        <div class="math-lbl">Step 1: Non-zero elements</div>
+                        $$\text{Non-zero} = (1 - 0.80) \times 400 = 0.20 \times 400 = 80$$
+                    </div>
+                    <div class="math-block">
+                        <div class="math-lbl">Step 2: Separate diagonal and mutual</div>
+                        $$\text{Diagonal (self)} = 20 \quad\text{(one per bus, always non-zero)}$$
+                        $$\text{Mutual (non-zero)} = 80 - 20 = 60$$
+                    </div>
+                    <div class="math-block">
+                        <div class="math-lbl">Step 3: Lines = Mutual / 2 (Y_pq = Y_qp)</div>
+                        $$\text{Min. lines} = \frac{60}{2} = \boxed{30}$$
+                    </div>
+                    <p style="color:var(--teal);font-size:13.5px;margin-top:6px;"><strong>Key insight:</strong> Each
+                        transmission line between two buses contributes exactly 2 non-zero off-diagonal entries (Y_pq
+                        and Y_qp). So divide mutual count by 2.</p>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 5.2</span>
+                    <span class="ex-title">100-Bus System — 90% Sparse</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 100-bus power system has Y-BUS that is 90% sparse. Find the minimum number of
+                        transmission lines.</div>
+                    <div class="sol-lbl">▸ Solution</div>
+                    <div class="math-block">
+                        $$Y_{BUS} = 100 \times 100 = 10^4 \text{ elements}$$
+                        $$\text{Non-zero} = 0.10 \times 10^4 = 1000$$
+                        $$\text{Mutual} = 1000 - 100 = 900$$
+                        $$\text{Min. lines} = \frac{900}{2} = \boxed{450}$$
+                    </div>
+                </div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Y-BUS</th>
+                            <th>Z-BUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Memory requirement</td>
+                            <td class="t-grn">Low (sparse)</td>
+                            <td class="t-red">High (full matrix)</td>
+                        </tr>
+                        <tr>
+                            <td>Primary use</td>
+                            <td class="t-grn">Load flow studies</td>
+                            <td class="t-org">Short circuit / fault studies</td>
+                        </tr>
+                        <tr>
+                            <td>Shunt elements</td>
+                            <td>Included</td>
+                            <td>Ignored (short circuit)</td>
+                        </tr>
+                        <tr>
+                            <td>Sparsity</td>
+                            <td class="t-grn">90%+ zero</td>
+                            <td class="t-red">Mostly non-zero</td>
+                        </tr>
+                        <tr>
+                            <td>Symmetry</td>
+                            <td>Symmetric</td>
+                            <td>Symmetric</td>
+                        </tr>
+                        <tr>
+                            <td>Relation</td>
+                            <td colspan="2">\(Z_{BUS} = Y_{BUS}^{-1}\) (but this destroys sparsity!)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S7: MODIFICATION OF Y-BUS ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">5.7</span>
+                <h2 class="sec-t">Modification of Y-BUS — Adding/Removing Elements <span class="prob prob-m">🟡
+                        MEDIUM</span></h2>
+            </div>
+
+            <p>A key practical advantage of Y-BUS is that additions and removals of network elements require
+                <strong>only local changes</strong> — the rest of the matrix remains unchanged. This makes contingency
+                analysis (what if a line is removed?) extremely efficient.
+            </p>
+
+            <div class="fblock"><span class="flbl">Y-BUS Modification Rules</span><span class="fh">Case 1: Remove line
+                    between buses p and q (mutual admittance y_pq)</span>
+                Y₁₂ = Y₂₁ = 0 (mutual becomes zero)
+                Y₁₁_mod = Y₁₁_old − y_pq (self at p reduces)
+                Y₂₂_mod = Y₂₂_old − y_pq (self at q reduces)
+
+                <span class="fh">Case 2: Add external shunt element (admittance y₀₁) at bus 1</span>
+                Y₁₁_mod = Y₁₁_old + y₀₁ (self at bus 1 increases)
+
+                <span class="fh">Case 3: Add new transmission line between existing buses p and q</span>
+                Y₁₁_mod = Y₁₁_old + y₁₂(new)
+                Y₂₂_mod = Y₂₂_old + y₂₁(new)
+                Y₁₂_mod = Y₁₂_old − y₁₂(new)
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Memory Rule — "Self Adds, Mutual Negates"</div>
+                    <p>Adding any admittance element always <strong>increases</strong> the self-admittance entries of
+                        the buses it connects. Removing an element <strong>decreases</strong> them. Mutual admittances
+                        are always the <strong>negative</strong> of the added element's admittance. If connecting to the
+                        reference (ground), only self-admittance changes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S8: Z-BUS CONSTRUCTION ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">5.8</span>
+                <h2 class="sec-t">Bus Impedance Matrix (Z-BUS) — Construction <span class="prob prob-m">🟡 MEDIUM</span>
+                </h2>
+            </div>
+
+            <p>While Y-BUS is used for load flow, Z-BUS is used for <strong>short-circuit (fault) current
+                    calculations</strong>. The diagonal element Z_pp gives the Thevenin impedance seen at bus p, which
+                directly gives the fault current: \(I_f = V/Z_{pp}\).</p>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Key Distinction from Y-BUS Construction</div>
+                    <p>In Y-BUS: all buses are considered simultaneously (KCL at all nodes at once). In Z-BUS
+                        construction: <strong>one element is added at a time</strong>, starting from the reference bus.
+                        This is because a fault at one bus affects voltages everywhere — so single-element-at-a-time
+                        construction captures this coupling systematically.</p>
+                </div>
+            </div>
+
+            <!-- Z-BUS construction diagram -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+                    <text x="350" y="16" text-anchor="middle" font-family="Playfair Display,serif" font-size="13"
+                        fill="#1e1208" font-weight="700">Z-BUS Construction — Two Cases: Branch vs Link</text>
+
+                    <!-- Case (i): Branch addition -->
+                    <rect x="10" y="28" width="320" height="200" rx="10" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="170" y="48" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#a05c00"
+                        font-weight="700">Case (i): Branch Addition</text>
+                    <text x="170" y="63" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">New bus q added → size increases by 1</text>
+
+                    <!-- Existing network box -->
+                    <rect x="30" y="75" width="100" height="80" rx="6" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1" />
+                    <text x="80" y="110" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">Existing</text>
+                    <text x="80" y="124" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">Network</text>
+                    <!-- buses 0,1,2 -->
+                    <line x1="130" y1="90" x2="155" y2="90" stroke="#9a6e50" stroke-width="1.5" />
+                    <circle cx="160" cy="90" r="6" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5" />
+                    <text x="172" y="94" font-family="JetBrains Mono,monospace" font-size="9" fill="#2d6648">p</text>
+                    <line x1="130" y1="115" x2="155" y2="115" stroke="#9a6e50" stroke-width="1.5" />
+                    <circle cx="160" cy="115" r="6" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5" />
+
+                    <!-- New branch -->
+                    <line x1="166" y1="90" x2="220" y2="90" stroke="#c95f1a" stroke-width="2" stroke-dasharray="5,3" />
+                    <rect x="222" y="83" width="40" height="14" rx="3" fill="none" stroke="#c95f1a"
+                        stroke-width="1.5" />
+                    <text x="242" y="93" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#c95f1a">z_pq</text>
+                    <line x1="262" y1="90" x2="285" y2="90" stroke="#c95f1a" stroke-width="2" stroke-dasharray="5,3" />
+                    <circle cx="290" cy="90" r="8" fill="#fdebd8" stroke="#c95f1a" stroke-width="2" />
+                    <text x="290" y="94" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#c95f1a" font-weight="700">q</text>
+                    <text x="290" y="110" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#c95f1a">New
+                        bus!</text>
+
+                    <text x="170" y="145" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">Mutual: Z_qi = Z_pi (i≠q)</text>
+                    <text x="170" y="160" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#a05c00">Self: Z_qq = Z_pp + z_pq</text>
+                    <text x="170" y="180" text-anchor="middle" font-family="Lora,serif" font-size="9" fill="#6b3e22">If
+                        p = ref bus: Z_qi=0, Z_qq=z_pq</text>
+                    <text x="170" y="196" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#6b3e22">Z-BUS size: (n+1)×(n+1)</text>
+
+                    <!-- Case (ii): Link addition -->
+                    <rect x="370" y="28" width="320" height="200" rx="10" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="530" y="48" text-anchor="middle" font-family="Lora,serif" font-size="11" fill="#1e6b68"
+                        font-weight="700">Case (ii): Link Addition</text>
+                    <text x="530" y="63" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">No new bus → size stays n×n but modified</text>
+
+                    <!-- Network -->
+                    <rect x="390" y="75" width="100" height="80" rx="6" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1" />
+                    <text x="440" y="110" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Existing</text>
+                    <text x="440" y="124" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">Network</text>
+                    <line x1="490" y1="90" x2="515" y2="90" stroke="#9a6e50" stroke-width="1.5" />
+                    <circle cx="520" cy="90" r="6" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5" />
+                    <text x="530" y="94" font-family="JetBrains Mono,monospace" font-size="9" fill="#2d6648">q</text>
+                    <line x1="490" y1="130" x2="515" y2="130" stroke="#9a6e50" stroke-width="1.5" />
+                    <circle cx="520" cy="130" r="6" fill="#dff0e8" stroke="#2d6648" stroke-width="1.5" />
+                    <text x="530" y="134" font-family="JetBrains Mono,monospace" font-size="9" fill="#2d6648">p</text>
+                    <!-- Link arrow connecting existing buses -->
+                    <path d="M 520 96 Q 570 110 520 124" fill="none" stroke="#c95f1a" stroke-width="2"
+                        stroke-dasharray="5,3" marker-end="url(#arr2)" />
+                    <text x="572" y="114" font-family="JetBrains Mono,monospace" font-size="8"
+                        fill="#c95f1a">z_pl</text>
+                    <text x="572" y="125" font-family="Lora,serif" font-size="8" fill="#c95f1a">Link</text>
+
+                    <text x="530" y="155" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">1. Add link bus ℓ temporarily</text>
+                    <text x="530" y="170" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">2. Compute (n+1)×(n+1) Z_aug</text>
+                    <text x="530" y="185" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">3. Eliminate ℓ-row/col by Kron</text>
+                    <text x="530" y="200" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">Z_mod = Z_old − [Z_li][Z_il]/Z_ll</text>
+                    <text x="530" y="218" text-anchor="middle" font-family="Lora,serif" font-size="9"
+                        fill="#1e6b68">Z-BUS size stays n×n</text>
+                </svg>
+                <div class="svg-cap">Fig 5.5 — Z-BUS construction: Case (i) Branch (creates new bus, size increases),
+                    Case (ii) Link (connects existing buses, Kron reduction needed, size stays same).</div>
+            </div>
+
+            <h3 class="sub">Kron Reduction — Eliminating the Link Bus</h3>
+            <div class="math-block">
+                <div class="math-lbl">Modified Z-BUS after Kron Reduction (Link Case)</div>
+                $$Z_{BUS,mod} = Z_{BUS,old} - \frac{[Z_{l\,i}][Z_{il}]}{Z_{ll}}$$
+                <div style="font-size:12px;color:var(--muted);margin-top:6px;">where subscript ℓ = link bus, i = any bus
+                    index, \(Z_{ll}\) = self impedance of link bus</div>
+            </div>
+
+            <!-- Worked example Z-BUS fault current -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 5.3</span>
+                    <span class="ex-title">3-Phase Fault Current from Z-BUS</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">The Z-BUS of a system is:
+                        \(Z_{BUS} = \begin{bmatrix} 0.1 & 0.1 & 0.1 \\ 0.1 & 0.2 & 0.1 \\ 0.1 & 0.1 & 0.3 \end{bmatrix}
+                        \text{ p.u.}\)
+                        A 3-phase fault occurs at Bus 2. Find the fault current (p.u.).</div>
+                    <div class="sol-lbl">▸ Solution</div>
+                    <p>For a 3-phase symmetrical fault at bus k, the fault current is:</p>
+                    <div class="math-block">
+                        $$I_f = \frac{E_{R1}}{Z_{kk}} = \frac{V_{pre-fault}}{Z_{kk}}$$
+                    </div>
+                    <p>Pre-fault voltage \(E_{R1} = 1.0\) p.u. (assume flat start)</p>
+                    <p>For fault at Bus 2: use \(Z_{22} = 0.2\) p.u. (diagonal element)</p>
+                    <div class="math-block">
+                        $$I_f = \frac{1.0}{0.2} = \boxed{5.0 \text{ p.u.}}$$
+                    </div>
+                    <p style="color:var(--teal);font-size:13.5px;"><strong>Key rule:</strong> Fault current at bus k =
+                        pre-fault voltage ÷ Z_kk (Thevenin impedance at bus k). This is why Z-BUS is essential for fault
+                        analysis.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S9: GAUSS-SEIDEL ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">5.9</span>
+                <h2 class="sec-t">Gauss-Seidel Load Flow Method <span class="prob prob-h">🟢 HIGH GATE</span></h2>
+            </div>
+
+            <p>The Gauss-Seidel (GS) method solves the load flow equations iteratively, updating one bus voltage at a
+                time using the most recently computed values. It is simple to program but converges slowly for large
+                systems.</p>
+
+            <div class="callout c-info">
+                <div class="ci">🔍</div>
+                <div class="cb">
+                    <div class="ct">Physical Intuition — How GS Converges</div>
+                    <p>Imagine adjusting voltages bus by bus in a round-robin fashion. Each bus looks at its neighbours'
+                        most recent voltages and adjusts itself to satisfy KCL (power balance). After many rounds
+                        (iterations), all buses are simultaneously satisfied and the solution has converged. It's like a
+                        committee that keeps revising decisions based on others' latest choices until everyone agrees.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">GS Iteration Formula</h3>
+            <p>For a PQ (Load) bus p at iteration k+1:</p>
+            <div class="math-block">
+                <div class="math-lbl">Gauss-Seidel Voltage Update at PQ Bus</div>
+                $$V_p^{(k+1)} = \frac{1}{Y_{pp}}\left[\frac{P_p - jQ_p}{(V_p^{(k)})^*} - \sum_{\substack{q=1\\q\neq
+                p}}^{n} Y_{pq} V_q^{(k+1,\text{updated})}\right]$$
+            </div>
+
+            <p>For a PV (Generator) bus, the reactive power Q must be <em>calculated</em> each iteration (since it is
+                unknown), and the voltage magnitude is corrected back to the specified value after each update.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Q Calculation at PV Bus (from current iteration voltage)</div>
+                $$Q_p^{(k+1)} = -\text{Im}\left[(V_p^{(k)})^*\sum_{q=1}^{n}Y_{pq}V_q^{(k)}\right]$$
+            </div>
+
+            <h3 class="sub">Convergence Criterion</h3>
+            <div class="fblock"><span class="flbl">GS Convergence Check (Quadratic Criterion)</span><span class="fh">For
+                    PQ buses:</span>
+                ΔVₚ = |Vₚᵏ| − |Vₚᵏ⁻¹| (magnitude change must be below ε)
+                ε ≈ 0.0001 to 0.001 p.u. (typical tolerance)
+
+                <span class="fh">For PV buses:</span>
+                ΔQₚ = Qₚ_spec − Qₚ_calc (Q mismatch must be below ε)
+
+                <span class="fh">Accelerating Convergence:</span>
+                V_new = V_old + α·(V_GS − V_old)
+                α = acceleration factor, typically α ≈ 1.4–1.6 for power systems
+                α = 1 → pure GS; α &gt; 1 → over-relaxation (faster)
+                α too large → divergence!
+            </div>
+
+            <!-- GS algorithm flowchart -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 480 460" xmlns="http://www.w3.org/2000/svg">
+                    <text x="240" y="16" text-anchor="middle" font-family="Playfair Display,serif" font-size="12"
+                        fill="#1e1208" font-weight="700">Gauss-Seidel Load Flow — Algorithm Flowchart</text>
+
+                    <!-- Start -->
+                    <ellipse cx="240" cy="38" rx="70" ry="14" fill="#c95f1a" stroke="none" />
+                    <text x="240" y="42" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="white"
+                        font-weight="600">START</text>
+
+                    <line x1="240" y1="52" x2="240" y2="64" stroke="#c95f1a" stroke-width="1.5"
+                        marker-end="url(#arr)" />
+
+                    <!-- Step 1 -->
+                    <rect x="130" y="64" width="220" height="30" rx="6" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="240" y="81" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">Form Y-BUS matrix</text>
+
+                    <line x1="240" y1="94" x2="240" y2="106" stroke="#9a6e50" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+
+                    <!-- Step 2 -->
+                    <rect x="120" y="106" width="240" height="30" rx="6" fill="#fdebd8" stroke="#f0b48a"
+                        stroke-width="1.5" />
+                    <text x="240" y="123" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#c95f1a">Set V=1∠0° (flat start) for all buses</text>
+
+                    <line x1="240" y1="136" x2="240" y2="148" stroke="#9a6e50" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+
+                    <!-- Step 3 -->
+                    <rect x="120" y="148" width="240" height="30" rx="6" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="240" y="165" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#2d6648">Set iteration counter k = 0</text>
+
+                    <line x1="240" y1="178" x2="240" y2="190" stroke="#9a6e50" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+
+                    <!-- Loop -->
+                    <rect x="100" y="190" width="280" height="38" rx="6" fill="#d8eeed" stroke="#7ec4c2"
+                        stroke-width="1.5" />
+                    <text x="240" y="206" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#1e6b68">For each PQ bus p: update V_p^(k+1)</text>
+                    <text x="240" y="222" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#1e6b68">using GS voltage update formula</text>
+
+                    <line x1="240" y1="228" x2="240" y2="240" stroke="#9a6e50" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+
+                    <rect x="100" y="240" width="280" height="38" rx="6" fill="#fef0d0" stroke="#f0c060"
+                        stroke-width="1.5" />
+                    <text x="240" y="256" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#a05c00">For each PV bus: calc Q, check limits,</text>
+                    <text x="240" y="272" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#a05c00">fix |V|, update angle δ</text>
+
+                    <line x1="240" y1="278" x2="240" y2="290" stroke="#9a6e50" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+
+                    <!-- Convergence check diamond -->
+                    <polygon points="240,290 330,320 240,350 150,320" fill="#fde8e8" stroke="#e89090"
+                        stroke-width="1.5" />
+                    <text x="240" y="316" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#9a2020">|ΔV| ≤ ε</text>
+                    <text x="240" y="330" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#9a2020">for all buses?</text>
+
+                    <!-- No → loop back -->
+                    <text x="338" y="318" font-family="Lora,serif" font-size="10" fill="#9a2020">No</text>
+                    <line x1="330" y1="320" x2="420" y2="320" stroke="#9a2020" stroke-width="1.5" />
+                    <line x1="420" y1="320" x2="420" y2="215" stroke="#9a2020" stroke-width="1.5" />
+                    <line x1="420" y1="215" x2="382" y2="215" stroke="#9a2020" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+                    <text x="425" y="260" font-family="JetBrains Mono,monospace" font-size="9"
+                        fill="#9a2020">k=k+1</text>
+
+                    <!-- Yes -->
+                    <text x="148" y="318" text-anchor="end" font-family="Lora,serif" font-size="10"
+                        fill="#2d6648">Yes</text>
+                    <line x1="150" y1="320" x2="240" y2="350" stroke="#2d6648" stroke-width="1.5" />
+
+                    <line x1="240" y1="350" x2="240" y2="362" stroke="#2d6648" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+                    <rect x="120" y="362" width="240" height="30" rx="6" fill="#dff0e8" stroke="#8ecaaa"
+                        stroke-width="1.5" />
+                    <text x="240" y="382" text-anchor="middle" font-family="Lora,serif" font-size="10"
+                        fill="#2d6648">Compute P, Q flows and losses</text>
+
+                    <line x1="240" y1="392" x2="240" y2="404" stroke="#2d6648" stroke-width="1.5"
+                        marker-end="url(#arr2)" />
+                    <ellipse cx="240" cy="420" rx="70" ry="14" fill="#2d6648" stroke="none" />
+                    <text x="240" y="424" text-anchor="middle" font-family="Lora,serif" font-size="10" fill="white"
+                        font-weight="600">SOLUTION</text>
+                </svg>
+                <div class="svg-cap">Fig 5.6 — Gauss-Seidel load flow algorithm. Flat start: all voltages = 1∠0°.
+                    Iterates until convergence criterion |ΔV| ≤ ε is satisfied at all buses.</div>
+            </div>
+        </div>
+
+        <!-- ═══ S10: NEWTON-RAPHSON ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">5.10</span>
+                <h2 class="sec-t">Newton-Raphson Method — Jacobian Approach <span class="prob prob-h">🟢 HIGH
+                        GATE</span></h2>
+            </div>
+
+            <p>The Newton-Raphson (NR) method is the <strong>industry-standard load flow algorithm</strong> used in all
+                modern power system simulators. It linearises the power flow equations at each iteration using the
+                Jacobian matrix, and converges quadratically — meaning the number of correct decimal places roughly
+                doubles each iteration.</p>
+
+            <div class="callout c-info">
+                <div class="ci">🧮</div>
+                <div class="cb">
+                    <div class="ct">Intuition — Newton-Raphson as a Tangent Approximation</div>
+                    <p>Imagine trying to find where a curved graph crosses zero. At each step, you draw the
+                        <em>tangent</em> to the curve and find where that tangent crosses zero — this is your next
+                        guess. For smooth power flow curves, this tangent-following converges very quickly
+                        (quadratically). The Jacobian matrix is the multi-variable version of this derivative/tangent.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">NR Load Flow Equations in Matrix Form</h3>
+            <div class="math-block">
+                <div class="math-lbl">Newton-Raphson Linearised System (Polar Form)</div>
+                $$\begin{bmatrix} \Delta P \\ \Delta Q \end{bmatrix} = \begin{bmatrix} J_1 & J_2 \\ J_3 & J_4
+                \end{bmatrix} \begin{bmatrix} \Delta\delta \\ \Delta|V|/|V| \end{bmatrix}$$
+            </div>
+
+            <div class="fblock"><span class="flbl">Jacobian Sub-matrices — Physical Meaning</span><span class="fh">J₁ =
+                    ∂P/∂δ (n-1) × (n-1)</span>
+                <span class="feq"> How real power changes with phase angle changes</span>
+                <span class="fh">J₂ = ∂P/∂|V| (n-1) × m</span>
+                <span class="feq"> How real power changes with voltage magnitude changes</span>
+                <span class="fh">J₃ = ∂Q/∂δ m × (n-1)</span>
+                <span class="feq"> How reactive power changes with phase angle changes</span>
+                <span class="fh">J₄ = ∂Q/∂|V| m × m</span>
+                <span class="feq"> How reactive power changes with voltage magnitude changes</span>
+
+                <span class="fh">Size of full Jacobian:</span>
+                (n-1 + m) × (n-1 + m)
+                n = total buses, m = number of PQ buses (voltage magnitude unknowns)
+                (n-1) = angle unknowns (exclude slack bus angle δ₁ = 0)
+            </div>
+
+            <h3 class="sub">NR Convergence Criterion</h3>
+            <div class="math-block">
+                <div class="math-lbl">NR Mismatch Check (Power Mismatch)</div>
+                $$\Delta P_p = P_{p,\text{spec}} - P_{p,\text{calc}} \leq \varepsilon$$
+                $$\Delta Q_p = Q_{p,\text{spec}} - Q_{p,\text{calc}} \leq \varepsilon$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">NR: Polar Form vs Rectangular Form</div>
+                    <p>NR can be formulated in <strong>polar</strong> form (unknowns: δ, |V|) or
+                        <strong>rectangular</strong> form (unknowns: e=Re(V), f=Im(V)). Polar form is more common in
+                        power systems because it directly gives the physically meaningful voltage magnitude and angle.
+                        Rectangular form avoids trigonometric functions but has larger Jacobian matrices.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S11: GS vs NR COMPARISON ═══ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr"><span class="sec-num">5.11</span>
+                <h2 class="sec-t">Gauss-Seidel vs Newton-Raphson — Complete Comparison <span class="prob prob-h">🟢 HIGH
+                        GATE</span></h2>
+            </div>
+
+            <p>The comparison between GS and NR is one of the most frequently asked topics in GATE and IES. The table
+                below is the definitive reference:</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Parameter</th>
+                            <th>Gauss-Seidel</th>
+                            <th>Newton-Raphson</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Coordinate form</td>
+                            <td>Rectangular coordinates</td>
+                            <td class="t-tel">Rectangular OR polar</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Convergence type</td>
+                            <td class="t-red">Linear (slow)</td>
+                            <td class="t-grn">Quadratic (fast)</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Convergence criterion</td>
+                            <td>\(\Delta V_p = |V_p^k| - |V_p^{k-1}|\)</td>
+                            <td class="t-grn">\(\Delta P_p, \Delta Q_p\) (power mismatch)</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Programming complexity</td>
+                            <td class="t-grn">Simple</td>
+                            <td class="t-red">Complex (Jacobian required)</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Memory requirement</td>
+                            <td class="t-grn">Low</td>
+                            <td class="t-red">High (Jacobian matrix stored)</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>Time per iteration</td>
+                            <td class="t-grn">Short</td>
+                            <td class="t-red">Long (Jacobian inversion)</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>Iterations to converge</td>
+                            <td class="t-red">Many (30–200 typical)</td>
+                            <td class="t-grn">Few (3–6 typical)</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>Total computation time</td>
+                            <td class="t-red">High overall</td>
+                            <td class="t-grn">Low overall</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>Slack bus selection</td>
+                            <td class="t-red">Affects convergence</td>
+                            <td class="t-grn">Does NOT affect convergence</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>Reliability of convergence</td>
+                            <td class="t-red">Unreliable for large systems</td>
+                            <td class="t-grn">Reliable</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>System size applicability</td>
+                            <td class="t-amb">Small power systems</td>
+                            <td class="t-grn">Large power systems</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td>Iterations ∝ system size?</td>
+                            <td class="t-red">Yes — increases with n</td>
+                            <td class="t-grn">No — nearly independent of n</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic: "GS is Simple but Slow; NR is Complex but Quick"</div>
+                    <p>GS: <strong>G</strong>ood for <strong>S</strong>mall systems, <strong>S</strong>imple code,
+                        <strong>S</strong>lower convergence. NR: <strong>N</strong>eeds <strong>R</strong>obust
+                        computing, <strong>R</strong>apidly converges, <strong>R</strong>ecommended for large networks.
+                        Industry uses NR exclusively for systems above 100 buses.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S12: SOLVED NUMERICALS ═══ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr"><span class="sec-num">5.12</span>
+                <h2 class="sec-t">Solved Numericals — GATE-Level Problems</h2>
+            </div>
+
+            <!-- Example: Z-BUS fault current 4-bus -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 5.4</span>
+                    <span class="ex-title">4-Bus System — Fault Current at Bus 2 using Z-BUS (GATE Pattern)</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">The positive-sequence bus impedance matrix of a 4-bus power system is:
+                        \(Z_{1,BUS} = j\begin{bmatrix}0.724 & 0.620 & 0.656 & 0.644\\0.620 & 0.738 & 0.642 &
+                        0.660\\0.656 & 0.642 & 0.702 & 0.676\\0.664 & 0.660 & 0.676 & 0.719\end{bmatrix}\)
+                        A symmetrical fault occurs at Bus 2. Find the positive-sequence fault current.</div>
+                    <div class="sol-lbl">▸ Solution</div>
+                    <p>For a balanced 3-phase fault at bus k, using Thevenin equivalent:</p>
+                    <div class="math-block">
+                        $$I_f = \frac{E_{R1}}{Z_{kk}} = \frac{1.0\angle 0°}{Z_{22}}$$
+                    </div>
+                    <p>From the matrix: \(Z_{22} = j0.738\) p.u.</p>
+                    <div class="math-block">
+                        $$I_f = \frac{1.0}{j0.738} = -j1.354 \text{ p.u.} \approx \boxed{-j1.35 \text{ p.u.}}$$
+                    </div>
+                    <p style="color:var(--teal);font-size:13.5px;"><strong>Physical meaning:</strong> The fault current
+                        is purely reactive (capacitive/inductive) with magnitude 1.35 p.u. — obtained directly from the
+                        diagonal Z-BUS element at the faulted bus. Z_22 is the Thevenin impedance seen at Bus 2.</p>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 5.5</span>
+                    <span class="ex-title">Y-BUS Formation for a 3-Bus System</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 3-bus system has the following transmission lines (in p.u. admittances): Bus
+                        1–2: y₁₂ = 2−j4, Bus 1–3: y₁₃ = 1−j2, Bus 2–3: y₂₃ = 3−j6. No shunt elements. Form the Y-BUS
+                        matrix.</div>
+                    <div class="sol-lbl">▸ Solution</div>
+                    <p><strong>Step 1: Diagonal entries (self-admittances)</strong></p>
+                    <div class="math-block">
+                        $$Y_{11} = y_{12} + y_{13} = (2-j4) + (1-j2) = 3 - j6$$
+                        $$Y_{22} = y_{12} + y_{23} = (2-j4) + (3-j6) = 5 - j10$$
+                        $$Y_{33} = y_{13} + y_{23} = (1-j2) + (3-j6) = 4 - j8$$
+                    </div>
+                    <p><strong>Step 2: Off-diagonal entries (mutual admittances = negative)</strong></p>
+                    <div class="math-block">
+                        $$Y_{12} = Y_{21} = -y_{12} = -(2-j4) = -2+j4$$
+                        $$Y_{13} = Y_{31} = -y_{13} = -(1-j2) = -1+j2$$
+                        $$Y_{23} = Y_{32} = -y_{23} = -(3-j6) = -3+j6$$
+                    </div>
+                    <p><strong>Step 3: Assemble Y-BUS</strong></p>
+                    <div class="math-block">
+                        $$Y_{BUS} = \begin{bmatrix} 3-j6 & -2+j4 & -1+j2 \\ -2+j4 & 5-j10 & -3+j6 \\ -1+j2 & -3+j6 &
+                        4-j8 \end{bmatrix} \text{ p.u.}$$
+                    </div>
+                    <p style="color:var(--teal);font-size:13.5px;"><strong>Check:</strong> No shunt elements → row sums
+                        = 0 → singular matrix (as expected). Row 1: (3-j6)+(-2+j4)+(-1+j2) = 0+j0 ✓</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S13: GATE/IES PYQs ═══ -->
+        <div class="section" id="s13">
+            <div class="sec-hdr"><span class="sec-num">5.13</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Slack Bus — Purpose</span>
+                    <span class="pyq-year">Concept — 2021</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In load flow analysis of a power system, the slack/swing bus is used to:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Regulate reactive power output of the system</li>
+                        <li>(B) Provide a reference for voltage magnitude and angle across the network</li>
+                        <li class="correct">(C) Balance the active and reactive power mismatch including line losses in
+                            the system</li>
+                        <li>(D) Control the frequency of the generator connected to it</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);"><strong>Explanation:</strong> The
+                        slack bus serves as the power balance node — it absorbs whatever P and Q is needed to compensate
+                        for losses (which are unknown before solving). Option (B) describes its property (it IS the
+                        angle reference), but (C) best describes its PURPOSE. The slack bus does both — but "purpose" =
+                        balancing losses.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Y-BUS Element Signs</span>
+                    <span class="pyq-year">2019</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In the bus admittance matrix (Y-BUS) of a power network, the off-diagonal elements Y_pq (p ≠ q)
+                        are:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Always positive</li>
+                        <li>(B) Always negative</li>
+                        <li class="correct">(C) Equal to the negative of the admittance of the element connecting buses
+                            p and q</li>
+                        <li>(D) Equal to the sum of all admittances connected to bus p</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);"><strong>Explanation:</strong> Y_pq =
+                        −y_pq (negative of the series admittance between p and q). These are called mutual admittances
+                        and have negative sign due to KCL sign convention. If p and q are not directly connected, Y_pq =
+                        0. Option (D) describes diagonal self-admittance Y_pp.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">NR vs GS — Iterations and System Size</span>
+                    <span class="pyq-year">2017</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In Newton-Raphson load flow method, as compared to Gauss-Seidel method:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Number of iterations required is more; total computation time is less</li>
+                        <li>(B) Number of iterations required is less; total computation time is less</li>
+                        <li class="correct">(C) Number of iterations required is less; computation per iteration is more
+                        </li>
+                        <li>(D) Both require the same iterations; NR is just more accurate</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);"><strong>Explanation:</strong> NR
+                        requires far fewer iterations (3–6 vs 30–200 for GS) because of quadratic convergence. But each
+                        NR iteration involves forming and inverting the Jacobian matrix — much more computation per
+                        step. The net result is NR is faster overall for large systems. This is the correct trade-off.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES 2020</span>
+                    <span class="pyq-title pyq-title-ies">Bus Types — PV Bus Specification</span>
+                    <span class="pyq-year">IES E&amp;T — 2020</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In a generator bus (PV bus) of a load flow problem, which two quantities are specified and which
+                        two are calculated?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Specified: P, Q &nbsp;|&nbsp; Calculated: |V|, δ</li>
+                        <li class="correct">(B) Specified: P, |V| &nbsp;|&nbsp; Calculated: Q, δ</li>
+                        <li>(C) Specified: |V|, δ &nbsp;|&nbsp; Calculated: P, Q</li>
+                        <li>(D) Specified: P, δ &nbsp;|&nbsp; Calculated: Q, |V|</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);"><strong>Explanation:</strong> PV bus
+                        = generator bus. The AVR (Automatic Voltage Regulator) controls |V| (voltage magnitude). The
+                        governor/speed controller sets the real power P generated. The reactive power Q varies depending
+                        on system conditions (unknown), and the angle δ must be found by solving the load flow
+                        equations.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Y-BUS Singular Matrix Condition</span>
+                    <span class="pyq-year">Concept — 2022</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The Y-BUS matrix of a power system becomes singular when:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) The system has more generator buses than load buses</li>
+                        <li>(B) The transmission lines are lossless (purely reactive)</li>
+                        <li class="correct">(C) There are no shunt elements connected to any bus in the network</li>
+                        <li>(D) The number of buses exceeds 100</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);"><strong>Explanation:</strong> Without
+                        shunt elements (no capacitors, reactors, or grounded connections), the sum of every row of Y-BUS
+                        = 0. This means the matrix determinant = 0 → singular. Physically, if there's no path to ground,
+                        the absolute voltage level is undefined — only voltage differences are known. Shunt elements tie
+                        the voltages to a reference.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S14: QUICK REVISION ═══ -->
+        <div class="section" id="s14">
+            <div class="sec-hdr"><span class="sec-num">5.14</span>
+                <h2 class="sec-t">Quick Revision — GATE &amp; IES Exam Sheet</h2>
+            </div>
+
+            <!-- GATE Insights -->
+            <div class="callout c-key">
+                <div class="ci">🎯</div>
+                <div class="cb">
+                    <div class="ct">GATE High-Probability Formulas — Memorise These</div>
+                    <p><strong>Fault current:</strong> \(I_f = V_{pre}/Z_{kk}\) &nbsp;|&nbsp;
+                        <strong>Self-admittance:</strong> \(Y_{pp} = \sum y_{pq} + y_{shunt}\) &nbsp;|&nbsp;
+                        <strong>Mutual:</strong> \(Y_{pq} = -y_{pq}\) &nbsp;|&nbsp; <strong>Lines from
+                            sparsity:</strong> \(L = \frac{n^2(1-s)-n}{2}\) &nbsp;|&nbsp; <strong>Z-BUS mod:</strong>
+                        \(Z_{mod} = Z_{old} - [Z_{li}][Z_{il}]/Z_{ll}\)
+                    </p>
+                </div>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Load Flow Basics</div>
+                    <p>Steady-state nonlinear problem. 4 variables/bus (P, Q, |V|, δ). 2 specified + 2 unknown per bus.
+                        Balanced 3-phase system. Network modelled by KCL.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Bus Classification</div>
+                    <p>PQ (Load): specify P,Q; find |V|,δ. PV (Gen): specify P,|V|; find Q,δ. Slack: specify |V|=1,δ=0;
+                        find P,Q. Exactly 1 slack bus; ~90% PQ, ~10% PV.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Y-BUS Rules</div>
+                    <p>Diagonal Y_pp = sum of all admittances at bus p. Off-diagonal Y_pq = −y_pq. Symmetric matrix.
+                        Sparse (90%+ zeros in large systems). Singular if no shunt elements.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Sparsity Formula</div>
+                    <p>Non-zero = (1−s)×n². Diagonal = n. Mutual (non-zero) = total−diagonal. Min. lines = Mutual/2.
+                        Example: 90% sparse, 100-bus → 450 lines minimum.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Z-BUS Construction</div>
+                    <p>Branch: size increases by 1. Link: size stays, Kron reduction applied. Fault current I_f =
+                        V/Z_kk. Z_BUS = Y_BUS⁻¹ but inversion destroys sparsity.</p>
+                </div>
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">GS Method</div>
+                    <p>Rectangular coordinates. Linear convergence. Simple code. Low memory. Many iterations.
+                        Convergence depends on slack bus selection. Good for small networks only.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">NR Method</div>
+                    <p>Polar or rectangular. Quadratic convergence (3–6 iterations). Complex code. High memory
+                        (Jacobian). Slack bus choice doesn't affect convergence. Industry standard.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Y-BUS Modifications</div>
+                    <p>Remove line p-q: Y_pq=0, reduce Y_pp, Y_qq. Add shunt at p: increase Y_pp. Add line: modify Y_pp,
+                        Y_qq, Y_pq. Only local changes needed — O(1) operation.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Common GATE Traps</div>
+                    <p>Slack bus balances LOSSES (not just voltage reference). NR has more computation/iteration but
+                        fewer iterations overall. Y-BUS is symmetric but NOT diagonal-dominant always. Z_22 gives fault
+                        at bus 2 (diagonal, not row 2 sum).</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 6</div>
+                    <p>Economic Operation of Power Systems — economic load dispatch, incremental cost criterion, penalty
+                        factor, transmission loss formula (B-coefficients), hydrothermal scheduling, and optimal power
+                        flow basics. Complete GATE and IES coverage with solved examples.</p>
+                </div>
+            </div>
+
+            <!-- ═══ AI WIDGET ═══ -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+                <p>Have a question on Y-BUS, Z-BUS, bus classification, Gauss-Seidel, Newton-Raphson, or load flow
+                    fundamentals? Type below or pick a suggestion.</p>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="userQ" type="text"
+                        placeholder="e.g. Form Y-BUS for a 3-bus system where Bus 1-2: j0.2, Bus 2-3: j0.1, Bus 1-3: j0.4…">
+                    <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('Explain why the Newton-Raphson method is preferred over Gauss-Seidel for large power systems. What is the physical meaning of the Jacobian matrix in load flow?')">Why
+                        NR beats GS for large systems</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Form the Y-BUS matrix for a 3-bus system with line admittances: y12=1-j2, y13=2-j4, y23=3-j5. Check for singularity.')">Y-BUS
+                        3-bus formation</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain the significance of the slack bus in load flow. Why must we have exactly one slack bus and why is the largest generator chosen?')">Why
+                        slack bus must exist</span>
+                    <span class="ai-chip"
+                        onclick="setQ('A 5-bus system has Y-BUS that is 85% sparse. Find: (a) total elements, (b) non-zero elements, (c) minimum transmission lines.')">Sparsity
+                        numerical</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain Z-BUS construction step by step. What is Kron reduction and when is it applied — branch vs link addition?')">Z-BUS:
+                        branch vs link</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <!-- ═══ CITATIONS ═══ -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical explanations,
+                    derivations, diagrams, and examples are original to Aarova AI. Standard textbooks listed below are
+                    the academic basis for this chapter.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Stevenson, William D. <em>Elements of Power System
+                                Analysis</em>, 4th ed. McGraw-Hill, 1982. Chapter 9 — Load flow studies: bus
+                            classification, Y-BUS, Newton-Raphson method, convergence.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Kothari, D.P. and Nagrath, I.J. <em>Modern Power System
+                                Analysis</em>, 4th ed. Tata McGraw-Hill, 2011. Chapter 6 — Load flow studies, Y-BUS and
+                            Z-BUS formation, Gauss-Seidel, Newton-Raphson methods.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Glover, J.D., Sarma, M.S. and Overbye, T.J. <em>Power
+                                System Analysis and Design</em>, 5th ed. Cengage, 2012. Chapter 6 — Power flow, bus
+                            admittance matrix, iterative methods.</span></li>
+                    <li><span class="cite-num">[4]</span><span>Bergen, A.R. and Vittal, V. <em>Power Systems
+                                Analysis</em>, 2nd ed. Prentice Hall, 2000. Chapter 5 — Power flow problem, Z-BUS
+                            building algorithm, Kron reduction.</span></li>
+
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Power Systems Series &nbsp;·&nbsp; Chapter 5 of 8<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                    diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+        </div>
+
+    </div>
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Power Systems. Topic: Load Flow Studies (Chapter 5). Cover bus classification (PQ/PV/Slack), Y-BUS formation and modification, Z-BUS construction, Gauss-Seidel method, Newton-Raphson method, convergence, sparsity. Answer with step-by-step working for numericals. Base answers on Stevenson, Kothari & Nagrath, Bergen & Vittal. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] })
+                });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* KaTeX render trigger */
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '\\(', right: '\\)', display: false }
+                    ]
+                });
+            }
+        });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

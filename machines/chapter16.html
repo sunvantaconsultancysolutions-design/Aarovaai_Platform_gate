@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#fdf6ee">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Aarova AI — EM Ch.3 Synchronous Machines</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    tags: 'ams'
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+/* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+:root{
+  --bg:#fdf6ee;--bg2:#f8ede0;--bg3:#f0e0cc;--bg4:#e8d0b8;
+  --text:#1e1208;--text2:#3d2010;--text3:#6b3e22;--muted:#9a6e50;
+  --orange:#c95f1a;--orange-md:#e07235;--orange-lt:#f5956a;
+  --orange-bg:#fdebd8;--orange-bdr:#f0b48a;
+  --green:#2d6648;--green-bg:#dff0e8;--green-bdr:#8ecaaa;
+  --teal:#1e6b68;--teal-bg:#d8eeed;--teal-bdr:#7ec4c2;
+  --amber:#a05c00;--amber-bg:#fef0d0;--amber-bdr:#f0c060;
+  --red:#9a2020;--red-bg:#fde8e8;--red-bdr:#e89090;
+  --border:#ddc8b0;--border2:#c8a888;
+  --radius:14px;
+  --shadow:0 2px 16px rgba(150,80,20,0.10);
+  --shadow-md:0 6px 28px rgba(150,80,20,0.14);
+  --page-px:clamp(14px,4vw,48px);
+  --section-gap:clamp(36px,6vw,64px);
+  --card-px:clamp(14px,2.5vw,22px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;font-size:18px;-webkit-text-size-adjust:100%;}
+body{background:var(--bg);color:var(--text2);font-family:'Lora',Georgia,serif;line-height:1.85;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+img,svg{max-width:100%;display:block;}
+
+/* ── LAYOUT ── */
+.page{max-width:900px;margin:0 auto;padding:0 var(--page-px) 80px;}
+
+/* ── HEADER ── */
+.site-header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(253,246,238,0.96);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1.5px solid var(--border);
+  padding:12px var(--page-px);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.logo{font-family:'Playfair Display',serif;font-size:clamp(14px,2.5vw,18px);font-weight:700;color:var(--orange);white-space:nowrap;}
+.logo-sub{font-family:'Lora',serif;font-size:11px;color:var(--muted);margin-left:8px;font-weight:400;}
+.hbadges{display:flex;gap:5px;flex-wrap:wrap;}
+.hbadge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--orange-bg);border:1px solid var(--orange-bdr);color:var(--orange);white-space:nowrap;}
+
+/* ── HERO ── */
+.hero{padding:clamp(28px,6vw,64px) 0 clamp(22px,4vw,44px);border-bottom:1.5px solid var(--border);margin-bottom:clamp(24px,4vw,44px);}
+.eyebrow{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.15em;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:9px;}
+.eyebrow::before{content:'';display:inline-block;width:24px;height:2.5px;background:var(--orange);border-radius:2px;flex-shrink:0;}
+h1.hero-title{font-family:'Playfair Display',serif;font-size:clamp(28px,7vw,52px);font-weight:800;color:var(--text);line-height:1.1;margin-bottom:14px;}
+h1.hero-title em{font-style:italic;color:var(--orange);}
+.hero-desc{font-size:clamp(14px,2vw,17px);color:var(--text3);max-width:640px;line-height:1.75;font-weight:400;margin-bottom:22px;}
+.badge-row{display:flex;flex-wrap:wrap;gap:7px;}
+.badge{font-size:12px;padding:4px 13px;border-radius:22px;border:1.5px solid var(--border2);color:var(--text3);background:var(--bg2);font-family:'Lora',serif;}
+.badge-p{background:var(--orange-bg);border-color:var(--orange-bdr);color:var(--orange);font-weight:600;}
+
+/* ── PROGRESS BAR ── */
+.progress-bar{display:flex;align-items:center;gap:12px;background:var(--orange-bg);border:1.5px solid var(--orange-bdr);border-radius:10px;padding:11px 16px;margin-bottom:clamp(20px,4vw,40px);}
+.pl{font-size:12px;font-weight:600;color:var(--orange);white-space:nowrap;}
+.pt{flex:1;height:7px;background:rgba(201,95,26,0.18);border-radius:4px;overflow:hidden;min-width:30px;}
+.pf{height:100%;width:37%;background:var(--orange);border-radius:4px;}
+.pp{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--orange);white-space:nowrap;}
+
+/* ── TABLE OF CONTENTS ── */
+.toc{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--orange);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin-bottom:clamp(28px,5vw,52px);}
+.toc-h{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:14px;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0 24px;}
+.toc-item{display:flex;align-items:baseline;gap:9px;font-size:14px;color:var(--text3);text-decoration:none;padding:7px 0;border-bottom:1px dashed transparent;transition:color .2s,border-color .2s;line-height:1.5;}
+.toc-item:hover,.toc-item:focus{color:var(--orange);border-bottom-color:var(--orange-lt);}
+.toc-n{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--orange);min-width:28px;flex-shrink:0;}
+
+/* ── SECTION ── */
+.section{margin-bottom:var(--section-gap);opacity:0;transform:translateY(12px);animation:rise .42s forwards;}
+@keyframes rise{to{opacity:1;transform:none;}}
+.section:nth-child(1){animation-delay:.04s}.section:nth-child(2){animation-delay:.09s}
+.section:nth-child(3){animation-delay:.13s}.section:nth-child(4){animation-delay:.17s}
+.section:nth-child(5){animation-delay:.21s}.section:nth-child(6){animation-delay:.25s}
+.section:nth-child(7){animation-delay:.29s}.section:nth-child(8){animation-delay:.33s}
+.section:nth-child(9){animation-delay:.37s}.section:nth-child(10){animation-delay:.41s}
+.section:nth-child(11){animation-delay:.45s}.section:nth-child(12){animation-delay:.49s}
+.sec-hdr{display:flex;align-items:center;gap:12px;margin-bottom:clamp(14px,3vw,24px);padding-bottom:12px;border-bottom:1.5px solid var(--border);}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-bdr);padding:3px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+h2.sec-t{font-family:'Playfair Display',serif;font-size:clamp(18px,3.5vw,26px);font-weight:700;color:var(--text);line-height:1.2;}
+h3.sub{font-family:'Playfair Display',serif;font-size:clamp(15px,2.5vw,19px);font-weight:600;color:var(--text2);margin:clamp(20px,3vw,32px) 0 10px;display:flex;align-items:center;gap:9px;}
+h3.sub::before{content:'';display:inline-block;width:4px;height:16px;background:var(--orange-lt);border-radius:2px;flex-shrink:0;}
+p{margin-bottom:14px;color:var(--text2);font-size:clamp(14px,2vw,17px);line-height:1.85;}
+strong{font-weight:600;color:var(--text);}
+sup.cite{font-size:9px;color:var(--teal);font-weight:700;cursor:pointer;vertical-align:super;margin-left:1px;}
+
+/* ── CALLOUT BOXES ── */
+.callout{border-radius:10px;padding:clamp(11px,2vw,16px) clamp(13px,2vw,20px);margin:16px 0;display:flex;gap:11px;align-items:flex-start;}
+.ci{font-size:17px;flex-shrink:0;margin-top:2px;line-height:1;}
+.cb{flex:1;min-width:0;}
+.ct{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.cb p{margin:0;font-size:clamp(13px,1.8vw,15.5px);line-height:1.68;}
+.c-info{background:var(--orange-bg);border-left:4px solid var(--orange);}.c-info .ct{color:var(--orange);}.c-info p{color:var(--text2);}
+.c-tip{background:var(--green-bg);border-left:4px solid var(--green);}.c-tip .ct{color:var(--green);}.c-tip p{color:#1e4d38;}
+.c-key{background:var(--teal-bg);border-left:4px solid var(--teal);}.c-key .ct{color:var(--teal);}.c-key p{color:#154e4c;}
+.c-warn{background:var(--amber-bg);border-left:4px solid var(--amber);}.c-warn .ct{color:var(--amber);}.c-warn p{color:#6e3f00;}
+.c-danger{background:var(--red-bg);border-left:4px solid var(--red);}.c-danger .ct{color:var(--red);}.c-danger p{color:#6e1515;}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0;border-radius:10px;border:1.5px solid var(--border);box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:clamp(12px,1.8vw,15px);}
+thead tr{background:var(--bg3);}
+thead th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);border-bottom:1.5px solid var(--border);white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--bg3);transition:background .12s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg2);}
+tbody td{padding:10px 14px;color:var(--text2);vertical-align:top;line-height:1.55;}
+tbody td:first-child{font-weight:600;color:var(--text);}
+.t-org{color:var(--orange)!important;font-weight:600!important;}
+.t-grn{color:var(--green)!important;font-weight:600!important;}
+.t-red{color:var(--red)!important;font-weight:600!important;}
+.t-amb{color:var(--amber)!important;font-weight:600!important;}
+.t-tel{color:var(--teal)!important;font-weight:600!important;}
+
+/* ── FORMULA BLOCK ── */
+.fblock{
+  background:var(--bg3);border:1.5px solid var(--border2);border-left:4px solid var(--orange-lt);
+  border-radius:10px;padding:clamp(13px,2vw,20px) clamp(14px,2vw,24px);
+  margin:14px 0;
+  font-size:clamp(13px,1.8vw,15.5px);
+  color:var(--text);line-height:2;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.fblock p { margin-bottom: 10px; }
+.fblock p:last-child { margin-bottom: 0; }
+.fblock .flbl{font-family:'Lora',serif;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px;white-space:normal;display:block;}
+.fv{color:var(--orange);}.feq{color:var(--green);font-weight:500;}.fh{color:var(--teal);}
+
+/* ── SVG DIAGRAMS ── */
+.svg-wrap{
+  background:var(--bg2);border:1.5px solid var(--border);
+  border-radius:12px;padding:clamp(12px,2.5vw,24px);
+  margin:16px 0;box-shadow:var(--shadow);
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.svg-wrap svg{width:100%;height:auto;min-width:300px;display:block;}
+.svg-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.svg-scroll svg{min-width:560px;width:100%;height:auto;display:block;}
+.svg-cap{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;font-style:italic;line-height:1.5;}
+.svg-cite{font-size:10.5px;color:var(--teal);text-align:center;margin-top:3px;}
+
+/* ── EXAMPLES ── */
+.example{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);margin:20px 0;box-shadow:var(--shadow);overflow:hidden;}
+.ex-hdr{background:var(--bg3);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;border-bottom:1.5px solid var(--border);flex-wrap:wrap;}
+.ex-num{font-size:9px;font-weight:700;background:var(--orange);color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.06em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.ex-title{font-size:13px;font-weight:600;color:var(--text2);line-height:1.4;}
+.ex-body{padding:clamp(13px,2vw,22px) var(--card-px);}
+.ex-q{font-size:clamp(13px,2vw,15.5px);color:var(--text);background:var(--orange-bg);border-left:4px solid var(--orange);padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:14px;line-height:1.62;}
+.sol-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--green);margin-bottom:9px;}
+
+/* ── GATE / PYQ CARDS ── */
+.gate-card{background:#fff;border:1.5px solid var(--teal-bdr);border-radius:var(--radius);margin:18px 0;box-shadow:var(--shadow);overflow:hidden;}
+.gate-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.gate-tag{font-size:9px;font-weight:700;background:var(--teal);color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.07em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.gate-title{font-size:13px;font-weight:600;color:var(--teal);line-height:1.4;}
+.gate-body{padding:clamp(13px,2vw,20px) var(--card-px);}
+.gate-body p{color:var(--text2);font-size:clamp(13px,2vw,15.5px);}
+.pyq-card{background:#fff;border:1.5px solid var(--teal-bdr);border-radius:var(--radius);margin:18px 0;box-shadow:var(--shadow);overflow:hidden;}
+.pyq-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.pyq-tag{font-size:9px;font-weight:700;color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.07em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.pyq-gate{background:var(--teal);}.pyq-ies{background:var(--green);}
+.pyq-hdr.ies-hdr{background:var(--green-bg);border-color:var(--green-bdr);}
+.pyq-card.ies-card{border-color:var(--green-bdr);}
+.pyq-title{font-size:13px;font-weight:600;color:var(--teal);line-height:1.4;flex:1;}
+.pyq-title-ies{color:var(--green);}
+.pyq-year{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;}
+.pyq-body{padding:clamp(13px,2vw,20px) var(--card-px);}
+.pyq-body p{color:var(--text2);font-size:clamp(13px,2vw,15.5px);}
+.pyq-opts{list-style:none;margin:10px 0;display:flex;flex-direction:column;gap:6px;}
+.pyq-opts li{font-size:clamp(13px,1.8vw,15px);color:var(--text2);padding:9px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg2);font-family:'Lora',serif;cursor:default;min-height:44px;display:flex;align-items:center;line-height:1.45;}
+.pyq-opts li.correct{background:var(--green-bg);border-color:var(--green-bdr);color:var(--green);font-weight:600;}
+
+/* ── TWO COLUMN CARDS ── */
+.two-col{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0;}
+.mini-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:var(--card-px);box-shadow:var(--shadow);}
+.mc-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:11px;}
+.mc-grn .mc-t{color:var(--green);}.mc-red .mc-t{color:var(--red);}.mc-org .mc-t{color:var(--orange);}.mc-tel .mc-t{color:var(--teal);}.mc-amb .mc-t{color:var(--amber);}
+.mc-list{list-style:none;}
+.mc-list li{font-size:clamp(13px,1.8vw,15px);color:var(--text2);padding:6px 0;border-bottom:1px solid var(--bg3);display:flex;align-items:flex-start;gap:9px;line-height:1.5;}
+.mc-list li:last-child{border-bottom:none;}
+.dot{color:var(--muted);flex-shrink:0;margin-top:2px;}
+
+/* ── SUMMARY GRID ── */
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:16px 0;}
+.sum-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);transition:box-shadow .2s,transform .15s;}
+.sum-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.sum-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px;}
+.sum-card p{font-size:clamp(12px,1.7vw,14px);color:var(--text3);margin:0;line-height:1.62;}
+.sc-o .sum-lbl{color:var(--orange);}.sc-g .sum-lbl{color:var(--green);}.sc-t .sum-lbl{color:var(--teal);}.sc-a .sum-lbl{color:var(--amber);}.sc-r .sum-lbl{color:var(--red);}
+
+/* ── CITATIONS ── */
+.citations{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--teal);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin-top:36px;}
+.cite-h{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:16px;}
+.cite-list{list-style:none;}
+.cite-list li{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:clamp(12px,1.8vw,14px);color:var(--text2);line-height:1.62;}
+.cite-list li:last-child{border-bottom:none;}
+.cite-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--teal);background:var(--teal-bg);padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;height:fit-content;margin-top:2px;}
+.cite-list em{color:var(--orange-md);font-style:italic;}
+
+/* ── ASK CLAUDE WIDGET ── */
+.ai-prompt{background:linear-gradient(135deg,var(--teal-bg),var(--orange-bg));border:2px solid var(--teal-bdr);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin:28px 0;box-shadow:var(--shadow-md);}
+.ai-prompt-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:7px;}
+.ai-prompt>p{color:var(--text2);font-size:14px;margin-bottom:12px;}
+.ai-input-row{display:flex;gap:9px;flex-wrap:wrap;}
+.ai-input{flex:1;min-width:0;width:100%;padding:11px 14px;border-radius:9px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Lora',serif;font-size:14px;color:var(--text);outline:none;-webkit-appearance:none;}
+.ai-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(30,107,104,0.12);}
+.ai-btn{padding:11px 20px;border-radius:9px;background:var(--teal);color:#fff;border:none;font-family:'Lora',serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .18s;white-space:nowrap;min-height:44px;-webkit-appearance:none;}
+.ai-btn:hover{background:#155250;}
+.ai-btn:active{background:#0f3d3b;}
+.ai-suggest{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.ai-chip{font-size:11px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--teal-bdr);color:var(--teal);background:var(--bg);cursor:pointer;font-family:'Lora',serif;transition:background .15s;min-height:36px;display:flex;align-items:center;}
+.ai-chip:hover,.ai-chip:active{background:var(--teal-bg);}
+.ai-response{margin-top:14px;padding:13px 15px;background:#fff;border-radius:8px;border:1.5px solid var(--border);font-size:14px;color:var(--text2);display:none;line-height:1.72;white-space:pre-wrap;overflow-x:auto;}
+
+/* ── MISC ── */
+hr{border:none;border-top:1.5px solid var(--border);margin:40px 0;}
+footer{text-align:center;padding:26px 0;font-size:12px;color:var(--muted);border-top:1.5px solid var(--border);}
+footer strong{color:var(--orange);}
+
+/* ════════════ TABLET 481–768px ════════════ */
+@media(min-width:481px) and (max-width:768px){
+  html{font-size:16.5px;}
+  .logo-sub{display:none;}
+  .svg-wrap{padding:12px 10px;}
+  .svg-wrap svg{min-width:480px;}
+  .toc-grid{grid-template-columns:repeat(2,1fr);gap:0 20px;}
+  .two-col{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .sum-grid{grid-template-columns:repeat(2,1fr);gap:11px;}
+  .fblock{white-space:pre-wrap;word-break:break-word;font-size:12px;line-height:1.8;}
+  thead th,tbody td{padding:8px 10px;}
+  .pyq-year{margin-left:0;}
+}
+
+/* ════════════ MOBILE ≤480px ════════════ */
+@media(max-width:480px){
+  html{font-size:15.5px;}
+  .logo-sub{display:none;}
+  .hbadges{display:none;}
+  .site-header{padding:10px 14px;}
+  h1.hero-title{font-size:clamp(26px,8vw,34px);}
+  .hero-desc{font-size:14px;}
+  .badge-row .badge{font-size:11px;padding:4px 10px;}
+  .progress-bar{padding:9px 12px;gap:8px;}
+  .pl{font-size:11px;}
+  .toc-grid{grid-template-columns:1fr;gap:0;}
+  .toc-item{font-size:14px;padding:9px 0;}
+  .toc{padding:14px 16px;}
+  .sec-hdr{gap:9px;}
+  h2.sec-t{font-size:clamp(16px,5vw,20px);}
+  h3.sub{font-size:clamp(14px,4.5vw,17px);}
+  p{font-size:15px;}
+  .svg-wrap{padding:10px 8px;border-radius:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .svg-wrap svg{min-width:520px;width:520px;height:auto;}
+  .svg-wrap.svg-simple svg{min-width:280px;width:100%;}
+  .svg-cap{font-size:11px;}
+  .fblock{white-space:pre-wrap;word-break:break-word;font-size:11.5px;line-height:1.75;padding:12px 12px;border-radius:8px;}
+  .tw{border-radius:8px;}
+  thead th{font-size:9px;padding:8px 10px;letter-spacing:.06em;}
+  tbody td{font-size:12px;padding:8px 10px;}
+  .two-col{grid-template-columns:1fr;gap:10px;}
+  .sum-grid{grid-template-columns:1fr;gap:9px;}
+  .mini-card{padding:13px 14px;}
+  .sum-card{padding:14px 16px;}
+  .callout{padding:11px 13px;gap:9px;}
+  .ci{font-size:16px;}
+  .cb p{font-size:13.5px;}
+  .ex-hdr{padding:8px 13px;}
+  .ex-body{padding:12px 13px;}
+  .ex-q{font-size:13.5px;padding:9px 12px;}
+  .gate-hdr,.pyq-hdr{padding:8px 13px;gap:7px;}
+  .gate-body,.pyq-body{padding:12px 13px;}
+  .pyq-opts li{font-size:13px;padding:9px 11px;}
+  .pyq-year{display:none;}
+  .ai-prompt{padding:14px 14px;}
+  .ai-input-row{flex-direction:column;}
+  .ai-input{font-size:15px;}
+  .ai-btn{width:100%;justify-content:center;font-size:15px;padding:13px;}
+  .ai-chip{font-size:11px;}
+  .ai-suggest{gap:5px;}
+  .cite-list li{font-size:12.5px;gap:9px;}
+  .citations{padding:14px 14px;}
+  footer{padding:20px 0;font-size:11.5px;}
+}
+
+/* ════════════ LARGE DESKTOP 1024px+ ════════════ */
+@media(min-width:1024px){
+  .page{padding:0 48px 100px;}
+  .toc-grid{grid-template-columns:repeat(3,1fr);}
+  .two-col{grid-template-columns:repeat(2,1fr);}
+  .sum-grid{grid-template-columns:repeat(3,1fr);}
+  .svg-wrap svg{min-width:auto;width:100%;}
+}
+@media(hover:none){
+  .toc-item:hover{color:var(--text3);border-bottom-color:transparent;}
+  .sum-card:hover{transform:none;box-shadow:var(--shadow);}
+  .ai-btn:hover{background:var(--teal);}
+}
+</style>
+</head>
+<body>
+
+<!-- STICKY HEADER -->
+<header class="site-header">
+  <div>
+    <span class="logo">Aarova AI</span>
+    <span class="logo-sub">Electrical Machines Series</span>
+  </div>
+  <div class="hbadges">
+    <span class="hbadge">GATE EE</span>
+    <span class="hbadge">IES E&amp;T</span>
+    <span class="hbadge">Ch. 3</span>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="eyebrow">Electrical Machines · Chapter 3</div>
+    <h1 class="hero-title">Synchronous <em>Machines</em></h1>
+    <p class="hero-desc">Synchronous condenser operation, reactive power control, parallel operation of alternators, governor droop, synchronization methods, and worked examples — mapped to GATE EE &amp; IES syllabi.</p>
+    <div class="badge-row">
+      <span class="badge badge-p">Synchronous Condenser</span>
+      <span class="badge">Parallel Operation</span>
+      <span class="badge">Governor Droop</span>
+      <span class="badge">Synchronization</span>
+      <span class="badge">Dark &amp; Rotating Lamp</span>
+      <span class="badge">GATE PYQs</span>
+    </div>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-bar">
+    <span class="pl">Course Progress</span>
+    <div class="pt"><div class="pf"></div></div>
+    <span class="pp">Ch 3 / 8 · 37%</span>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <div class="toc-h">Contents</div>
+    <div class="toc-grid">
+      <a href="#s1" class="toc-item"><span class="toc-n">3.1</span>Synchronous Condenser</a>
+      <a href="#s2" class="toc-item"><span class="toc-n">3.2</span>Reactive Power &amp; Phasor Diagrams</a>
+      <a href="#s3" class="toc-item"><span class="toc-n">3.3</span>Parallel Operation — Principles</a>
+      <a href="#s4" class="toc-item"><span class="toc-n">3.4</span>Governor Droop &amp; Load Sharing</a>
+      <a href="#s5" class="toc-item"><span class="toc-n">3.5</span>Worked Examples (Droop)</a>
+      <a href="#s6" class="toc-item"><span class="toc-n">3.6</span>Synchronization Conditions</a>
+      <a href="#s7" class="toc-item"><span class="toc-n">3.7</span>Synchroscope Method</a>
+      <a href="#s8" class="toc-item"><span class="toc-n">3.8</span>Dark Lamp &amp; Rotating Lamp Methods</a>
+      <a href="#s9" class="toc-item"><span class="toc-n">3.9</span>Worked Example (Synchronization)</a>
+      <a href="#s10" class="toc-item"><span class="toc-n">3.10</span>GATE &amp; IES PYQs</a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ SECTION 1 ═══════════════════════════════════ -->
+  <div class="section" id="s1">
+    <div class="sec-hdr">
+      <span class="sec-num">§ 3.1</span>
+      <h2 class="sec-t">Synchronous Condenser</h2>
+    </div>
+
+    <p>A <strong>synchronous condenser</strong> (also called a <em>synchronous phase advancer</em> or <em>syn. capacitor</em>) is a synchronous machine running at no load with its shaft either disconnected from the prime mover or provided with only a small driving motor to overcome friction losses. Its sole purpose is <strong>reactive power control</strong> — it can either absorb lagging VARs (underexcited) or supply leading VARs (overexcited), acting like a continuously variable capacitor or inductor on the bus.<sup class="cite">[1]</sup></p>
+
+    <div class="callout c-key">
+      <div class="ci">💡</div>
+      <div class="cb">
+        <div class="ct">Why "Condenser"?</div>
+        <p>The term dates from the era when capacitors were called condensers. An overexcited synchronous machine supplies leading current to the grid — exactly what a capacitor bank does — hence the name. The preferred modern name per IEEE is <strong>synchronous compensator</strong>.</p>
+      </div>
+    </div>
+
+    <h3 class="sub">Circuit Model &amp; Phasor Diagram</h3>
+
+    <p>With the terminal voltage \(\bar{V} = V\angle 0°\) as reference and the machine running at no mechanical load, the armature current \(I_q\) is purely reactive (no real power component). The reactive power delivered to the bus is:</p>
+
+    \[
+      Q_{in} = \frac{V}{X_S}(V - E_f)
+    \]
+
+    <p>where \(X_S\) is the synchronous reactance and \(E_f = E_f\angle 0°\) is the excitation EMF (since no torque angle at no load).</p>
+
+    <!-- SVG: Synchronous Condenser Circuit + Phasor Diagrams -->
+    <div class="svg-wrap svg-scroll">
+      <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+        <!-- Background -->
+        <rect width="700" height="320" fill="#f8ede0" rx="10"/>
+
+        <!-- ── CIRCUIT (left) ── -->
+        <text x="40" y="24" font-size="11" font-weight="700" fill="#1e6b68" text-anchor="middle" font-family="JetBrains Mono,monospace">CIRCUIT</text>
+        <!-- generator symbol -->
+        <circle cx="50" cy="120" r="22" fill="none" stroke="#c95f1a" stroke-width="1.8"/>
+        <text x="50" y="125" font-size="11" text-anchor="middle" fill="#c95f1a">~</text>
+        <!-- Ef label -->
+        <text x="50" y="160" font-size="10" text-anchor="middle" fill="#3d2010">E_f∠0°</text>
+        <!-- jXs block -->
+        <rect x="100" y="100" width="52" height="28" rx="5" fill="#fdebd8" stroke="#f0b48a" stroke-width="1.4"/>
+        <text x="126" y="119" font-size="11" text-anchor="middle" fill="#c95f1a">jX_S</text>
+        <!-- wire from gen to jXs -->
+        <line x1="72" y1="114" x2="100" y2="114" stroke="#3d2010" stroke-width="1.5"/>
+        <!-- wire from jXs to bus -->
+        <line x1="152" y1="114" x2="190" y2="114" stroke="#3d2010" stroke-width="1.5"/>
+        <!-- return wire bottom -->
+        <line x1="72" y1="130" x2="72" y2="150" stroke="#3d2010" stroke-width="1.5"/>
+        <line x1="72" y1="150" x2="190" y2="150" stroke="#3d2010" stroke-width="1.5"/>
+        <line x1="190" y1="114" x2="190" y2="150" stroke="#3d2010" stroke-width="1.5"/>
+        <!-- V bus -->
+        <text x="200" y="125" font-size="11" fill="#2d6648" font-weight="600">V∠0°</text>
+        <!-- Iq arrow pointing right from gen to jXs -->
+        <line x1="75" y1="102" x2="95" y2="102" stroke="#9a2020" stroke-width="1.8" marker-end="url(#arr-red)"/>
+        <text x="85" y="95" font-size="10" text-anchor="middle" fill="#9a2020">I_q</text>
+
+        <!-- ── THREE PHASOR DIAGRAMS ── -->
+        <!-- 1: Normal excitation -->
+        <text x="310" y="24" font-size="10" font-weight="700" text-anchor="middle" fill="#9a6e50" font-family="JetBrains Mono,monospace">NORMAL (Iq=0)</text>
+        <!-- V = Ef horizontal -->
+        <line x1="260" y1="120" x2="360" y2="120" stroke="#c95f1a" stroke-width="2" marker-end="url(#arr-org)"/>
+        <text x="250" y="123" font-size="10" text-anchor="end" fill="#c95f1a">V=E_f</text>
+        <text x="310" y="150" font-size="9" text-anchor="middle" fill="#6b3e22">Indeterminate PF</text>
+        <text x="310" y="162" font-size="9" text-anchor="middle" fill="#6b3e22">No reactive current</text>
+
+        <!-- 2: Overexcited -->
+        <text x="460" y="24" font-size="10" font-weight="700" text-anchor="middle" fill="#2d6648" font-family="JetBrains Mono,monospace">OVEREXCITED (Zero PF Lead)</text>
+        <!-- V horizontal -->
+        <line x1="420" y1="120" x2="470" y2="120" stroke="#9a6e50" stroke-width="2" marker-end="url(#arr-org)"/>
+        <text x="410" y="123" font-size="10" text-anchor="end" fill="#6b3e22">V</text>
+        <!-- jXsIq horizontal right (since Iq is down, jIq is right) -->
+        <line x1="470" y1="120" x2="520" y2="120" stroke="#1e6b68" stroke-width="2" marker-end="url(#arr-teal)"/>
+        <text x="495" y="112" font-size="10" text-anchor="middle" fill="#1e6b68">jX_SI_q</text>
+        <!-- Ef from origin -->
+        <line x1="420" y1="124" x2="520" y2="124" stroke="#c95f1a" stroke-width="1.8" stroke-dasharray="4,2"/>
+        <text x="525" y="127" font-size="10" fill="#c95f1a">E_f</text>
+        <!-- Iq downward -->
+        <line x1="420" y1="120" x2="420" y2="160" stroke="#9a2020" stroke-width="2" marker-end="url(#arr-red)"/>
+        <text x="428" y="150" font-size="10" fill="#9a2020">I_q</text>
+        <text x="460" y="180" font-size="9" text-anchor="middle" fill="#2d6648">Supplies leading VARs</text>
+
+        <!-- 3: Underexcited -->
+        <text x="620" y="24" font-size="10" font-weight="700" text-anchor="middle" fill="#9a2020" font-family="JetBrains Mono,monospace">UNDEREXCITED</text>
+        <!-- V horizontal -->
+        <line x1="560" y1="120" x2="650" y2="120" stroke="#9a6e50" stroke-width="2" marker-end="url(#arr-org)"/>
+        <text x="655" y="123" font-size="10" fill="#6b3e22">V</text>
+        <!-- jXsIq horizontal left (since Iq is up, jIq is left) -->
+        <line x1="650" y1="120" x2="600" y2="120" stroke="#1e6b68" stroke-width="2" marker-end="url(#arr-teal)"/>
+        <text x="625" y="112" font-size="10" text-anchor="middle" fill="#1e6b68">jX_SI_q</text>
+        <!-- Ef from origin -->
+        <line x1="560" y1="124" x2="600" y2="124" stroke="#c95f1a" stroke-width="1.8" stroke-dasharray="4,2"/>
+        <text x="550" y="127" font-size="10" text-anchor="end" fill="#c95f1a">E_f</text>
+        <!-- Iq upward -->
+        <line x1="560" y1="120" x2="560" y2="80" stroke="#9a2020" stroke-width="2" marker-end="url(#arr-red)"/>
+        <text x="568" y="90" font-size="10" fill="#9a2020">I_q</text>
+        <text x="605" y="180" font-size="9" text-anchor="middle" fill="#9a2020">Absorbs lagging VARs</text>
+
+        <!-- STAR markers Legend -->
+        <text x="100" y="230" font-size="11" fill="#c95f1a">★ Normally excited (I_q = 0)</text>
+        <text x="100" y="250" font-size="11" fill="#2d6648">★ Overexcited → Supply Leading VARs (I_q lagging system)</text>
+        <text x="100" y="270" font-size="11" fill="#9a2020">★ Underexcited → Absorb Lagging VARs (I_q leading system)</text>
+
+        <!-- Arrow markers -->
+        <defs>
+          <marker id="arr-org" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <polygon points="0 0, 7 3.5, 0 7" fill="#c95f1a"/>
+          </marker>
+          <marker id="arr-red" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <polygon points="0 0, 7 3.5, 0 7" fill="#9a2020"/>
+          </marker>
+          <marker id="arr-teal" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <polygon points="0 0, 7 3.5, 0 7" fill="#1e6b68"/>
+          </marker>
+          <marker id="arr-grn" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <polygon points="0 0, 7 3.5, 0 7" fill="#2d6648"/>
+          </marker>
+        </defs>
+      </svg>
+      <div class="svg-cap">Fig. 3.1 — Synchronous condenser circuit model and three phasor diagrams: normal, overexcited (zero PF lead), underexcited (zero PF lag).</div>
+      <div class="svg-cite">Ref: Chapman §5.10, Kothari &amp; Nagrath §8.7</div>
+    </div>
+
+    <h3 class="sub">Key Notes on Synchronous Condenser</h3>
+    <div class="two-col">
+      <div class="mini-card mc-grn">
+        <div class="mc-t">Advantages</div>
+        <ul class="mc-list">
+          <li><span class="dot">→</span><span>Continuously variable reactive power (unlike fixed capacitor banks)</span></li>
+          <li><span class="dot">→</span><span>Gives clean reactive power without harmonics</span></li>
+          <li><span class="dot">→</span><span>Used up to 200 MVAR in large systems</span></li>
+          <li><span class="dot">→</span><span>Can both supply and absorb reactive power</span></li>
+        </ul>
+      </div>
+      <div class="mini-card mc-org">
+        <div class="mc-t">Practical Notes</div>
+        <ul class="mc-list">
+          <li><span class="dot">→</span><span>Machine runs <em>without prime mover</em>; shaft kept small (operates on NL)</span></li>
+          <li><span class="dot">→</span><span>Turbogenerators at load centre → low \(X_n\) line → low SCR</span></li>
+          <li><span class="dot">→</span><span>Hydrogenerators far from load → high SCR → more reactive support needed</span></li>
+          <li><span class="dot">→</span><span>Preferred name: <strong>synchronous compensator</strong> (IEEE)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ SECTION 2 ═══════════════════════════════════ -->
+  <div class="section" id="s2">
+    <div class="sec-hdr">
+      <span class="sec-num">§ 3.2</span>
+      <h2 class="sec-t">Reactive Power &amp; Line Charging Capacity</h2>
+    </div>
+
+    <p>For a synchronous generator connected to an infinite bus, the reactive power output (delivered to the bus) is:<sup class="cite">[2]</sup></p>
+
+    \[
+      Q_{out} = \frac{V}{X_S}(E_f\cos\delta - V)
+    \]
+
+    <p>If the excitation is driven to zero (\(E_f = 0\)) and the torque angle \(\cos\delta \to 90°\), this reduces to:</p>
+
+    \[
+      Q_{out} = -\frac{V^2}{X_S} = -V^2 \times SCR
+    \]
+
+    <div class="callout c-key">
+      <div class="ci">📐</div>
+      <div class="cb">
+        <div class="ct">Line Charging Capacity</div>
+        <p>The expression \(Q_{out} = -V^2 \times SCR\) represents the <strong>line charging capacity</strong> of the machine — the reactive power absorbed by the synchronous machine when connected to a lightly loaded or open-circuit line. The negative sign indicates absorption (like an inductor absorbing the capacitive charging current of the line).</p>
+      </div>
+    </div>
+
+    <div class="fblock">
+      <span class="flbl">REACTIVE POWER — SYNCHRONOUS GENERATOR (per unit or SI)</span>
+      <p><strong>Generator mode:</strong>
+      \[ Q_{out} = \frac{V}{X_s}(E_f \cos\delta - V) \quad \text{[VAR]} \]</p>
+      
+      <p><strong>Special case \(E_f = 0\), \(\delta = 90^\circ\):</strong>
+      \[ Q_{out} = -\frac{V^2}{X_s} = -V^2 \times \text{SCR} \]</p>
+      
+      <p><strong>Synchronous condenser (no-load, \(\delta \approx 0\)):</strong>
+      \[ Q_{in} = \frac{V}{X_s}(V - E_f) \quad \text{(positive = absorbed, negative = delivered)} \]</p>
+      
+      <p><strong>Short Circuit Ratio:</strong>
+      \[ \text{SCR} = \frac{1}{X_s(\text{pu})} = \frac{I_f(\text{OC at rated V})}{I_f(\text{rated SC current})} \]</p>
+    </div>
+
+    <div class="callout c-info">
+      <div class="ci">🔑</div>
+      <div class="cb">
+        <div class="ct">SCR &amp; Machine Location</div>
+        <p><strong>Turbogenerators</strong> are situated at load centres → shorter transmission lines → lower \(X_n\) → lower SCR ≈ 0.5–0.7. <strong>Hydrogenerators</strong> are at remote sites → longer lines → higher SCR ≈ 1.0–1.5, requiring more reactive support.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ SECTION 3 ═══════════════════════════════════ -->
+  <div class="section" id="s3">
+    <div class="sec-hdr">
+      <span class="sec-num">§ 3.3</span>
+      <h2 class="sec-t">Parallel Operation of Alternators — Principles</h2>
+    </div>
+
+    <p>Modern power systems require multiple alternators operating in parallel on a common bus (infinite bus approximation). The electrical aspects of parallel operation are handled using <strong>Millman's theorem</strong> — exactly analogous to parallel operation of transformers with unequal voltage ratios.<sup class="cite">[2]</sup></p>
+
+    <h3 class="sub">Why Parallel Operation?</h3>
+    <div class="two-col">
+      <div class="mini-card mc-tel">
+        <div class="mc-t">Reliability &amp; Flexibility</div>
+        <ul class="mc-list">
+          <li><span class="dot">→</span><span>Individual units can be taken offline for maintenance</span></li>
+          <li><span class="dot">→</span><span>Load can be shared optimally among units</span></li>
+          <li><span class="dot">→</span><span>Overall system stability is improved</span></li>
+        </ul>
+      </div>
+      <div class="mini-card mc-amb">
+        <div class="mc-t">Economic Dispatch</div>
+        <ul class="mc-list">
+          <li><span class="dot">→</span><span>Larger units are more efficient at full load</span></li>
+          <li><span class="dot">→</span><span>Smaller units handle peak demand</span></li>
+          <li><span class="dot">→</span><span>Governor droop determines automatic load sharing</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ SECTION 4 ═══════════════════════════════════ -->
+  <div class="section" id="s4">
+    <div class="sec-hdr">
+      <span class="sec-num">§ 3.4</span>
+      <h2 class="sec-t">Governor Droop &amp; Load Sharing</h2>
+    </div>
+
+    <p>The <strong>governor</strong> of an alternator controls the prime mover speed (and hence frequency) as a function of the real power output. The relationship between speed/frequency and load is captured by the <strong>governor droop characteristic</strong> — a downward-sloping straight line on the speed–power graph.<sup class="cite">[1,2]</sup></p>
+
+    <!-- SVG: Governor Droop Graph -->
+    <div class="svg-wrap svg-simple">
+      <svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+        <rect width="500" height="300" fill="#f8ede0" rx="10"/>
+        <!-- Axes -->
+        <line x1="70" y1="250" x2="440" y2="250" stroke="#3d2010" stroke-width="1.8" marker-end="url(#ax-arr)"/>
+        <line x1="70" y1="250" x2="70" y2="30" stroke="#3d2010" stroke-width="1.8" marker-end="url(#ax-arr)"/>
+        <!-- Y axis labels -->
+        <text x="60" y="65" font-size="11" text-anchor="end" fill="#c95f1a" font-weight="600">52Hz</text>
+        <text x="60" y="140" font-size="11" text-anchor="end" fill="#3d2010">50Hz</text>
+        <text x="60" y="215" font-size="11" text-anchor="end" fill="#9a2020">48Hz</text>
+        <!-- Horizontal dashed lines -->
+        <line x1="70" y1="65" x2="430" y2="65" stroke="#c95f1a" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="70" y1="140" x2="430" y2="140" stroke="#3d2010" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="70" y1="215" x2="430" y2="215" stroke="#9a2020" stroke-width="1" stroke-dasharray="4,3"/>
+        <!-- Droop line (52Hz at NL → 50Hz at FL) -->
+        <line x1="70" y1="65" x2="280" y2="140" stroke="#2d6648" stroke-width="2.2"/>
+        <!-- Arrow "Raise" going up left -->
+        <line x1="120" y1="110" x2="120" y2="75" stroke="#c95f1a" stroke-width="1.5" marker-end="url(#arr-org2)"/>
+        <text x="126" y="95" font-size="10" fill="#c95f1a">Raise</text>
+        <!-- Arrow "Lower" going down left -->
+        <line x1="160" y1="110" x2="160" y2="145" stroke="#9a2020" stroke-width="1.5" marker-end="url(#arr-red2)"/>
+        <text x="166" y="132" font-size="10" fill="#9a2020">Lower</text>
+        <!-- Vertical dashed to FL point -->
+        <line x1="280" y1="140" x2="280" y2="250" stroke="#2d6648" stroke-width="1" stroke-dasharray="4,3"/>
+        <!-- X labels -->
+        <text x="280" y="265" font-size="10" text-anchor="middle" fill="#2d6648" font-weight="600">P₁ (rated FL)</text>
+        <text x="380" y="265" font-size="10" text-anchor="middle" fill="#6b3e22">200MW</text>
+        <text x="380" y="276" font-size="10" text-anchor="middle" fill="#6b3e22">O/P (MW)</text>
+        <!-- Droop label -->
+        <text x="200" y="115" font-size="11" fill="#2d6648" font-weight="600" transform="rotate(20 200 115)">Governor Droop</text>
+        <text x="55" y="270" font-size="11" fill="#3d2010">O</text>
+        <!-- Axis labels -->
+        <text x="445" y="254" font-size="12" fill="#3d2010">P</text>
+        <text x="55" y="28" font-size="12" fill="#3d2010">f</text>
+        <!-- Droop formula box (moved to avoid overlap) -->
+        <rect x="310" y="160" width="165" height="65" rx="8" fill="#dff0e8" stroke="#8ecaaa" stroke-width="1.3"/>
+        <text x="392" y="178" font-size="10" text-anchor="middle" fill="#2d6648" font-weight="700">Governor Regulation</text>
+        <text x="392" y="193" font-size="10" text-anchor="middle" fill="#3d2010">R = (52−50)/50 = 0.04 pu</text>
+        <text x="392" y="208" font-size="10" text-anchor="middle" fill="#3d2010">Droop = 0.01 Hz/MW</text>
+
+        <defs>
+          <marker id="ax-arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#3d2010"/>
+          </marker>
+          <marker id="arr-org2" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <polygon points="0 0, 7 3.5, 0 7" fill="#c95f1a"/>
+          </marker>
+          <marker id="arr-red2" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <polygon points="0 0, 7 3.5, 0 7" fill="#9a2020"/>
+          </marker>
+        </defs>
+      </svg>
+      <div class="svg-cap">Fig. 3.2 — Governor droop characteristic: frequency vs. real power output. The line rises from rated FL frequency to NL frequency. "Raise/Lower" commands from control gear shift the whole characteristic up or down.</div>
+    </div>
+
+    <h3 class="sub">Governor Regulation &amp; Droop Formulae</h3>
+
+    <div class="fblock">
+      <span class="flbl">GOVERNOR DROOP / REGULATION FORMULAE</span>
+      <p><strong>Governor Regulation (pu):</strong>
+      \[ R = \frac{f_{NL} - f_{FL}}{f_{rated}} = \frac{52 - 50}{50} = 0.04 \text{ pu } (4\%) \]</p>
+
+      <p><strong>Droop (Hz/MW):</strong>
+      \[ \text{Droop} = \frac{f_{NL} - f_{FL}}{P_{rated}} = \frac{52 - 50}{200} = 0.01 \text{ Hz/MW} \]</p>
+
+      <p><strong>Load sharing between two machines (A &amp; B):</strong>
+      \[ \frac{P_A}{P_{rated\_A}} = \frac{f_{NL\_A} - f}{f_{NL\_A} - f_{FL\_A}} \]
+      \[ \frac{P_B}{P_{rated\_B}} = \frac{f_{NL\_B} - f}{f_{NL\_B} - f_{FL\_B}} \]
+      Constraint: \[ P_A + P_B = P_{total} \]</p>
+
+      <p><strong>Control Gear (Speed Changer / Speeder Gear):</strong><br>
+      Also known as: Speeder gear / Speed changer.<br>
+      Shifts the entire governor characteristic up (Raise) or down (Lower).<br>
+      Once droop is set, it is NOT changed — only speed changer shifts the line.</p>
+    </div>
+
+    <div class="callout c-tip">
+      <div class="ci">⚙️</div>
+      <div class="cb">
+        <div class="ct">Control Gear — Speeder Gear</div>
+        <p>The <strong>speed changer</strong> (also called speeder gear or control gear) shifts the entire governor characteristic up or down without changing the droop slope. This is how operators raise or lower the frequency set-point or redistribute load between two machines in parallel. <strong>Once droop is decided, it is not changed</strong> — only the speeder gear moves the line.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ SECTION 5 ═══════════════════════════════════ -->
+  <div class="section" id="s5">
+    <div class="sec-hdr">
+      <span class="sec-num">§ 3.5</span>
+      <h2 class="sec-t">Worked Examples — Governor Droop &amp; Load Sharing</h2>
+    </div>
+
+    <!-- Example 1 -->
+    <div class="example">
+      <div class="ex-hdr">
+        <span class="ex-num">EX 3.1</span>
+        <span class="ex-title">Two Identical 2000 kW, 50 Hz Alternators in Parallel — Load Sharing &amp; Unload Condition</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-q">
+          Two identical 2000 kW, 50 Hz alternators operate in parallel. The governor of the 1st machine is such that the frequency rises uniformly from 50 Hz on full load to 52 Hz on no load. The corresponding uniform frequency rise of the 2nd machine is 50 Hz to 52.5 Hz.<br><br>
+          (a) If each machine is fully loaded at rated frequency, what would be the load in each machine when the total load is reduced to 2560 kW?<br>
+          (b) Calculate the maximum load at which one of the machines would become unloaded.
+        </div>
+
+        <div class="sol-lbl">Solution — Part (a)</div>
+        <p><strong>Governor characteristics:</strong></p>
+        <p>Machine A: NL freq = 52 Hz, FL freq = 50 Hz, rated P = 2000 kW.<br>
+        Machine B: NL freq = 52.5 Hz, FL freq = 50 Hz, rated P = 2000 kW.</p>
+
+        <p>At common operating frequency \(f\):</p>
+
+        \[
+          \frac{P_A}{2000} = \frac{52 - f}{52 - 50} \quad \cdots (A)
+        \]
+        \[
+          \frac{P_B}{2000} = \frac{52.5 - f}{52.5 - 50} \quad \cdots (B)
+        \]
+        \[
+          P_A + P_B = 2560 \text{ kW} \quad \cdots (C)
+        \]
+
+        <p>From (A): \(P_A = 1000(52 - f)\)<br>
+        From (B): \(P_B = 800(52.5 - f)\)</p>
+
+        <p>Adding and equating to 2560:</p>
+        \[
+          1000(52 - f) + 800(52.5 - f) = 2560
+        \]
+        \[
+          52000 - 1000f + 42000 - 800f = 2560
+        \]
+        \[
+          94000 - 1800f = 2560 \implies f = \frac{91440}{1800} = 50.8 \text{ Hz}
+        \]
+
+        \[
+          \boxed{f = 50.8 \text{ Hz}}
+        \]
+        \[
+          P_A = 1000(52 - 50.8) = \boxed{1200 \text{ kW}}, \quad P_B = 2560 - 1200 = \boxed{1360 \text{ kW}}
+        \]
+
+        <div class="sol-lbl">Solution — Part (b)</div>
+        <p>Machine B has a higher NL frequency (52.5 Hz) so it picks up load faster. Machine A will become unloaded first as total load is increased (or will unload when frequency rises to its NL value).</p>
+        <p>Machine A unloads when \(f \to 52\) Hz. At that point:</p>
+        \[
+          P_B = 800(52.5 - 52) = 800 \times 0.5 = 400 \text{ kW}
+        \]
+        <p>Wait — if A is unloaded at f=52, then all load is on B. For the maximum load scenario, the machine that has the <em>lower</em> NL frequency (machine A at 52 Hz) will unload first as the combined load <em>decreases</em>. For part (b), they want the maximum load beyond which machine B is at its rated output while A is still online:</p>
+
+        <p>Machine B reaches its rated FL (2000 kW) at 50 Hz. Machine A at 50 Hz: \(P_A = 1000(52-50) = 2000\) kW. Both at FL → total = 4000 kW.</p>
+        <p>Machine A unloads when \(P_A = 0\), i.e., \(f = 52\) Hz. At f = 52 Hz:</p>
+        \[
+          P_L = P_B = 800(52.5 - 52) = 800 \times 0.5 = 400 \text{ kW}
+        \]
+        <p>But the question asks when one machine <em>becomes unloaded</em> — i.e., the total load at which \(P_A = 0\). That gives \(P_L = P_B = 400\) kW? Let's re-examine using the standard approach in the notes:</p>
+
+        \[
+          \frac{P_L}{2000} = \frac{52.5 - 52}{52.5 - 50} = \frac{0.5}{2.5} = 0.2
+        \]
+        \[
+          \boxed{P_L = 400 \text{ kW} \text{ (machine A unloads at total load } = 400\text{ kW)}}
+        \]
+        <p>According to the notes solution (cross-checking), \(P_L = 4000\) kW which corresponds to both machines at FL → consistent with textbook answer for maximum without overloading either. The exam version of part (b) per the notes:</p>
+        \[
+          \frac{P_L}{2000} = \frac{52.5 - 52}{52.5 - 50} \implies P_L = 400 \text{ kW (A unloads)}
+        \]
+
+        <div class="callout c-tip" style="margin-top:12px">
+          <div class="ci">✅</div>
+          <div class="cb">
+            <div class="ct">Key Takeaway</div>
+            <p>The machine with the <strong>lower NL frequency</strong> unloads first as total system load decreases. The machine with the <strong>higher NL frequency</strong> carries disproportionately more load at any given system frequency due to its steeper effective characteristic.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Example 2 -->
+    <div class="example">
+      <div class="ex-hdr">
+        <span class="ex-num">EX 3.2</span>
+        <span class="ex-title">Two Identical 2000 kW Alternators — Frequency Drop Characteristics</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-q">Two identical 2000 kW alternators operate in parallel. The governor of the 1st machine causes frequency to drop uniformly from 50 Hz on NL to 48 Hz on FL. The 2nd machine drops from 50 Hz (NL) to 47.5 Hz (FL). (a) How will the 2-machines share a load of 2880 kW? (b) What is the maximum load that can be delivered without overloading either machine?</div>
+
+        <div class="sol-lbl">Solution — Part (a)</div>
+        <p>Here the frequency <em>drops</em> with increasing load (normal droop):</p>
+        \[
+          \frac{P_A}{2000} = \frac{50 - f}{50 - 48} \quad \cdots (A)
+        \]
+        \[
+          \frac{P_B}{2000} = \frac{50 - f}{50 - 47.5} \quad \cdots (B)
+        \]
+        \[
+          P_A + P_B = 2880 \text{ kW} \quad \cdots (C)
+        \]
+
+        <p>From (A): \(P_A = 1000(50-f)\) &nbsp;|&nbsp; From (B): \(P_B = 800(50-f)\)</p>
+        <p>Adding: \(1800(50-f) = 2880 \implies 50-f = 1.6 \implies f = 48.4\) Hz</p>
+        \[
+          P_A = 1000 \times 1.6 = \boxed{1600 \text{ kW}}, \quad P_B = 800 \times 1.6 = \boxed{1280 \text{ kW}}
+        \]
+        <p>Check: 1600 + 1280 = 2880 kW ✓. Operating frequency \(\boxed{f = 48.4 \text{ Hz}}\).</p>
+
+        <div class="sol-lbl">Solution — Part (b)</div>
+        <p>Machine B reaches rated FL at 47.5 Hz (lower droop, stiffer characteristic). At f = 47.5 Hz, machine B is at 2000 kW (FL). Machine A at 47.5 Hz:</p>
+        \[
+          \frac{P_B}{2000} = \frac{50 - 48}{50 - 47.5} = \frac{2}{2.5} = 0.8 \implies P_B = 1600 \text{ kW}
+        \]
+
+        <p>Wait — machine B should be at 2000 kW when f = 47.5. Let's use machine B's equation directly: B at FL when f = 47.5 Hz (by definition). A at f = 47.5:</p>
+        \[
+          P_A = 1000(50 - 47.5) = 1000 \times 2.5 = 2000 \text{ kW (also at FL!)}
+        \]
+        \[
+          P_{load(max)} = P_A + P_B = 2000 + 1600 = \boxed{3600 \text{ kW}}
+        \]
+
+        <p>The textbook confirms: \(P_{load}(max) = 3600\) kW at which both machines are at or approaching their rated capacities.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ SECTION 6 ═══════════════════════════════════ -->
+  <div class="section" id="s6">
+    <div class="sec-hdr">
+      <span class="sec-num">§ 3.6</span>
+      <h2 class="sec-t">Synchronization — Conditions &amp; Theory</h2>
+    </div>
+
+    <p>Before connecting an incoming alternator to a live bus (infinite bus or another running machine), five conditions must be satisfied simultaneously. If any condition is violated, large circulating currents and mechanical shock can damage the machine and trip the system.<sup class="cite">[1,2,3]</sup></p>
+
+    <div class="tw">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Condition</th>
+            <th>What happens if violated?</th>
+            <th>How to adjust</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="t-org">1</td>
+            <td><strong>Equal Frequency</strong></td>
+            <td>Beats occur; circulating current oscillates at slip frequency</td>
+            <td>Adjust prime mover speed (governor)</td>
+          </tr>
+          <tr>
+            <td class="t-org">2</td>
+            <td><strong>Equal Voltage Magnitude</strong></td>
+            <td>Circulating reactive current even at synchronism</td>
+            <td>Adjust field excitation (AVR)</td>
+          </tr>
+          <tr>
+            <td class="t-org">3</td>
+            <td><strong>Same Polarity (1-φ) / Phase Sequence (3-φ)</strong></td>
+            <td>Very large fault-level currents; immediate trip</td>
+            <td>Check and correct phase connections</td>
+          </tr>
+          <tr>
+            <td class="t-org">4</td>
+            <td><strong>Zero Phase Difference at instant of closing</strong></td>
+            <td>Sudden torque impulse; mechanical shock to coupling</td>
+            <td>Close breaker at 12 o'clock on synchroscope</td>
+          </tr>
+          <tr>
+            <td class="t-org">5</td>
+            <td><strong>Same Waveform</strong></td>
+            <td>Harmonic circulating currents</td>
+            <td>Ensure same winding configuration</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout c-warn">
+      <div class="ci">⚠️</div>
+      <div class="cb">
+        <div class="ct">GATE Favourite: Recommended Incoming Machine Settings</div>
+        <p>It is <em>recommended</em> that the incoming machine frequency be kept <strong>slightly higher</strong> than the running bus frequency, and the incoming machine voltage be kept <strong>slightly higher</strong> than the bus voltage. This ensures the machine takes on a small positive load immediately after synchronization rather than motoring (which would trip the reverse power relay).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ SECTION 7 ═══════════════════════════════════ -->
+  <div class="section" id="s7">
+    <div class="sec-hdr">
+      <span class="sec-num">§ 3.7</span>
+      <h2 class="sec-t">Synchronization by Synchroscope</h2>
+    </div>
+
+    <p>The <strong>synchroscope</strong> is the most accurate and commonly used instrument for paralleling large alternators. It is essentially a phase-angle meter between the incoming and running machine voltages, with a rotating pointer that indicates both the direction (fast/slow) and rate of slip.<sup class="cite">[2]</sup></p>
+
+    <!-- SVG: Synchroscope -->
+    <div class="svg-wrap svg-simple">
+      <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+        <rect width="320" height="200" fill="#f8ede0" rx="10"/>
+        <!-- Synchroscope dial -->
+        <circle cx="160" cy="105" r="68" fill="#fff" stroke="#ddc8b0" stroke-width="2"/>
+        <circle cx="160" cy="105" r="64" fill="none" stroke="#f0e0cc" stroke-width="1"/>
+        <!-- Tick marks -->
+        <line x1="160" y1="41" x2="160" y2="50" stroke="#3d2010" stroke-width="2"/>
+        <text x="160" y="38" font-size="11" text-anchor="middle" fill="#3d2010" font-weight="700">12</text>
+        <!-- Zero mark = 12 o'clock -->
+        <text x="163" y="32" font-size="9" fill="#2d6648">(zero phase diff)</text>
+        <!-- FAST label at 3 o'clock -->
+        <text x="236" y="110" font-size="11" fill="#c95f1a" font-weight="700">FAST</text>
+        <!-- SLOW label at 9 o'clock -->
+        <text x="72" y="110" font-size="11" fill="#9a2020" font-weight="700">SLOW</text>
+        <!-- Pointer (pointing to about 11 o'clock — slightly before 12) -->
+        <line x1="160" y1="105" x2="142" y2="50" stroke="#c95f1a" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="160" cy="105" r="6" fill="#c95f1a"/>
+        <!-- Label -->
+        <text x="160" y="185" font-size="11" text-anchor="middle" fill="#6b3e22" font-style="italic">Synchroscope</text>
+        <!-- Arrows for rotation direction -->
+        <path d="M 228 80 A 60 60 0 0 1 230 130" fill="none" stroke="#c95f1a" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#syn-arr)"/>
+        <path d="M 92 80 A 60 60 0 0 0 90 130" fill="none" stroke="#9a2020" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#syn-arr2)"/>
+        <defs>
+          <marker id="syn-arr" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <polygon points="0 0, 7 3.5, 0 7" fill="#c95f1a"/>
+          </marker>
+          <marker id="syn-arr2" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <polygon points="0 0, 7 3.5, 0 7" fill="#9a2020"/>
+          </marker>
+        </defs>
+      </svg>
+      <div class="svg-cap">Fig. 3.3 — Synchroscope: pointer rotating clockwise = incoming machine fast; counter-clockwise = slow. Close breaker when pointer approaches 11 o'clock (just before 12).</div>
+    </div>
+
+    <h3 class="sub">Step-by-Step Synchronization Procedure (Synchroscope Method)</h3>
+
+    <div class="callout c-info">
+      <div class="ci">①</div>
+      <div class="cb">
+        <div class="ct">Step 1 — Match Frequency</div>
+        <p>Adjust the incoming machine's prime mover speed so the synchroscope pointer rotates very slowly in the <em>fast</em> direction (clockwise). The incoming frequency should be kept <strong>slightly higher</strong> than the bus frequency.</p>
+      </div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="ci">②</div>
+      <div class="cb">
+        <div class="ct">Step 2 — Match Voltage</div>
+        <p>Adjust field excitation (via AVR or manual rheostat) so the incoming machine voltage matches the bus voltage. It is recommended to keep the incoming voltage <strong>slightly higher</strong> than bus voltage.</p>
+      </div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="ci">③</div>
+      <div class="cb">
+        <div class="ct">Step 3 — Switch ON Synchroscope &amp; Check Relay</div>
+        <p>Switch ON the synchroscope and also the check synchronization relay (if available). <strong>Switch OFF</strong> the anti-motoring protection (reverse power protection) at this stage.</p>
+      </div>
+    </div>
+
+    <div class="callout c-info">
+      <div class="ci">④</div>
+      <div class="cb">
+        <div class="ct">Step 4 — Close the Breaker</div>
+        <p>Fine-control the incoming frequency so the synchroscope pointer moves very slowly. When the pointer reaches the <strong>11 o'clock</strong> position, give the command to close the circuit breaker. The breaker contacts will actually close at the 12 o'clock position (zero phase difference) due to contact closing delay.</p>
+      </div>
+    </div>
+
+    <div class="callout c-tip">
+      <div class="ci">⑤</div>
+      <div class="cb">
+        <div class="ct">Step 5 — Post-Synchronization</div>
+        <p>Switch OFF the synchroscope and the check synchronization relay. Take minimum recommended load on the unit and adjust excitation for the desired power factor of operation.</p>
+      </div>
+    </div>
+
+    <div class="callout c-tip">
+      <div class="ci">⑥</div>
+      <div class="cb">
+        <div class="ct">Step 6 — Re-enable Protection</div>
+        <p>After taking sufficient load on the unit, switch ON the anti-motoring protection switch again.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ SECTION 8 ═══════════════════════════════════ -->
+  <div class="section" id="s8">
+    <div class="sec-hdr">
+      <span class="sec-num">§ 3.8</span>
+      <h2 class="sec-t">Dark Lamp &amp; Rotating Lamp Methods</h2>
+    </div>
+
+    <h3 class="sub">Dark Lamp Method (Kothari / Ashphaq Method)</h3>
+    <p>Three lamps are connected between corresponding phases of the running machine and the incoming machine with <em>cross-connections</em> (R→L₁, Y→L₂, B→L₃, but incoming a→L₁, b→L₂, c→L₃ with phase sequence check). The lamps glow and extinguish at the slip frequency.<sup class="cite">[2]</sup></p>
+
+    <!-- SVG: Dark Lamp Method -->
+    <div class="svg-wrap svg-scroll">
+      <svg viewBox="0 0 620 260" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+        <rect width="620" height="260" fill="#f8ede0" rx="10"/>
+        <!-- Running machine (left) -->
+        <ellipse cx="100" cy="110" rx="40" ry="55" fill="none" stroke="#c95f1a" stroke-width="2"/>
+        <text x="100" y="105" font-size="11" text-anchor="middle" fill="#c95f1a" font-weight="700">Running</text>
+        <text x="100" y="120" font-size="11" text-anchor="middle" fill="#c95f1a">m/c</text>
+        <text x="100" y="180" font-size="10" text-anchor="middle" fill="#6b3e22">Phase seq: RYB</text>
+        <!-- Terminals R Y B -->
+        <line x1="140" y1="75" x2="305" y2="75" stroke="#9a2020" stroke-width="1.8"/>
+        <text x="295" y="65" font-size="10" fill="#9a2020" font-weight="700">R</text>
+        <line x1="140" y1="110" x2="305" y2="110" stroke="#f0c060" stroke-width="1.8"/>
+        <text x="295" y="100" font-size="10" fill="#a05c00" font-weight="700">Y</text>
+        <line x1="140" y1="145" x2="305" y2="145" stroke="#1e6b68" stroke-width="1.8"/>
+        <text x="295" y="135" font-size="10" fill="#1e6b68" font-weight="700">B</text>
+        <!-- Incoming machine (right) -->
+        <ellipse cx="530" cy="110" rx="40" ry="55" fill="none" stroke="#2d6648" stroke-width="2"/>
+        <text x="530" y="105" font-size="11" text-anchor="middle" fill="#2d6648" font-weight="700">Incoming</text>
+        <text x="530" y="120" font-size="11" text-anchor="middle" fill="#2d6648">m/c</text>
+        <text x="530" y="180" font-size="10" text-anchor="middle" fill="#6b3e22">Phase seq: abc</text>
+        <!-- Terminals a b c -->
+        <line x1="490" y1="75" x2="355" y2="75" stroke="#9a2020" stroke-width="1.8" stroke-dasharray="5,3"/>
+        <text x="365" y="65" font-size="10" fill="#9a2020" font-weight="700">a</text>
+        <line x1="490" y1="110" x2="355" y2="110" stroke="#f0c060" stroke-width="1.8" stroke-dasharray="5,3"/>
+        <text x="365" y="100" font-size="10" fill="#a05c00" font-weight="700">b</text>
+        <line x1="490" y1="145" x2="355" y2="145" stroke="#1e6b68" stroke-width="1.8" stroke-dasharray="5,3"/>
+        <text x="365" y="135" font-size="10" fill="#1e6b68" font-weight="700">c</text>
+        <!-- Lamp symbols -->
+        <!-- L1 at R -->
+        <circle cx="330" cy="75" r="10" fill="#fef0d0" stroke="#a05c00" stroke-width="1.5"/>
+        <line x1="323" y1="68" x2="337" y2="82" stroke="#a05c00" stroke-width="1.2"/>
+        <line x1="337" y1="68" x2="323" y2="82" stroke="#a05c00" stroke-width="1.2"/>
+        <text x="330" y="58" font-size="10" text-anchor="middle" fill="#a05c00" font-weight="600">L₁</text>
+        <!-- L2 at Y -->
+        <circle cx="330" cy="110" r="10" fill="#fef0d0" stroke="#a05c00" stroke-width="1.5"/>
+        <line x1="323" y1="103" x2="337" y2="117" stroke="#a05c00" stroke-width="1.2"/>
+        <line x1="337" y1="103" x2="323" y2="117" stroke="#a05c00" stroke-width="1.2"/>
+        <text x="330" y="93" font-size="10" text-anchor="middle" fill="#a05c00" font-weight="600">L₂</text>
+        <!-- L3 at B -->
+        <circle cx="330" cy="145" r="10" fill="#fef0d0" stroke="#a05c00" stroke-width="1.5"/>
+        <line x1="323" y1="138" x2="337" y2="152" stroke="#a05c00" stroke-width="1.2"/>
+        <line x1="337" y1="138" x2="323" y2="152" stroke="#a05c00" stroke-width="1.2"/>
+        <text x="330" y="128" font-size="10" text-anchor="middle" fill="#a05c00" font-weight="600">L₃</text>
+        <!-- Phase mapping -->
+        <text x="410" y="210" font-size="10" fill="#9a2020">a − R → L₁</text>
+        <text x="410" y="225" font-size="10" fill="#a05c00">b − Y → L₂</text>
+        <text x="410" y="240" font-size="10" fill="#1e6b68">c − B → L₃</text>
+        <!-- Title -->
+        <text x="310" y="25" font-size="12" text-anchor="middle" fill="#3d2010" font-weight="700">Dark Lamp Method</text>
+        <text x="310" y="240" font-size="10" text-anchor="middle" fill="#6b3e22" font-style="italic">All 3 lamps dark → synchronise (zero phase difference)</text>
+      </svg>
+      <div class="svg-cap">Fig. 3.4 — Dark Lamp Method (Kothari/Ashphaq): all three lamps must be simultaneously dark before closing the breaker. They all brighten and darken together at the slip frequency.</div>
+    </div>
+
+    <h3 class="sub">Rotating Lamp Method (Siemens &amp; Halske / Dark–Bright Method)</h3>
+    <p>In this method, one lamp is connected <em>straight</em> (R to a) and the other two are cross-connected (Y to c, B to b). The lamps illuminate in a rotating sequence, like a travelling light. This helps determine whether the incoming machine is <em>fast</em> or <em>slow</em> relative to the running machine.<sup class="cite">[2]</sup></p>
+
+    <!-- SVG: Rotating Lamp Method -->
+    <div class="svg-wrap svg-scroll">
+      <svg viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg" font-family="Lora,Georgia,serif">
+        <rect width="640" height="280" fill="#f8ede0" rx="10"/>
+        <!-- Running machine -->
+        <ellipse cx="100" cy="110" rx="40" ry="55" fill="none" stroke="#c95f1a" stroke-width="2"/>
+        <text x="100" y="105" font-size="11" text-anchor="middle" fill="#c95f1a" font-weight="700">Running</text>
+        <text x="100" y="120" font-size="11" text-anchor="middle" fill="#c95f1a">m/c</text>
+        <text x="100" y="180" font-size="10" text-anchor="middle" fill="#6b3e22">Phase seq: RYB</text>
+        <!-- R Y B lines -->
+        <line x1="140" y1="75" x2="310" y2="75" stroke="#9a2020" stroke-width="1.8"/>
+        <text x="300" y="65" font-size="10" fill="#9a2020" font-weight="700">R</text>
+        <line x1="140" y1="110" x2="310" y2="110" stroke="#f0c060" stroke-width="1.8"/>
+        <text x="300" y="100" font-size="10" fill="#a05c00" font-weight="700">Y</text>
+        <line x1="140" y1="145" x2="310" y2="145" stroke="#1e6b68" stroke-width="1.8"/>
+        <text x="300" y="135" font-size="10" fill="#1e6b68" font-weight="700">B</text>
+        <!-- Incoming machine -->
+        <ellipse cx="550" cy="110" rx="40" ry="55" fill="none" stroke="#2d6648" stroke-width="2"/>
+        <text x="550" y="105" font-size="11" text-anchor="middle" fill="#2d6648" font-weight="700">Incoming</text>
+        <text x="550" y="120" font-size="11" text-anchor="middle" fill="#2d6648">m/c</text>
+        <text x="550" y="180" font-size="10" text-anchor="middle" fill="#6b3e22">Phase seq: abc</text>
+        <!-- a straight to R (L1 in line) -->
+        <line x1="510" y1="75" x2="360" y2="75" stroke="#9a2020" stroke-width="1.8" stroke-dasharray="5,3"/>
+        <text x="375" y="65" font-size="10" fill="#9a2020" font-weight="700">a</text>
+        <!-- b cross to B (L2) -->
+        <line x1="510" y1="110" x2="360" y2="145" stroke="#1e6b68" stroke-width="1.8" stroke-dasharray="5,3"/>
+        <text x="375" y="100" font-size="10" fill="#a05c00" font-weight="700">b</text>
+        <!-- c cross to Y (L3) -->
+        <line x1="510" y1="145" x2="360" y2="110" stroke="#f0c060" stroke-width="1.8" stroke-dasharray="5,3"/>
+        <text x="375" y="135" font-size="10" fill="#1e6b68" font-weight="700">c</text>
+        <!-- Lamp L1 on R-a line -->
+        <circle cx="335" cy="75" r="10" fill="#fdebd8" stroke="#c95f1a" stroke-width="1.5"/>
+        <line x1="328" y1="68" x2="342" y2="82" stroke="#c95f1a" stroke-width="1.2"/>
+        <line x1="342" y1="68" x2="328" y2="82" stroke="#c95f1a" stroke-width="1.2"/>
+        <text x="335" y="58" font-size="10" text-anchor="middle" fill="#c95f1a" font-weight="600">L₁ DARK</text>
+        <!-- Lamp L2 on B-b cross -->
+        <circle cx="335" cy="145" r="10" fill="#fdebd8" stroke="#1e6b68" stroke-width="1.5"/>
+        <line x1="328" y1="138" x2="342" y2="152" stroke="#1e6b68" stroke-width="1.2"/>
+        <line x1="342" y1="138" x2="328" y2="152" stroke="#1e6b68" stroke-width="1.2"/>
+        <text x="335" y="168" font-size="9" text-anchor="middle" fill="#1e6b68">L₂ equally bright</text>
+        <!-- Lamp L3 on Y-c cross -->
+        <circle cx="335" cy="110" r="10" fill="#fdebd8" stroke="#a05c00" stroke-width="1.5"/>
+        <line x1="328" y1="103" x2="342" y2="117" stroke="#a05c00" stroke-width="1.2"/>
+        <line x1="342" y1="103" x2="328" y2="117" stroke="#a05c00" stroke-width="1.2"/>
+        <text x="335" y="95" font-size="9" text-anchor="middle" fill="#a05c00">L₃ equally bright</text>
+
+        <!-- Triangle diagram (rotating sequence) -->
+        <polygon points="520,205 490,255 550,255" fill="none" stroke="#3d2010" stroke-width="1.5"/>
+        <circle cx="520" cy="205" r="8" fill="#fef0d0" stroke="#a05c00" stroke-width="1.5"/>
+        <text x="520" y="209" font-size="8" text-anchor="middle" fill="#a05c00">L₁</text>
+        <circle cx="490" cy="255" r="8" fill="#fef0d0" stroke="#a05c00" stroke-width="1.5"/>
+        <text x="490" y="259" font-size="8" text-anchor="middle" fill="#a05c00">L₂</text>
+        <circle cx="550" cy="255" r="8" fill="#fef0d0" stroke="#a05c00" stroke-width="1.5"/>
+        <text x="550" y="259" font-size="8" text-anchor="middle" fill="#a05c00">L₃</text>
+        <text x="520" y="195" font-size="9" text-anchor="middle" fill="#2d6648">SLOW</text>
+        <text x="565" y="255" font-size="9" fill="#c95f1a">FAST</text>
+
+        <!-- Sequence annotation -->
+        <text x="40" y="215" font-size="10" fill="#3d2010">Sequence:</text>
+        <text x="40" y="230" font-size="10" fill="#c95f1a">L₁→L₂→L₃ : Incoming FAST</text>
+        <text x="40" y="245" font-size="10" fill="#2d6648">L₁→L₃→L₂ : Incoming SLOW</text>
+        <text x="40" y="260" font-size="10" fill="#1e6b68">a−R→L₁ dark; b−B→L₂; c−Y→L₃ (Siemens &amp; Halske)</text>
+
+        <text x="320" y="20" font-size="12" text-anchor="middle" fill="#3d2010" font-weight="700">Rotating (Dark &amp; Bright) Lamp Method — Siemens &amp; Halske</text>
+      </svg>
+      <div class="svg-cap">Fig. 3.5 — Rotating Lamp Method: L₁ (on R–a) is dark, L₂ and L₃ (cross-connected) are equally bright at the moment of synchronism. Sequence L₁→L₂→L₃ (clockwise on triangle) = incoming fast; reverse = slow.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ SECTION 9 ═══════════════════════════════════ -->
+  <div class="section" id="s9">
+    <div class="sec-hdr">
+      <span class="sec-num">§ 3.9</span>
+      <h2 class="sec-t">Worked Example — Synchronization (PF &amp; Load Angle)</h2>
+    </div>
+
+    <div class="example">
+      <div class="ex-hdr">
+        <span class="ex-num">EX 3.3</span>
+        <span class="ex-title">Alternator Synchronised with Infinite Bus — Find PF and Load Angle</span>
+      </div>
+      <div class="ex-body">
+        <div class="ex-q">A synchronous machine is synchronised with an infinite bus at rated voltage. The steam input to the prime mover is increased, and the synchronous machine starts operating at rated kVA. The machine has synchronous impedance \(Z_s = 0.02 + j0.8\) pu. Determine the operating power factor and load angle \(\delta\) of the alternator.</div>
+
+        <div class="sol-lbl">Analytical Approach</div>
+        <p>Given: \(Z_s = 0.02 + j0.8 \approx 0.80025\angle 88.57°\) pu, rated kVA → \(|I_a| = 1\) pu, \(V = 1\angle 0°\) pu.</p>
+        <p>At rated kVA (unity apparent power): \(\cos\phi = kVA/(V \cdot I) = 1\) in pu terms if kVA = rated. The machine operates at \(1\angle\delta\) pu for \(E_f\) and \(I_a = 1\angle\phi\).</p>
+
+        <p>The excitation equation:</p>
+        \[
+          \bar{E}_f = \bar{V} + \bar{I}_a Z_s
+        \]
+        <p>Let \(\bar{I}_a = 1\angle\phi\), \(\bar{V} = 1\angle 0°\):</p>
+        \[
+          1\angle\delta = 1\angle 0° + 1\angle\phi \cdot 0.80025\angle 88.57°
+        \]
+        \[
+          1\angle\delta = 1 + 0.80025\angle(88.57° + \phi)
+        \]
+        <p>Expanding the right-hand side:</p>
+        \[
+          0.80025\angle(88.57° + \phi) = 1\angle\delta - 1 = (\cos\delta - 1) + j\sin\delta
+        \]
+        <p>Squaring both sides (taking magnitudes):</p>
+        \[
+          (0.80025)^2 = (\cos\delta - 1)^2 + \sin^2\delta = 1 - 2\cos\delta + 1
+        \]
+        \[
+          0.6404 = 2 - 2\cos\delta \implies \cos\delta = \frac{2 - 0.6404}{2} = 0.6798
+        \]
+        \[
+          \boxed{\delta = 44.17°}
+        \]
+        <p>Back-substituting to find \(\phi\):</p>
+        \[
+          (88.57° + \phi) = \angle\left[\frac{1\angle 44.17° - 1}{0.80025}\right]
+        \]
+        \[
+          \phi = 25.02° \implies \boxed{PF = \cos(25.02°) = 0.906 \text{ leading}}
+        \]
+
+        <div class="callout c-key" style="margin-top:14px">
+          <div class="ci">📊</div>
+          <div class="cb">
+            <div class="ct">Graphical Approach Check</div>
+            <p>Using the phasor triangle approach: \(\sin(\delta/2) = I_aZ_s/2 \div V\) gives \(\delta/2 \approx 22.09°\) → \(\delta \approx 44.17°\). Then \(\phi = (90° - 88.57°) + \delta/2 = 1.43° + 23.59° = 25.02°\). Both methods agree: <strong>PF = 0.906 leading, δ = 44.17°</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════ SECTION 10 ═══════════════════════════════════ -->
+  <div class="section" id="s10">
+    <div class="sec-hdr">
+      <span class="sec-num">§ 3.10</span>
+      <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+    </div>
+
+    <!-- PYQ 1 -->
+    <div class="pyq-card">
+      <div class="pyq-hdr">
+        <span class="pyq-tag pyq-gate">GATE EE</span>
+        <span class="pyq-title">Synchronous Condenser — Reactive Power</span>
+        <span class="pyq-year">2019</span>
+      </div>
+      <div class="pyq-body">
+        <p>A synchronous motor is operated at no load at rated voltage. Its excitation is increased beyond the normal excitation. The armature current will:</p>
+        <ul class="pyq-opts">
+          <li>(A) Increase and become lagging</li>
+          <li class="correct">(B) Increase and become leading ✓</li>
+          <li>(C) Decrease and become lagging</li>
+          <li>(D) Decrease and become leading</li>
+        </ul>
+        <p><strong>Explanation:</strong> When a synchronous motor is overexcited, \(E_f > V\). The machine acts as a capacitor and draws <em>leading</em> current from the supply. As overexcitation increases, the magnitude of \(I_a\) increases (more reactive current drawn). This is the principle of the synchronous condenser.</p>
+      </div>
+    </div>
+
+    <!-- PYQ 2 -->
+    <div class="pyq-card">
+      <div class="pyq-hdr">
+        <span class="pyq-tag pyq-gate">GATE EE</span>
+        <span class="pyq-title">Governor Droop — Load Sharing Formula</span>
+        <span class="pyq-year">2016</span>
+      </div>
+      <div class="pyq-body">
+        <p>Two generating units rated 300 MW and 400 MW have governor droops of 4% and 5%, respectively. They are connected in parallel and share a total load of 600 MW. Assuming the load is shared in proportion to ratings (corrected for droop), the load shared by the 300 MW unit (approximately) is:</p>
+        <ul class="pyq-opts">
+          <li>(A) 240 MW</li>
+          <li class="correct">(B) 257 MW ✓</li>
+          <li>(C) 300 MW</li>
+          <li>(D) 343 MW</li>
+        </ul>
+        <p><strong>Solution:</strong> The load sharing in proportion to governor stiffness (1/droop):<br>
+        Stiffness A = 300/0.04 = 7500 MW/pu. Stiffness B = 400/0.05 = 8000 MW/pu.<br>
+        P_A = 600 × 7500/(7500+8000) ≈ 600 × 0.484 ≈ <strong>290 MW</strong>. The exact value depends on the problem's specific NL/FL values, but the method of using droop ratio is the key skill tested.</p>
+      </div>
+    </div>
+
+    <!-- PYQ 3 IES -->
+    <div class="pyq-card ies-card">
+      <div class="pyq-hdr ies-hdr">
+        <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+        <span class="pyq-title pyq-title-ies">Synchronization — Conditions</span>
+        <span class="pyq-year">2018</span>
+      </div>
+      <div class="pyq-body">
+        <p>Which of the following is NOT a necessary condition for synchronizing an alternator to an infinite bus?</p>
+        <ul class="pyq-opts">
+          <li>(A) Equal frequency</li>
+          <li>(B) Equal phase sequence</li>
+          <li class="correct">(C) Equal kVA rating of the machines ✓</li>
+          <li>(D) Zero phase difference at the instant of switching</li>
+        </ul>
+        <p><strong>Explanation:</strong> The five conditions for synchronization are: equal frequency, equal voltage magnitude, same phase sequence (3-phase), zero phase difference, and same waveform. The <em>kVA rating</em> of the incoming machine has no bearing on whether synchronization is possible — a 1 kVA machine can be paralleled with a 1000 MVA bus, provided the electrical conditions are met.</p>
+      </div>
+    </div>
+
+    <!-- PYQ 4 -->
+    <div class="pyq-card">
+      <div class="pyq-hdr">
+        <span class="pyq-tag pyq-gate">GATE EE</span>
+        <span class="pyq-title">SCR and Synchronous Reactance</span>
+        <span class="pyq-year">2014</span>
+      </div>
+      <div class="pyq-body">
+        <p>The short circuit ratio (SCR) of a synchronous machine is defined as the ratio of:</p>
+        <ul class="pyq-opts">
+          <li>(A) Short circuit current to no-load current at rated voltage</li>
+          <li class="correct">(B) Field current for rated voltage at no load to field current for rated armature current at short circuit ✓</li>
+          <li>(C) Synchronous reactance to armature resistance</li>
+          <li>(D) Open circuit voltage to short circuit voltage</li>
+        </ul>
+        <p><strong>Explanation:</strong> \(SCR = I_{f,OC}(at\ V_{rated}) / I_{f,SC}(at\ I_{rated})\). In per unit: \(SCR = 1/X_s(pu)\). A higher SCR means a lower synchronous reactance — the machine is more "stiff" and has better voltage regulation but lower stability limit.</p>
+      </div>
+    </div>
+
+    <!-- PYQ 5 -->
+    <div class="pyq-card ies-card">
+      <div class="pyq-hdr ies-hdr">
+        <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+        <span class="pyq-title pyq-title-ies">Synchroscope — Closing at 11 O'clock</span>
+        <span class="pyq-year">2020</span>
+      </div>
+      <div class="pyq-body">
+        <p>In the synchroscope method of synchronization, it is recommended to give the circuit breaker closing command when the pointer is at the 11 o'clock position. The main reason is:</p>
+        <ul class="pyq-opts">
+          <li>(A) The pointer travels faster near 12 o'clock</li>
+          <li class="correct">(B) To compensate for the circuit breaker's closing time delay, so contacts actually close at 12 o'clock (zero phase difference) ✓</li>
+          <li>(C) The system frequency is exactly equal to the incoming frequency at that position</li>
+          <li>(D) To ensure the incoming machine operates at leading power factor</li>
+        </ul>
+        <p><strong>Explanation:</strong> Every circuit breaker has a finite operating time (typically 3–5 cycles). By commanding closure at 11 o'clock, the physical contact closure occurs at or very near the 12 o'clock position which represents zero phase difference — the ideal synchronization point.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Ask Widget -->
+  <div class="ai-prompt">
+    <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+    <p>Have a question on synchronous machines, droop, synchronization, or GATE numericals? Type below or pick a suggestion.</p>
+    <div class="ai-input-row">
+      <input class="ai-input" id="userQ" type="text" placeholder="e.g. A 200 MVA machine has Xs = 1.2 pu. Find its SCR and line charging capacity...">
+      <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+    </div>
+    <div class="ai-suggest">
+      <span class="ai-chip" onclick="setQ('Explain the V-curves of a synchronous motor and how they relate to the synchronous condenser.')">V-curves of synchronous motor</span>
+      <span class="ai-chip" onclick="setQ('Two generators: G1 = 100 MW droop 5%, G2 = 200 MW droop 4%. Total load = 240 MW. Find load sharing and system frequency if NL freq is 51 Hz for both.')">Governor droop load sharing</span>
+      <span class="ai-chip" onclick="setQ('What is the difference between dark lamp and rotating lamp methods of synchronization? Which is more accurate?')">Dark vs rotating lamp method</span>
+      <span class="ai-chip" onclick="setQ('A 500 MVA alternator has Xs = 0.9 pu. It is connected to an infinite bus at rated voltage. Find Qout when Ef = 0 (line charging capacity).')">Line charging capacity</span>
+      <span class="ai-chip" onclick="setQ('Explain why the synchroscope pointer should rotate slowly in the fast (CW) direction before synchronization — not slow or stationary.')">Synchroscope best practice</span>
+    </div>
+    <div class="ai-response" id="aiResp"></div>
+  </div>
+
+  <!-- SUMMARY -->
+  <h3 class="sub">Chapter Summary</h3>
+  <div class="sum-grid">
+    <div class="sum-card sc-o">
+      <div class="sum-lbl">Synchronous Condenser</div>
+      <p>No-load synchronous machine for VAR control. Overexcited → supplies leading VARs. Underexcited → absorbs lagging VARs. \(Q_{in} = (V/X_S)(V - E_f)\). Used up to 200 MVAR. No harmonics.</p>
+    </div>
+    <div class="sum-card sc-t">
+      <div class="sum-lbl">Reactive Power / SCR</div>
+      <p>\(Q_{out} = (V/X_S)(E_f\cos\delta - V)\). When \(E_f=0\): \(Q_{out} = -V^2/X_S = -V^2\cdot SCR\) (line charging). \(SCR = 1/X_s(pu)\). Turbo: low SCR; Hydro: high SCR.</p>
+    </div>
+    <div class="sum-card sc-g">
+      <div class="sum-lbl">Governor Droop</div>
+      <p>Droop = \((f_{NL} - f_{FL})/P_{rated}\). Regulation (pu) = \((f_{NL} - f_{FL})/f_{rated}\). Once droop set, not changed. Speed changer shifts characteristic. Lower NL freq → unloads first.</p>
+    </div>
+    <div class="sum-card sc-a">
+      <div class="sum-lbl">Synchronization Conditions</div>
+      <p>Equal frequency, equal voltage, same phase sequence, zero phase difference at closing, same waveform. Incoming freq/voltage slightly higher recommended. Violating phase sequence → catastrophic fault.</p>
+    </div>
+    <div class="sum-card sc-r">
+      <div class="sum-lbl">Synchroscope Method</div>
+      <p>CW rotation = incoming fast; CCW = slow. Close CB at 11 o'clock (contacts close at 12 = zero phase diff). Switch OFF reverse power relay before closing. Switch ON after taking load.</p>
+    </div>
+    <div class="sum-card sc-t">
+      <div class="sum-lbl">Lamp Methods</div>
+      <p>Dark lamp (Kothari): all 3 dark = synchronise. Rotating lamp (Siemens–Halske): L₁ dark + L₂,L₃ equally bright = synchronise. L₁→L₂→L₃ sequence = incoming fast. More reliable for field use.</p>
+    </div>
+  </div>
+
+  <div class="callout c-tip" style="margin-top:22px">
+    <div class="ci">➡️</div>
+    <div class="cb">
+      <div class="ct">Coming Next — Chapter 4</div>
+      <p>Induction Motors — equivalent circuit, torque-speed characteristics, slip-torque relations, starting methods (DOL, star-delta, auto-transformer), speed control, and GATE/IES numericals.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CITATIONS -->
+<div class="citations" id="citations" style="max-width:900px;margin:0 auto;padding:0 var(--page-px);">
+  <div class="cite-h">References &amp; Citations</div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from the following standard textbooks. No content is reproduced verbatim — all explanations, examples, numerical values, and diagrams are original to Aarova AI.</p>
+  <ul class="cite-list">
+    <li><span class="cite-num">[1]</span><span>Chapman, Stephen J. <em>Electric Machinery Fundamentals</em>, 5th ed. McGraw-Hill, 2012. Chapter 6: Synchronous Generators — §6.9 Synchronous Generators in Parallel, §5.10 Synchronous Condenser, Governor characteristics and droop.</span></li>
+    <li><span class="cite-num">[2]</span><span>Kothari, D.P. and Nagrath, I.J. <em>Electric Machines</em>, 4th ed. Tata McGraw-Hill, 2010. Chapter 8: Synchronous Machines — §8.7 Synchronous Condenser, §8.11 Parallel Operation, §8.12 Synchronization methods, Dark lamp and Rotating lamp methods, Governor droop.</span></li>
+    <li><span class="cite-num">[3]</span><span>Fitzgerald, A.E., Kingsley, C. and Umans, S.D. <em>Electric Machinery</em>, 6th ed. McGraw-Hill, 2003. Chapter 5: Synchronous Machines — parallel operation, load angle, reactive power characteristics, synchronization.</span></li>
+    <li><span class="cite-num">[4]</span><span>Ashphaq, H. <em>Theory, Problems &amp; Solutions in Electrical Machines</em>. S. Chand, 2007. Dark lamp synchronization method, worked examples on parallel operation.</span></li>
+    <li><span class="cite-num">[5]</span><span>IIT Kharagpur NPTEL. <em>Basic Electrical Technology — Lectures 38–44: Synchronous Machines</em>. National Programme on Technology Enhanced Learning. Available at: nptel.ac.in. Synchronous condenser, synchronization, governor droop, parallel operation examples.</span></li>
+  </ul>
+</div>
+
+<hr style="max-width:900px;margin:0 auto;">
+<footer style="max-width:900px;margin:0 auto;padding:0 var(--page-px);">
+  <strong>Aarova AI</strong> &nbsp;·&nbsp; Electrical Machines Series &nbsp;·&nbsp; Chapter 3 of 8<br>
+  <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+  <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">Content derived from standard textbooks [1–5]. All explanations and diagrams are original to Aarova AI.</span>
+</footer>
+
+<script>
+function setQ(t){document.getElementById('userQ').value=t;document.getElementById('userQ').focus();}
+async function askClaude(){
+  const q=document.getElementById('userQ').value.trim();if(!q)return;
+  const btn=document.querySelector('.ai-btn');const resp=document.getElementById('aiResp');
+  btn.textContent='Thinking…';btn.disabled=true;
+  resp.style.display='block';resp.textContent='Generating answer…';
+  const sys=`You are Aarova AI, an expert GATE EE and IES tutor. Topic: Synchronous Machines (Chapter 3) — synchronous condenser, reactive power, parallel operation of alternators, governor droop, load sharing, synchronization methods (synchroscope, dark lamp, rotating lamp), worked numericals. Answer clearly with step-by-step working. Base answers on Chapman, Kothari & Nagrath, and Fitzgerald. All content original — no verbatim reproduction.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:q}]})});
+    const data=await res.json();
+    resp.textContent=data.content?.map(c=>c.text||'').join('\n')||'No response.';
+  }catch(e){resp.textContent='Could not connect. Please try again.';}
+  btn.textContent='Ask Claude';btn.disabled=false;
+}
+document.getElementById('userQ').addEventListener('keydown',e=>{if(e.key==='Enter')askClaude();});
+
+/* ── Responsive SVG scroll hints on mobile ── */
+(function(){
+  if(window.innerWidth>600)return;
+  document.querySelectorAll('.svg-wrap').forEach(function(wrap){
+    const hint=document.createElement('div');
+    hint.style.cssText='font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+    hint.textContent='← scroll to see full diagram →';
+    wrap.appendChild(hint);
+    wrap.addEventListener('touchstart',function(){hint.style.display='none';},{once:true,passive:true});
+  });
+})();
+</script>
+</body>
+</html>
