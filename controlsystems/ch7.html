@@ -1,0 +1,2854 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Control Systems Ch.7 Frequency Response Analysis</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- KaTeX for LaTeX math rendering -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 25%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TABLE OF CONTENTS ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH (KaTeX) display ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COLUMN CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── ASK CLAUDE WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* ════ LARGE DESKTOP 1024+ ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Control Systems Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 07 &nbsp;·&nbsp; Control Systems</div>
+            <h1 class="hero-title">Frequency Response <em>Analysis</em></h1>
+            <p class="hero-desc">Sinusoidal transfer function, polar plots, resonant peak, resonant frequency,
+                bandwidth, gain margin, and phase margin — the complete frequency-domain toolkit for judging closed-loop
+                stability and performance, with derivations, solved numericals, and GATE/IES exam focus.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Follows Ch.6 — Stability &amp; Root Locus</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf" style="width:87.5%"></div>
+            </div><span class="pp">Chapter 7 of 8</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">7.1</span>Frequency Response Concept</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">7.6</span>Resonant Frequency</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">7.2</span>Sinusoidal Transfer Function</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">7.7</span>Bandwidth</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">7.3</span>Polar Plot</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">7.8</span>Gain Margin</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">7.4</span>Frequency Response Specifications</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">7.9</span>Phase Margin</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">7.5</span>Resonant Peak</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">7.10</span>GM, PM &amp; Stability</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">7.11</span>Solved Numericals</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">7.12</span>GATE &amp; IES Questions</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: FREQUENCY RESPONSE CONCEPT ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">7.1</span>
+                <h2 class="sec-t">Why Frequency Response — The Big Picture</h2>
+            </div>
+
+            <p>So far, stability has been judged using the characteristic equation — Routh-Hurwitz array, root
+                locus, pole locations in the s-plane. All of these need the transfer function in closed algebraic
+                form. But in practice, many systems are known only through <strong>experimental data</strong> — a
+                motor, an amplifier, or a control loop whose exact transfer function is unknown or too complex to
+                derive analytically. <strong>Frequency response analysis</strong> solves this problem: it studies how
+                a system reacts to sinusoidal inputs of varying frequency, and from that steady-state behaviour alone,
+                we can predict stability, speed of response, and even reconstruct the transfer function.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>A sine wave is the only signal shape that a linear time-invariant (LTI) system never distorts —
+                        it comes out the other end still a sine wave, at the same frequency, only scaled in
+                        magnitude and shifted in phase. This unique property is exactly why sinusoids are used to
+                        "probe" a system's internal dynamics.</p>
+                </div>
+            </div>
+
+            <!-- SVG: sinusoid in -> LTI system -> sinusoid out, scaled and shifted -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch7/fig7.1.png" alt="Figure 7.1">
+                <div class="svg-cap">Fig 7.1 — Steady-state response of a stable LTI system to a sinusoidal input. Only
+                    amplitude and phase change — never the frequency or the waveform shape.</div>
+            </div>
+
+            <h3 class="sub">Where Frequency Response Is Used in Industry</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Practical Applications</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Audio amplifier and filter design — flat passband, controlled
+                            roll-off</li>
+                        <li><span class="dot">▸</span>Servo and motor drive tuning — bandwidth vs noise sensitivity
+                            trade-off</li>
+                        <li><span class="dot">▸</span>Power electronics converter loop compensation (buck/boost
+                            controllers)</li>
+                        <li><span class="dot">▸</span>Aircraft autopilot and flight control loop stability margins</li>
+                        <li><span class="dot">▸</span>Process control (temperature, pressure loops) using Bode/Nyquist
+                            testing</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Why Engineers Prefer It</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Works directly from experimental data — no need for exact G(s)
+                        </li>
+                        <li><span class="dot">▸</span>Stability margins (GM, PM) give a quantitative safety cushion</li>
+                        <li><span class="dot">▸</span>Reveals noise sensitivity and disturbance rejection at each
+                            frequency</li>
+                        <li><span class="dot">▸</span>Naturally extends to systems with transport delay (dead time)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: SINUSOIDAL TRANSFER FUNCTION ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">7.2</span>
+                <h2 class="sec-t">The Sinusoidal Transfer Function</h2>
+            </div>
+
+            <p>For a stable LTI system with transfer function G(s), replacing s by jω converts the Laplace-domain
+                transfer function into the <strong>sinusoidal transfer function</strong> G(jω). This complex quantity
+                completely characterises the steady-state response to a sinusoid of frequency ω.</p>
+
+            <div class="fblock"><span class="flbl">Definition</span>
+
+                <span class="fh">Sinusoidal Transfer Function:</span>
+                \(G(j\omega) = G(s)|_{s = j\omega}\)
+
+                <span class="fh">Magnitude:</span> \(|G(j\omega)| = A_{\text{out}} / A_{\text{in}}\) (amplitude ratio)
+                <span class="fh">Phase:</span> \(\angle G(j\omega) = \varphi = \text{phase shift of output w.r.t.
+                input}\)
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔍</div>
+                <div class="cb">
+                    <div class="ct">Intuitive Understanding</div>
+                    <p>Think of G(jω) as a frequency-dependent "gain dial." At each frequency ω, the dial has a
+                        setting — how much it amplifies (|G(jω)|) and how much it delays the wave (∠G(jω)). As ω
+                        sweeps from 0 to ∞, this dial traces out the complete personality of the system: its speed,
+                        its damping, and its stability margins.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Concept-Building Questions</h3>
+            <div class="two-col">
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Ask Yourself</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Why does phase always become more negative as ω increases? (More
+                            poles/order → more lag)</li>
+                        <li><span class="dot">▸</span>What happens to |G(jω)| as ω → 0? (Equals DC gain for Type-0
+                            systems)</li>
+                        <li><span class="dot">▸</span>What happens as ω → ∞? (Magnitude → 0 for systems with more poles
+                            than zeros — strictly proper)</li>
+                        <li><span class="dot">▸</span>What does an engineer physically observe? (Output sine lags input,
+                            shrinks in size, at higher ω)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p>Two graphical tools are used to visualise G(jω): the <strong>Bode plot</strong> (magnitude in dB and
+                phase in degrees, both vs log ω, on separate axes) and the <strong>polar plot</strong> (a single
+                curve in the complex plane, with ω as the running parameter). GATE and IES frequently test the polar
+                plot because it directly connects to the Nyquist stability criterion.</p>
+        </div>
+        <!-- ═══ S3: POLAR PLOT ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">7.3</span>
+                <h2 class="sec-t">Polar Plot</h2>
+            </div>
+
+            <p>A <strong>polar plot</strong> is the locus traced by G(jω) in the complex plane as ω varies from 0 to
+                ∞. At each frequency, plot the point whose distance from the origin is |G(jω)| and whose angle from
+                the positive real axis is ∠G(jω). Joining these points for increasing ω gives a single continuous
+                curve — the polar plot.</p>
+
+            <div class="callout c-info">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">How to Sketch a Polar Plot — Three Checkpoints</div>
+                    <p>(1) Starting point — evaluate |G(jω)| and ∠G(jω) as ω → 0⁺. (2) Ending point — evaluate as
+                        ω → ∞. (3) Intersections with real and imaginary axes — set imaginary part or real part of
+                        G(jω) to zero and solve for ω. These three checkpoints are usually enough to sketch the
+                        overall shape without plotting every point.</p>
+                </div>
+            </div>
+
+            <!-- SVG: Polar plot of a Type-0 second order system -->
+            <div class="svg-wrap">
+                <img src="images/ch7/fig7.2.png" alt="Figure 7.2">
+                <div class="svg-cap">Fig 7.2 — Typical polar plot of a Type-0, second-order system
+                    G(jω)=K/[(1+jωT₁)(1+jωT₂)]. Starts on the positive real axis at K, ends at the origin,
+                    approaching tangentially along the negative imaginary direction.</div>
+            </div>
+
+            <h3 class="sub">Standard Polar Plot Shapes by System Type</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type / Order</th>
+                            <th>G(jω) form</th>
+                            <th>Start (ω→0)</th>
+                            <th>End (ω→∞)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Type-0, n=2</td>
+                            <td>K/[(1+jωT₁)(1+jωT₂)]</td>
+                            <td>K ∠0° on +real axis</td>
+                            <td>Origin, tangent to −Im axis</td>
+                        </tr>
+                        <tr>
+                            <td>Type-1, n=2</td>
+                            <td>K/[jω(1+jωT)]</td>
+                            <td>∞ ∠−90° (asymptote ‖ −Im axis)</td>
+                            <td>Origin, tangent to −Re axis</td>
+                        </tr>
+                        <tr>
+                            <td>Type-2, n=2</td>
+                            <td>K/[(jω)²]</td>
+                            <td>∞ ∠−180° (on −Re axis)</td>
+                            <td>Origin along −Re axis</td>
+                        </tr>
+                        <tr>
+                            <td>Type-1, n=3</td>
+                            <td>K/[jω(1+jωT₁)(1+jωT₂)]</td>
+                            <td>∞ ∠−90°</td>
+                            <td>Origin, tangent, ∠−270°</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">Memory Rule for Starting Angle</div>
+                    <p>The starting angle (ω→0) of a polar plot equals −90°×(Type number). Type-0 starts at 0°,
+                        Type-1 starts at −90°, Type-2 starts at −180°. The ending angle (ω→∞) equals −90°×(n − m),
+                        where n = number of poles and m = number of zeros of G(s).</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Why the Polar Plot Matters for Stability</h3>
+            <p>The polar plot of the open-loop transfer function G(jω)H(jω), together with the <strong>Nyquist
+                    stability criterion</strong>, tells us whether the closed-loop system is stable by observing how the
+                plot encircles the critical point <strong>(−1, j0)</strong>. Frequency-response specifications such
+                as gain margin and phase margin are read directly from how close the polar plot passes to this
+                critical point — this is the crucial link between Chapters 6 and 7.</p>
+        </div>
+        <!-- ═══ S4: FREQUENCY RESPONSE SPECIFICATIONS ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">7.4</span>
+                <h2 class="sec-t">Frequency Response Specifications — Overview</h2>
+            </div>
+
+            <p>Just as the time-domain response of a standard second-order system is described by ζ (damping ratio)
+                and ω_n (natural frequency), the frequency-domain closed-loop response is described by a matching
+                set of specifications. These are measured on the <strong>closed-loop magnitude plot</strong>
+                |M(jω)| = |C(jω)/R(jω)| vs ω.</p>
+
+            <!-- SVG: closed loop magnitude response with Mr, wr, BW marked -->
+            <div class="svg-wrap">
+                <img src="images/ch7/fig7.3.png" alt="Figure 7.3">
+                <div class="svg-cap">Fig 7.3 — Closed-loop frequency response magnitude curve, showing resonant peak
+                    Mr at resonant frequency ω_r, and bandwidth ω_b where the response first drops to 0.707 (−3 dB)
+                    of the zero-frequency value.</div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Specification</th>
+                            <th>Symbol</th>
+                            <th>Measured On</th>
+                            <th>Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Resonant Peak</td>
+                            <td class="t-org">M_r</td>
+                            <td>Closed-loop |M(jω)|</td>
+                            <td>Maximum value of the magnitude curve — indicates relative stability / overshoot</td>
+                        </tr>
+                        <tr>
+                            <td>Resonant Frequency</td>
+                            <td class="t-org">ω_r</td>
+                            <td>Closed-loop |M(jω)|</td>
+                            <td>Frequency at which M_r occurs — related to speed of response</td>
+                        </tr>
+                        <tr>
+                            <td>Bandwidth</td>
+                            <td class="t-grn">ω_b</td>
+                            <td>Closed-loop |M(jω)|</td>
+                            <td>Frequency range over which the system responds satisfactorily (up to −3 dB)</td>
+                        </tr>
+                        <tr>
+                            <td>Gain Margin</td>
+                            <td class="t-tel">GM</td>
+                            <td>Open-loop G(jω)H(jω)</td>
+                            <td>Extra gain (in dB) that can be added before the system turns unstable</td>
+                        </tr>
+                        <tr>
+                            <td>Phase Margin</td>
+                            <td class="t-tel">PM (γ)</td>
+                            <td>Open-loop G(jω)H(jω)</td>
+                            <td>Extra phase lag (in degrees) that can be added before instability</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The Two Families of Specifications</div>
+                    <p>M_r, ω_r, and BW are <strong>closed-loop</strong> specifications — they describe how the
+                        final feedback system actually behaves. GM and PM are <strong>open-loop</strong>
+                        specifications — they describe how much margin exists before the open-loop plot would drive
+                        the closed-loop system unstable. Both families are connected through ζ and ω_n of an
+                        equivalent second-order system, which is why GATE frequently asks you to convert one into
+                        the other.</p>
+                </div>
+            </div>
+        </div>
+        <!-- ═══ S5: RESONANT PEAK ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">7.5</span>
+                <h2 class="sec-t">Resonant Peak (M_r)</h2>
+            </div>
+
+            <p>Consider the standard closed-loop second-order system with unity feedback:</p>
+            <div class="math-block">
+                $$M(s) = \frac{C(s)}{R(s)} = \frac{\omega_n^2}{s^2 + 2\zeta\omega_n s + \omega_n^2}$$
+            </div>
+            <p>Substituting s = jω and letting u = ω/ω_n (normalised frequency):</p>
+            <div class="math-block">
+                $$M(j\omega) = \frac{1}{(1-u^2) + j(2\zeta u)}, \qquad
+                |M(j\omega)| = \frac{1}{\sqrt{(1-u^2)^2 + (2\zeta u)^2}}$$
+            </div>
+
+            <p>To find the peak, differentiate |M(jω)| with respect to u and set the derivative to zero. This gives
+                the frequency at which the magnitude is maximum, and substituting back gives the peak value itself.</p>
+
+            <div class="fblock"><span class="flbl">Resonant Peak Formula</span>
+
+                <span class="fh">Resonant Peak:</span>
+                \(M_r = \frac{1}{2\zeta\sqrt{1-\zeta^2}}\) <span class="fv">valid only for \(0 \le \zeta \le
+                    0.707\)</span>
+
+                <span class="fh">Condition:</span> For \(\zeta > 0.707\), \(|M(j\omega)|\) decreases monotonically with
+                \(\omega\) — no resonant peak exists, and \(M_r = M(0) = 1\) (\(0\text{ dB}\)).
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Student Mistake</div>
+                    <p>Students often apply the M_r formula for all ζ. Remember: the peak only exists for lightly
+                        damped systems (ζ ≤ 1/√2 ≈ 0.707). For ζ &gt; 0.707 the frequency response has no bump at
+                        all — it just rolls off from ω = 0, and M_r = 1 by definition (the maximum value is at DC).</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Physical Significance</h3>
+            <p>M_r indicates <strong>relative stability</strong>. A large M_r means the system has low damping and
+                will show large overshoot in the time domain — the frequency-domain "bump" corresponds exactly to
+                the ringing seen in a step response. A well-designed control system usually targets M_r between
+                <strong>1.1 and 1.5</strong> (i.e. 1 to 3.5 dB), matching ζ between roughly 0.4 and 0.7.
+            </p>
+
+            <!-- SVG: Mr vs zeta family of curves qualitative -->
+            <div class="svg-wrap">
+                <img src="images/ch7/fig7.4.png" alt="Figure 7.4">
+                <div class="svg-cap">Fig 7.4 — Family of normalised closed-loop magnitude curves for different
+                    damping ratios. Lower ζ → taller resonant peak M_r and lower relative stability.</div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: RESONANT FREQUENCY ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">7.6</span>
+                <h2 class="sec-t">Resonant Frequency (ω_r)</h2>
+            </div>
+
+            <p>The resonant frequency is the ω at which |M(jω)| attains its peak value M_r. Setting
+                d|M(jω)|/du = 0 and solving gives:</p>
+
+            <div class="fblock"><span class="flbl">Resonant Frequency Formula</span>
+
+                <span class="fh">Resonant Frequency:</span>
+                \(\omega_r = \omega_n \sqrt{1 - 2\zeta^2}\) <span class="fv">valid only for \(0 \le \zeta \le
+                    0.707\)</span>
+
+                <span class="fh">At \(\zeta = 0\):</span> \(\omega_r = \omega_n\) (undamped natural frequency — the pole
+                itself)
+                <span class="fh">At \(\zeta = 0.707\):</span> \(\omega_r = 0\) (peak merges into the \(\omega=0\) axis;
+                \(M_r\) just becomes \(1\))
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">Key Observation — GATE Favourite</div>
+                    <p>As ζ increases from 0 toward 0.707, ω_r decreases from ω_n down to 0, while simultaneously
+                        M_r decreases from ∞ down to 1. Both trends move together: lower damping → higher, sharper
+                        resonant peak at a frequency close to ω_n; higher damping → flatter response peaking near
+                        DC (or no peak at all).</p>
+                </div>
+            </div>
+
+            <p>Physically, ω_r indicates how fast the system rings; it is close to, but always slightly less than,
+                the natural frequency ω_n (except at ζ = 0, where they coincide). This mirrors the time-domain fact
+                that the damped natural frequency ω_d = ω_n√(1−ζ²) is also slightly less than ω_n.</p>
+        </div>
+
+        <!-- ═══ S7: BANDWIDTH ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">7.7</span>
+                <h2 class="sec-t">Bandwidth (ω_b)</h2>
+            </div>
+
+            <p><strong>Bandwidth</strong> is the range of frequencies, from ω = 0, over which the magnitude of the
+                closed-loop frequency response stays within 3 dB (i.e. above 0.707 or 70.7%) of its zero-frequency
+                value. Beyond the bandwidth, the system can no longer faithfully track the input — it attenuates and
+                lags too much to be useful.</p>
+
+            <div class="fblock"><span class="flbl">Bandwidth Formula (Standard 2nd Order System)</span>
+
+                <span class="fh">Setting condition:</span>
+                \(|M(j\omega_b)| = 1/\sqrt{2} = 0.707 \text{ of } M(0)\)
+
+                <span class="fh">Bandwidth:</span>
+                \(\omega_b = \omega_n \sqrt{ (1 - 2\zeta^2) + \sqrt{4\zeta^4 - 4\zeta^2 + 2} }\)
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">🔍</div>
+                <div class="cb">
+                    <div class="ct">Intuitive Understanding — Why Bandwidth Matters</div>
+                    <p>Bandwidth is a measure of how fast the system can respond. A wide bandwidth means the system
+                        can track rapidly changing (high-frequency) inputs — good for speed. But wide bandwidth also
+                        means the system passes high-frequency noise more readily. Every design is therefore a
+                        trade-off between <strong>speed of response</strong> and <strong>noise immunity</strong>.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Bandwidth vs Time Response — the Key GATE Relation</h3>
+            <p>Bandwidth is inversely related to rise time — a wider bandwidth means a faster (shorter) rise time in
+                the step response. A commonly used approximate relation, valid for the standard second-order system,
+                connects bandwidth directly to the settling behaviour:</p>
+            <div class="math-block">
+                $$t_r \approx \frac{1.8}{\omega_n} \qquad \text{and} \qquad \omega_b \approx \frac{2.2}{t_r}
+                \;\;\text{(rule-of-thumb for } 0 \le \zeta \le 1\text{)}$$
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Effect of Increasing ζ (fixed ω_n)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>M_r decreases</li>
+                        <li><span class="dot">▸</span>ω_r decreases</li>
+                        <li><span class="dot">▸</span>Bandwidth ω_b decreases</li>
+                        <li><span class="dot">▸</span>System becomes slower but less oscillatory</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Effect of Increasing ω_n (fixed ζ)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>M_r unchanged (depends only on ζ)</li>
+                        <li><span class="dot">▸</span>ω_r increases proportionally</li>
+                        <li><span class="dot">▸</span>Bandwidth ω_b increases proportionally</li>
+                        <li><span class="dot">▸</span>System responds faster, same relative overshoot</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- ═══ S8: GAIN MARGIN ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">7.8</span>
+                <h2 class="sec-t">Gain Margin (GM)</h2>
+            </div>
+
+            <p>Gain margin quantifies how much the open-loop gain can increase before the closed-loop system becomes
+                unstable. It is measured at the <strong>phase crossover frequency</strong> ω_pc — the frequency at
+                which the open-loop phase ∠G(jω)H(jω) equals −180°.</p>
+
+            <div class="fblock"><span class="flbl">Gain Margin Formula</span>
+
+                <span class="fh">Step 1 — Phase crossover frequency \(\omega_{pc}\):</span>
+                \(\angle G(j\omega_{pc})H(j\omega_{pc}) = -180^\circ\)
+
+                <span class="fh">Step 2 — Gain Margin:</span>
+                \(GM \text{ (in dB)} = 20 \log_{10} \left[ \frac{1}{|G(j\omega_{pc})H(j\omega_{pc})|} \right]\)
+                \(GM \text{ (as ratio)} = \frac{1}{|G(j\omega_{pc})H(j\omega_{pc})|}\)
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Physical Meaning</div>
+                    <p>At ω_pc, the output is exactly 180° out of phase with the input — negative feedback has
+                        effectively turned into positive feedback at this one frequency. If the loop gain at this
+                        frequency were to reach exactly 1 (0 dB), the loop would sustain oscillations on its own —
+                        marginal stability. GM tells you how many more dB of gain you can add before that happens.</p>
+                </div>
+            </div>
+
+            <!-- SVG: Polar plot showing GM -->
+            <div class="svg-wrap">
+                <img src="images/ch7/fig7.5.png" alt="Figure 7.5">
+                <div class="svg-cap">Fig 7.5 — Polar plot of G(jω)H(jω). The gap between the real-axis crossing
+                    point and the critical point (−1, j0) is the gain margin. If the crossing lies to the right of
+                    −1 (closer to origin), the system is stable with a positive gain margin.</div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Condition at ω_pc</th>
+                            <th>GM value</th>
+                            <th>Interpretation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>|G(jω_pc)H(jω_pc)| &lt; 1</td>
+                            <td class="t-grn">GM &gt; 0 dB</td>
+                            <td>Stable — real-axis crossing is inside (−1,0)</td>
+                        </tr>
+                        <tr>
+                            <td>|G(jω_pc)H(jω_pc)| = 1</td>
+                            <td class="t-amb">GM = 0 dB</td>
+                            <td>Marginally stable — crossing exactly at −1</td>
+                        </tr>
+                        <tr>
+                            <td>|G(jω_pc)H(jω_pc)| &gt; 1</td>
+                            <td class="t-red">GM &lt; 0 dB</td>
+                            <td>Unstable — crossing beyond −1</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S9: PHASE MARGIN ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">7.9</span>
+                <h2 class="sec-t">Phase Margin (PM)</h2>
+            </div>
+
+            <p>Phase margin quantifies how much additional phase lag can be tolerated before the closed-loop system
+                becomes unstable. It is measured at the <strong>gain crossover frequency</strong> ω_gc — the
+                frequency at which the open-loop magnitude |G(jω)H(jω)| equals 1 (0 dB).</p>
+
+            <div class="fblock"><span class="flbl">Phase Margin Formula</span>
+
+                <span class="fh">Step 1 — Gain crossover frequency \(\omega_{gc}\):</span>
+                \(|G(j\omega_{gc})H(j\omega_{gc})| = 1 \text{ (}0\text{ dB)}\)
+
+                <span class="fh">Step 2 — Phase Margin:</span>
+                \(PM (\gamma) = 180^\circ + \angle G(j\omega_{gc})H(j\omega_{gc})\)
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">🔍</div>
+                <div class="cb">
+                    <div class="ct">Intuitive Understanding</div>
+                    <p>At ω_gc, the gain is already at the boundary of instability (unity). PM tells you how much
+                        more phase lag (delay) the loop can absorb — from extra poles, transport delay, or
+                        unmodelled dynamics — before this borderline-gain frequency also reaches −180° and tips the
+                        system into instability.</p>
+                </div>
+            </div>
+
+            <!-- SVG: Bode-style sketch showing wgc, wpc, GM, PM -->
+            <div class="svg-wrap">
+                <img src="images/ch7/fig7.6.png" alt="Figure 7.6">
+                <div class="svg-cap">Fig 7.6 — Bode magnitude and phase sketch. Gain margin is read on the magnitude
+                    plot at ω_pc (where phase = −180°); phase margin is read on the phase plot at ω_gc (where
+                    magnitude = 0 dB). Both margins being positive, with ω_gc &lt; ω_pc, indicates a stable system.
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">Key Observation — Ordering of Crossover Frequencies</div>
+                    <p>For a stable minimum-phase system, the gain crossover frequency always occurs before the
+                        phase crossover frequency: ω_gc &lt; ω_pc. If this ordering reverses (ω_gc &gt; ω_pc), the
+                        system is unstable, regardless of the individual numerical values of GM and PM.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Approximate Relation Between PM and Damping Ratio</h3>
+            <p>For the standard second-order system, phase margin correlates closely with ζ — a very useful
+                design shortcut used throughout control system design and frequently tested in GATE:</p>
+            <div class="math-block">
+                $$\zeta \approx \frac{\text{PM(degrees)}}{100} \qquad \text{(rule-of-thumb, accurate for PM up to about
+                } 70°\text{)}$$
+            </div>
+            <p>A more precise closed-form relation (derived from the standard second-order open-loop transfer
+                function) is:</p>
+            <div class="math-block">
+                $$\text{PM} = \tan^{-1}\left( \frac{2\zeta}{\sqrt{\sqrt{1+4\zeta^4} - 2\zeta^2}} \right)$$
+            </div>
+        </div>
+        <!-- ═══ S10: GM, PM & STABILITY INTERPRETATION ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">7.10</span>
+                <h2 class="sec-t">Interpreting GM, PM &amp; Overall Stability</h2>
+            </div>
+
+            <p>Gain margin and phase margin together give a complete, quantitative picture of relative stability —
+                far richer than a simple stable/unstable verdict from the Routh array. Both margins must be
+                considered together, because a system can look fine on one measure and marginal on the other.</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>GM</th>
+                            <th>PM</th>
+                            <th>Verdict</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="t-grn">Positive (&gt; 0 dB)</td>
+                            <td class="t-grn">Positive (&gt; 0°)</td>
+                            <td>Stable closed-loop system</td>
+                        </tr>
+                        <tr>
+                            <td class="t-amb">= 0 dB</td>
+                            <td class="t-amb">= 0°</td>
+                            <td>Marginally stable — sustained oscillation</td>
+                        </tr>
+                        <tr>
+                            <td class="t-red">Negative (&lt; 0 dB)</td>
+                            <td class="t-red">Negative (&lt; 0°)</td>
+                            <td>Unstable closed-loop system</td>
+                        </tr>
+                        <tr>
+                            <td>Very large</td>
+                            <td>Very small</td>
+                            <td>Sluggish but jittery near instability — poor design</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Student Mistake — GATE Trap</div>
+                    <p>Do not conclude stability from GM or PM alone without checking sign consistency and the
+                        ω_gc &lt; ω_pc ordering. For systems with multiple gain/phase crossovers (common in
+                        higher-order or non-minimum-phase systems), a positive GM and PM computed at the "wrong"
+                        crossover can give a false stable verdict — always verify with the full Nyquist plot when in
+                        doubt.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Typical Design Values</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Good Practical Design</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Gain Margin: 6 dB to 20 dB (≈ 2 to 10 as a ratio)</li>
+                        <li><span class="dot">▸</span>Phase Margin: 30° to 60°</li>
+                        <li><span class="dot">▸</span>Corresponds to ζ ≈ 0.4 – 0.7 (moderate overshoot, good speed)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Poor / Risky Design</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>PM &lt; 15° — dangerously close to instability, sensitive to gain
+                            drift</li>
+                        <li><span class="dot">▸</span>GM &lt; 3 dB — small manufacturing gain variation can destabilise
+                        </li>
+                        <li><span class="dot">▸</span>PM &gt; 90° — overly conservative, unnecessarily slow response
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub">Common Misconceptions</h3>
+            <div class="two-col">
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Frequently Confused Concepts</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>GM is not "gain margin in the time domain" — it is purely an
+                            open-loop frequency-domain quantity</li>
+                        <li><span class="dot">▸</span>Bandwidth is NOT the same as gain crossover frequency, though
+                            they are numerically close for well-damped systems</li>
+                        <li><span class="dot">▸</span>M_r relates to closed-loop peaking; GM/PM relate to open-loop
+                            margins — never mix the two loops when applying formulas</li>
+                        <li><span class="dot">▸</span>A system can have infinite GM (phase never reaches −180°) yet
+                            still have a finite, small PM — always check both</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">GATE Perspective — What Gets Asked</div>
+                    <p>Typical GATE questions give an open-loop transfer function and ask you to find ω_pc, ω_gc, GM,
+                        and PM directly from the equations, or give a Bode/polar sketch and ask you to read off the
+                        margins graphically, or give ζ and ask for the corresponding M_r, ω_r, and PM using the
+                        standard second-order relations. Mastering the algebra (setting phase = −180° or magnitude =
+                        1) is the single most important exam skill in this chapter.
+                        <span class="prob prob-h">🟢 HIGH</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- ═══ S11: SOLVED NUMERICALS ═══ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr"><span class="sec-num">7.11</span>
+                <h2 class="sec-t">Solved Numerical Examples</h2>
+            </div>
+
+            <!-- Example 1 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 7.1</span>
+                    <span class="ex-title">Find M_r, ω_r, and bandwidth for ζ = 0.5, ω_n = 10 rad/s</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A unity-feedback second-order control system has ζ = 0.5 and ω_n = 10 rad/s.
+                        Determine the resonant peak M_r, the resonant frequency ω_r, and the bandwidth ω_b.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Check validity:</strong> ζ = 0.5 &lt; 0.707, so M_r and ω_r formulas apply.</p>
+                    <div class="math-block">
+                        $$M_r = \frac{1}{2\zeta\sqrt{1-\zeta^2}} = \frac{1}{2(0.5)\sqrt{1-0.25}} = \frac{1}{\sqrt{0.75}}
+                        = 1.155$$
+                    </div>
+                    <div class="math-block">
+                        $$\omega_r = \omega_n\sqrt{1-2\zeta^2} = 10\sqrt{1-0.5} = 10\sqrt{0.5} = 7.07 \text{ rad/s}$$
+                    </div>
+                    <div class="math-block">
+                        $$\omega_b = \omega_n\sqrt{(1-2\zeta^2)+\sqrt{4\zeta^4-4\zeta^2+2}}
+                        = 10\sqrt{0.5+\sqrt{0.25-1+2}} = 10\sqrt{0.5+1.118} = 10\sqrt{1.618} = 12.72 \text{ rad/s}$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Key Observation</div>
+                            <p>Note ω_r (7.07) &lt; ω_n (10) &lt; ω_b (12.72) — this ordering always holds for
+                                0 &lt; ζ &lt; 0.707. M_r = 1.155 (≈ 1.25 dB) is a healthy, moderate peak.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 7.2</span>
+                    <span class="ex-title">Find Gain Margin for G(s)H(s) = 10 / [s(s+1)(s+2)]</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">For the open-loop transfer function G(s)H(s) = 10 / [s(s+1)(s+2)], find the
+                        phase crossover frequency and the gain margin.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — Substitute s = jω:</strong></p>
+                    <div class="math-block">
+                        $$G(j\omega)H(j\omega) = \frac{10}{j\omega(j\omega+1)(j\omega+2)}$$
+                    </div>
+                    <p><strong>Step 2 — Phase expression:</strong></p>
+                    <div class="math-block">
+                        $$\angle G(j\omega)H(j\omega) = -90° - \tan^{-1}(\omega) -
+                        \tan^{-1}\!\left(\frac{\omega}{2}\right)$$
+                    </div>
+                    <p>Set this equal to −180° and solve for ω_pc:</p>
+                    <div class="math-block">
+                        $$\tan^{-1}(\omega) + \tan^{-1}\!\left(\frac{\omega}{2}\right) = 90°
+                        \;\Rightarrow\; \omega\cdot\frac{\omega}{2} = 1 \;\Rightarrow\; \omega_{pc} = \sqrt{2} = 1.414
+                        \text{ rad/s}$$
+                    </div>
+                    <p><strong>Step 3 — Magnitude at ω_pc:</strong></p>
+                    <div class="math-block">
+                        $$|G(j\omega_{pc})H(j\omega_{pc})| =
+                        \frac{10}{\omega_{pc}\sqrt{\omega_{pc}^2+1}\sqrt{\omega_{pc}^2+4}}
+                        = \frac{10}{1.414 \times \sqrt{3} \times \sqrt{6}} = \frac{10}{1.414 \times 1.732 \times 2.449}
+                        = 1.667$$
+                    </div>
+                    <p><strong>Step 4 — Gain Margin:</strong></p>
+                    <div class="math-block">
+                        $$GM = 20\log_{10}\!\left(\frac{1}{1.667}\right) = 20\log_{10}(0.6) = -4.44 \text{ dB}$$
+                    </div>
+                    <div class="callout c-danger">
+                        <div class="ci">✗</div>
+                        <div class="cb">
+                            <div class="ct">Conclusion</div>
+                            <p>GM = −4.44 dB (negative) means this closed-loop system with K = 10 is
+                                <strong>unstable</strong>. The gain would need to be reduced (multiplied by 0.6, i.e.
+                                by roughly 4.44 dB) to reach the stability boundary.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 7.3</span>
+                    <span class="ex-title">Find Phase Margin for G(s) = 1 / [s(s+1)]</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">For unity feedback with G(s) = 1/[s(s+1)], determine the gain crossover
+                        frequency and the phase margin.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — Magnitude condition:</strong></p>
+                    <div class="math-block">
+                        $$|G(j\omega)| = \frac{1}{\omega\sqrt{\omega^2+1}} = 1 \;\Rightarrow\; \omega^2(\omega^2+1) =
+                        1$$
+                    </div>
+                    <p>Let x = ω²: x² + x − 1 = 0 → x = (−1+√5)/2 = 0.618 → ω_gc = √0.618 = 0.786 rad/s</p>
+                    <p><strong>Step 2 — Phase at ω_gc:</strong></p>
+                    <div class="math-block">
+                        $$\angle G(j\omega_{gc}) = -90° - \tan^{-1}(0.786) = -90° - 38.17° = -128.17°$$
+                    </div>
+                    <p><strong>Step 3 — Phase Margin:</strong></p>
+                    <div class="math-block">
+                        $$PM = 180° + (-128.17°) = 51.83°$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Interpretation</div>
+                            <p>PM ≈ 51.8° corresponds (using ζ ≈ PM/100) to ζ ≈ 0.52 — a well-damped, healthy
+                                design. Since this G(s)H(s) never reaches −180° phase (max phase lag → −180° only
+                                as ω → ∞), the gain margin is theoretically infinite.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 4 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 7.4</span>
+                    <span class="ex-title">Determine M_r from a given phase margin</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A control system has a phase margin of 45°. Using the approximate relation,
+                        estimate the damping ratio ζ and hence the resonant peak M_r.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — Estimate ζ:</strong></p>
+                    <div class="math-block">
+                        $$\zeta \approx \frac{\text{PM}}{100} = \frac{45}{100} = 0.45$$
+                    </div>
+                    <p><strong>Step 2 — Resonant peak:</strong></p>
+                    <div class="math-block">
+                        $$M_r = \frac{1}{2\zeta\sqrt{1-\zeta^2}} = \frac{1}{2(0.45)\sqrt{1-0.2025}}
+                        = \frac{1}{0.9\times 0.893} = 1.244$$
+                    </div>
+                    <p><strong>Answer:</strong> ζ ≈ 0.45, M_r ≈ 1.24 (≈ 1.87 dB) — a moderate, well-behaved peak,
+                        typical of a solidly designed feedback loop.</p>
+                </div>
+            </div>
+
+            <!-- Example 5 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 7.5</span>
+                    <span class="ex-title">Effect of gain K on GM — quick scaling</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">For the system in Example 7.2, G(s)H(s) = K/[s(s+1)(s+2)], the gain margin at
+                        K = 10 was found to be −4.44 dB. What value of K would give a gain margin of exactly 6 dB?</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>Phase crossover frequency ω_pc is independent of K (it depends only on the phase, and gain K
+                        does not affect phase). So ω_pc = 1.414 rad/s still. At K = 10, |G(jω_pc)H(jω_pc)| = 1.667.
+                        For a new gain K′, magnitude scales linearly with K:</p>
+                    <div class="math-block">
+                        $$|G(j\omega_{pc})H(j\omega_{pc})|_{K'} = 1.667 \times \frac{K'}{10}$$
+                    </div>
+                    <p>We need GM = 6 dB, i.e. the ratio 1/|G H| = 10^(6/20) = 1.995, so |GH| = 0.5012:</p>
+                    <div class="math-block">
+                        $$1.667 \times \frac{K'}{10} = 0.5012 \;\Rightarrow\; K' = \frac{0.5012 \times 10}{1.667} =
+                        3.0$$
+                    </div>
+                    <p><strong>Answer:</strong> K′ ≈ 3.0 gives GM = 6 dB. This shows how gain margin scales directly
+                        (in dB) as 20 log₁₀(K), a fast mental-math shortcut for GATE.</p>
+                </div>
+            </div>
+        </div>
+        <!-- ═══ S12: GATE & IES QUESTIONS ═══ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr"><span class="sec-num">7.12</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Concepts</h2>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">High Probability Topics in Frequency Response Analysis
+                        <span class="prob prob-h">🟢 HIGH</span></span>
+                </div>
+                <div class="gate-body">
+                    <p>The following sub-topics consistently appear in GATE EE (Control Systems section) and IES
+                        E&amp;T:</p>
+                    <div class="two-col">
+                        <div class="mini-card mc-grn">
+                            <div class="mc-t">🟢 High Probability (GATE)</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>Computing GM and PM from a given G(s)H(s)</li>
+                                <li><span class="dot">▸</span>Relating ζ, PM, M_r using standard formulas</li>
+                                <li><span class="dot">▸</span>Reading GM/PM off a polar or Bode sketch</li>
+                                <li><span class="dot">▸</span>Stability verdict from sign of GM and PM</li>
+                                <li><span class="dot">▸</span>Effect of gain K on stability margins</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card mc-amb">
+                            <div class="mc-t">🟡 Medium Probability</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>Sketching polar plots for Type-0/1/2 systems</li>
+                                <li><span class="dot">▸</span>Bandwidth calculation and its relation to rise time</li>
+                                <li><span class="dot">▸</span>Resonant peak / frequency for a given ζ, ω_n</li>
+                                <li><span class="dot">▸</span>Identifying start/end angle rules on polar plots</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Phase margin and damping ratio relation</span>
+                    <span class="pyq-year">Concept — 2019</span>
+                </div>
+                <div class="pyq-body">
+                    <p>For a unity-feedback second-order system, if the phase margin is found to be 60°, the damping
+                        ratio ζ is approximately:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 0.3</li>
+                        <li class="correct">(B) 0.6</li>
+                        <li>(C) 0.9</li>
+                        <li>(D) 1.2</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> Using the rule-of-thumb ζ ≈ PM/100 = 60/100 = 0.6. This
+                        approximation is accurate for PM up to about 70° and is the fastest route to the answer in
+                        an exam setting; the exact formula gives a very close value.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Gain crossover vs phase crossover ordering</span>
+                    <span class="pyq-year">Concept — 2020</span>
+                </div>
+                <div class="pyq-body">
+                    <p>For a stable, minimum-phase closed-loop control system with positive gain margin and positive
+                        phase margin, which of the following must be true?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) ω_gc &gt; ω_pc</li>
+                        <li class="correct">(B) ω_gc &lt; ω_pc</li>
+                        <li>(C) ω_gc = ω_pc</li>
+                        <li>(D) No fixed relation exists</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> Stability requires the gain to drop below 0 dB before the
+                        phase reaches −180°. This means the gain crossover frequency must occur earlier (at lower ω)
+                        than the phase crossover frequency: ω_gc &lt; ω_pc.
+                    </p>
+                </div>
+            </div>
+
+            <!-- IES PYQ -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Resonant peak existence condition</span>
+                    <span class="pyq-year">IES 2017</span>
+                </div>
+                <div class="pyq-body">
+                    <p>For the standard second-order closed-loop system, the resonant peak M_r exists (is finite and
+                        greater than 1) only when:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) ζ &gt; 1</li>
+                        <li>(B) ζ = 1</li>
+                        <li class="correct">(C) 0 ≤ ζ ≤ 0.707</li>
+                        <li>(D) ζ can take any positive value</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);">
+                        <strong>Explanation:</strong> The condition 0 ≤ ζ ≤ 1/√2 (≈ 0.707) is derived from requiring
+                        the derivative-based critical point to be a genuine maximum (not at ω = 0). Beyond ζ = 0.707,
+                        the magnitude curve decreases monotonically from ω = 0 and M_r is simply 1.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PYQ 3 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Starting angle of a Type-2 polar plot</span>
+                    <span class="pyq-year">Concept — 2022</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The polar plot of G(jω)H(jω) = K/(jω)² starts (as ω → 0⁺) at:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) ∞ at angle 0°</li>
+                        <li>(B) ∞ at angle −90°</li>
+                        <li class="correct">(C) ∞ at angle −180°</li>
+                        <li>(D) 0 at angle −180°</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> Using the memory rule, starting angle = −90° × (Type number).
+                        For a Type-2 system, starting angle = −90° × 2 = −180°, with magnitude tending to infinity —
+                        the plot begins on the negative real axis, far from the origin.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Quick Revision — Memory Tricks</h3>
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic: "GM at Phase, PM at Gain"</div>
+                    <p>Gain Margin is measured at the <strong>Phase</strong> crossover (where phase = −180°). Phase
+                        Margin is measured at the <strong>Gain</strong> crossover (where gain = 0 dB). The names are
+                        deliberately "crossed" — remember it as GM↔Phase, PM↔Gain, and you will never mix up which
+                        crossover frequency to use.</p>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The "MRB" Chain for Damping</div>
+                    <p>As damping ratio ζ increases: <strong>M</strong>_r decreases, <strong>R</strong>esonant
+                        frequency ω_r decreases, <strong>B</strong>andwidth ω_b decreases. All three frequency-domain
+                        indicators move together with damping — memorise this single chain instead of three separate
+                        formulas.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ AI WIDGET ═══ -->
+        <div class="ai-prompt">
+            <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+            <p>Have a question on polar plots, resonant peak, bandwidth, gain margin, or phase margin? Type below or
+                pick a suggestion.</p>
+            <div class="ai-input-row">
+                <input class="ai-input" id="userQ" type="text"
+                    placeholder="e.g. Find the gain margin and phase margin for G(s) = 20/[s(s+2)(s+5)]…">
+                <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+            </div>
+            <div class="ai-suggest">
+                <span class="ai-chip"
+                    onclick="setQ('Derive the resonant peak formula Mr = 1/(2ζ√(1−ζ²)) starting from the closed-loop magnitude expression of a standard second-order system.')">Derive
+                    the M_r formula</span>
+                <span class="ai-chip"
+                    onclick="setQ('Sketch the polar plot of G(jω) = 10/[jω(1+jω)(1+2jω)] and find the phase crossover frequency and gain margin.')">Polar
+                    plot + gain margin</span>
+                <span class="ai-chip"
+                    onclick="setQ('Explain why bandwidth and rise time are inversely related, using the standard second-order system as an example.')">Bandwidth
+                    vs rise time</span>
+                <span class="ai-chip"
+                    onclick="setQ('A unity feedback system has G(s) = K/[s(s+4)(s+8)]. Find the value of K for a phase margin of 45°.')">Find
+                    K for a target PM</span>
+                <span class="ai-chip"
+                    onclick="setQ('Compare gain margin and phase margin as stability indicators — when can one be misleading without the other?')">GM
+                    vs PM — which is more reliable?</span>
+            </div>
+            <div class="ai-response" id="aiResp"></div>
+        </div>
+
+        <!-- ═══ SUMMARY GRID ═══ -->
+        <h3 class="sub">Chapter Summary</h3>
+        <div class="sum-grid">
+            <div class="sum-card sc-o">
+                <div class="sum-lbl">Frequency Response Concept</div>
+                <p>\(G(j\omega) = G(s)|_{s=j\omega}\). \(|G(j\omega)|\) and \(\angle G(j\omega)\) describe steady-state
+                    amplitude scaling and phase
+                    shift for a sinusoidal input at each \(\omega\).</p>
+            </div>
+            <div class="sum-card sc-g">
+                <div class="sum-lbl">Polar Plot</div>
+                <p>Locus of \(G(j\omega)\) in complex plane, \(\omega: 0 \to \infty\). Start angle = \(-90^\circ \times
+                    \text{Type}\). End angle = \(-90^\circ \times (n-m)\).
+                    Basis of the Nyquist criterion around \((-1, j0)\).</p>
+            </div>
+            <div class="sum-card sc-t">
+                <div class="sum-lbl">\(M_r\) and \(\omega_r\)</div>
+                <p>\(M_r = \frac{1}{2\zeta\sqrt{1-\zeta^2}}\), \(\omega_r = \omega_n\sqrt{1-2\zeta^2}\), valid only for
+                    \(\zeta \le 0.707\). Both decrease as \(\zeta\)
+                    increases; no peak beyond \(\zeta = 0.707\).</p>
+            </div>
+            <div class="sum-card sc-a">
+                <div class="sum-lbl">Bandwidth</div>
+                <p>\(\omega_b = \omega_n\sqrt{(1-2\zeta^2)+\sqrt{4\zeta^4-4\zeta^2+2}}\). Frequency range up to
+                    \(-3\text{ dB}\). Wider BW → faster response,
+                    more noise sensitivity.</p>
+            </div>
+            <div class="sum-card sc-r">
+                <div class="sum-lbl">Gain Margin</div>
+                <p>\(GM = 20\log_{10}[1/|GH(j\omega_{pc})|]\) at phase = \(-180^\circ\). \(GM > 0\text{ dB} \to\)
+                    stable. Tells extra gain
+                    tolerable before instability.</p>
+            </div>
+            <div class="sum-card sc-g">
+                <div class="sum-lbl">Phase Margin</div>
+                <p>\(PM = 180^\circ + \angle GH(j\omega_{gc})\) at \(|GH| = 1\). \(\zeta \approx PM/100\). \(PM >
+                    0^\circ \to\) stable. Requires
+                    \(\omega_{gc} < \omega_{pc}\) for a stable minimum-phase system.</p>
+            </div>
+        </div>
+
+
+
+        <!-- ═══ CITATIONS ═══ -->
+        <div class="citations" id="citations">
+            <div class="cite-h">References &amp; Citations</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is
+                derived from the following standard textbooks and learning resources. All explanations,
+                derivations, diagrams and examples are original to Aarova AI.</p>
+            <ul class="cite-list">
+                <li><span class="cite-num">[1]</span><span>Nise, Norman S. <em>Control Systems
+                            Engineering</em>, 7th ed. Wiley, 2015. Chapters 8 &amp; 10 — Frequency response
+                        techniques, gain and phase margin, resonant peak and bandwidth.</span></li>
+                <li><span class="cite-num">[2]</span><span>Ogata, Katsuhiko. <em>Modern Control
+                            Engineering</em>, 5th ed. Prentice Hall, 2010. Chapter 8 — Frequency-response analysis,
+                        Bode and polar (Nyquist) plots.</span></li>
+                <li><span class="cite-num">[3]</span><span>Nagrath, I.J. and Gopal, M. <em>Control Systems
+                            Engineering</em>, 5th ed. New Age International, 2007. Chapter 7 — Frequency-domain
+                        specifications and stability margins.</span></li>
+                <li><span class="cite-num">[4]</span><span>IIT Kharagpur NPTEL. <em>Control System Engineering —
+                            Lectures on Frequency Response Analysis</em>. National Programme on Technology Enhanced
+                        Learning. nptel.ac.in. Polar plot construction and stability margin derivations.</span></li>
+            </ul>
+        </div>
+
+        <hr>
+        <footer>
+            <strong>Aarova AI</strong> &nbsp;·&nbsp; Control Systems Series &nbsp;·&nbsp; Chapter 7 of
+            8<br>
+            <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+            <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All
+                explanations and diagrams are original to Aarova AI. Derived from standard textbooks
+                [1–5].</span>
+        </footer>
+    </div>
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Control Systems. Topic: Frequency Response Analysis (Chapter 7). Cover polar plots, resonant peak, resonant frequency, bandwidth, gain margin, phase margin. Answer with step-by-step working for numericals. Base answers on Nise, Ogata, Nagrath & Gopal. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

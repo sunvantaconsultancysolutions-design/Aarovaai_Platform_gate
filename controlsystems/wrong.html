@@ -1,0 +1,2686 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Network Theory Ch.5 AC Power Analysis</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- KaTeX for LaTeX math rendering -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 62%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TABLE OF CONTENTS ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        ul.mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            display: flex;
+            gap: 8px;
+            font-size: clamp(13px, 1.9vw, 15.5px);
+            color: var(--text2);
+            padding: 5px 0;
+            line-height: 1.6;
+        }
+
+        .mc-list .dot {
+            color: var(--orange);
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH (KaTeX) display ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COLUMN CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 13px;
+            margin: 18px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+            transition: transform .18s, box-shadow .18s;
+        }
+
+        .sum-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .sum-lbl {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 8px;
+        }
+
+        .sum-card p {
+            font-size: 13px;
+            color: var(--text2);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── ASK CLAUDE WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+        }
+
+        /* ════ DESKTOP 769+ ════ */
+        @media(min-width:769px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Network Theory Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">GATE EC</span><span
+                class="hbadge">IES</span></div>
+    </header>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 05 &nbsp;·&nbsp; Network Theory / Circuit Analysis</div>
+            <h1 class="hero-title">AC Power <em>Analysis</em></h1>
+            <p class="hero-desc">Instantaneous, average and reactive power, apparent power, complex power, power
+                factor and power-factor correction, the power triangle, and maximum power transfer in AC circuits —
+                complete conceptual coverage with derivations, solved numericals, and GATE / IES exam-focused
+                insights.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge badge-p">GATE EC</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">🟠 Important</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Chapter 5 of 8</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">5.1</span>Instantaneous Power</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">5.5</span>Complex Power</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">5.2</span>Average (Real) Power</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">5.6</span>Power Factor &amp; Improvement</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">5.3</span>Reactive Power</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">5.7</span>Max. Power Transfer (AC)</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">5.4</span>Apparent Power &amp; Power Triangle</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">5.8</span>Solved Numericals</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">5.9</span>GATE &amp; IES Questions</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: INSTANTANEOUS POWER ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">5.1</span>
+                <h2 class="sec-t">Instantaneous Power — Where AC Power Analysis Begins</h2>
+            </div>
+
+            <p>In a DC circuit, power is a single fixed number: <strong>P = VI</strong>. In an AC circuit, voltage
+                and current are both sinusoids that constantly change with time, and — unless the circuit is purely
+                resistive — they are not even in step with each other. So the very first question in AC power
+                analysis is: <em>what does "power" even mean when both v and i are moving targets?</em> The answer
+                is the <strong>instantaneous power</strong> p(t), the product of the instantaneous voltage and
+                instantaneous current at every single moment in time.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Why This Topic Matters</div>
+                    <p>Every electrical bill, every transformer rating (kVA), every capacitor bank installed by a
+                        utility, and every impedance-matching network in a communication system traces back to the
+                        power quantities defined in this chapter. AC power analysis is the bridge between circuit
+                        theory and real-world electrical engineering — power systems, machines, and electronics all
+                        borrow this vocabulary.</p>
+                </div>
+            </div>
+
+            <p>Let the voltage across a load and the current through it be pure sinusoids of the same angular
+                frequency ω, differing only in magnitude and phase:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Voltage and Current Phasors (Time Domain)</div>
+                $$v(t) = V_m \cos(\omega t + \theta_v), \qquad i(t) = I_m \cos(\omega t + \theta_i)$$
+            </div>
+
+            <p>The instantaneous power delivered to the load is simply their product:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Instantaneous Power</div>
+                $$p(t) = v(t)\,i(t) = V_m I_m \cos(\omega t + \theta_v)\cos(\omega t + \theta_i)$$
+            </div>
+
+            <p>Using the product-to-sum trigonometric identity
+                \(\cos A \cos B = \tfrac{1}{2}[\cos(A-B) + \cos(A+B)]\), this expands into a very revealing form —
+                a <strong>constant term</strong> plus a term that <strong>oscillates at twice the supply
+                    frequency</strong>:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Instantaneous Power — Expanded Form</div>
+                $$p(t) = \frac{1}{2}V_mI_m\cos(\theta_v-\theta_i) \;+\; \frac{1}{2}V_mI_m\cos(2\omega
+                t+\theta_v+\theta_i)$$
+            </div>
+
+            <!-- SVG: v(t), i(t), p(t) waveforms -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" font-family="Lora, serif">
+                    <rect x="0" y="0" width="720" height="340" fill="none" />
+                    <!-- axes -->
+                    <line x1="40" y1="170" x2="700" y2="170" stroke="var(--text3)" stroke-width="1.2" />
+                    <line x1="40" y1="30" x2="40" y2="320" stroke="var(--text3)" stroke-width="1.2" />
+                    <text x="700" y="185" font-size="12" fill="var(--text3)" text-anchor="end">ωt</text>
+                    <!-- v(t) blue-ish teal -->
+                    <path d="M 40 170 Q 85 70 130 170 T 220 170 T 310 170 T 400 170 T 490 170 T 580 170 T 670 170"
+                        fill="none" stroke="var(--teal)" stroke-width="2.5" />
+                    <!-- i(t) lagging by 45deg -->
+                    <path d="M 40 170 Q 96 130 152 210 T 264 210 T 376 210 T 488 210 T 600 210 T 670 190" fill="none"
+                        stroke="var(--orange)" stroke-width="2.5" stroke-dasharray="1 0" />
+                    <!-- p(t): DC-shifted double frequency, drawn lower panel -->
+                    <line x1="40" y1="280" x2="700" y2="280" stroke="var(--border2)" stroke-width="1" />
+                    <path
+                        d="M 40 260 Q 62 235 85 260 T 130 260 T 175 260 T 220 260 T 265 260 T 310 260 T 355 260 T 400 260 T 445 260 T 490 260 T 535 260 T 580 260 T 625 260 T 670 260"
+                        fill="none" stroke="var(--green)" stroke-width="2.5" />
+                    <line x1="40" y1="248" x2="700" y2="248" stroke="var(--green)" stroke-width="1"
+                        stroke-dasharray="4 3" />
+                    <text x="46" y="240" font-size="11" fill="var(--green)">P (average, DC term)</text>
+                    <!-- legend -->
+                    <circle cx="500" cy="40" r="5" fill="var(--teal)" /><text x="512" y="44" font-size="12"
+                        fill="var(--text2)">v(t)</text>
+                    <circle cx="560" cy="40" r="5" fill="var(--orange)" /><text x="572" y="44" font-size="12"
+                        fill="var(--text2)">i(t) lags v</text>
+                    <circle cx="500" cy="300" r="5" fill="var(--green)" /><text x="512" y="304" font-size="12"
+                        fill="var(--text2)">p(t) = vi &nbsp;(always ≥ P − amplitude, oscillates at 2ω)</text>
+                </svg>
+                <div class="svg-cap">Fig 5.1 — v(t) and i(t) as sinusoids of the same frequency, with i lagging v by
+                    an inductive phase angle θ. The resulting p(t) = v(t)·i(t) has a constant (average) part plus a
+                    ripple at twice the source frequency 2ω.</div>
+            </div>
+
+            <h3 class="sub">Reading the Two Terms Physically</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Constant Term</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>\(\tfrac{1}{2}V_mI_m\cos(\theta_v-\theta_i)\) does not depend
+                            on time</li>
+                        <li><span class="dot">▸</span>This is the net energy transferred to the load per cycle — the
+                            useful, billable power</li>
+                        <li><span class="dot">▸</span>It becomes the <strong>average power P</strong> (Section 5.2)
+                        </li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Double-Frequency Term</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Oscillates at 2ω — twice the supply frequency</li>
+                        <li><span class="dot">▸</span>Its time-average over a full cycle is exactly zero</li>
+                        <li><span class="dot">▸</span>Represents energy that sloshes back and forth between source
+                            and any reactive element (L or C)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔍</div>
+                <div class="cb">
+                    <div class="ct">Intuitive Picture</div>
+                    <p>Think of a reactive element (inductor or capacitor) as a spring that stores and releases
+                        energy every half-cycle without ever "spending" it. The double-frequency ripple in p(t) is
+                        that spring action. Only the constant term does real work — turning a motor shaft, lighting a
+                        bulb, or heating a resistor.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">What If This Parameter Increases?</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Change</th>
+                            <th>Effect on p(t)</th>
+                            <th>Physical Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>θ = θv − θi increases (more reactive)</td>
+                            <td class="t-red">Average term shrinks (cosθ↓)</td>
+                            <td>Less of vi product is "in phase"; more energy just oscillates</td>
+                        </tr>
+                        <tr>
+                            <td>θ = 0 (purely resistive)</td>
+                            <td class="t-grn">p(t) never goes negative</td>
+                            <td>v and i always same sign — power always flows into the load</td>
+                        </tr>
+                        <tr>
+                            <td>θ = 90° (purely reactive)</td>
+                            <td class="t-amb">Average term = 0</td>
+                            <td>Energy fully returned to source every quarter cycle — zero net transfer</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S2: AVERAGE POWER ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">5.2</span>
+                <h2 class="sec-t">Average (Real / Active) Power</h2>
+            </div>
+
+            <p>The <strong>average power P</strong> is the time-average of p(t) over one full period T. Because the
+                double-frequency term integrates to zero over a complete cycle, only the constant term survives:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Definition — Time Average of p(t)</div>
+                $$P = \frac{1}{T}\int_0^T p(t)\,dt = \frac{1}{2}V_mI_m\cos(\theta_v-\theta_i)$$
+            </div>
+
+            <p>Since RMS values are related to peak values by \(V_{rms}=V_m/\sqrt2\) and \(I_{rms}=I_m/\sqrt2\), the
+                average power is more commonly written in terms of RMS quantities — this is the form used on every
+                nameplate, energy meter, and exam paper:</p>
+
+            <div class="fblock"><span class="flbl">Average (Real) Power — Standard Form</span><span class="fh">General
+                    load:</span>
+                \( P = V_{rms} I_{rms} \cos(\theta_v - \theta_i) \) [W]
+
+                <span class="fh">Purely resistive (θv = θi):</span>
+                \( P = I_{rms}^2 R = \dfrac{V_{rms}^2}{R} \)
+
+                <span class="fh">Purely reactive load (θv − θi = ±90°):</span>
+                \( P = 0 \) (no net energy transfer, only oscillation)
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight — Only Resistance Dissipates</div>
+                    <p>Average power is dissipated <em>only</em> in the resistive part of a load. Ideal inductors and
+                        capacitors consume zero average power over a cycle — they store energy during one quarter
+                        cycle and return it during the next. P is what your electricity meter actually measures and
+                        what you pay for in kWh.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Average Power for a General Load Impedance</h3>
+            <p>If a load has impedance \(Z = R + jX = |Z|\angle\theta\), and current phasor \(\mathbf I =
+                I_{rms}\angle\theta_i\)
+                flows through it, average power can be computed three equivalent ways:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Three Equivalent Forms of Average Power</div>
+                $$P = V_{rms}I_{rms}\cos\theta = I_{rms}^2\,\mathrm{Re}(Z) = I_{rms}^2 R$$
+            </div>
+
+            <p>Here θ = θv − θi is exactly the angle of the load impedance Z — this single fact ties together the
+                circuit's impedance triangle and its power triangle (Section 5.4), and is one of the most tested
+                conceptual links in GATE circuit-theory papers.</p>
+        </div>
+
+        <!-- ═══ S3: REACTIVE POWER ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">5.3</span>
+                <h2 class="sec-t">Reactive Power</h2>
+            </div>
+
+            <p>The energy that sloshes back and forth without being consumed still has to be supplied and withdrawn
+                by the source, cycle after cycle — and it still causes real I²R losses in the wires that carry it,
+                even though the load itself absorbs zero net energy. Engineers quantify this "borrowed and returned"
+                power with the <strong>reactive power Q</strong>, using the sine of the angle rather than the
+                cosine:</p>
+
+            <div class="fblock"><span class="flbl">Reactive Power</span>\( Q = V_{rms} I_{rms} \sin(\theta_v - \theta_i)
+                \) [VAR — volt-ampere reactive]
+
+                <span class="fh">Inductive load</span> (i lags v, θ &gt; 0): <span class="feq">Q &gt; 0</span> — load
+                absorbs (consumes) reactive power
+                <span class="fh">Capacitive load</span> (i leads v, θ &lt; 0): <span class="feq">Q &lt; 0</span> — load
+                supplies (generates) reactive power
+                <span class="fh">Resistive load</span> (θ = 0): <span class="feq">Q = 0</span> — no reactive exchange
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Misconception</div>
+                    <p>Students often think reactive power is "wasted" or "does nothing useful." In fact, Q is
+                        essential — it is what builds the magnetic field in a motor or transformer, or the electric
+                        field in a capacitor. What is undesirable is not Q itself, but an <em>excess</em> of it, since
+                        it forces the source and lines to carry more current than the real power alone would need.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Reactive Power for Pure L and Pure C</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Element</th>
+                            <th>Q (VAR)</th>
+                            <th>Sign Convention</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Inductor L</td>
+                            <td>\(Q_L = I_{rms}^2 X_L = \dfrac{V_{rms}^2}{X_L}\)</td>
+                            <td class="t-red">Positive — absorbs Q</td>
+                        </tr>
+                        <tr>
+                            <td>Capacitor C</td>
+                            <td>\(Q_C = -I_{rms}^2 X_C = -\dfrac{V_{rms}^2}{X_C}\)</td>
+                            <td class="t-grn">Negative — delivers Q</td>
+                        </tr>
+                        <tr>
+                            <td>Resistor R</td>
+                            <td>0</td>
+                            <td>No reactive exchange</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>This opposite-sign behaviour is exactly why a capacitor bank connected in parallel with an inductive
+                load (a motor) can cancel out its reactive power demand — the basis of power-factor correction
+                covered in Section 5.6.</p>
+        </div>
+
+        <!-- ═══ S4: APPARENT POWER & POWER TRIANGLE ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">5.4</span>
+                <h2 class="sec-t">Apparent Power and the Power Triangle</h2>
+            </div>
+
+            <p>The <strong>apparent power S</strong> is simply the product of RMS voltage and RMS current, with no
+                regard to phase angle at all — it is what the source "appears" to be delivering, and it is the
+                quantity that determines the required rating of generators, transformers, and cables (which is why
+                these are rated in <strong>kVA</strong>, not kW):</p>
+
+            <div class="fblock"><span class="flbl">Apparent Power</span>\( S = V_{rms} I_{rms} \) [VA — volt-ampere]
+
+                <span class="fh">Relation to P and Q:</span>
+                \( S = \sqrt{P^2 + Q^2} \)
+            </div>
+
+            <p>P, Q, and S are related exactly like the three sides of a right-angled triangle — the
+                <strong>power triangle</strong> — with the impedance angle θ between S and P:
+            </p>
+
+            <!-- SVG: Power triangle -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 460 300" xmlns="http://www.w3.org/2000/svg" font-family="Lora, serif">
+                    <!-- right triangle: P horizontal, Q vertical, S hypotenuse -->
+                    <line x1="60" y1="240" x2="320" y2="240" stroke="var(--orange)" stroke-width="3" />
+                    <line x1="320" y1="240" x2="320" y2="80" stroke="var(--green)" stroke-width="3" />
+                    <line x1="60" y1="240" x2="320" y2="80" stroke="var(--teal)" stroke-width="3" />
+                    <!-- right angle marker -->
+                    <rect x="305" y="225" width="15" height="15" fill="none" stroke="var(--text3)" stroke-width="1.2" />
+                    <!-- angle theta -->
+                    <path d="M 130 240 A 70 70 0 0 0 118 197" fill="none" stroke="var(--text3)" stroke-width="1.3" />
+                    <text x="130" y="222" font-size="14" fill="var(--text3)">θ</text>
+                    <!-- labels -->
+                    <text x="185" y="262" font-size="15" fill="var(--orange)" text-anchor="middle" font-weight="600">P
+                        (W) — Real Power</text>
+                    <text x="340" y="165" font-size="15" fill="var(--green)" text-anchor="start" font-weight="600"
+                        transform="rotate(90 340 165)">Q (VAR) — Reactive Power</text>
+                    <text x="175" y="150" font-size="15" fill="var(--teal)" text-anchor="middle" font-weight="600"
+                        transform="rotate(-31 175 150)">S (VA) — Apparent Power</text>
+                    <!-- vertex dots -->
+                    <circle cx="60" cy="240" r="4" fill="var(--text3)" />
+                    <circle cx="320" cy="240" r="4" fill="var(--text3)" />
+                    <circle cx="320" cy="80" r="4" fill="var(--text3)" />
+                </svg>
+                <div class="svg-cap">Fig 5.2 — The power triangle for an inductive load. Base = real power P,
+                    vertical = reactive power Q, hypotenuse = apparent power S. The angle θ at the origin equals the
+                    load's impedance angle, and cos θ is the power factor.</div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Power Triangle Relations</span>\( P = S\cos\theta \) &nbsp;&nbsp; \(
+                Q = S\sin\theta \) &nbsp;&nbsp; \( S = \sqrt{P^2+Q^2} \)
+
+                \( \theta = \tan^{-1}(Q/P) \) &nbsp;&nbsp; &nbsp; \( \cos\theta = P/S \) = power factor</div>
+
+            <h3 class="sub">Units — Do Not Mix Them Up</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">P — Watts (W)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Real, useful, billed energy rate</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Q — VAR</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Reactive, non-dissipated, oscillating</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">S — VA</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Total, determines equipment rating</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S5: COMPLEX POWER ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">5.5</span>
+                <h2 class="sec-t">Complex Power</h2>
+            </div>
+
+            <p><strong>Complex power S</strong> packages P and Q into a single complex number, letting circuit
+                engineers compute everything about a load's power behaviour with one compact phasor calculation
+                instead of separate trigonometric formulas:</p>
+
+            <div class="fblock"><span class="flbl">Complex Power — Definition</span>\( \mathbf{S} = P + jQ = \tfrac12
+                \mathbf V \mathbf I^{*} = V_{rms}I_{rms}\angle\theta \)
+
+                where <span class="fv">V</span> = RMS voltage phasor, <span class="fv">I*</span> = complex conjugate of
+                RMS current phasor
+                <span class="fh">Magnitude:</span> \( |\mathbf S| = S \) = apparent power
+                <span class="fh">Angle:</span> \( \angle\mathbf S = \theta_v-\theta_i = \theta \) = impedance angle = pf
+                angle
+            </div>
+
+            <!-- SVG: complex power plane -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 420 300" xmlns="http://www.w3.org/2000/svg" font-family="Lora, serif">
+                    <line x1="40" y1="250" x2="380" y2="250" stroke="var(--text3)" stroke-width="1.2" />
+                    <line x1="60" y1="270" x2="60" y2="40" stroke="var(--text3)" stroke-width="1.2" />
+                    <text x="385" y="255" font-size="12" fill="var(--text3)">Re(S) = P</text>
+                    <text x="30" y="35" font-size="12" fill="var(--text3)">Im(S) = Q</text>
+                    <!-- S vector -->
+                    <line x1="60" y1="250" x2="300" y2="90" stroke="var(--teal)" stroke-width="3" />
+                    <polygon points="300,90 288,98 292,80" fill="var(--teal)" />
+                    <line x1="60" y1="250" x2="300" y2="250" stroke="var(--orange)" stroke-width="2"
+                        stroke-dasharray="5 4" />
+                    <line x1="300" y1="250" x2="300" y2="90" stroke="var(--green)" stroke-width="2"
+                        stroke-dasharray="5 4" />
+                    <text x="175" y="270" font-size="13" fill="var(--orange)" text-anchor="middle">P</text>
+                    <text x="315" y="175" font-size="13" fill="var(--green)">Q</text>
+                    <text x="200" y="150" font-size="13" fill="var(--teal)">S = P + jQ</text>
+                    <path d="M 100 250 A 40 40 0 0 0 88 226" fill="none" stroke="var(--text3)" stroke-width="1.1" />
+                    <text x="100" y="235" font-size="11" fill="var(--text3)">θ</text>
+                </svg>
+                <div class="svg-cap">Fig 5.3 — Complex power S plotted on the complex plane. The real axis is P, the
+                    imaginary axis is Q, and the magnitude of the vector is the apparent power S.</div>
+            </div>
+
+            <h3 class="sub">Complex Power in Terms of Load Impedance</h3>
+            <p>Complex power can also be expressed directly in terms of the load impedance \(Z=R+jX\), which is the
+                fastest route in most GATE numericals since it avoids computing phase angles separately:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Complex Power from Impedance</div>
+                $$\mathbf{S} = I_{rms}^{2}\,Z = I_{rms}^{2}R + jI_{rms}^{2}X = P + jQ$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">Why the Conjugate I* Is Used</div>
+                    <p>Using I instead of I* in \(\mathbf S=\tfrac12\mathbf{VI}\) would make the phase angle of S
+                        equal to θv + θi rather than θv − θi, giving the wrong physical angle. The conjugate exactly
+                        cancels the current's own phase reference and leaves only the relative phase between V and I
+                        — the number that actually matters for power.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Complex Power Absorbed by Series-Connected Loads</h3>
+            <p>Because complex power is a linear function of \(I^2Z\), the <strong>conservation of complex
+                    power</strong>
+                holds exactly as Tellegen's theorem predicts for real power: the total complex power delivered by
+                sources in a network equals the sum of complex powers absorbed by every branch, taken individually.
+                This lets engineers add up P's and Q's of separate loads directly, without re-deriving phase angles
+                for the combined load.</p>
+
+            <div class="fblock"><span class="flbl">Conservation of Complex Power</span>\( \mathbf{S}_{source} =
+                \mathbf{S}_1 + \mathbf{S}_2 + \dots + \mathbf{S}_n \)
+
+                \( P_{total} = \sum P_k \qquad Q_{total} = \sum Q_k \) &nbsp;(add algebraically — respecting sign of
+                each Q)</div>
+        </div>
+
+        <!-- ═══ S6: POWER FACTOR ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">5.6</span>
+                <h2 class="sec-t">Power Factor and Power Factor Improvement</h2>
+            </div>
+
+            <p>The <strong>power factor (pf)</strong> is the ratio of real power actually used to the apparent power
+                the source must supply — a single number between 0 and 1 that tells you how "efficiently" the
+                current delivered by the source is being converted into useful work:</p>
+
+            <div class="fblock"><span class="flbl">Power Factor</span>\( \text{pf} = \cos\theta = \dfrac{P}{S} \)
+
+                <span class="fh">Lagging pf</span> (θ &gt; 0): current lags voltage → <span class="feq">inductive
+                    load</span> (motors, transformers, fluorescent ballasts)
+                <span class="fh">Leading pf</span> (θ &lt; 0): current leads voltage → <span class="feq">capacitive
+                    load</span> (capacitor banks, long lightly-loaded cables)
+                <span class="fh">Unity pf</span> (θ = 0): purely resistive → S = P, no wasted current capacity
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Real-World Application — Why Utilities Penalise Low pf</div>
+                    <p>A factory with pf = 0.6 lagging drawing 100 kW needs \(S=P/\text{pf}=166.7\) kVA from the
+                        supply, versus only 100 kVA at unity pf. That extra 66.7 kVA must still flow through cables
+                        and transformers as current, causing extra I²R losses even though it does no useful work.
+                        Utilities therefore charge industrial consumers pf-based penalties, which is precisely why
+                        power-factor correction is standard practice on every factory floor.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Power Factor Correction — The Idea</h3>
+            <p>Since inductive loads (Q &gt; 0) and capacitors (Q &lt; 0) contribute reactive power of opposite sign,
+                connecting a capacitor bank <strong>in parallel</strong> with an inductive load cancels part of its
+                reactive power demand — without changing the real power P the load actually consumes, and without
+                needing to touch the load itself.</p>
+
+            <!-- SVG: pf correction circuit -->
+            <div class="svg-wrap">
+                <svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" font-family="Lora, serif">
+                    <!-- source -->
+                    <circle cx="60" cy="130" r="26" fill="none" stroke="var(--text)" stroke-width="2" />
+                    <text x="60" y="136" font-size="16" fill="var(--text)" text-anchor="middle">~</text>
+                    <text x="60" y="180" font-size="12" fill="var(--text3)" text-anchor="middle">Source</text>
+                    <!-- top wire -->
+                    <line x1="86" y1="80" x2="560" y2="80" stroke="var(--text2)" stroke-width="2" />
+                    <line x1="60" y1="104" x2="60" y2="80" stroke="var(--text2)" stroke-width="2" />
+                    <line x1="60" y1="80" x2="86" y2="80" stroke="var(--text2)" stroke-width="2" />
+                    <!-- bottom wire -->
+                    <line x1="60" y1="156" x2="60" y2="200" stroke="var(--text2)" stroke-width="2" />
+                    <line x1="60" y1="200" x2="560" y2="200" stroke="var(--text2)" stroke-width="2" />
+                    <!-- capacitor branch -->
+                    <line x1="300" y1="80" x2="300" y2="105" stroke="var(--green)" stroke-width="2" />
+                    <line x1="284" y1="110" x2="316" y2="110" stroke="var(--green)" stroke-width="3" />
+                    <line x1="284" y1="122" x2="316" y2="122" stroke="var(--green)" stroke-width="3" />
+                    <line x1="300" y1="122" x2="300" y2="200" stroke="var(--green)" stroke-width="2" />
+                    <text x="330" y="118" font-size="13" fill="var(--green)">C (correction)</text>
+                    <!-- inductive load branch -->
+                    <line x1="560" y1="80" x2="560" y2="105" stroke="var(--orange)" stroke-width="2" />
+                    <path d="M 545 105 q 5 -12 15 0 q 5 -12 15 0 q 5 -12 15 0" fill="none" stroke="var(--orange)"
+                        stroke-width="2.4" />
+                    <line x1="560" y1="105" x2="560" y2="200" stroke="var(--orange)" stroke-width="2"
+                        transform="translate(0,20)" />
+                    <line x1="560" y1="125" x2="560" y2="200" stroke="var(--orange)" stroke-width="2" />
+                    <text x="530" y="230" font-size="12" fill="var(--orange)">Inductive Load (motor)</text>
+                    <text x="300" y="230" font-size="11" fill="var(--muted)" text-anchor="middle">added in
+                        parallel</text>
+                </svg>
+                <div class="svg-cap">Fig 5.4 — Power-factor correction: a capacitor bank C is connected in parallel
+                    with the inductive load. It supplies part of the load's reactive power locally, so the source
+                    only needs to supply the reduced net Q, cutting the total line current for the same real power.
+                </div>
+            </div>
+
+            <h3 class="sub">Sizing the Correction Capacitor</h3>
+            <p>To raise the power factor from \(\cos\theta_1\) (original) to \(\cos\theta_2\) (target) while keeping
+                P unchanged, the reactive power to be supplied by the capacitor is the difference between the two
+                required Q values:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Reactive Power Supplied by the Capacitor Bank</div>
+                $$Q_C = P(\tan\theta_1 - \tan\theta_2)$$
+            </div>
+
+            <div class="fblock"><span class="flbl">Capacitor Value from Q_C</span>\( Q_C = \dfrac{V_{rms}^2}{X_C} =
+                V_{rms}^2 \, \omega C \)
+
+                \( \Rightarrow \; C = \dfrac{Q_C}{\omega V_{rms}^2} \) (connect C in parallel across the supply
+                terminals)</div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Exam Trap</div>
+                    <p>Power factor correction changes S and Q but <strong>never changes P</strong> — the load still
+                        does the same mechanical/thermal work. Also, "improving" pf beyond unity (over-correction)
+                        flips the load leading, which can cause voltage rise problems on light-loaded feeders — so
+                        utilities typically target pf ≈ 0.95–0.98 lagging, not exactly 1.0.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: MAXIMUM POWER TRANSFER (AC) ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">5.7</span>
+                <h2 class="sec-t">Maximum Power Transfer in AC Circuits</h2>
+            </div>
+
+            <p>Just as in DC circuits, any linear AC network feeding a load can be reduced to its Thévenin equivalent
+                — a source \(\mathbf V_{th}\) in series with an internal impedance \(Z_{th}=R_{th}+jX_{th}\). The
+                question of AC maximum power transfer asks: for what load impedance \(Z_L\) is the average power
+                delivered to the load maximised?</p>
+
+            <!-- SVG: Thevenin + load circuit -->
+            <div class="svg-wrap svg-simple">
+                <svg viewBox="0 0 420 220" xmlns="http://www.w3.org/2000/svg" font-family="Lora, serif">
+                    <circle cx="60" cy="110" r="26" fill="none" stroke="var(--text)" stroke-width="2" />
+                    <text x="60" y="116" font-size="15" fill="var(--text)" text-anchor="middle">Vth</text>
+                    <line x1="86" y1="60" x2="150" y2="60" stroke="var(--text2)" stroke-width="2" />
+                    <line x1="60" y1="84" x2="60" y2="60" stroke="var(--text2)" stroke-width="2" />
+                    <line x1="60" y1="60" x2="86" y2="60" stroke="var(--text2)" stroke-width="2" />
+                    <rect x="150" y="46" width="70" height="28" fill="none" stroke="var(--teal)" stroke-width="2" />
+                    <text x="185" y="65" font-size="13" fill="var(--teal)" text-anchor="middle">Zth</text>
+                    <line x1="220" y1="60" x2="300" y2="60" stroke="var(--text2)" stroke-width="2" />
+                    <rect x="300" y="46" width="70" height="28" fill="none" stroke="var(--orange)" stroke-width="2" />
+                    <text x="335" y="65" font-size="13" fill="var(--orange)" text-anchor="middle">ZL</text>
+                    <line x1="60" y1="136" x2="60" y2="170" stroke="var(--text2)" stroke-width="2" />
+                    <line x1="60" y1="170" x2="335" y2="170" stroke="var(--text2)" stroke-width="2" />
+                    <line x1="335" y1="170" x2="335" y2="74" stroke="var(--text2)" stroke-width="2" />
+                    <text x="185" y="195" font-size="11" fill="var(--muted)" text-anchor="middle">Thévenin equivalent
+                        source seen by the load</text>
+                </svg>
+                <div class="svg-cap">Fig 5.5 — Any linear AC network reduces to Vth in series with Zth. The load ZL
+                    is chosen to maximise the average power delivered to it.</div>
+            </div>
+
+            <h3 class="sub">Case 1 — ZL Fully Adjustable (Both R and X)</h3>
+            <p>When both the resistive and reactive parts of the load can be chosen independently, maximum power
+                transfer occurs under <strong>conjugate matching</strong>:</p>
+
+            <div class="fblock"><span class="flbl">Conjugate Matching Condition</span>\( Z_L = Z_{th}^{*} = R_{th} -
+                jX_{th} \)
+
+                <span class="fh">Physical meaning:</span> the load's reactance exactly cancels the source's reactance
+                (XL = −Xth),
+                leaving a purely resistive circuit with RL = Rth — the classic DC maximum-power-transfer condition.
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Maximum Average Power Delivered (Conjugate Match)</div>
+                $$P_{max} = \frac{|V_{th}|^2}{8R_{th}} \quad \text{(peak-value } V_{th}), \qquad
+                P_{max}=\frac{V_{th,rms}^2}{4R_{th}}$$
+            </div>
+
+            <h3 class="sub">Case 2 — Only |ZL| Adjustable, Angle Fixed</h3>
+            <p>If the load's impedance angle is constrained (e.g. a fixed power-factor load whose size can only be
+                scaled), the optimum condition relaxes to matching magnitudes only:</p>
+
+            <div class="fblock"><span class="flbl">Magnitude-Only Matching</span>\( |Z_L| = |Z_{th}| \) (used when load
+                angle θL is fixed by design)</div>
+
+            <h3 class="sub">Case 3 — ZL Restricted to Pure Resistance</h3>
+            <p>If the load must be a pure resistor (\(X_L = 0\)), the best achievable resistance is the magnitude of
+                the Thévenin impedance, not just its resistive part:</p>
+
+            <div class="fblock"><span class="flbl">Resistive-Only Load</span>\( R_L = |Z_{th}| =
+                \sqrt{R_{th}^2+X_{th}^2} \) (best possible, but Pmax is lower than full conjugate match)</div>
+
+            <div class="callout c-key">
+                <div class="ci">📡</div>
+                <div class="cb">
+                    <div class="ct">Industrial Application — RF and Antenna Matching</div>
+                    <p>Conjugate impedance matching is the working principle behind antenna matching networks,
+                        RF amplifier output stages, and audio speaker matching transformers — in every case, the goal
+                        is to deliver the maximum possible signal power from a fixed source to a load, exactly the
+                        AC maximum power transfer theorem in action.</p>
+                </div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Constraint on ZL</th>
+                            <th>Optimal ZL</th>
+                            <th>Pmax</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Fully adjustable (R and X free)</td>
+                            <td class="t-tel">Zth* (conjugate match)</td>
+                            <td>\(V_{th,rms}^2/4R_{th}\)</td>
+                        </tr>
+                        <tr>
+                            <td>|ZL| free, angle fixed</td>
+                            <td class="t-amb">|ZL| = |Zth|</td>
+                            <td>Less than conjugate-match Pmax</td>
+                        </tr>
+                        <tr>
+                            <td>Pure resistance only</td>
+                            <td class="t-org">RL = |Zth|</td>
+                            <td>Lowest of the three cases</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S8: SOLVED NUMERICALS ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">5.8</span>
+                <h2 class="sec-t">Solved Numericals</h2>
+            </div>
+
+            <!-- Example 1 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 5.1</span>
+                    <span class="ex-title">Instantaneous, average, reactive, and complex power from v(t) and i(t)</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A load has \(v(t)=100\cos(\omega t + 20^\circ)\) V and
+                        \(i(t)=4\cos(\omega t - 30^\circ)\) A. Find P, Q, S, the power factor, and the complex power.
+                    </div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Given:</strong> \(V_m=100\) V, \(\theta_v=20^\circ\); \(I_m=4\) A, \(\theta_i=-30^\circ\)
+                    </p>
+                    <p><strong>Step 1 — RMS values and angle:</strong></p>
+                    <div class="math-block">
+                        $$V_{rms}=\frac{100}{\sqrt2}=70.71\text{ V}, \quad I_{rms}=\frac{4}{\sqrt2}=2.828\text{ A}$$
+                        $$\theta=\theta_v-\theta_i=20^\circ-(-30^\circ)=50^\circ$$
+                    </div>
+                    <p><strong>Step 2 — Average power:</strong></p>
+                    <div class="math-block">
+                        $$P=V_{rms}I_{rms}\cos\theta=70.71\times2.828\times\cos50^\circ=200\times0.643=128.6\text{ W}$$
+                    </div>
+                    <p><strong>Step 3 — Reactive power:</strong></p>
+                    <div class="math-block">
+                        $$Q=V_{rms}I_{rms}\sin\theta=200\times\sin50^\circ=200\times0.766=153.2\text{ VAR}$$
+                    </div>
+                    <p><strong>Step 4 — Apparent power, pf, complex power:</strong></p>
+                    <div class="math-block">
+                        $$S=V_{rms}I_{rms}=200\text{ VA}, \qquad \text{pf}=\cos50^\circ=0.643\text{ (lagging)}$$
+                        $$\mathbf{S}=200\angle50^\circ = 128.6+j153.2\text{ VA}$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Check</div>
+                            <p>Since θi = −30° &lt; θv = 20°, current leads
+                                voltage — this load is actually capacitive, i.e. Q as computed is positive by the
+                                θ=θv−θi convention only because θ came out positive numerically; always double-check the
+                                lead/lag sign against θv and θi directly, not just the formula.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 5.2</span>
+                    <span class="ex-title">Power triangle for a series RL load</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A series RL load with R = 6 Ω and X_L = 8 Ω is connected across a 230 V (rms),
+                        50 Hz supply. Find P, Q, S, and the power factor.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — Impedance:</strong></p>
+                    <div class="math-block">
+                        $$Z=R+jX_L=6+j8=10\angle53.13^\circ\ \Omega$$
+                    </div>
+                    <p><strong>Step 2 — RMS current:</strong></p>
+                    <div class="math-block">
+                        $$I_{rms}=\frac{V_{rms}}{|Z|}=\frac{230}{10}=23\text{ A}$$
+                    </div>
+                    <p><strong>Step 3 — P, Q, S using \(I_{rms}^2Z\):</strong></p>
+                    <div class="math-block">
+                        $$P=I_{rms}^2R=23^2\times6=529\times6=3174\text{ W}$$
+                        $$Q=I_{rms}^2X_L=529\times8=4232\text{ VAR}$$
+                        $$S=\sqrt{P^2+Q^2}=\sqrt{3174^2+4232^2}=5290\text{ VA}$$
+                    </div>
+                    <p><strong>Step 4 — Power factor:</strong></p>
+                    <div class="math-block">
+                        $$\text{pf}=\cos53.13^\circ=0.6\ \text{lagging} \;\;(=P/S=3174/5290=0.6)$$
+                    </div>
+                    <p><strong>Answer:</strong> P = 3174 W, Q = 4232 VAR, S = 5290 VA, pf = 0.6 lagging.</p>
+                </div>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 5.3</span>
+                    <span class="ex-title">Power factor correction — sizing the capacitor bank</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 415 V (rms), 50 Hz industrial load draws 40 kW at a lagging power factor of
+                        0.7. Find the capacitance required in parallel to raise the power factor to 0.95 lagging.
+                        (a) 187 μF &nbsp;(b) 254 μF &nbsp;(c) 312 μF &nbsp;(d) 401 μF</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — Angles before and after correction:</strong></p>
+                    <div class="math-block">
+                        $$\theta_1=\cos^{-1}(0.7)=45.57^\circ, \qquad \theta_2=\cos^{-1}(0.95)=18.19^\circ$$
+                        $$\tan\theta_1=1.0202, \qquad \tan\theta_2=0.3288$$
+                    </div>
+                    <p><strong>Step 2 — Reactive power to be supplied by the capacitor:</strong></p>
+                    <div class="math-block">
+                        $$Q_C=P(\tan\theta_1-\tan\theta_2)=40{,}000\times(1.0202-0.3288)=40{,}000\times0.6914=27{,}656\text{
+                        VAR}$$
+                    </div>
+                    <p><strong>Step 3 — Capacitance:</strong></p>
+                    <div class="math-block">
+                        $$C=\frac{Q_C}{\omega
+                        V_{rms}^2}=\frac{27{,}656}{2\pi(50)(415)^2}=\frac{27{,}656}{2\pi\times50\times172{,}225}$$
+                        $$C=\frac{27{,}656}{54{,}105{,}000}\approx 5.11\times10^{-4}\text{ F}=511\ \mu\text{F}$$
+                    </div>
+                    <div class="callout c-warn">
+                        <div class="ci">⚠️</div>
+                        <div class="cb">
+                            <div class="ct">Note</div>
+                            <p>The exact numeric answer depends on rounding of
+                                tan θ values at each step — GATE-style options are usually spaced closely, so retain at
+                                least 4 significant figures throughout intermediate steps before selecting the closest
+                                option.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 4 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 5.4</span>
+                    <span class="ex-title">Maximum power transfer — conjugate matching</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A source has Thévenin voltage \(V_{th}=100\angle0^\circ\) V (rms) and Thévenin
+                        impedance \(Z_{th}=3+j4\ \Omega\). Find the load impedance ZL for maximum average power
+                        transfer, and the value of that maximum power.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — Conjugate match condition:</strong></p>
+                    <div class="math-block">
+                        $$Z_L=Z_{th}^{*}=3-j4\ \Omega$$
+                    </div>
+                    <p><strong>Step 2 — Maximum power (RMS form):</strong></p>
+                    <div class="math-block">
+                        $$P_{max}=\frac{V_{th,rms}^2}{4R_{th}}=\frac{100^2}{4\times3}=\frac{10{,}000}{12}=833.3\text{
+                        W}$$
+                    </div>
+                    <p><strong>Answer:</strong> ZL = (3 − j4) Ω, Pmax = 833.3 W.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S9: GATE & IES ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">5.9</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Concepts</h2>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">High Probability Topics in AC Power Analysis
+                        <span class="prob prob-h">🟢 HIGH</span></span>
+                </div>
+                <div class="gate-body">
+                    <p>These sub-topics recur consistently across GATE EE, GATE EC (Network Theory), and IES E&amp;T:
+                    </p>
+                    <div class="two-col">
+                        <div class="mini-card mc-grn">
+                            <div class="mc-t">🟢 High Probability</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>Complex power S = P + jQ from V, I phasors</li>
+                                <li><span class="dot">▸</span>Power factor correction — capacitor sizing</li>
+                                <li><span class="dot">▸</span>AC maximum power transfer — conjugate matching</li>
+                                <li><span class="dot">▸</span>P, Q, S from I²Z for series/parallel loads</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card mc-amb">
+                            <div class="mc-t">🟡 Medium Probability</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>Instantaneous power expansion, double-frequency term</li>
+                                <li><span class="dot">▸</span>Sign convention for leading/lagging Q</li>
+                                <li><span class="dot">▸</span>Resistive-only load matching (RL = |Zth|)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Condition for maximum average power transfer in AC circuits</span>
+                    <span class="pyq-year">Concept — 2020</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A network with Thévenin impedance \(Z_{th}=R_{th}+jX_{th}\) is connected to a variable load
+                        \(Z_L=R_L+jX_L\), both RL and XL freely adjustable. For maximum average power transfer to the
+                        load,</p>
+                    <ul class="pyq-opts">
+                        <li>(A) \(R_L=R_{th}\), \(X_L=X_{th}\)</li>
+                        <li class="correct">(B) \(R_L=R_{th}\), \(X_L=-X_{th}\)</li>
+                        <li>(C) \(R_L=-R_{th}\), \(X_L=-X_{th}\)</li>
+                        <li>(D) \(R_L=|Z_{th}|\), \(X_L=0\)</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> Conjugate matching requires \(Z_L=Z_{th}^{*}\), i.e. RL equals
+                        Rth but XL is the negative of Xth — the load's reactance must cancel the source's reactance,
+                        not duplicate it, leaving a net purely resistive loop for maximum power dissipation in RL.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EC</span>
+                    <span class="pyq-title">Complex power sign convention</span>
+                    <span class="pyq-year">Concept — 2018</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The complex power absorbed by a purely capacitive load is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Purely real and positive</li>
+                        <li>(B) Purely real and negative</li>
+                        <li class="correct">(C) Purely imaginary and negative</li>
+                        <li>(D) Purely imaginary and positive</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> A pure capacitor has zero resistance, so P = 0, and its
+                        reactive power is \(Q=-I_{rms}^2X_C\), which is negative by the standard convention (leading
+                        pf loads supply reactive power to the source rather than absorbing it).
+                    </p>
+                </div>
+            </div>
+
+            <!-- IES PYQ -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Effect of power factor correction on line current</span>
+                    <span class="pyq-year">IES 2019</span>
+                </div>
+                <div class="pyq-body">
+                    <p>An industrial load operating at constant real power P has its lagging power factor improved
+                        from 0.6 to 0.9 using a parallel capacitor bank, at constant supply voltage. Which of the
+                        following statements is correct?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Real power P delivered to the load increases</li>
+                        <li class="correct">(B) The RMS line current drawn from the source decreases</li>
+                        <li>(C) The apparent power S increases</li>
+                        <li>(D) The load's reactive power demand Q remains unchanged</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);">
+                        <strong>Explanation:</strong> Since \(S=P/\text{pf}\) and P is fixed, raising pf from 0.6 to
+                        0.9 reduces S, and hence \(I_{rms}=S/V_{rms}\) also reduces. The load's own reactive demand is
+                        unchanged — the capacitor merely supplies part of it locally, reducing what the source and
+                        feeder must carry.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PYQ 3 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Reactive power sign for a leading load</span>
+                    <span class="pyq-year">Concept — 2023</span>
+                </div>
+                <div class="pyq-body">
+                    <p>For a load operating at a leading power factor (current leads voltage), the reactive power Q
+                        as seen by the source is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Zero</li>
+                        <li>(B) Positive, load absorbs Q</li>
+                        <li class="correct">(C) Negative, load delivers Q back to the source</li>
+                        <li>(D) Cannot be determined without knowing S</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> Leading pf means \(\theta_i>\theta_v\), so
+                        \(\theta=\theta_v-\theta_i<0\) and \(Q=V_{rms}I_{rms}\sin\theta<0\). A negative Q means the load
+                            is a net source of reactive power (behaves capacitively), effectively supplying VARs rather
+                            than drawing them.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Quick Revision — Memory Tricks</h3>
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic: "P is Present (cos), Q is Quarter-cycle (sin)"</div>
+                    <p>Average (real) Power uses <strong>cos</strong>ine of θ — power that is "present" as useful
+                        work. Reactive power (Q) uses <strong>sin</strong>e — energy that shifts by a
+                        quarter-cycle (90°) between source and reactive element and returns, never doing net work.
+                    </p>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The "ELI the ICE man" Rule, Extended to Power</div>
+                    <p>In an inductor (<strong>ELI</strong>): voltage leads current → lagging pf → <strong>Q &gt;
+                            0</strong>.
+                        In a capacitor (<strong>ICE</strong>): current leads voltage → leading pf →
+                        <strong>Q &lt; 0</strong>. Remembering ELI–ICE for phase automatically tells you the sign of
+                        Q without re-deriving it every time.
+                    </p>
+                </div>
+            </div>
+
+            <!-- ═══ SUMMARY GRID ═══ -->
+            <h3 class="sub">Chapter Summary</h3>
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Instantaneous &amp; Average Power</div>
+                    <p>p(t) = constant term + 2ω ripple. P = Vrms Irms cosθ = I²rmsR. Only resistance dissipates
+                        average power; L and C absorb zero net energy per cycle.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Reactive Power</div>
+                    <p>Q = Vrms Irms sinθ, unit VAR. Positive for inductive (lagging), negative for capacitive
+                        (leading). Represents energy oscillating between source and reactive elements.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Apparent Power &amp; Triangle</div>
+                    <p>S = Vrms Irms, unit VA. S² = P² + Q². Determines transformer/generator/cable ratings.
+                        θ = tan⁻¹(Q/P) = impedance angle.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Complex Power</div>
+                    <p>S = P + jQ = ½VI* = I²rms Z. Conjugate of I ensures correct phase reference. Complex power is
+                        conserved across a network — sum branch S's directly.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Power Factor &amp; Correction</div>
+                    <p>pf = cosθ = P/S. QC = P(tanθ1 − tanθ2). C = QC/(ωV²rms). Parallel capacitor cancels part of
+                        inductive Q, reduces line current for same P.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Max. Power Transfer (AC)</div>
+                    <p>Full match: ZL = Zth* , Pmax = V²th,rms/4Rth. Magnitude-only: |ZL|=|Zth|. Resistive-only load:
+                        RL = |Zth|. Basis of RF/antenna impedance matching.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 6</div>
+                    <p>Three-Phase Circuits — balanced star and delta systems, line vs phase quantities, three-phase
+                        power measurement (two-wattmeter method), and unbalanced load analysis with complete GATE
+                        &amp; IES exam concepts.</p>
+                </div>
+            </div>
+
+            <!-- ═══ CITATIONS ═══ -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived
+                    from the following standard textbooks and learning resources. All explanations, derivations,
+                    diagrams and examples are original to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Sadiku, Matthew N.O. and Alexander, Charles K.
+                            <em>Fundamentals of Electric Circuits</em>, 6th ed. McGraw-Hill, 2016. Chapter 11 — AC
+                            power analysis: instantaneous, average, reactive, complex power, power factor
+                            correction.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Hayt, William H. and Kemmerly, Jack E.
+                            <em>Engineering Circuit Analysis</em>, 8th ed. McGraw-Hill, 2012. Chapter 11 — AC circuit
+                            power calculations and the power triangle.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Boylestad, Robert L. <em>Introductory Circuit
+                                Analysis</em>, 13th ed. Pearson, 2016. Chapter 17 — Power in AC circuits, apparent and
+                            reactive power.</span></li>
+                    <li><span class="cite-num">[4]</span><span>ACE Engineering Academy. <em>Network Theory: AC
+                                Power Analysis — Study Material</em>. Chapter 5. Hyderabad. Used for problem sets and
+                            numerical examples only.</span></li>
+                    <li><span class="cite-num">[5]</span><span>IIT Madras NPTEL. <em>Basic Electrical and
+                                Electronics Circuits — Lectures on AC Power and Power Factor</em>. National Programme on
+                            Technology Enhanced Learning. nptel.ac.in.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Network Theory Series &nbsp;·&nbsp; Chapter 5 of 8<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; GATE EC &nbsp;·&nbsp;
+                    IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                    diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+        </div>
+
+        <!-- ═══ AI WIDGET ═══ -->
+        <div class="ai-prompt">
+            <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+            <p>Have a question on complex power, power factor correction, or AC maximum power transfer? Type below
+                or pick a suggestion.</p>
+            <div class="ai-input-row">
+                <input class="ai-input" id="userQ" type="text"
+                    placeholder="e.g. Find ZL for maximum power transfer given Zth = 5 + j12 Ω…">
+                <button class="ai-btn" onclick="askClaude()">Ask Claude</button>
+            </div>
+            <div class="ai-suggest">
+                <span class="ai-chip"
+                    onclick="setQ('Derive the expression for instantaneous power p(t) from v(t) and i(t) and explain the physical meaning of each term.')">Derive
+                    p(t) — physical meaning</span>
+                <span class="ai-chip"
+                    onclick="setQ('A 3 kW load operates at 0.65 lagging pf on a 230V 50Hz supply. Find the capacitor needed in parallel to raise pf to unity.')">pf
+                    correction to unity — 3kW load</span>
+                <span class="ai-chip"
+                    onclick="setQ('Explain why conjugate matching (ZL = Zth*) maximises average power delivered, using the power formula P = I_rms^2 R_L.')">Why
+                    conjugate matching maximises P</span>
+                <span class="ai-chip"
+                    onclick="setQ('For a load Zth = 4 + j3 ohm, compare Pmax when ZL is fully adjustable vs when ZL is restricted to a pure resistor.')">Conjugate
+                    match vs resistive-only ZL</span>
+            </div>
+            <div class="ai-response" id="aiResp"></div>
+        </div>
+    </div>
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE/EC and IES tutor specialising in Network Theory. Topic: AC Power Analysis (Chapter 5) — instantaneous power, average power, reactive power, apparent power, complex power, power factor, power triangle, and maximum power transfer in AC circuits. Answer with step-by-step working for numericals. Base answers on Sadiku, Hayt & Kemmerly, Boylestad. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

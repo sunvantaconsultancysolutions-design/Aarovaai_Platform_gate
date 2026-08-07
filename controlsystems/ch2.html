@@ -1,0 +1,2958 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Control Systems Ch.2 Mathematical Modeling &amp; Transfer Functions</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- KaTeX for LaTeX math rendering -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 25%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TABLE OF CONTENTS ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH (KaTeX) display ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COLUMN CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 20px;
+            border-bottom: 1px solid var(--bg3);
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            position: absolute;
+            left: 0;
+            top: 8px;
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── ASK CLAUDE WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* ════ LARGE DESKTOP 1024+ ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Control Systems Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 02 &nbsp;·&nbsp; Control Systems</div>
+            <h1 class="hero-title">Mathematical Modeling &amp; <em>Transfer Functions</em></h1>
+            <p class="hero-desc">Differential-equation modeling of physical systems, electrical and mechanical
+                analogies, the transfer function concept and its properties, block diagram representation, and the
+                complete set of block diagram reduction rules — with full derivations and solved GATE/IES numericals.
+            </p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Follows Ch.1 — Introduction to Control Systems</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf" style="width:25%"></div>
+            </div><span class="pp">Chapter 2 of 8</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">2.1</span>Why We Model Systems Mathematically</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">2.7</span>Properties of Transfer Functions</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">2.2</span>Differential Equation Modeling</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">2.8</span>Block Diagram Representation</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">2.3</span>Electrical System Models</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">2.9</span>Block Diagram Reduction Rules</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">2.4</span>Mechanical System Models</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">2.10</span>Reduction — Worked Walkthrough</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">2.5</span>Force–Voltage &amp; Force–Current
+                    Analogy</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">2.11</span>Solved Numericals</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">2.6</span>The Transfer Function Concept</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">2.12</span>GATE &amp; IES Questions</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: WHY MODEL SYSTEMS MATHEMATICALLY ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">2.1</span>
+                <h2 class="sec-t">Why We Model Systems Mathematically — The Big Picture</h2>
+            </div>
+
+            <p>Before an engineer can design a controller for a robot arm, a cruise-control system, or a chemical
+                reactor, they must first answer a deceptively simple question: <strong>how does the system actually
+                    behave?</strong> A mathematical model is a set of equations that predicts the output of a physical
+                system for any given input, without having to build and test the real hardware. This is the entire
+                foundation on which classical control theory is built.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚙️</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>Every physical system — electrical, mechanical, thermal, or hydraulic — obeys conservation
+                        laws (Kirchhoff's laws, Newton's laws, energy balance). Writing these laws for a system
+                        produces a <strong>differential equation</strong>. Once we have that differential equation,
+                        the Laplace transform converts it into an algebraic <strong>transfer function</strong>,
+                        which is far easier to analyse, combine, and design with.</p>
+                </div>
+            </div>
+
+            <!-- Modeling pipeline diagram -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch2/fig2.1.png" alt="Figure 2.1">
+                <div class="svg-cap">Fig 2.1 — The modeling pipeline: physical laws produce a differential equation,
+                    which the Laplace transform converts into an algebraic transfer function G(s).</div>
+            </div>
+
+            <h3 class="sub">What a Mathematical Model Gives an Engineer</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Why Modeling Matters</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Predicts system response without building hardware</li>
+                        <li><span class="dot">▸</span>Enables controller design (PID, lead-lag, state feedback)</li>
+                        <li><span class="dot">▸</span>Allows stability analysis before deployment</li>
+                        <li><span class="dot">▸</span>Lets engineers compare competing designs on paper</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Where It Is Used in Industry</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Automotive: cruise control, ABS, suspension tuning</li>
+                        <li><span class="dot">▸</span>Aerospace: autopilot, flight-stability augmentation</li>
+                        <li><span class="dot">▸</span>Power electronics: DC-DC converter feedback loops</li>
+                        <li><span class="dot">▸</span>Robotics &amp; process plants: position and temperature loops</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The Two Big Idealizations</div>
+                    <p>Classical control theory (this chapter and the ones that follow) almost always assumes the
+                        system is <strong>linear</strong> and <strong>time-invariant</strong> (an LTI system). Real
+                        systems are rarely perfectly linear, but around a chosen operating point they can usually be
+                        linearised — this is why the transfer function approach works so well in practice.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: DIFFERENTIAL EQUATION MODELING ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">2.2</span>
+                <h2 class="sec-t">Differential Equation Modeling of Physical Systems</h2>
+            </div>
+
+            <p>A differential equation model relates the input and output of a system through derivatives with
+                respect to time. For a linear, time-invariant, lumped-parameter system, the general form is an
+                n<sup>th</sup>-order linear differential equation with constant coefficients.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">General LTI Differential Equation</div>
+                $$a_n\frac{d^n c(t)}{dt^n} + a_{n-1}\frac{d^{n-1} c(t)}{dt^{n-1}} + \cdots + a_1\frac{dc(t)}{dt} +
+                a_0 c(t) = b_m\frac{d^m r(t)}{dt^m} + \cdots + b_0 r(t)$$
+            </div>
+
+            <p>Here <strong>c(t)</strong> is the output (controlled variable) and <strong>r(t)</strong> is the input
+                (reference or forcing function). The coefficients a<sub>i</sub> and b<sub>i</sub> are constants
+                determined by the physical parameters of the system (resistance, mass, stiffness, and so on).</p>
+
+            <h3 class="sub">Step-by-Step Procedure for Writing the Model</h3>
+            <div class="fblock"><span class="flbl">General Modeling Procedure</span><span class="fh">Step 1:</span>
+                Identify the input and output variables of interest
+                <span class="fh">Step 2:</span> Apply the governing physical law to every energy-storage / dissipation
+                element
+                (Kirchhoff's Voltage/Current Law for circuits, Newton's Second Law for mechanical systems)
+                <span class="fh">Step 3:</span> Write one differential equation per independent energy-storage element
+                <span class="fh">Step 4:</span> Eliminate intermediate variables to get a single input–output equation
+                <span class="fh">Step 5:</span> Take the Laplace transform assuming zero initial conditions
+                <span class="fh">Step 6:</span> Form the ratio C(s)/R(s) — this is the transfer function
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Misconception</div>
+                    <p>Students often forget that the transfer function is defined only under the assumption of
+                        <strong>zero initial conditions</strong>. If the system starts with stored energy (a charged
+                        capacitor, a compressed spring), the transfer function alone does not capture that — you must
+                        add the initial-condition terms separately when solving with Laplace transforms.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Linearity and Superposition</h3>
+            <p>A system is <strong>linear</strong> if it obeys both the principles of <strong>homogeneity</strong>
+                (scaling the input scales the output by the same factor) and <strong>additivity</strong> (the
+                response to a sum of inputs equals the sum of the individual responses). Only linear systems can be
+                represented by a single transfer function, because the transfer function itself is derived by
+                assuming superposition holds.</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Linear Elements</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Resistor: v = iR (straight line through origin)</li>
+                        <li><span class="dot">▸</span>Ideal spring: F = Kx</li>
+                        <li><span class="dot">▸</span>Ideal viscous damper: F = B(dx/dt)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Non-Linear Elements (Need Linearization)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Saturation in amplifiers and actuators</li>
+                        <li><span class="dot">▸</span>Coulomb (dry) friction — discontinuous</li>
+                        <li><span class="dot">▸</span>Backlash / dead-zone in gear trains</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: ELECTRICAL SYSTEM MODELS ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">2.3</span>
+                <h2 class="sec-t">Electrical System Models</h2>
+            </div>
+
+            <p>Electrical circuits are modeled using <strong>Kirchhoff's Voltage Law (KVL)</strong> and
+                <strong>Kirchhoff's Current Law (KCL)</strong>. The three passive elements — resistor, inductor, and
+                capacitor — each contribute a distinct type of term to the governing differential equation.
+            </p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Element</th>
+                            <th>V–I Relation</th>
+                            <th>Laplace (zero I.C.)</th>
+                            <th>Energy Behaviour</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Resistor R</td>
+                            <td>v = iR</td>
+                            <td>V(s) = R·I(s)</td>
+                            <td>Dissipates energy</td>
+                        </tr>
+                        <tr>
+                            <td>Inductor L</td>
+                            <td>v = L(di/dt)</td>
+                            <td>V(s) = sL·I(s)</td>
+                            <td>Stores energy in magnetic field</td>
+                        </tr>
+                        <tr>
+                            <td>Capacitor C</td>
+                            <td>i = C(dv/dt)</td>
+                            <td>V(s) = I(s)/(sC)</td>
+                            <td>Stores energy in electric field</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">RLC Series Circuit — Complete Derivation</h3>
+            <p>Consider a series RLC circuit driven by a voltage source e(t), with current i(t) flowing around the
+                single loop and output taken as the capacitor voltage.</p>
+
+            <!-- RLC circuit SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch2/fig2.2.png" alt="Figure 2.2">
+                <div class="svg-cap">Fig 2.2 — Series RLC circuit. Input e(t), loop current i(t), output taken as
+                    capacitor voltage v_c(t).</div>
+            </div>
+
+            <p><strong>Step 1 — Apply KVL around the loop:</strong></p>
+            <div class="math-block">
+                $$e(t) = Ri(t) + L\frac{di(t)}{dt} + \frac{1}{C}\int i(t)\,dt$$
+            </div>
+
+            <p><strong>Step 2 — Express current in terms of capacitor charge</strong> (since i = C dv<sub>c</sub>/dt):
+            </p>
+            <div class="math-block">
+                $$e(t) = LC\frac{d^2 v_c(t)}{dt^2} + RC\frac{dv_c(t)}{dt} + v_c(t)$$
+            </div>
+
+            <p><strong>Step 3 — Laplace transform (zero initial conditions) and form the transfer function:</strong></p>
+            <div class="math-block">
+                $$E(s) = LCs^2 V_c(s) + RCs\,V_c(s) + V_c(s)$$
+                $$\boxed{\dfrac{V_c(s)}{E(s)} = \dfrac{1}{LCs^2 + RCs + 1}}$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">Pattern Recognition</div>
+                    <p>This is a standard <strong>second-order</strong> transfer function. Comparing with the
+                        canonical form ω<sub>n</sub>²/(s² + 2ζω<sub>n</sub>s + ω<sub>n</sub>²) gives
+                        ω<sub>n</sub> = 1/√(LC) and ζ = (R/2)·√(C/L) — this exact mapping is a GATE favourite.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S4: MECHANICAL SYSTEM MODELS ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">2.4</span>
+                <h2 class="sec-t">Mechanical System Models</h2>
+            </div>
+
+            <p>Mechanical systems are modeled using <strong>Newton's Second Law</strong>: the sum of forces (or
+                torques) acting on a body equals mass (or moment of inertia) times acceleration. There are two
+                families — <strong>translational</strong> (motion in a straight line) and <strong>rotational</strong>
+                (motion about an axis).</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Translational</th>
+                            <th>Relation</th>
+                            <th>Rotational Analogue</th>
+                            <th>Relation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Mass, M</td>
+                            <td>F = M(d²x/dt²)</td>
+                            <td>Moment of Inertia, J</td>
+                            <td>T = J(d²θ/dt²)</td>
+                        </tr>
+                        <tr>
+                            <td>Damper, B</td>
+                            <td>F = B(dx/dt)</td>
+                            <td>Rotational Damper, B</td>
+                            <td>T = B(dθ/dt)</td>
+                        </tr>
+                        <tr>
+                            <td>Spring, K</td>
+                            <td>F = Kx</td>
+                            <td>Torsional Spring, K</td>
+                            <td>T = Kθ</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Mass–Spring–Damper System — Complete Derivation</h3>
+            <p>Consider a mass M resting on a frictionless surface, connected to a wall through a spring of
+                stiffness K and a damper with coefficient B, driven by an external force f(t). The displacement
+                x(t) is measured from the equilibrium position.</p>
+
+            <!-- Spring-mass-damper SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch2/fig2.3.png" alt="Figure 2.3">
+                <div class="svg-cap">Fig 2.3 — Mass–spring–damper system: force f(t) applied to mass M, restrained
+                    by spring K and damper B, displacement x(t) measured from equilibrium.</div>
+            </div>
+
+            <p><strong>Step 1 — Apply Newton's Second Law</strong> (sum of forces = mass × acceleration; the spring
+                and damper forces oppose the applied force, so they enter with a negative sign):</p>
+            <div class="math-block">
+                $$f(t) - B\frac{dx(t)}{dt} - Kx(t) = M\frac{d^2x(t)}{dt^2}$$
+            </div>
+
+            <p><strong>Step 2 — Rearrange into standard form:</strong></p>
+            <div class="math-block">
+                $$M\frac{d^2x(t)}{dt^2} + B\frac{dx(t)}{dt} + Kx(t) = f(t)$$
+            </div>
+
+            <p><strong>Step 3 — Laplace transform (zero initial conditions) and form the transfer function:</strong></p>
+            <div class="math-block">
+                $$F(s) = (Ms^2 + Bs + K)X(s)$$
+                $$\boxed{\dfrac{X(s)}{F(s)} = \dfrac{1}{Ms^2 + Bs + K}}$$
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">🔍</div>
+                <div class="cb">
+                    <div class="ct">Notice the Structural Similarity</div>
+                    <p>Compare this with the RLC transfer function from Section 2.3: <strong>M ↔ L</strong>,
+                        <strong>B ↔ R</strong>, <strong>K ↔ 1/C</strong>, <strong>f(t) ↔ e(t)</strong>,
+                        <strong>x(t) ↔ q(t)</strong> (charge). Both are second-order systems with an identical
+                        mathematical structure — this is precisely the electrical–mechanical analogy explored next.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Rotational Systems</h3>
+            <p>For rotational systems, replace force with torque T, mass with moment of inertia J, and linear
+                displacement x with angular displacement θ. A shaft with inertia J, rotational damping B, and
+                torsional spring K, driven by torque T(t), gives:</p>
+            <div class="math-block">
+                $$J\frac{d^2\theta(t)}{dt^2} + B\frac{d\theta(t)}{dt} + K\theta(t) = T(t)
+                \;\;\Longrightarrow\;\; \dfrac{\Theta(s)}{T(s)} = \dfrac{1}{Js^2 + Bs + K}$$
+            </div>
+        </div>
+
+        <!-- ═══ S5: FORCE-VOLTAGE & FORCE-CURRENT ANALOGY ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">2.5</span>
+                <h2 class="sec-t">Force–Voltage &amp; Force–Current Analogy</h2>
+            </div>
+
+            <p>Because the RLC circuit and the mass–spring–damper system are governed by mathematically identical
+                second-order differential equations, an electrical circuit can be built to <strong>simulate</strong>
+                the behaviour of a mechanical system, and vice versa. This is the basis of "analog computing" that
+                predates digital simulation, and it remains a favourite conceptual question in GATE and IES.</p>
+
+            <h3 class="sub">Force–Voltage (F–V) Analogy — Loop Method</h3>
+            <p>Here force f(t) is analogous to voltage e(t), and velocity is analogous to current (mesh/loop
+                analysis of the circuit).</p>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mechanical Quantity</th>
+                            <th>Electrical Analogue (F–V)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Force, f</td>
+                            <td>Voltage, e</td>
+                        </tr>
+                        <tr>
+                            <td>Mass, M</td>
+                            <td>Inductance, L</td>
+                        </tr>
+                        <tr>
+                            <td>Damping coefficient, B</td>
+                            <td>Resistance, R</td>
+                        </tr>
+                        <tr>
+                            <td>Spring stiffness, K</td>
+                            <td>Reciprocal capacitance, 1/C</td>
+                        </tr>
+                        <tr>
+                            <td>Displacement, x</td>
+                            <td>Charge, q</td>
+                        </tr>
+                        <tr>
+                            <td>Velocity, dx/dt</td>
+                            <td>Current, i</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Force–Current (F–I) Analogy — Node Method</h3>
+            <p>Here force f(t) is analogous to current i(t), and velocity is analogous to voltage (nodal analysis
+                of the circuit).</p>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mechanical Quantity</th>
+                            <th>Electrical Analogue (F–I)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Force, f</td>
+                            <td>Current, i</td>
+                        </tr>
+                        <tr>
+                            <td>Mass, M</td>
+                            <td>Capacitance, C</td>
+                        </tr>
+                        <tr>
+                            <td>Damping coefficient, B</td>
+                            <td>Reciprocal resistance, 1/R</td>
+                        </tr>
+                        <tr>
+                            <td>Spring stiffness, K</td>
+                            <td>Reciprocal inductance, 1/L</td>
+                        </tr>
+                        <tr>
+                            <td>Displacement, x</td>
+                            <td>Flux linkage, ψ</td>
+                        </tr>
+                        <tr>
+                            <td>Velocity, dx/dt</td>
+                            <td>Voltage, v</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Memory Trick — "MLC, BRR, KCL"</div>
+                    <p>For F–V analogy remember <strong>M→L, B→R, K→1/C</strong> ("Mass Loves inductance, B is
+                        Resistance, K is inverse Capacitance"). For F–I analogy everything flips to the dual network:
+                        <strong>M→C, B→1/R, K→1/L</strong>. If you know one analogy, the other is simply the dual
+                        network (series ↔ parallel, loop ↔ node).
+                    </p>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common GATE Trap</div>
+                    <p>Students frequently swap which analogy uses series vs parallel elements. In the F–V analogy,
+                        a mechanical system with elements <em>in parallel</em> (sharing the same displacement) maps
+                        to electrical elements <em>in series</em> (sharing the same loop current) — the topology
+                        inverts between the mechanical and electrical domains.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: TRANSFER FUNCTION CONCEPT ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">2.6</span>
+                <h2 class="sec-t">The Transfer Function Concept</h2>
+            </div>
+
+            <p>The <strong>transfer function</strong> G(s) of a linear, time-invariant system is defined as the
+                ratio of the Laplace transform of the output to the Laplace transform of the input, with
+                <strong>all initial conditions assumed to be zero</strong>.
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">Definition</div>
+                $$G(s) = \dfrac{\mathcal{L}[\text{output}]}{\mathcal{L}[\text{input}]}\bigg|_{\text{zero initial
+                conditions}} = \dfrac{C(s)}{R(s)}$$
+            </div>
+
+            <!-- Basic block diagram of TF -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch2/fig2.4.png" alt="Figure 2.4">
+                <div class="svg-cap">Fig 2.4 — The transfer function G(s) as a single block: input R(s) in,
+                    output C(s) out. C(s) = G(s)·R(s).</div>
+            </div>
+
+            <h3 class="sub">General Form of a Transfer Function</h3>
+            <p>Expanding the definition for the general n<sup>th</sup>-order differential equation of Section 2.2:</p>
+            <div class="math-block">
+                $$G(s) = \dfrac{C(s)}{R(s)} = \dfrac{b_m s^m + b_{m-1}s^{m-1} + \cdots + b_1 s + b_0}
+                {a_n s^n + a_{n-1}s^{n-1} + \cdots + a_1 s + a_0}$$
+            </div>
+
+            <p>The numerator polynomial, when set to zero, gives the <strong>zeros</strong> of the system. The
+                denominator polynomial, when set to zero, gives the <strong>poles</strong> — and this denominator
+                is called the <strong>characteristic equation</strong>, whose roots decide system stability.</p>
+
+            <div class="fblock"><span class="flbl">Key Definitions</span>
+
+<span class="fh">Zeros:</span> Roots of numerator polynomial → values of s where G(s) = 0
+<span class="fh">Poles:</span> Roots of denominator polynomial → values of s where G(s) → ∞
+<span class="fh">Characteristic Equation:</span> a_n s^n + ... + a_1 s + a_0 = 0
+<span class="fh">Order of system:</span> Highest power of s in denominator (= n)
+<span class="fh">Type of system:</span> Number of poles at the origin (s = 0)</div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">GATE-Favourite Distinction — Order vs Type</div>
+                    <p><strong>Order</strong> is the degree of the characteristic equation (total number of poles).
+                        <strong>Type</strong> is the number of poles specifically located at the origin, s = 0
+                        (i.e., the number of pure integrators in the forward path). A system can be Type-1 and
+                        Order-3 simultaneously — these are independent properties and are frequently tested together.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: PROPERTIES OF TRANSFER FUNCTIONS ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">2.7</span>
+                <h2 class="sec-t">Properties of Transfer Functions</h2>
+            </div>
+
+            <p>The transfer function representation carries a specific set of mathematical properties that every
+                GATE/IES aspirant must know cold — several of these directly generate multiple-choice traps.</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Core Properties</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Defined only for <strong>linear, time-invariant</strong> systems
+                        </li>
+                        <li><span class="dot">▸</span>Applicable under <strong>zero initial conditions</strong> only
+                        </li>
+                        <li><span class="dot">▸</span>Property of the <strong>system only</strong> — independent of the
+                            input applied</li>
+                        <li><span class="dot">▸</span>Does not provide information about the <strong>physical
+                                structure</strong> of the system (many different physical systems can share the same
+                            G(s))</li>
+                        <li><span class="dot">▸</span>The inverse Laplace transform of G(s) gives the <strong>impulse
+                                response</strong> g(t)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">On Poles, Zeros &amp; Stability</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>All poles in the <strong>left half of the s-plane</strong> →
+                            stable system</li>
+                        <li><span class="dot">▸</span>Any pole in the <strong>right half</strong> → unstable system</li>
+                        <li><span class="dot">▸</span>Poles on the <strong>imaginary axis</strong> (non-repeated) →
+                            marginally stable</li>
+                        <li><span class="dot">▸</span>Number of poles ≥ number of zeros for a <strong>physically
+                                realizable</strong> (proper) system</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub">Proper, Strictly Proper, and Improper Transfer Functions</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Condition</th>
+                            <th>Physical Realizability</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Strictly Proper</td>
+                            <td>degree(numerator) &lt; degree(denominator)</td>
+                            <td class="t-grn">Always realizable</td>
+                        </tr>
+                        <tr>
+                            <td>Proper (Biproper)</td>
+                            <td>degree(numerator) = degree(denominator)</td>
+                            <td class="t-grn">Realizable</td>
+                        </tr>
+                        <tr>
+                            <td>Improper</td>
+                            <td>degree(numerator) &gt; degree(denominator)</td>
+                            <td class="t-red">Not physically realizable</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Mistake</div>
+                    <p>An <strong>improper</strong> transfer function (numerator order &gt; denominator order) would
+                        require an ideal, noise-amplifying pure differentiator of order higher than the system can
+                        physically provide. No real system exhibits this — if you derive an improper G(s), recheck
+                        your algebra; a modeling error is almost certainly present.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Impulse Response — The Physical Meaning of G(s)</h3>
+            <p>If the input is a unit impulse, r(t) = δ(t), then R(s) = 1, and the output becomes simply:</p>
+            <div class="math-block">
+                $$C(s) = G(s) \cdot 1 = G(s) \;\;\Longrightarrow\;\; c(t) = \mathcal{L}^{-1}[G(s)] = g(t)$$
+            </div>
+            <p>This is why the transfer function is sometimes directly called the <strong>impulse response
+                    function</strong> — the Laplace transform of a system's response to a unit impulse input, applied
+                with zero initial energy stored, is precisely its transfer function.</p>
+        </div>
+
+        <!-- ═══ S8: BLOCK DIAGRAM REPRESENTATION ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">2.8</span>
+                <h2 class="sec-t">Block Diagram Representation</h2>
+            </div>
+
+            <p>A block diagram is a graphical shorthand for a system of equations. It shows how signals flow between
+                sub-systems, making it far easier to visualise a complex control loop than a page of algebra. Every
+                block diagram is built from exactly three basic elements.</p>
+
+            <!-- Basic elements SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch2/fig2.5.png" alt="Figure 2.5">
+                <div class="svg-cap">Fig 2.5 — The three basic block diagram elements: signal block, summing
+                    junction (adds/subtracts signals), and take-off (pick-off) point (branches a signal unchanged).
+                </div>
+            </div>
+
+            <h3 class="sub">The Closed-Loop (Feedback) Block Diagram</h3>
+            <p>Nearly every practical control system is a closed loop: a forward path block G(s), a feedback path
+                block H(s), and a summing junction that compares the reference input with the feedback signal.</p>
+
+            <div class="svg-wrap">
+                <img src="images/ch2/fig2.6.png" alt="Figure 2.6">
+                <div class="svg-cap">Fig 2.6 — Standard negative-feedback closed-loop block diagram. E(s) = error
+                    signal = R(s) − H(s)C(s).</div>
+            </div>
+
+            <h3 class="sub">Deriving the Closed-Loop Transfer Function</h3>
+            <p>From the diagram: the summing junction produces the error signal, the forward block converts error
+                into output, and the feedback block returns a scaled sample of the output.</p>
+            <div class="math-block">
+                $$E(s) = R(s) - H(s)C(s), \qquad C(s) = G(s)E(s)$$
+                $$C(s) = G(s)\big[R(s) - H(s)C(s)\big] \;\;\Longrightarrow\;\; C(s)\big[1 + G(s)H(s)\big] = G(s)R(s)$$
+                $$\boxed{\dfrac{C(s)}{R(s)} = \dfrac{G(s)}{1 + G(s)H(s)}}$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">Sign Convention — Negative vs Positive Feedback</div>
+                    <p>For <strong>negative feedback</strong> (the standard, stabilising case): C/R = G/(1+GH).
+                        For <strong>positive feedback</strong> (rare, used in oscillators): C/R = G/(1−GH). The sign
+                        in the denominator always matches the sign at the summing junction, flipped.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S9: BLOCK DIAGRAM REDUCTION RULES ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">2.9</span>
+                <h2 class="sec-t">Block Diagram Reduction Rules</h2>
+            </div>
+
+            <p>Large block diagrams with multiple loops, summing points, and take-off points can be systematically
+                collapsed into a single equivalent block using a fixed set of algebraic reduction rules. Every rule
+                is simply the graphical version of an algebraic simplification.</p>
+
+            <h3 class="sub">Rule 1 — Blocks in Series (Cascade)</h3>
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch2/fig2.7.png" alt="Rule 1">
+                <div class="svg-cap">Rule 1 — Series blocks multiply: G_eq = G1 × G2.</div>
+            </div>
+
+            <h3 class="sub">Rule 2 — Blocks in Parallel</h3>
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch2/fig2.8.png" alt="Rule 2">
+                <div class="svg-cap">Rule 2 — Parallel blocks add (or subtract, per summing sign): G_eq = G1 ± G2.</div>
+            </div>
+
+            <h3 class="sub">Rule 3 — Feedback Loop Elimination</h3>
+            <p>This is simply the closed-loop derivation of Section 2.8 applied locally to any inner loop:</p>
+            <div class="fblock"><span class="flbl">Feedback Reduction</span><span class="fh">Negative feedback:</span>
+                G_eq = G / (1 + GH)
+                <span class="fh">Positive feedback:</span> G_eq = G / (1 − GH)
+                <span class="fh">Unity feedback (H = 1):</span> G_eq = G / (1 + G)
+            </div>
+
+            <h3 class="sub">Rule 4 — Moving a Take-off Point</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Move</th>
+                            <th>Compensation Needed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Take-off point moved <strong>ahead of</strong> a block G</td>
+                            <td>Insert G in the branched (take-off) path</td>
+                        </tr>
+                        <tr>
+                            <td>Take-off point moved <strong>after</strong> a block G</td>
+                            <td>Insert 1/G in the branched (take-off) path</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Rule 5 — Moving a Summing Point</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Move</th>
+                            <th>Compensation Needed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Summing point moved <strong>ahead of</strong> a block G</td>
+                            <td>Insert 1/G on the signal entering the moved summing point</td>
+                        </tr>
+                        <tr>
+                            <td>Summing point moved <strong>after</strong> a block G</td>
+                            <td>Insert G on the signal entering the moved summing point</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Golden Rule Students Forget</div>
+                    <p>A summing point and a take-off point can <strong>never be interchanged directly</strong> by
+                        simply swapping their positions — doing so changes the signal meaning at that node. Only
+                        two summing points (or two take-off points) sitting next to each other with nothing in
+                        between may be freely interchanged.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Complete Reduction Rule Reference Table</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Configuration</th>
+                            <th>Equivalent Block</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Series / Cascade</td>
+                            <td>G1 × G2</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Parallel</td>
+                            <td>G1 ± G2</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Feedback loop</td>
+                            <td>G / (1 ∓ GH)</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Take-off point shifted ahead of G</td>
+                            <td>Add G in branch</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Take-off point shifted after G</td>
+                            <td>Add 1/G in branch</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>Summing point shifted ahead of G</td>
+                            <td>Add 1/G to incoming signal</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>Summing point shifted after G</td>
+                            <td>Add G to incoming signal</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>Adjacent summing points</td>
+                            <td>Freely interchangeable</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S10: BLOCK DIAGRAM REDUCTION - WORKED WALKTHROUGH ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">2.10</span>
+                <h2 class="sec-t">Block Diagram Reduction — Worked Walkthrough</h2>
+            </div>
+
+            <p>Consider a two-loop system: an inner feedback loop with forward block G2 and feedback block H2,
+                cascaded after a block G1, all inside an outer feedback loop with feedback block H1. This is one of
+                the most frequently drawn diagrams in GATE Control Systems.</p>
+
+            <div class="svg-wrap">
+                <img src="images/ch2/fig2.10.png" alt="Figure 2.7">
+                <div class="svg-cap">Fig 2.7 — Two-loop system: G1 cascaded with an inner G2/H2 feedback loop, the
+                    whole combination wrapped in an outer H1 feedback loop.</div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Reduction Sequence</span><span class="fh">Step 1 — Reduce inner
+                    loop</span> (G2 with feedback H2, negative):
+                G2' = G2 / (1 + G2·H2)
+
+                <span class="fh">Step 2 — Combine in series</span> with G1 (cascade rule):
+                G_fwd = G1 · G2' = G1·G2 / (1 + G2·H2)
+
+                <span class="fh">Step 3 — Reduce outer loop</span> (G_fwd with feedback H1, negative):
+                C(s)/R(s) = G_fwd / (1 + G_fwd·H1)
+            </div>
+
+            <p><strong>Final closed-form result</strong> after substituting and clearing the compound fraction:</p>
+            <div class="math-block">
+                $$\dfrac{C(s)}{R(s)} = \dfrac{G_1 G_2}{1 + G_2 H_2 + G_1 G_2 H_1}$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">Reduction Strategy</div>
+                    <p>Always reduce the <strong>innermost loop first</strong>, then work outward. Never try to
+                        collapse an outer loop while an inner loop is still un-reduced — the algebra becomes far
+                        messier and error-prone. This "inside-out" strategy applies to every multi-loop diagram.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S11: SOLVED NUMERICALS ═══ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr"><span class="sec-num">2.11</span>
+                <h2 class="sec-t">Solved Numericals</h2>
+            </div>
+
+            <!-- Example 1 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 2.1</span>
+                    <span class="ex-title">Transfer function of a series RC circuit</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">Find the transfer function V_o(s)/V_i(s) of a series RC circuit where the
+                        input is the source voltage v_i(t) and the output is the voltage across the capacitor.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — KVL:</strong></p>
+                    <div class="math-block">$$v_i(t) = Ri(t) + v_o(t), \qquad i(t) = C\frac{dv_o(t)}{dt}$$</div>
+                    <p><strong>Step 2 — Substitute and Laplace transform (zero I.C.):</strong></p>
+                    <div class="math-block">
+                        $$v_i(t) = RC\frac{dv_o(t)}{dt} + v_o(t) \;\;\Longrightarrow\;\; V_i(s) = (RCs + 1)V_o(s)$$
+                    </div>
+                    <div class="math-block">
+                        $$\boxed{\dfrac{V_o(s)}{V_i(s)} = \dfrac{1}{RCs+1} = \dfrac{1/RC}{s + 1/RC}}$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Recognise This Form</div>
+                            <p>This is a standard first-order low-pass filter transfer function with time constant
+                                τ = RC and a single pole at s = −1/RC.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 2.2</span>
+                    <span class="ex-title">Order, type, poles and zeros from a given transfer function</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">For G(s) = 10(s+2) / [s(s+1)(s+5)], find the order, type, poles, and zeros of
+                        the system.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Denominator</strong> (characteristic polynomial): s(s+1)(s+5) = s³ + 6s² + 5s → degree 3
+                    </p>
+                    <p><strong>Order</strong> = 3 (degree of the characteristic equation)</p>
+                    <p><strong>Poles</strong> (roots of denominator): s = 0, s = −1, s = −5</p>
+                    <p><strong>Type</strong> = 1 (exactly one pole located at the origin, s = 0)</p>
+                    <p><strong>Zeros</strong> (roots of numerator): s = −2</p>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Check</div>
+                            <p>Poles (3) ≥ Zeros (1) → the transfer function is strictly proper and physically
+                                realizable, consistent with Section 2.7.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 2.3</span>
+                    <span class="ex-title">Closed-loop transfer function with unity feedback</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A unity-feedback control system has forward path transfer function
+                        G(s) = 20 / [s(s+4)]. Find the closed-loop transfer function C(s)/R(s).</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>For unity feedback, H(s) = 1:</p>
+                    <div class="math-block">
+                        $$\frac{C(s)}{R(s)} = \frac{G(s)}{1+G(s)} = \dfrac{\dfrac{20}{s(s+4)}}{1+\dfrac{20}{s(s+4)}}
+                        = \dfrac{20}{s(s+4)+20}$$
+                    </div>
+                    <div class="math-block">
+                        $$\boxed{\dfrac{C(s)}{R(s)} = \dfrac{20}{s^2+4s+20}}$$
+                    </div>
+                    <p><strong>Answer:</strong> C(s)/R(s) = 20/(s² + 4s + 20), a standard underdamped second-order
+                        closed loop with ω_n = √20 ≈ 4.47 rad/s and ζ = 4/(2×4.47) ≈ 0.447.</p>
+                </div>
+            </div>
+
+            <!-- Example 4 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 2.4</span>
+                    <span class="ex-title">Two-loop block diagram reduction (GATE style)</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A system has forward block G1 = 5 cascaded with G2 = 2/(s+1), the combination
+                        wrapped in an inner negative feedback loop with H2 = 0.5 around G2 only, and an outer unity
+                        negative feedback loop around the entire forward path. Find C(s)/R(s).</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — Reduce inner loop</strong> (G2 with H2):</p>
+                    <div class="math-block">
+                        $$G_2' = \frac{G_2}{1+G_2H_2} = \dfrac{\dfrac{2}{s+1}}{1+\dfrac{2}{s+1}\times 0.5}
+                        = \dfrac{2}{s+1+1} = \dfrac{2}{s+2}$$
+                    </div>
+                    <p><strong>Step 2 — Cascade with G1:</strong></p>
+                    <div class="math-block">
+                        $$G_{fwd} = G_1 \times G_2' = 5\times\dfrac{2}{s+2} = \dfrac{10}{s+2}$$
+                    </div>
+                    <p><strong>Step 3 — Outer unity feedback loop:</strong></p>
+                    <div class="math-block">
+                        $$\frac{C(s)}{R(s)} = \frac{G_{fwd}}{1+G_{fwd}} = \dfrac{\dfrac{10}{s+2}}{1+\dfrac{10}{s+2}}
+                        = \dfrac{10}{s+12}$$
+                    </div>
+                    <p><strong>Answer:</strong> C(s)/R(s) = 10/(s+12) — a simple first-order closed loop despite the
+                        two nested feedback loops in the original diagram.</p>
+                </div>
+            </div>
+
+            <!-- Example 5 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 2.5</span>
+                    <span class="ex-title">Mechanical rotational system — motor shaft with load inertia</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A motor delivers torque T(t) to a shaft with total moment of inertia J = 2
+                        kg·m² and rotational friction B = 4 N·m·s/rad (no torsional spring). Find the transfer
+                        function Ω(s)/T(s), where ω(t) = dθ/dt is the shaft's angular velocity.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>With no spring (K = 0), Newton's law for rotation gives:</p>
+                    <div class="math-block">
+                        $$J\frac{d^2\theta}{dt^2} + B\frac{d\theta}{dt} = T(t) \;\;\Longrightarrow\;\;
+                        J\frac{d\omega}{dt} + B\omega = T(t)$$
+                    </div>
+                    <p>Laplace transform (zero I.C.), with Ω(s) = the transform of ω(t):</p>
+                    <div class="math-block">
+                        $$(Js + B)\Omega(s) = T(s) \;\;\Longrightarrow\;\; \dfrac{\Omega(s)}{T(s)} = \dfrac{1}{Js+B}
+                        = \dfrac{1}{2s+4}$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Note</div>
+                            <p>Because there is no spring term, this reduces to a <strong>first-order</strong> system
+                                in the velocity variable ω — exactly analogous to an RL circuit with no capacitor.
+                                This J–B-only case (K = 0) is a frequently tested GATE simplification.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S12: GATE & IES QUESTIONS ═══ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr"><span class="sec-num">2.12</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Concepts</h2>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">High Probability Topics in Mathematical Modeling
+                        <span class="prob prob-h">🟢 HIGH</span></span>
+                </div>
+                <div class="gate-body">
+                    <p>The following topics consistently appear in GATE EE / EC / IN (Control Systems section) and
+                        IES E&amp;T:</p>
+                    <div class="two-col">
+                        <div class="mini-card mc-grn">
+                            <div class="mc-t">🟢 High Probability (GATE)</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>Deriving G(s) for RLC and mass-spring-damper systems</li>
+                                <li><span class="dot">▸</span>Block diagram reduction to a single transfer function</li>
+                                <li><span class="dot">▸</span>Order, type, poles and zeros from a given G(s)</li>
+                                <li><span class="dot">▸</span>Closed-loop TF for negative/positive/unity feedback</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card mc-amb">
+                            <div class="mc-t">🟡 Medium Probability</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>Force–voltage / force–current analogy mapping</li>
+                                <li><span class="dot">▸</span>Take-off and summing point shifting rules</li>
+                                <li><span class="dot">▸</span>Proper vs improper transfer functions</li>
+                                <li><span class="dot">▸</span>Impulse response interpretation of G(s)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Transfer function — definition trap</span>
+                    <span class="pyq-year">Concept — 2020</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The transfer function of a linear time-invariant system is defined as the ratio of the
+                        Laplace transform of the output to the Laplace transform of the input:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Under any arbitrary initial conditions</li>
+                        <li class="correct">(B) Assuming all initial conditions are zero</li>
+                        <li>(C) Only when the input is a unit step</li>
+                        <li>(D) Only when the system is unstable</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> The transfer function is, by definition, computed with zero
+                        initial energy stored in the system. Any stored energy must be handled separately through
+                        additional initial-condition terms — it is not part of G(s) itself.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Order and type of a system</span>
+                    <span class="pyq-year">Concept — 2018</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A unity feedback system has G(s) = K / [s²(s+3)]. The type and order of the system are:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Type 1, Order 2</li>
+                        <li class="correct">(B) Type 2, Order 3</li>
+                        <li>(C) Type 3, Order 2</li>
+                        <li>(D) Type 2, Order 2</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> Denominator s²(s+3) = s³ + 3s² is a 3rd-degree polynomial →
+                        Order = 3. There are exactly two poles at the origin (from the s² term) → Type = 2. Order
+                        and type must always be evaluated independently.
+                    </p>
+                </div>
+            </div>
+
+            <!-- IES PYQ -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Force–voltage analogy — correct pairing</span>
+                    <span class="pyq-year">IES 2017</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In the force–voltage (loop) analogy between mechanical and electrical systems, which pairing
+                        is correct?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Mass ↔ Capacitance, Damping ↔ Resistance</li>
+                        <li class="correct">(B) Mass ↔ Inductance, Damping ↔ Resistance, Stiffness ↔ 1/Capacitance</li>
+                        <li>(C) Mass ↔ Resistance, Stiffness ↔ Inductance</li>
+                        <li>(D) Damping ↔ Capacitance, Stiffness ↔ Resistance</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);">
+                        <strong>Explanation:</strong> In the F–V analogy, force is analogous to voltage, and the
+                        analysis follows loop (mesh) equations: mass stores kinetic energy like an inductor stores
+                        magnetic energy (M↔L), damping dissipates energy like a resistor (B↔R), and spring stiffness
+                        maps to the reciprocal of capacitance (K↔1/C).
+                    </p>
+                </div>
+            </div>
+
+            <!-- PYQ 3 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Block diagram — effect of shifting a take-off point</span>
+                    <span class="pyq-year">Concept — 2023</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A take-off point located immediately after block G is shifted to immediately before block G
+                        (i.e., moved backward across G). To keep the branched signal unchanged, which block must be
+                        inserted in the branch?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) G</li>
+                        <li class="correct">(B) 1/G</li>
+                        <li>(C) G²</li>
+                        <li>(D) No compensation is needed</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> Moving a take-off point from after G to before G means the
+                        branch signal used to be G·(input) but is now just (input). To recover the original branch
+                        signal G·(input), a block of 1/G must be inserted into the branch path.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Quick Revision — Memory Tricks</h3>
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic: "SPF" for Series, Parallel, Feedback</div>
+                    <p><strong>S</strong>eries multiplies, <strong>P</strong>arallel adds, <strong>F</strong>eedback
+                        divides by (1 ± GH). Reduce loops from the inside out, and always double-check the sign at
+                        each summing junction before writing the final closed-loop expression.</p>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The "ZIC" Rule for Transfer Functions</div>
+                    <p><strong>Z</strong>ero <strong>I</strong>nitial <strong>C</strong>onditions — every transfer
+                        function derivation in this chapter, and every one that follows, silently assumes ZIC unless
+                        explicitly stated otherwise. Forgetting this is the single most common reason for incorrect
+                        answers when initial-condition-based questions appear.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ AI WIDGET ═══ -->
+        <div class="ai-prompt">
+            <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+            <p>Have a question on differential equation modeling, electrical/mechanical analogies, transfer
+                functions, or block diagram reduction? Type below or pick a suggestion.</p>
+            <div class="ai-input-row">
+                <input class="ai-input" id="userQ" type="text"
+                    placeholder="e.g. Reduce a block diagram with G1, G2 in series and an inner feedback loop H2…">
+                <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+            </div>
+            <div class="ai-suggest">
+                <span class="ai-chip"
+                    onclick="setQ('Derive the transfer function of a series RLC circuit with output taken across the resistor instead of the capacitor.')">RLC
+                    with output across R</span>
+                <span class="ai-chip"
+                    onclick="setQ('Explain step by step why moving a take-off point ahead of a block requires inserting G in the branch, using a worked example.')">Take-off
+                    point shifting — why?</span>
+                <span class="ai-chip"
+                    onclick="setQ('A block diagram has three blocks G1, G2, G3 in series, wrapped in unity negative feedback. Find C(s)/R(s) and explain each reduction step.')">3-block
+                    series + unity feedback</span>
+                <span class="ai-chip"
+                    onclick="setQ('What is the physical meaning of a pole at the origin (Type-1 system) versus no pole at the origin (Type-0 system)?')">Type-0
+                    vs Type-1 — physical meaning</span>
+                <span class="ai-chip"
+                    onclick="setQ('Convert a mechanical rotational system with J, B, K into its force-current electrical analog and draw the equivalent circuit description.')">Rotational
+                    system → F-I analog</span>
+            </div>
+            <div class="ai-response" id="aiResp"></div>
+        </div>
+
+        <!-- ═══ SUMMARY GRID ═══ -->
+        <h3 class="sub">Chapter Summary</h3>
+        <div class="sum-grid">
+            <div class="sum-card sc-o">
+                <div class="sum-lbl">Modeling Pipeline</div>
+                <p>Physics (KVL/KCL, Newton's Laws) → differential equation → Laplace transform (zero I.C.) →
+                    transfer function G(s) = C(s)/R(s).</p>
+            </div>
+            <div class="sum-card sc-g">
+                <div class="sum-lbl">Electrical Elements</div>
+                <p>R → R, L → sL, C → 1/(sC). Series RLC: V_c(s)/E(s) = 1/(LCs² + RCs + 1), a canonical
+                    second-order form.</p>
+            </div>
+            <div class="sum-card sc-t">
+                <div class="sum-lbl">Mechanical Elements</div>
+                <p>M → Ms², B → Bs, K → K. Mass-spring-damper: X(s)/F(s) = 1/(Ms² + Bs + K). Rotational: J, B, K
+                    replace M, B, K.</p>
+            </div>
+            <div class="sum-card sc-a">
+                <div class="sum-lbl">Analogies</div>
+                <p>F–V: M↔L, B↔R, K↔1/C (loop method). F–I: M↔C, B↔1/R, K↔1/L (node method). F–I is the dual
+                    network of F–V.</p>
+            </div>
+            <div class="sum-card sc-r">
+                <div class="sum-lbl">TF Properties</div>
+                <p>Defined for LTI systems, zero I.C., property of system only. Poles → stability. Physically
+                    realizable ⇒ poles ≥ zeros (proper).</p>
+            </div>
+            <div class="sum-card sc-g">
+                <div class="sum-lbl">Block Diagram Rules</div>
+                <p>Series multiplies. Parallel adds. Feedback: G/(1±GH). Reduce innermost loop first. Take-off/sum
+                    shifts need G or 1/G compensation.</p>
+            </div>
+        </div>
+
+
+        <!-- ═══ CITATIONS ═══ -->
+        <div class="citations" id="citations">
+            <div class="cite-h">References &amp; Citations</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                the following standard textbooks and learning resources. All explanations, derivations, diagrams
+                and examples are original to Aarova AI.</p>
+            <ul class="cite-list">
+                <li><span class="cite-num">[1]</span><span>Nagrath, I.J. and Gopal, M. <em>Control Systems
+                            Engineering</em>, 5th ed. New Age International, 2007. Chapter 2 — Mathematical models of
+                        physical systems, transfer function concept.</span></li>
+                <li><span class="cite-num">[2]</span><span>Ogata, Katsuhiko. <em>Modern Control Engineering</em>,
+                        5th ed. Prentice Hall, 2010. Chapter 2 — Mathematical modeling of control systems, block
+                        diagrams.</span></li>
+                <li><span class="cite-num">[3]</span><span>Kuo, Benjamin C. and Golnaraghi, Farid. <em>Automatic
+                            Control Systems</em>, 9th ed. Wiley, 2009. Chapter 2 — Mathematical foundation and Chapter 4
+                        —
+                        Block diagram reduction.</span></li>
+                <li><span class="cite-num">[4]</span><span>IIT Kharagpur / IIT Roorkee NPTEL. <em>Control
+                            Systems — Lectures on Mathematical Modeling and Block Diagrams</em>. National Programme on
+                        Technology Enhanced Learning. nptel.ac.in.</span></li>
+            </ul>
+        </div>
+
+        <hr>
+        <footer>
+            <strong>Aarova AI</strong> &nbsp;·&nbsp; Control Systems Series &nbsp;·&nbsp; Chapter 2 of 8<br>
+            <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+            <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+        </footer>
+    </div>
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE/EC/IN and IES tutor specialising in Control Systems. Topic: Mathematical Modeling and Transfer Functions (Chapter 2). Cover differential equation modeling, electrical/mechanical system models, force-voltage and force-current analogies, transfer function properties, block diagram representation and reduction rules. Answer with step-by-step working for numericals. Base answers on Nagrath & Gopal, Ogata, Kuo. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

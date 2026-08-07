@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#fdf6ee">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Aarova AI — EM Ch.2 Transformers</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+:root{
+  --bg:#fdf6ee;--bg2:#f8ede0;--bg3:#f0e0cc;--bg4:#e8d0b8;
+  --text:#1e1208;--text2:#3d2010;--text3:#6b3e22;--muted:#9a6e50;
+  --orange:#c95f1a;--orange-md:#e07235;--orange-lt:#f5956a;
+  --orange-bg:#fdebd8;--orange-bdr:#f0b48a;
+  --green:#2d6648;--green-bg:#dff0e8;--green-bdr:#8ecaaa;
+  --teal:#1e6b68;--teal-bg:#d8eeed;--teal-bdr:#7ec4c2;
+  --amber:#a05c00;--amber-bg:#fef0d0;--amber-bdr:#f0c060;
+  --red:#9a2020;--red-bg:#fde8e8;--red-bdr:#e89090;
+  --border:#ddc8b0;--border2:#c8a888;
+  --radius:14px;
+  --shadow:0 2px 16px rgba(150,80,20,0.10);
+  --shadow-md:0 6px 28px rgba(150,80,20,0.14);
+  --page-px:clamp(14px,4vw,48px);
+  --section-gap:clamp(36px,6vw,64px);
+  --card-px:clamp(14px,2.5vw,22px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;font-size:18px;-webkit-text-size-adjust:100%;}
+body{background:var(--bg);color:var(--text2);font-family:'Lora',Georgia,serif;line-height:1.85;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+img,svg{max-width:100%;display:block;}
+.page{max-width:900px;margin:0 auto;padding:0 var(--page-px) 80px;}
+.site-header{position:sticky;top:0;z-index:100;background:rgba(253,246,238,0.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1.5px solid var(--border);padding:12px var(--page-px);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.logo{font-family:'Playfair Display',serif;font-size:clamp(14px,2.5vw,18px);font-weight:700;color:var(--orange);white-space:nowrap;}
+.logo-sub{font-family:'Lora',serif;font-size:11px;color:var(--muted);margin-left:8px;font-weight:400;}
+.hbadges{display:flex;gap:5px;flex-wrap:wrap;}
+.hbadge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--orange-bg);border:1px solid var(--orange-bdr);color:var(--orange);white-space:nowrap;}
+.hero{padding:clamp(28px,6vw,64px) 0 clamp(22px,4vw,44px);border-bottom:1.5px solid var(--border);margin-bottom:clamp(24px,4vw,44px);}
+.eyebrow{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.15em;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:9px;}
+.eyebrow::before{content:'';display:inline-block;width:24px;height:2.5px;background:var(--orange);border-radius:2px;flex-shrink:0;}
+h1.hero-title{font-family:'Playfair Display',serif;font-size:clamp(28px,7vw,52px);font-weight:800;color:var(--text);line-height:1.1;margin-bottom:14px;}
+h1.hero-title em{font-style:italic;color:var(--orange);}
+.hero-desc{font-size:clamp(14px,2vw,17px);color:var(--text3);max-width:640px;line-height:1.75;font-weight:400;margin-bottom:22px;}
+.badge-row{display:flex;flex-wrap:wrap;gap:7px;}
+.badge{font-size:12px;padding:4px 13px;border-radius:22px;border:1.5px solid var(--border2);color:var(--text3);background:var(--bg2);font-family:'Lora',serif;}
+.badge-p{background:var(--orange-bg);border-color:var(--orange-bdr);color:var(--orange);font-weight:600;}
+.progress-bar{display:flex;align-items:center;gap:12px;background:var(--orange-bg);border:1.5px solid var(--orange-bdr);border-radius:10px;padding:11px 16px;margin-bottom:clamp(20px,4vw,40px);}
+.pl{font-size:12px;font-weight:600;color:var(--orange);white-space:nowrap;}
+.pt{flex:1;height:7px;background:rgba(201,95,26,0.18);border-radius:4px;overflow:hidden;min-width:30px;}
+.pf{height:100%;width:25%;background:var(--orange);border-radius:4px;}
+.pp{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--orange);white-space:nowrap;}
+.toc{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--orange);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin-bottom:clamp(28px,5vw,52px);}
+.toc-h{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:14px;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0 24px;}
+.toc-item{display:flex;align-items:baseline;gap:9px;font-size:14px;color:var(--text3);text-decoration:none;padding:7px 0;border-bottom:1px dashed transparent;transition:color .2s,border-color .2s;line-height:1.5;}
+.toc-item:hover,.toc-item:focus{color:var(--orange);border-bottom-color:var(--orange-lt);}
+.toc-n{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--orange);min-width:28px;flex-shrink:0;}
+.section{margin-bottom:var(--section-gap);opacity:0;transform:translateY(12px);animation:rise .42s forwards;}
+@keyframes rise{to{opacity:1;transform:none;}}
+.section:nth-child(1){animation-delay:.04s}.section:nth-child(2){animation-delay:.09s}
+.section:nth-child(3){animation-delay:.13s}.section:nth-child(4){animation-delay:.17s}
+.section:nth-child(5){animation-delay:.21s}.section:nth-child(6){animation-delay:.25s}
+.section:nth-child(7){animation-delay:.29s}.section:nth-child(8){animation-delay:.33s}
+.section:nth-child(9){animation-delay:.37s}.section:nth-child(10){animation-delay:.41s}
+.section:nth-child(11){animation-delay:.45s}.section:nth-child(12){animation-delay:.49s}
+.sec-hdr{display:flex;align-items:center;gap:12px;margin-bottom:clamp(14px,3vw,24px);padding-bottom:12px;border-bottom:1.5px solid var(--border);}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-bdr);padding:3px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+h2.sec-t{font-family:'Playfair Display',serif;font-size:clamp(18px,3.5vw,26px);font-weight:700;color:var(--text);line-height:1.2;}
+h3.sub{font-family:'Playfair Display',serif;font-size:clamp(15px,2.5vw,19px);font-weight:600;color:var(--text2);margin:clamp(20px,3vw,32px) 0 10px;display:flex;align-items:center;gap:9px;}
+h3.sub::before{content:'';display:inline-block;width:4px;height:16px;background:var(--orange-lt);border-radius:2px;flex-shrink:0;}
+p{margin-bottom:14px;color:var(--text2);font-size:clamp(14px,2vw,17px);line-height:1.85;}
+strong{font-weight:600;color:var(--text);}
+sup.cite{font-size:9px;color:var(--teal);font-weight:700;cursor:pointer;vertical-align:super;margin-left:1px;}
+.callout{border-radius:10px;padding:clamp(11px,2vw,16px) clamp(13px,2vw,20px);margin:16px 0;display:flex;gap:11px;align-items:flex-start;}
+.ci{font-size:17px;flex-shrink:0;margin-top:2px;line-height:1;}
+.cb{flex:1;min-width:0;}
+.ct{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.cb p{margin:0;font-size:clamp(13px,1.8vw,15.5px);line-height:1.68;}
+.c-info{background:var(--orange-bg);border-left:4px solid var(--orange);}.c-info .ct{color:var(--orange);}.c-info p{color:var(--text2);}
+.c-tip{background:var(--green-bg);border-left:4px solid var(--green);}.c-tip .ct{color:var(--green);}.c-tip p{color:#1e4d38;}
+.c-key{background:var(--teal-bg);border-left:4px solid var(--teal);}.c-key .ct{color:var(--teal);}.c-key p{color:#154e4c;}
+.c-warn{background:var(--amber-bg);border-left:4px solid var(--amber);}.c-warn .ct{color:var(--amber);}.c-warn p{color:#6e3f00;}
+.c-danger{background:var(--red-bg);border-left:4px solid var(--red);}.c-danger .ct{color:var(--red);}.c-danger p{color:#6e1515;}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0;border-radius:10px;border:1.5px solid var(--border);box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:clamp(12px,1.8vw,15px);}
+thead tr{background:var(--bg3);}
+thead th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);border-bottom:1.5px solid var(--border);white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--bg3);transition:background .12s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg2);}
+tbody td{padding:10px 14px;color:var(--text2);vertical-align:top;line-height:1.55;}
+tbody td:first-child{font-weight:600;color:var(--text);}
+.t-org{color:var(--orange)!important;font-weight:600!important;}
+.t-grn{color:var(--green)!important;font-weight:600!important;}
+.t-red{color:var(--red)!important;font-weight:600!important;}
+.t-amb{color:var(--amber)!important;font-weight:600!important;}
+.t-tel{color:var(--teal)!important;font-weight:600!important;}
+.fblock{background:var(--bg3);border:1.5px solid var(--border2);border-left:4px solid var(--orange-lt);border-radius:10px;padding:clamp(13px,2vw,20px) clamp(14px,2vw,24px);margin:14px 0;font-family:'JetBrains Mono',monospace;font-size:clamp(11.5px,1.8vw,13.5px);color:var(--text);line-height:2;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:pre;}
+.fblock .flbl{font-family:'Lora',serif;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px;white-space:normal;display:block;}
+.fv{color:var(--orange);}.feq{color:var(--green);font-weight:500;}.fh{color:var(--teal);}
+.svg-wrap{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:clamp(12px,2.5vw,24px);margin:16px 0;box-shadow:var(--shadow);overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.svg-wrap svg, .svg-wrap img{width:100%;height:auto;min-width:300px;display:block;}
+.svg-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.svg-scroll svg{min-width:560px;width:100%;height:auto;display:block;}
+.svg-cap{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;font-style:italic;line-height:1.5;}
+.svg-cite{font-size:10.5px;color:var(--teal);text-align:center;margin-top:3px;}
+.example{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);margin:20px 0;box-shadow:var(--shadow);overflow:hidden;}
+.ex-hdr{background:var(--bg3);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;border-bottom:1.5px solid var(--border);flex-wrap:wrap;}
+.ex-num{font-size:9px;font-weight:700;background:var(--orange);color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.06em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.ex-title{font-size:13px;font-weight:600;color:var(--text2);line-height:1.4;}
+.ex-body{padding:clamp(13px,2vw,22px) var(--card-px);}
+.ex-q{font-size:clamp(13px,2vw,15.5px);color:var(--text);background:var(--orange-bg);border-left:4px solid var(--orange);padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:14px;line-height:1.62;}
+.sol-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--green);margin-bottom:9px;}
+.gate-card{background:#fff;border:1.5px solid var(--teal-bdr);border-radius:var(--radius);margin:18px 0;box-shadow:var(--shadow);overflow:hidden;}
+.gate-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.gate-tag{font-size:9px;font-weight:700;background:var(--teal);color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.07em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.gate-title{font-size:13px;font-weight:600;color:var(--teal);line-height:1.4;}
+.gate-body{padding:clamp(13px,2vw,20px) var(--card-px);}
+.gate-body p{color:var(--text2);font-size:clamp(13px,2vw,15.5px);}
+.pyq-card{background:#fff;border:1.5px solid var(--teal-bdr);border-radius:var(--radius);margin:18px 0;box-shadow:var(--shadow);overflow:hidden;}
+.pyq-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.pyq-tag{font-size:9px;font-weight:700;color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.07em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.pyq-gate{background:var(--teal);}.pyq-ies{background:var(--green);}
+.pyq-hdr.ies-hdr{background:var(--green-bg);border-color:var(--green-bdr);}
+.pyq-card.ies-card{border-color:var(--green-bdr);}
+.pyq-title{font-size:13px;font-weight:600;color:var(--teal);line-height:1.4;flex:1;}
+.pyq-title-ies{color:var(--green);}
+.pyq-year{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;}
+.pyq-body{padding:clamp(13px,2vw,20px) var(--card-px);}
+.pyq-body p{color:var(--text2);font-size:clamp(13px,2vw,15.5px);}
+.pyq-opts{list-style:none;margin:10px 0;display:flex;flex-direction:column;gap:6px;}
+.pyq-opts li{font-size:clamp(13px,1.8vw,15px);color:var(--text2);padding:9px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg2);font-family:'Lora',serif;cursor:default;min-height:44px;display:flex;align-items:center;line-height:1.45;}
+.pyq-opts li.correct{background:var(--green-bg);border-color:var(--green-bdr);color:var(--green);font-weight:600;}
+.two-col{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0;}
+.mini-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:var(--card-px);box-shadow:var(--shadow);}
+.mc-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:11px;}
+.mc-grn .mc-t{color:var(--green);}.mc-red .mc-t{color:var(--red);}.mc-org .mc-t{color:var(--orange);}.mc-tel .mc-t{color:var(--teal);}.mc-amb .mc-t{color:var(--amber);}
+.mc-list{list-style:none;}
+.mc-list li{font-size:clamp(13px,1.8vw,15px);color:var(--text2);padding:6px 0;border-bottom:1px solid var(--bg3);display:flex;align-items:flex-start;gap:9px;line-height:1.5;}
+.mc-list li:last-child{border-bottom:none;}
+.dot{color:var(--muted);flex-shrink:0;margin-top:2px;}
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:16px 0;}
+.sum-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);transition:box-shadow .2s,transform .15s;}
+.sum-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.sum-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px;}
+.sum-card p{font-size:clamp(12px,1.7vw,14px);color:var(--text3);margin:0;line-height:1.62;}
+.sc-o .sum-lbl{color:var(--orange);}.sc-g .sum-lbl{color:var(--green);}.sc-t .sum-lbl{color:var(--teal);}.sc-a .sum-lbl{color:var(--amber);}.sc-r .sum-lbl{color:var(--red);}
+.citations{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--teal);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin-top:36px;}
+.cite-h{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:16px;}
+.cite-list{list-style:none;}
+.cite-list li{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:clamp(12px,1.8vw,14px);color:var(--text2);line-height:1.62;}
+.cite-list li:last-child{border-bottom:none;}
+.cite-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--teal);background:var(--teal-bg);padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;height:fit-content;margin-top:2px;}
+.cite-list em{color:var(--orange-md);font-style:italic;}
+.ai-prompt{background:linear-gradient(135deg,var(--teal-bg),var(--orange-bg));border:2px solid var(--teal-bdr);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin:28px 0;box-shadow:var(--shadow-md);}
+.ai-prompt-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:7px;}
+.ai-prompt>p{color:var(--text2);font-size:14px;margin-bottom:12px;}
+.ai-input-row{display:flex;gap:9px;flex-wrap:wrap;}
+.ai-input{flex:1;min-width:0;width:100%;padding:11px 14px;border-radius:9px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Lora',serif;font-size:14px;color:var(--text);outline:none;-webkit-appearance:none;}
+.ai-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(30,107,104,0.12);}
+.ai-btn{padding:11px 20px;border-radius:9px;background:var(--teal);color:#fff;border:none;font-family:'Lora',serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .18s;white-space:nowrap;min-height:44px;-webkit-appearance:none;}
+.ai-btn:hover{background:#155250;}.ai-btn:active{background:#0f3d3b;}
+.ai-suggest{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.ai-chip{font-size:11px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--teal-bdr);color:var(--teal);background:var(--bg);cursor:pointer;font-family:'Lora',serif;transition:background .15s;min-height:36px;display:flex;align-items:center;}
+.ai-chip:hover,.ai-chip:active{background:var(--teal-bg);}
+.ai-response{margin-top:14px;padding:13px 15px;background:#fff;border-radius:8px;border:1.5px solid var(--border);font-size:14px;color:var(--text2);display:none;line-height:1.72;white-space:pre-wrap;overflow-x:auto;}
+hr{border:none;border-top:1.5px solid var(--border);margin:40px 0;}
+footer{text-align:center;padding:26px 0;font-size:12px;color:var(--muted);border-top:1.5px solid var(--border);}
+footer strong{color:var(--orange);}
+
+/* ════ TABLET ════ */
+@media(min-width:481px) and (max-width:768px){
+  html{font-size:16.5px;}
+  .logo-sub{display:none;}
+  .svg-wrap{padding:12px 10px;}
+  .svg-wrap svg, .svg-wrap img{min-width:480px;}
+  .toc-grid{grid-template-columns:repeat(2,1fr);gap:0 20px;}
+  .two-col{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .sum-grid{grid-template-columns:repeat(2,1fr);gap:11px;}
+  .fblock{white-space:pre-wrap;word-break:break-word;font-size:12px;line-height:1.8;}
+  thead th,tbody td{padding:8px 10px;}
+  .pyq-year{margin-left:0;}
+}
+
+/* ════ MOBILE ════ */
+@media(max-width:480px){
+  html{font-size:15.5px;}
+  .logo-sub{display:none;}
+  .hbadges{display:none;}
+  .site-header{padding:10px 14px;}
+  h1.hero-title{font-size:clamp(26px,8vw,34px);}
+  .hero-desc{font-size:14px;}
+  .badge-row .badge{font-size:11px;padding:4px 10px;}
+  .progress-bar{padding:9px 12px;gap:8px;}
+  .pl{font-size:11px;}
+  .toc-grid{grid-template-columns:1fr;gap:0;}
+  .toc-item{font-size:14px;padding:9px 0;}
+  .toc{padding:14px 16px;}
+  .sec-hdr{gap:9px;}
+  h2.sec-t{font-size:clamp(16px,5vw,20px);}
+  h3.sub{font-size:clamp(14px,4.5vw,17px);}
+  p{font-size:15px;}
+  .svg-wrap{padding:10px 8px;border-radius:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .svg-wrap svg, .svg-wrap img{min-width:520px;width:520px;height:auto;}
+  .svg-wrap.svg-simple svg{min-width:280px;width:100%;}
+  .svg-cap{font-size:11px;}
+  .fblock{white-space:pre-wrap;word-break:break-word;font-size:11.5px;line-height:1.75;padding:12px 12px;border-radius:8px;}
+  .tw{border-radius:8px;}
+  thead th{font-size:9px;padding:8px 10px;letter-spacing:.06em;}
+  tbody td{font-size:12px;padding:8px 10px;}
+  .two-col{grid-template-columns:1fr;gap:10px;}
+  .sum-grid{grid-template-columns:1fr;gap:9px;}
+  .mini-card{padding:13px 14px;}
+  .sum-card{padding:14px 16px;}
+  .callout{padding:11px 13px;gap:9px;}
+  .ci{font-size:16px;}
+  .cb p{font-size:13.5px;}
+  .ex-hdr{padding:8px 13px;}
+  .ex-body{padding:12px 13px;}
+  .ex-q{font-size:13.5px;padding:9px 12px;}
+  .gate-hdr,.pyq-hdr{padding:8px 13px;gap:7px;}
+  .gate-body,.pyq-body{padding:12px 13px;}
+  .pyq-opts li{font-size:13px;padding:9px 11px;}
+  .pyq-year{display:none;}
+  .ai-prompt{padding:14px 14px;}
+  .ai-input-row{flex-direction:column;}
+  .ai-input{font-size:15px;}
+  .ai-btn{width:100%;justify-content:center;font-size:15px;padding:13px;}
+  .ai-chip{font-size:11px;}
+  .ai-suggest{gap:5px;}
+  .cite-list li{font-size:12.5px;gap:9px;}
+  .citations{padding:14px 14px;}
+  footer{padding:20px 0;font-size:11.5px;}
+}
+
+/* ════ LARGE DESKTOP ════ */
+@media(min-width:1024px){
+  .page{padding:0 48px 100px;}
+  .toc-grid{grid-template-columns:repeat(3,1fr);}
+  .two-col{grid-template-columns:repeat(2,1fr);}
+  .sum-grid{grid-template-columns:repeat(3,1fr);}
+  .svg-wrap svg, .svg-wrap img{min-width:auto;width:100%;}
+}
+@media(hover:none){
+  .toc-item:hover{color:var(--text3);border-bottom-color:transparent;}
+  .sum-card:hover{transform:none;box-shadow:var(--shadow);}
+  .ai-btn:hover{background:var(--teal);}
+}
+@media print{
+  .site-header,.ai-prompt,footer{display:none;}
+  .section{opacity:1;transform:none;animation:none;}
+  .svg-wrap{break-inside:avoid;}
+  body{font-size:12pt;}
+}
+</style>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="logo">Aarova AI <span class="logo-sub">Electrical Machines Series</span></div>
+  <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span class="hbadge">PSU</span></div>
+</header>
+<div class="page">
+
+<div class="hero">
+  <div class="eyebrow">Chapter 02 &nbsp;·&nbsp; Electrical Machines</div>
+  <h1 class="hero-title">Trans<em>formers</em></h1>
+  <p class="hero-desc">Basic principles, EMF equation, dot convention, ideal transformer, practical transformer model, equivalent circuits, phasor diagrams, exciting current components, leakage reactance, and solved numericals — complete with GATE &amp; IES exam concepts.</p>
+  <div class="badge-row">
+    <span class="badge badge-p">GATE EE</span><span class="badge">IES E&amp;T</span><span class="badge">PSU Electrical</span><span class="badge">Follows Ch.1 DC Machines</span>
+  </div>
+</div>
+
+<div class="progress-bar">
+  <span class="pl">Series Progress</span><div class="pt"><div class="pf"></div></div><span class="pp">Chapter 2 of 8</span>
+</div>
+
+<div class="toc">
+  <div class="toc-h">Contents</div>
+  <div class="toc-grid">
+    <a href="#s1"  class="toc-item"><span class="toc-n">2.1</span>Introduction &amp; Core Function</a>
+    <a href="#s6"  class="toc-item"><span class="toc-n">2.6</span>Ideal Transformer</a>
+    <a href="#s2"  class="toc-item"><span class="toc-n">2.2</span>Construction &amp; Core</a>
+    <a href="#s7"  class="toc-item"><span class="toc-n">2.7</span>Exciting Current Components</a>
+    <a href="#s3"  class="toc-item"><span class="toc-n">2.3</span>EMF Equation &amp; Flux</a>
+    <a href="#s8"  class="toc-item"><span class="toc-n">2.8</span>Practical Transformer Model</a>
+    <a href="#s4"  class="toc-item"><span class="toc-n">2.4</span>Lenz's Law &amp; Dot Convention</a>
+    <a href="#s9"  class="toc-item"><span class="toc-n">2.9</span>Equivalent Circuits</a>
+    <a href="#s5"  class="toc-item"><span class="toc-n">2.5</span>Phasor Diagrams</a>
+    <a href="#s10" class="toc-item"><span class="toc-n">2.10</span>Solved Numerical &amp; GATE PYQs</a>
+  </div>
+</div>
+
+<!-- ═══ S1: INTRODUCTION ═══ -->
+<div class="section" id="s1">
+  <div class="sec-hdr"><span class="sec-num">2.1</span><h2 class="sec-t">Introduction — What is a Transformer?</h2></div>
+  <p>A <strong>transformer</strong> is a static electromagnetic device that transfers electrical energy from one circuit to another through mutual induction, without any direct electrical connection and without change in frequency.<sup class="cite">[1]</sup></p>
+  <p>The key distinction from rotating electrical machines is that a transformer has <strong>no moving parts</strong> — it is not an electromechanical energy converter. A transformer changes voltage and current levels while keeping power (and frequency) essentially constant. This is why it is sometimes said: <em>"A transformer is not an electrical machine"</em> — strictly speaking, it lacks mechanical output.</p>
+
+  <div class="callout c-info">
+    <div class="ci">📌</div>
+    <div class="cb">
+      <div class="ct">Key Fact — TF is NOT an Electrical Machine</div>
+      <p>A transformer converts electrical energy to electrical energy (at different voltage/current levels). It has no mechanical port. In contrast, a DC motor or generator converts between electrical and mechanical energy. GATE/IES frequently test this distinction.</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="mini-card mc-org">
+      <div class="mc-t">Applications of Transformers</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span>Step-up voltage for long-distance power transmission</li>
+        <li><span class="dot">→</span>Step-down for distribution and consumer use</li>
+        <li><span class="dot">→</span>Isolation between circuits (safety)</li>
+        <li><span class="dot">→</span>Impedance matching in communication/audio systems</li>
+        <li><span class="dot">→</span>Instrument transformers (CT, PT) for measurement</li>
+      </ul>
+    </div>
+    <div class="mini-card mc-grn">
+      <div class="mc-t">Core Principle</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span>Faraday's Law of electromagnetic induction</li>
+        <li><span class="dot">→</span>Mutual coupling through a common magnetic core</li>
+        <li><span class="dot">→</span>AC only — DC cannot produce time-varying flux</li>
+        <li><span class="dot">→</span>Frequency remains unchanged: f₁ = f₂</li>
+        <li><span class="dot">→</span>Core provides low-reluctance path &amp; mechanical support</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S2: CONSTRUCTION ═══ -->
+<div class="section" id="s2">
+  <div class="sec-hdr"><span class="sec-num">2.2</span><h2 class="sec-t">Construction &amp; Core</h2></div>
+  <p>A transformer consists of two (or more) coils wound around a common ferromagnetic core. The <strong>primary winding</strong> (N₁ turns) is connected to the AC supply; the <strong>secondary winding</strong> (N₂ turns) delivers power to the load.<sup class="cite">[2]</sup></p>
+
+  <div class="svg-wrap">
+    <img src="images/ch10.10/fig9.1.png" alt="figure 9.1">
+    <div class="svg-cap">Fig 2.1 — Two-winding transformer: primary (N₁) on left, secondary (N₂) on right, linked by mutual flux φ through laminated iron core. Dots indicate same-polarity terminals.</div>
+    <div class="svg-cite">Basis: Chapman [1], §2.1; Kothari &amp; Nagrath [2], §3.1</div>
+  </div>
+
+  <p>The core is built of <strong>laminated silicon steel</strong> to reduce eddy current losses (thin laminations increase resistance to circulating currents) and hysteresis losses (low hysteresis coefficient of silicon steel). The core provides a <strong>low-reluctance path</strong> to concentrate flux and also gives <strong>mechanical support</strong> to the windings.</p>
+
+  <div class="callout c-tip">
+    <div class="ci">💡</div>
+    <div class="cb">
+      <div class="ct">Core Provides Two Functions</div>
+      <p>① <strong>Low reluctance path</strong> — concentrates mutual flux so nearly all flux links both windings (tight coupling). ② <strong>Mechanical support</strong> — the core structure physically holds the windings in place. Both roles are tested in IES objective questions.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S3: EMF EQUATION ═══ -->
+<div class="section" id="s3">
+  <div class="sec-hdr"><span class="sec-num">2.3</span><h2 class="sec-t">EMF Equation &amp; Flux Relationship</h2></div>
+  <p>When the primary is connected to a sinusoidal AC supply \(v_1 = V_m \sin\omega t\), it draws a magnetising current that establishes a sinusoidal flux in the core:<sup class="cite">[2]</sup></p>
+
+  <div class="fblock" style="white-space: normal; line-height: 2.2;"><div class="flbl">Core Flux (time expression)</div>
+\(\phi = \phi_m \sin(\omega t)\)
+<br><br>
+where:<br>
+&nbsp;&nbsp;\(\phi_m\) = peak (maximum) flux [Wb]<br>
+&nbsp;&nbsp;\(\omega = 2\pi f\) [rad/s]
+</div>
+
+  <p>By Faraday's law, the EMF induced in the primary winding (N₁ turns) is:</p>
+
+  <div class="fblock" style="white-space: normal; line-height: 1.8;"><div class="flbl">Instantaneous Primary EMF</div>
+\[
+\begin{aligned}
+e_1 &= N_1 \cdot \frac{d\phi}{dt} \\
+    &= N_1 \cdot \frac{d(\phi_m \sin \omega t)}{dt} \\
+    &= N_1 \cdot \phi_m \cdot \omega \cdot \cos(\omega t) \\
+    &= N_1 \cdot \phi_m \cdot \omega \cdot \sin(\omega t + 90^\circ)
+\end{aligned}
+\]
+</div>
+
+  <p>The peak value of EMF is \(E_{1m} = N_1 \phi_m \omega\). Converting to RMS:</p>
+
+  <div class="fblock" style="white-space: normal; line-height: 2.2;"><div class="flbl">RMS EMF Equations — The EMF Equation of a Transformer</div>
+<span class="fh">PRIMARY:</span> \(E_1 = \frac{N_1 \phi_m \omega}{\sqrt{2}} = \frac{N_1 \phi_m (2\pi f)}{\sqrt{2}}\)
+<br><br>
+\(E_1 = 4.44 f N_1 \phi_m\) &emsp; <em>(EMF equation - primary)</em>
+<br><br>
+<span class="fh">SECONDARY:</span> \(E_2 = 4.44 f N_2 \phi_m\) &emsp; <em>(EMF equation - secondary)</em>
+<br><br>
+<span class="fh">TURNS RATIO:</span> \(\frac{E_1}{E_2} = \frac{N_1}{N_2} = a\) &emsp; <em>(transformation ratio)</em>
+</div>
+
+  <div class="callout c-key">
+    <div class="ci">🔑</div>
+    <div class="cb">
+      <div class="ct">The 4.44 Factor — Where It Comes From</div>
+      <p>The constant 4.44 = \(2\pi/\sqrt{2} = 4\sqrt{2} \approx 4.44\). It arises because the waveform is sinusoidal and we convert peak to RMS: \(E_{rms} = E_{peak}/\sqrt{2}\). The EMF leads the flux by 90°. Both E₁ and E₂ are in phase with each other (both 90° ahead of flux φ). This is a high-frequency GATE trap — EMF leads flux, not lags.</p>
+    </div>
+  </div>
+
+  <div class="svg-wrap svg-simple">
+    <img src="images/ch10.10/fig9.2.png" alt="figure 9.2">
+    <div class="svg-cap">Fig 2.2 — Waveform &amp; phasor: Flux φ is sinusoidal; induced EMF e₁ (and e₂) lead φ by exactly 90°. On no load, V₁ ≈ E₁ (neglecting primary resistance).</div>
+    <div class="svg-cite">Basis: Chapman [1], §2.2; Kothari &amp; Nagrath [2], §3.2</div>
+  </div>
+</div>
+
+<!-- ═══ S4: LENZ'S LAW & DOT CONVENTION ═══ -->
+<div class="section" id="s4">
+  <div class="sec-hdr"><span class="sec-num">2.4</span><h2 class="sec-t">Lenz's Law &amp; Dot Convention</h2></div>
+  <p>The induced EMF in any winding is governed by <strong>Lenz's Law</strong>: the direction of the induced EMF is such that, if a current were allowed to flow, it would oppose the change in flux causing it. Mathematically:<sup class="cite">[1]</sup></p>
+
+  <div class="fblock" style="white-space: normal; line-height: 2.2;"><div class="flbl">Lenz's Law — EMF Direction</div>
+\(e = \pm \frac{d\lambda}{dt} = \pm N \cdot \frac{d\phi}{dt}\)
+<br><br>
+Sign depends on: (1) Lenz's law convention, (2) which terminal is taken as positive.<br>
+For a transformer primary: \(e_{ab} = +\frac{d\lambda}{dt} = +N_1 \cdot \frac{d\phi}{dt}\)
+</div>
+
+  <p>The <strong>dot convention</strong> is a standardised method to determine the polarity of induced EMFs in transformer windings without drawing the complete winding geometry. A dot (•) is placed at one terminal of each winding.</p>
+
+  <div class="svg-wrap">
+    <img src="images/ch10.10/fig9.3.png" alt="figure 9.3">
+    <div class="svg-cap">Fig 2.3 — Dot convention: currents entering through dotted terminals produce additive fluxes. Only the 1st dot is placed; others follow from winding sense and Lenz's law.</div>
+    <div class="svg-cite">Basis: Chapman [1], §2.3; Kothari &amp; Nagrath [2], §3.3</div>
+  </div>
+
+  <div class="callout c-warn">
+    <div class="ci">⚠️</div>
+    <div class="cb">
+      <div class="ct">GATE Trap — Dot Convention Application</div>
+      <p>In an ideal transformer with load: current enters the dotted terminal of the primary. By the dot convention, current <strong>leaves</strong> the dotted terminal of the secondary (into the load). The dots have the same instantaneous polarity. If both currents entered through dots simultaneously, they would satisfy Lenz's law by opposing each other's effect on the core flux — which is the defining condition.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S5: PHASOR DIAGRAMS ═══ -->
+<div class="section" id="s5">
+  <div class="sec-hdr"><span class="sec-num">2.5</span><h2 class="sec-t">Phasor Diagrams</h2></div>
+  <p>The phasor diagram of a transformer must always accompany the circuit diagram for full understanding. Phasors represent sinusoidal quantities by their magnitude and phase angle.<sup class="cite">[2]</sup></p>
+
+  <div class="svg-wrap svg-simple">
+    <img src="images/ch10.10/fig9.4.png" alt="figure 9.4">
+    <div class="svg-cap">Fig 2.4 — Left: No-load phasor (ideal TF). Both E₁ and E₂ are in phase, leading φ by 90°. V₁ = E₁, V₂ = E₂. Right: Lagging PF load — V₂ lags E₂; I₂ lags V₂.</div>
+    <div class="svg-cite">Basis: Kothari &amp; Nagrath [2], §3.4; Chapman [1], §2.4</div>
+  </div>
+</div>
+
+<!-- ═══ S6: IDEAL TRANSFORMER ═══ -->
+<div class="section" id="s6">
+  <div class="sec-hdr"><span class="sec-num">2.6</span><h2 class="sec-t">Ideal Transformer — Theory &amp; Equations</h2></div>
+  <p>An <strong>ideal transformer</strong> is a hypothetical transformer with no losses and infinite permeability (\(\mu = \infty\)). Since \(\mu \rightarrow \infty\), the core reluctance is zero, and flux will be established without any exciting current (\(I_0 = 0\)). All flux links both windings perfectly (no leakage).<sup class="cite">[1]</sup></p>
+
+  <div class="fblock"><div class="flbl">Ideal Transformer Conditions</div>
+<span class="fh">Condition 1:</span>  No losses (no copper loss, no core loss)  ⟹  P_input = P_output
+<span class="fh">Condition 2:</span>  μ = ∞  ⟹  Reluctance = l/(μA) = 0
+<span class="fh">Condition 3:</span>  Φ = mmf / Reluctance = NI / 0 → Infinite flux for any I₀
+             ∴ I₀ = 0 (flux established without exciting current)
+<span class="fh">Condition 4:</span>  Unity coupling coefficient k = 1 (no leakage flux)</div>
+
+  <div class="svg-wrap">
+    <img src="images/ch10.10/fig9.5.png" alt="figure 9.5">
+    <div class="svg-cap">Fig 2.5 — Ideal transformer circuit. No internal impedances. V₁/V₂ = N₁/N₂ = a; I₁N₁ = I₂N₂ (MMF balance). Impedance referred to primary: Z₁' = a²Z₂.</div>
+    <div class="svg-cite">Basis: Chapman [1], §2.4; Kothari &amp; Nagrath [2], §3.4</div>
+  </div>
+
+  <h3 class="sub">Impedance Transformation &amp; Referral</h3>
+  <p>A critical concept for GATE and IES: impedances can be <strong>referred</strong> from one winding to another using the turns ratio squared. This allows the entire transformer circuit to be reduced to a single-side equivalent.</p>
+
+  <div class="fblock"><div class="flbl">Impedance Referral Rules</div>
+<span class="fh">Referred to Primary side (÷ by a²):</span>
+  Z₂' = a² · Z₂    (secondary impedance referred to primary)
+  R₂' = a² · R₂    (secondary resistance referred to primary)
+  X₂' = a² · X₂    (secondary leakage reactance referred to primary)
+
+<span class="fh">Referred to Secondary side (× by a²):</span>
+  Z₁' = Z₁ / a²    (primary impedance referred to secondary)
+  V₁' = V₁ / a     (primary voltage referred to secondary)
+  I₁' = I₁ · a     (primary current referred to secondary)
+
+<span class="fh">Turn Ratio:</span>  a = N₁/N₂  (step-down if a > 1)</div>
+</div>
+
+<!-- ═══ S7: EXCITING CURRENT ═══ -->
+<div class="section" id="s7">
+  <div class="sec-hdr"><span class="sec-num">2.7</span><h2 class="sec-t">Exciting Current — Practical No-Load Operation</h2></div>
+  <p>In a <strong>practical transformer</strong> on no-load, the primary draws a small current called the <strong>exciting current</strong> (or no-load current) I₀. This current has two components:<sup class="cite">[2]</sup></p>
+
+  <div class="fblock"><div class="flbl">Exciting Current Components</div>
+<span class="fh">I₀</span> = Exciting (no-load) current of transformer
+
+<span class="fv">Ic</span> = Core-loss component (in phase with V₁)
+   = I₀ cos φ₀
+   Supplies hysteresis loss + eddy current loss in core
+
+<span class="fv">Iφ</span> = Magnetising component (lags V₁ by 90°)
+   = I₀ sin φ₀
+   Creates the mutual flux φ in the core
+   (In phase with φ, 90° lagging V₁)
+
+<span class="fh">Relationship:</span>
+   I₀ = √(Ic² + Iφ²)
+   φ₀ = hysteretic angle ≈ 80° (Iφ/I₀ ≈ 0.98 typically)
+   cos φ₀ = no-load power factor (typically 0.1–0.2 lagging)</div>
+
+  <div class="svg-wrap svg-simple">
+    <img src="images/ch10.10/fig9.6.png" alt="figure 9.6">
+    <div class="svg-cap">Fig 2.6 — No-load phasor: V₁ ≈ E₁ (90° ahead of φ). I₀ has two components: Ic (in-phase with V₁, supplies core loss) and Iφ (quadrature, creates flux). Hysteretic angle φ₀ ≈ 80°.</div>
+    <div class="svg-cite">Basis: Kothari &amp; Nagrath [2], §3.5; Chapman [1], §2.5</div>
+  </div>
+
+  <div class="callout c-key">
+    <div class="ci">🔑</div>
+    <div class="cb">
+      <div class="ct">Hysteretic Angle — GATE/IES Key Concept</div>
+      <p>The hysteretic angle φ₀ is the angle between the <strong>sinusoidal flux</strong> and the <strong>sinusoidal exciting current</strong>. It exists because the B-H loop of the core is not linear — magnetising current is non-sinusoidal and slightly ahead of flux due to hysteresis. Typically φ₀ ≈ 80°, making the no-load power factor cos 80° ≈ 0.17 (very lagging).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S8: PRACTICAL TF MODEL ═══ -->
+<div class="section" id="s8">
+  <div class="sec-hdr"><span class="sec-num">2.8</span><h2 class="sec-t">Practical Transformer — Full Model</h2></div>
+  <p>A practical transformer differs from ideal by having: primary resistance R₁, primary leakage reactance jX₁, secondary resistance R₂, secondary leakage reactance jX₂, and a core (magnetising branch) represented by R_c (core loss) and jX_φ (magnetising reactance) in parallel.<sup class="cite">[2]</sup></p>
+
+  <div class="fblock" style="white-space: normal; line-height: 2.2;"><div class="flbl">MMF Balance — Practical Transformer</div>
+<span class="fh">Ideal:</span> \(N_1 I_1 = N_2 I_2\) &emsp; <em>(no exciting current)</em>
+<br><br>
+<span class="fh">Practical:</span> \(N_1 I_1 = N_2 I_2 + N_1 I_0\) &emsp; <em>(\(I_0\) = exciting current)</em>
+<br><br>
+\(\therefore I_1 = \frac{I_2}{a} + I_0\) &emsp; <em>(primary current = load component + exciting component)</em>
+<br><br>
+where:<br>
+&nbsp;&nbsp;\(\frac{I_2}{a}\) = secondary current referred to primary \((= I_2')\)<br>
+&nbsp;&nbsp;\(I_0\) = exciting (no-load) current
+<br><br>
+<span class="fh">KVL Equations:</span><br>
+&nbsp;&nbsp;Primary: \(\mathbf{V}_1 = \mathbf{E}_1 + \mathbf{I}_1 R_1 + j\mathbf{I}_1 X_1\) &emsp; <em>(voltage drop across primary impedance)</em><br>
+&nbsp;&nbsp;Secondary: \(\mathbf{E}_2 = \mathbf{V}_2 + \mathbf{I}_2 R_2 + j\mathbf{I}_2 X_2\) &emsp; <em>(\(\mathbf{E}_2\) drives load through secondary impedance)</em><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\(\mathbf{E}_1 = a \cdot \mathbf{E}_2 = a \cdot \mathbf{V}_2 + a \cdot \mathbf{I}_2 R_2 + j a \cdot \mathbf{I}_2 X_2\)
+</div>
+
+  <div class="svg-wrap">
+    <img src="images/ch10.10/fig9.7.png" alt="figure 9.7">
+    <div class="svg-cap">Fig 2.7 — Exact "T" equivalent circuit referred to primary. Primary branch: R₁, jX₁. Core branch (shunt): Rc ∥ jXφ. Secondary referred: R₂'=a²R₂, jX₂'=a²jX₂, V₂'=aV₂.</div>
+    <div class="svg-cite">Basis: Kothari &amp; Nagrath [2], §3.6; Chapman [1], §2.6</div>
+  </div>
+
+  <h3 class="sub">Leakage Flux &amp; Leakage Reactance</h3>
+  <p>Not all flux produced by the primary links the secondary — a small fraction of flux completes its path through air (not the core). This is <strong>leakage flux</strong>. The leakage reactance models the effect of this flux that does not contribute to energy transfer but does cause voltage drop.</p>
+
+  <div class="fblock" style="white-space: normal; line-height: 2.2;"><div class="flbl">Leakage Reactance Definitions</div>
+\(X_1\) = primary leakage reactance = \(\frac{E_{l1}}{I_1}\) &emsp; <em>(1° leakage flux voltage / primary current)</em><br>
+\(X_2\) = secondary leakage reactance = \(\frac{E_{l2}}{I_2}\) &emsp; <em>(2° leakage flux voltage / secondary current)</em>
+<br><br>
+where:<br>
+&nbsp;&nbsp;\(E_{l1}\) = 1° leakage flux voltage <em>(due to primary leakage flux)</em><br>
+&nbsp;&nbsp;\(E_{l2}\) = 2° leakage flux voltage <em>(due to secondary leakage flux)</em>
+<br><br>
+Leakage flux \(\neq\) mutual flux <em>(leakage does NOT link the other winding)</em>
+</div>
+</div>
+
+<!-- ═══ S9: EQUIVALENT CIRCUITS ═══ -->
+<div class="section" id="s9">
+  <div class="sec-hdr"><span class="sec-num">2.9</span><h2 class="sec-t">Approximate Equivalent Circuits</h2></div>
+  <p>The exact equivalent circuit is complex to use in numerical problems. Two <strong>approximate equivalent circuits</strong> simplify analysis by moving the shunt (core) branch to either the input terminal or eliminating it altogether.<sup class="cite">[2]</sup></p>
+
+  <h3 class="sub">First Approximate — Cantilever Circuit</h3>
+  <p>Move the shunt branch (Rc ∥ jXφ) to the primary terminal (input). This eliminates the node between primary series impedance and shunt branch. Suitable for finding voltage regulation and efficiency calculations.</p>
+
+  <div class="svg-wrap">
+    <img src="images/ch10.10/fig9.8.png" alt="figure 9.8">
+    <div class="svg-cap">Fig 2.8 — Cantilever (first approximate) equivalent circuit: shunt branch moved to input. Series impedance: R₁eq = R₁+a²R₂, X₁eq = X₁+a²X₂. Best for no-load calculations.</div>
+  </div>
+
+  <h3 class="sub">Second &amp; Final Approximate — Series Impedance Only</h3>
+  <p>For voltage regulation and short-circuit test analysis, the core (shunt) branch can be neglected entirely since I₀ ≪ I₂. This gives the simplest equivalent with only the series impedance Z_eq.</p>
+
+  <div class="svg-wrap svg-simple">
+    <img src="images/ch10.10/fig9.9.png" alt="figure 9.9">
+    <div class="svg-cap">Fig 2.9 — Final approximate: shunt branch omitted. V₁ = V₂' + I₂'·Z_eq. Used for regulation and short-circuit test.</div>
+    <div class="svg-cite">Basis: Kothari &amp; Nagrath [2], §3.7; Chapman [1], §2.7</div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Circuit Type</th><th>Shunt Branch Position</th><th>When to Use</th><th>Accuracy</th></tr></thead>
+      <tbody>
+        <tr><td>Exact "T" Equivalent</td><td>Between R₁jX₁ and R₂'jX₂'</td><td>Complete analysis, I₁ including I₀</td><td class="t-grn">Highest</td></tr>
+        <tr><td>First Approximate (Cantilever)</td><td>Moved to primary input terminal</td><td>NL calculations, I₁ ≈ I₀ + I₂'</td><td class="t-amb">Good</td></tr>
+        <tr><td>Second &amp; Final Approximate</td><td>Shunt branch omitted entirely</td><td>VR, SC test, η calculation</td><td class="t-org">Acceptable for most</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ S10: SOLVED NUMERICAL + PYQs ═══ -->
+<div class="section" id="s10">
+  <div class="sec-hdr"><span class="sec-num">2.10</span><h2 class="sec-t">Solved Numerical &amp; GATE/IES PYQs</h2></div>
+
+  <!-- Solved Example from Notes -->
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">SOLVED 2.1</span>
+      <span class="ex-title">150 kVA, 2400/240 V Transformer — Primary Input Voltage, PF, Current</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">A 150 kVA, 2400/240 V, 50 Hz single-phase transformer has the following parameters referred to primary: R₁ = 0.2 Ω, X₁ = 0.45 Ω, R₂ = 2 mΩ, X₂ = 4.5 mΩ, Rc = 10 kΩ, Xφ = 1.55 kΩ. Using the exact equivalent circuit referred to primary, determine the primary input voltage, primary current, and input power factor when the transformer operates at rated load with 0.8 lagging power factor.</div>
+      <div class="sol-lbl">Solution — Step by Step</div>
+      <p><strong>Step 1: Establish turns ratio and rated quantities</strong></p>
+      <p>Turns ratio: \(a = N_1/N_2 = 2400/240 = 10\)</p>
+      <p>Rated VA = 150,000 VA. On rated load, the transformer must deliver rated kVA at rated secondary voltage (2400 V referred to primary).</p>
+      <p>Taking \(V_2' = 2400\angle 0°\) V (reference phasor):</p>
+      <p>\[I_2' = \frac{150000}{2400}\angle{-\cos^{-1}(0.8)} = 62.5\angle{-36.87°} \text{ A}\]</p>
+      <p><strong>Step 2: Refer secondary impedances to primary</strong></p>
+      <p>\[Z_2' = a^2 Z_2 = 10^2 \times (2 + 4.5j) \times 10^{-3} = (0.2 + 0.45j)\ \Omega\]</p>
+      <p><strong>Step 3: Find E₁ = E₂' (internal EMF)</strong></p>
+      <p>\[E_1 = E_2' = V_2' + I_2' \cdot Z_2' = 2400\angle 0° + 62.5\angle{-36.87°} \times (0.2 + 0.45j)\]</p>
+      <p>Computing: \(I_2' \cdot Z_2' = 62.5\angle{-36.87°} \times 0.493\angle{66.04°} = 30.8\angle{29.17°}\)</p>
+      <p>\[E_1 = 2400 + 26.9 + j14.98 = \boxed{2426.92\angle 0.35°\ \text{V}}\]</p>
+      <p><strong>Step 4: Find exciting current I₀</strong></p>
+      <p>\[I_c = \frac{E_1}{R_c} = \frac{2426.92\angle 0.35°}{10000} = 0.2427\angle 0.35°\ \text{A}\]</p>
+      <p>\[I_\phi = \frac{E_1}{jX_\phi} = \frac{2426.92\angle 0.35°}{j1550} = 1.56\angle{-89.64°}\ \text{A}\]</p>
+      <p>\[I_0 = I_c + I_\phi = 0.2427\angle 0.35° + 1.56\angle{-89.64°} = \boxed{1.5845\angle{-80.84°}\ \text{A}}\]</p>
+      <p><strong>Step 5: Find I₁</strong></p>
+      <p>\[I_1 = I_2' + I_0 = 62.5\angle{-36.87°} + 1.5845\angle{-80.84°} = \boxed{63.65\angle{-37.86°}\ \text{A}}\]</p>
+      <p><strong>Step 6: Find V₁</strong></p>
+      <p>\[V_1 = E_1 + I_1(R_1 + jX_1) = 2426.92\angle 0.35° + 63.65\angle{-37.86°} \times (0.2 + 0.45j)\]</p>
+      <p>\[V_1 = \boxed{2454.68\angle 0.691°\ \text{V}}\]</p>
+      <p><strong>Step 7: Input Power Factor</strong></p>
+      <p>\[\text{I/P PF angle} = \angle V_1 - \angle I_1 = 0.691 - (-37.86°) = 38.55°\]</p>
+      <p>\[\text{PF} = \cos(38.55°) = \boxed{0.7821\ \text{lagging}}\]</p>
+      <div class="callout c-tip" style="margin-top:10px">
+        <div class="ci">✏️</div>
+        <div class="cb"><div class="ct">Key Observation</div><p>The input PF (0.782 lag) is <strong>different</strong> from the load PF (0.8 lag) because I₀ adds a lagging reactive component. The no-load PF angle was 80.84° (nearly pure reactive), pulling the net input angle slightly beyond the load angle.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GATE PYQ 1 -->
+  <div class="pyq-card">
+    <div class="pyq-hdr">
+      <span class="pyq-tag pyq-gate">GATE EE</span>
+      <span class="pyq-title">In an ideal transformer, the induced EMF in primary and secondary are related to the flux by:</span>
+      <span class="pyq-year">GATE 2018</span>
+    </div>
+    <div class="pyq-body">
+      <ul class="pyq-opts">
+        <li>(A) EMF lags flux by 90°</li>
+        <li>(B) EMF is in phase with flux</li>
+        <li class="correct">✓ (C) EMF leads flux by 90°</li>
+        <li>(D) EMF lags flux by 45°</li>
+      </ul>
+      <div class="callout c-tip" style="margin-top:0">
+        <div class="ci">✏️</div>
+        <div class="cb"><div class="ct">Solution</div><p>Since \(e = N \frac{d\phi}{dt} = N \phi_m \omega \cos(\omega t) = N \phi_m \omega \sin(\omega t + 90°)\), the EMF <strong>leads</strong> the flux by exactly 90°. This is derived from differentiation of a sine wave — derivative gives cosine, which is 90° ahead.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GATE PYQ 2 -->
+  <div class="pyq-card">
+    <div class="pyq-hdr">
+      <span class="pyq-tag pyq-gate">GATE EE</span>
+      <span class="pyq-title">The no-load current of a transformer is approximately:</span>
+      <span class="pyq-year">GATE 2020</span>
+    </div>
+    <div class="pyq-body">
+      <ul class="pyq-opts">
+        <li>(A) 50% of full load current</li>
+        <li>(B) 10–20% of full load current</li>
+        <li class="correct">✓ (C) 2–10% of full load current</li>
+        <li>(D) Equal to full load current</li>
+      </ul>
+      <div class="callout c-tip" style="margin-top:0">
+        <div class="ci">✏️</div>
+        <div class="cb"><div class="ct">Solution</div><p>The exciting current I₀ is typically 2–10% of the full-load current in a well-designed power transformer. It is small because the core has high permeability, requiring little MMF (= N×I₀) to establish the required flux. The magnetising component Iφ dominates I₀ since no-load PF is very low (≈ 0.1–0.2).</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IES PYQ -->
+  <div class="pyq-card ies-card">
+    <div class="pyq-hdr ies-hdr">
+      <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+      <span class="pyq-title pyq-title-ies">Dot convention in a transformer is used to determine:</span>
+      <span class="pyq-year">IES 2019</span>
+    </div>
+    <div class="pyq-body">
+      <ul class="pyq-opts">
+        <li>(A) The turns ratio of the transformer</li>
+        <li class="correct">✓ (B) The relative polarity of the voltages induced in the windings</li>
+        <li>(C) The ratio of magnetising current to core-loss current</li>
+        <li>(D) The leakage flux path</li>
+      </ul>
+      <div class="callout c-tip" style="margin-top:0">
+        <div class="ci">✏️</div>
+        <div class="cb"><div class="ct">Solution</div><p>The dot convention identifies <strong>relative polarity</strong> of induced EMFs without knowing winding geometry. Dotted terminals have the same instantaneous polarity. If current enters the dotted terminal of one winding, it leaves the dotted terminal of the other — both fluxes are then additive by Lenz's law.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GATE Concept Card -->
+  <div class="gate-card">
+    <div class="gate-hdr"><span class="gate-tag">CONCEPT 1</span><span class="gate-title">Ideal vs Practical Transformer — Complete Comparison (GATE Favourite)</span></div>
+    <div class="gate-body">
+      <div class="tw" style="margin:0">
+        <table>
+          <thead><tr><th>Parameter</th><th>Ideal Transformer</th><th>Practical Transformer</th></tr></thead>
+          <tbody>
+            <tr><td>Core losses</td><td class="t-grn">Zero</td><td class="t-red">Hysteresis + Eddy current</td></tr>
+            <tr><td>Copper losses</td><td class="t-grn">Zero</td><td class="t-red">I²R in R₁ and R₂</td></tr>
+            <tr><td>Permeability μ</td><td class="t-org">∞ (infinite)</td><td>Finite (silicon steel core)</td></tr>
+            <tr><td>Exciting current I₀</td><td class="t-grn">Zero (I₀ = 0)</td><td class="t-red">Small but non-zero (2–10% FL)</td></tr>
+            <tr><td>Leakage flux</td><td class="t-grn">Zero</td><td class="t-red">Exists (X₁, X₂ non-zero)</td></tr>
+            <tr><td>Efficiency η</td><td class="t-org">100%</td><td>95–99% (power transformers)</td></tr>
+            <tr><td>Coupling k</td><td class="t-org">1.0 (unity)</td><td>0.95–0.99 (tight coupling)</td></tr>
+            <tr><td>V₁/V₂ relation</td><td>Exactly N₁/N₂</td><td>Approx N₁/N₂ (drop in R₁X₁)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Concept Card 2 -->
+  <div class="gate-card">
+    <div class="gate-hdr"><span class="gate-tag">CONCEPT 2</span><span class="gate-title">EMF Equation &amp; Key Formulae — Quick Reference</span></div>
+    <div class="gate-body">
+      <div class="fblock" style="white-space: normal; line-height: 2.2;"><div class="flbl">All Key Transformer Formulae</div>
+<span class="fh">EMF EQUATION:</span><br>
+&nbsp;&nbsp;\(E_1 = 4.44 f N_1 \phi_m \quad \quad E_2 = 4.44 f N_2 \phi_m\)<br>
+&nbsp;&nbsp;\(\frac{E_1}{E_2} = \frac{N_1}{N_2} = a\) &emsp; <em>(turns ratio)</em>
+<br><br>
+<span class="fh">IDEAL TRANSFORMER:</span><br>
+&nbsp;&nbsp;\(\frac{V_1}{V_2} = \frac{N_1}{N_2} = a \quad \quad \frac{I_1}{I_2} = \frac{N_2}{N_1} = \frac{1}{a}\)<br>
+&nbsp;&nbsp;\(V_1 I_1 = V_2 I_2\) &emsp; <em>(VA conserved)</em> &emsp; \(Z_2' = a^2 Z_2\)
+<br><br>
+<span class="fh">EXCITING CURRENT:</span><br>
+&nbsp;&nbsp;\(I_0 = \sqrt{I_c^2 + I_\phi^2} \quad \quad I_c = I_0 \cos \phi_0 \quad \quad I_\phi = I_0 \sin \phi_0\)<br>
+&nbsp;&nbsp;\(R_c = \frac{E_1}{I_c} \quad \quad X_\phi = \frac{E_1}{I_\phi}\)
+<br><br>
+<span class="fh">PRIMARY KVL (practical):</span><br>
+&nbsp;&nbsp;\(\mathbf{V}_1 = \mathbf{E}_1 + \mathbf{I}_1(R_1 + jX_1) \implies \mathbf{V}_1 = \mathbf{E}_1 + \mathbf{I}_1 \mathbf{Z}_1\)
+<br><br>
+<span class="fh">SECONDARY KVL (practical):</span><br>
+&nbsp;&nbsp;\(\mathbf{E}_2 = \mathbf{V}_2 + \mathbf{I}_2(R_2 + jX_2) \implies \mathbf{E}_2 = \mathbf{V}_2 + \mathbf{I}_2 \mathbf{Z}_2\)
+<br><br>
+<span class="fh">APPROX CIRCUIT (referred to 1°):</span><br>
+&nbsp;&nbsp;\(R_{eq} = R_1 + a^2 R_2 \quad \quad X_{eq} = X_1 + a^2 X_2\)<br>
+&nbsp;&nbsp;\(\mathbf{V}_1 \approx \mathbf{V}_2' + \mathbf{I}_2' \mathbf{Z}_{eq}\) &emsp; <em>(neglecting \(I_0\))</em>
+<br><br>
+<span class="fh">VOLTAGE REGULATION:</span><br>
+&nbsp;&nbsp;\(\text{VR} = \frac{V_{2(NL)} - V_{2(FL)}}{V_{2(FL)}} \times 100\%\)<br>
+&nbsp;&nbsp;\(\text{VR} \approx \frac{I_2'(R_{eq} \cos \phi \pm X_{eq} \sin \phi)}{V_2'}\) &emsp; <em>(approx, + lag, - lead)</em>
+</div>
+    </div>
+  </div>
+
+  <!-- Ask Aarova AI -->
+  <div class="ai-prompt">
+    <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+    <p>Have a question on transformer equivalent circuits, EMF equations, dot convention, or solved numericals? Type below or pick a suggestion.</p>
+    <div class="ai-input-row">
+      <input class="ai-input" id="userQ" type="text" placeholder="e.g. Explain why no-load power factor is low in transformers...">
+      <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+    </div>
+    <div class="ai-suggest">
+      <span class="ai-chip" onclick="setQ('Why is no-load power factor of a transformer very low (0.1 to 0.2)? Explain with phasor diagram.')">No-load power factor</span>
+      <span class="ai-chip" onclick="setQ('Derive the EMF equation of a transformer E = 4.44 f N φm step by step from first principles.')">EMF equation derivation</span>
+      <span class="ai-chip" onclick="setQ('Explain the dot convention in transformers with an example. When do fluxes add and when do they oppose?')">Dot convention</span>
+      <span class="ai-chip" onclick="setQ('What is voltage regulation of a transformer? Derive the approximate expression and explain the significance of negative VR.')">Voltage regulation</span>
+      <span class="ai-chip" onclick="setQ('Compare cantilever equivalent circuit and exact T equivalent circuit of a transformer. When is each used?')">Equivalent circuit comparison</span>
+    </div>
+    <div class="ai-response" id="aiResp"></div>
+  </div>
+
+  <!-- Chapter Summary -->
+  <h3 class="sub">Chapter Summary</h3>
+  <div class="sum-grid">
+    <div class="sum-card sc-o"><div class="sum-lbl">Transformer Basics</div><p>Static device, no moving parts. NOT an electrical machine. Transfers energy via mutual induction. Works on AC only. Frequency unchanged. Core: low-reluctance path + mechanical support.</p></div>
+    <div class="sum-card sc-g"><div class="sum-lbl">EMF Equation</div><p>\(E_1 = 4.44 f N_1 \phi_m\), \(E_2 = 4.44 f N_2 \phi_m\). EMF <strong>leads</strong> flux by 90°. Constant 4.44 = 2π/√2. Turns ratio a = N₁/N₂ = E₁/E₂.</p></div>
+    <div class="sum-card sc-t"><div class="sum-lbl">Dot Convention</div><p>Currents entering dotted terminals → additive fluxes. Same instantaneous polarity at dotted terminals. First dot assigned; rest follow from winding sense and Lenz's law.</p></div>
+    <div class="sum-card sc-a"><div class="sum-lbl">Ideal Transformer</div><p>μ=∞, no losses, I₀=0, k=1. V₁/V₂=N₁/N₂=a. N₁I₁=N₂I₂ (MMF balance). Z₂'=a²Z₂ (impedance referral). η=100%.</p></div>
+    <div class="sum-card sc-r"><div class="sum-lbl">Exciting Current</div><p>I₀ = √(Ic²+Iφ²). Ic in-phase with E₁ (core loss). Iφ lags E₁ by 90° (magnetising). Hysteretic angle φ₀ ≈ 80°. NL PF ≈ 0.1–0.2 lagging. I₀ ≈ 2–10% of FL current.</p></div>
+    <div class="sum-card sc-g"><div class="sum-lbl">Equivalent Circuits</div><p>Exact "T": shunt branch between series elements. Cantilever: shunt at input — for NL. Final approx: no shunt — for VR, SC test. Req=R₁+a²R₂; Xeq=X₁+a²X₂.</p></div>
+  </div>
+
+  <div class="callout c-tip" style="margin-top:22px">
+    <div class="ci">➡️</div>
+    <div class="cb"><div class="ct">Coming Next — Chapter 3</div><p>Transformer Tests, Efficiency &amp; Voltage Regulation — open circuit test, short circuit test, all-day efficiency, condition for maximum efficiency, and GATE/IES PYQs.</p></div>
+  </div>
+</div>
+
+<!-- CITATIONS -->
+<div class="citations" id="citations">
+  <div class="cite-h">References &amp; Citations</div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from the following standard textbooks. No content is reproduced verbatim — all explanations, examples, numerical values, and diagrams are original to Aarova AI.</p>
+  <ul class="cite-list">
+    <li><span class="cite-num">[1]</span><span>Chapman, Stephen J. <em>Electric Machinery Fundamentals</em>, 5th ed. McGraw-Hill, 2012. Chapter 2, §2.1–2.7: Transformer construction, ideal and practical transformer, equivalent circuit, dot convention.</span></li>
+    <li><span class="cite-num">[2]</span><span>Kothari, D.P. and Nagrath, I.J. <em>Electric Machines</em>, 4th ed. Tata McGraw-Hill, 2010. Chapter 3, §3.1–3.7: Transformer basics, EMF equation, phasor diagrams, equivalent circuits, exciting current, leakage reactance, approximate circuits.</span></li>
+    <li><span class="cite-num">[3]</span><span>Fitzgerald, A.E., Kingsley, C. and Umans, S.D. <em>Electric Machinery</em>, 6th ed. McGraw-Hill, 2003. Chapter 2: Transformers — ideal and practical, equivalent circuits, phasor diagrams.</span></li>
+    <li><span class="cite-num">[4]</span><span>IIT Kharagpur NPTEL. <em>Basic Electrical Technology — Module 4: Transformers</em>. National Programme on Technology Enhanced Learning. Available at: nptel.ac.in. Covers EMF equation, dot convention, equivalent circuits, and transformer tests.</span></li>
+  </ul>
+</div>
+
+<hr>
+<footer>
+  <strong>Aarova AI</strong> &nbsp;·&nbsp; Electrical Machines Series &nbsp;·&nbsp; Chapter 2 of 8<br>
+  <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+  <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">Content derived from standard textbooks [1–4]. All explanations and diagrams are original to Aarova AI.</span>
+</footer>
+</div>
+
+<script>
+function setQ(t){document.getElementById('userQ').value=t;document.getElementById('userQ').focus();}
+async function askClaude(){
+  const q=document.getElementById('userQ').value.trim();if(!q)return;
+  const btn=document.querySelector('.ai-btn');const resp=document.getElementById('aiResp');
+  btn.textContent='Thinking…';btn.disabled=true;
+  resp.style.display='block';resp.textContent='Generating answer…';
+  const sys=`You are Aarova AI, an expert GATE EE and IES tutor. Topic: Transformers (Chapter 2) — EMF equation, dot convention, ideal and practical transformer, exciting current, equivalent circuits, phasor diagrams. Answer clearly with step-by-step working for numericals. Base answers on Chapman, Kothari & Nagrath, and Fitzgerald. All content original to Aarova AI.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:q}]})});
+    const data=await res.json();
+    resp.textContent=data.content?.map(c=>c.text||'').join('\n')||'No response.';
+  }catch(e){resp.textContent='Could not connect. Please try again.';}
+  btn.textContent='Ask Aarova AI';btn.disabled=false;
+}
+document.getElementById('userQ').addEventListener('keydown',e=>{if(e.key==='Enter')askClaude();});
+
+/* Responsive SVG scroll hints on mobile */
+(function(){
+  if(window.innerWidth>600)return;
+  document.querySelectorAll('.svg-wrap').forEach(function(wrap){
+    const hint=document.createElement('div');
+    hint.style.cssText='font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+    hint.textContent='← scroll to see full diagram →';
+    wrap.appendChild(hint);
+    wrap.addEventListener('touchstart',function(){hint.style.display='none';},{once:true,passive:true});
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,2915 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Control Systems Ch.3 Signal Flow Graphs &amp; Mason's Gain Formula</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- KaTeX for LaTeX math rendering -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 25%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TABLE OF CONTENTS ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH (KaTeX) display ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COLUMN CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 20px;
+            border-bottom: 1px solid var(--bg3);
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            position: absolute;
+            left: 0;
+            top: 8px;
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── ASK CLAUDE WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* ════ LARGE DESKTOP 1024+ ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Control Systems Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 03 &nbsp;·&nbsp; Control Systems</div>
+            <h1 class="hero-title">Signal Flow Graphs &amp; <em>Mason's Gain Formula</em></h1>
+            <p class="hero-desc">Nodes, branches, forward paths, loops, non-touching loops, and the complete
+                derivation and application of Mason's Gain Formula — a powerful alternative to block diagram
+                reduction for finding the transfer function of complex, multi-loop control systems, with full
+                GATE and IES coverage and solved numericals.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Follows Ch.2 — Block Diagram Reduction</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf" style="width:37.5%"></div>
+            </div><span class="pp">Chapter 3 of 8</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">3.1</span>Why Signal Flow Graphs?</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">3.7</span>Constructing SFGs</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">3.2</span>Nodes &amp; Branches</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">3.8</span>SFG Reduction Techniques</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">3.3</span>Paths, Forward Paths &amp; Loops</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">3.9</span>Comparison Table</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">3.4</span>Non-Touching Loops</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">3.10</span>Solved Numericals</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">3.5</span>Mason's Gain Formula</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">3.11</span>GATE &amp; IES Questions</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">3.6</span>Worked Derivation</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">3.12</span>Chapter Summary</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: WHY SIGNAL FLOW GRAPHS ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">3.1</span>
+                <h2 class="sec-t">Why Signal Flow Graphs Exist — The Big Picture</h2>
+            </div>
+
+            <p>In Chapter 2 you reduced block diagrams step by step — combining series and parallel blocks,
+                shifting summing points, eliminating feedback loops — until a single block remained. This works,
+                but for systems with many interacting loops the reduction becomes long, error-prone, and easy to
+                mess up under exam time pressure. The <strong>Signal Flow Graph (SFG)</strong>, introduced by
+                S. J. Mason in 1953, solves this problem with a purely algebraic, topological approach: draw the
+                system once as a graph of nodes and directed branches, then read off the transfer function
+                directly using <strong>Mason's Gain Formula</strong> — no diagram redrawing required.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>A signal flow graph represents a system of linear algebraic equations exactly the way a
+                        circuit diagram represents a system of physical connections. Every variable becomes a
+                        <strong>node</strong>, and every equation term becomes a <strong>directed branch</strong>
+                        with a gain (transmittance). Once drawn, the graph never needs "reduction" the way a block
+                        diagram does — Mason's formula extracts the answer directly from the graph's topology.
+                    </p>
+                </div>
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch3/fig3.1.png" alt="Figure 3.1">
+                <div class="svg-cap">Fig 3.1 — A representative signal flow graph. Forward chain R→x1→x2→x3→x4→C
+                    carries gains G1…G5. Two feedback branches (−H1, −H2) and one self-loop (−H3) create the
+                    loop structure used throughout this chapter to illustrate Mason's Gain Formula.</div>
+            </div>
+
+            <h3 class="sub">SFG vs Block Diagram — Two Views of the Same System</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Block Diagram Approach</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Blocks represent transfer functions; arrows carry signals</li>
+                        <li><span class="dot">▸</span>Reduced by series, parallel, feedback rules — step by step</li>
+                        <li><span class="dot">▸</span>Redrawing required after every reduction step</li>
+                        <li><span class="dot">▸</span>Practical for simple, single or double loop systems</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Signal Flow Graph Approach</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Nodes represent variables; branches carry gains (transmittances)
+                        </li>
+                        <li><span class="dot">▸</span>Solved directly by Mason's Gain Formula — algebraic, no redrawing
+                        </li>
+                        <li><span class="dot">▸</span>Handles any number of loops and forward paths systematically</li>
+                        <li><span class="dot">▸</span>Preferred for complex, multi-loop GATE/IES problems</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Where SFGs Are Used in Practice</div>
+                    <p>Signal flow graphs are the standard analysis tool wherever a system can be written as a set
+                        of simultaneous linear equations: state-space control system realisations, electrical
+                        network analysis (Mason originally developed the method for microwave amplifier and
+                        feedback amplifier design), flight control law diagrams, robotic actuator feedback loops,
+                        and power system stability studies. Any GATE-level closed-loop control system — servo
+                        motor position control, temperature control loops, aircraft pitch control — can be modelled
+                        and solved this way.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: NODES & BRANCHES ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">3.2</span>
+                <h2 class="sec-t">Nodes, Branches &amp; Transmittance</h2>
+            </div>
+
+            <p>A signal flow graph is built from exactly two elements — <strong>nodes</strong> and
+                <strong>branches</strong>. Understanding their precise definitions is essential because Mason's
+                formula is stated entirely in terms of node and branch topology.
+            </p>
+
+            <h3 class="sub">Node</h3>
+            <p>A <strong>node</strong> is a point representing a system variable (a signal) — such as an input,
+                an output, or an intermediate summed quantity. Every node's value equals the algebraic sum of the
+                signals arriving on all branches entering it.</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Source Node (Input Node)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Has only outgoing branches, no incoming branches</li>
+                        <li><span class="dot">▸</span>Represents an independent input variable, e.g. R(s)</li>
+                        <li><span class="dot">▸</span>A graph may have more than one source node</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Sink Node (Output Node)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Has only incoming branches, no outgoing branches</li>
+                        <li><span class="dot">▸</span>Represents the output variable, e.g. C(s)</li>
+                        <li><span class="dot">▸</span>Any node can be made a sink by adding a unity-gain
+                            outgoing branch to a new dummy node</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Mixed (Chain) Node</div>
+                    <p>A node with <strong>both incoming and outgoing branches</strong> is called a mixed node or
+                        chain node. Every intermediate node x1, x2, x3… in Fig 3.1 is a mixed node — it sums all
+                        incoming signals and forwards this sum out along every outgoing branch. A mixed node can be
+                        converted into a sink by adding an extra branch of unity gain — this trick is often used
+                        when the required output is at an intermediate mixed node.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Branch &amp; Transmittance</h3>
+            <p>A <strong>branch</strong> is a directed line segment joining two nodes, drawn with an arrowhead
+                indicating the direction of signal flow. Each branch carries a <strong>gain</strong> (also called
+                <strong>transmittance</strong>) — the multiplying factor applied to the signal as it travels along
+                that branch. If node x<sub>j</sub> connects to node x<sub>k</sub> via a branch of gain
+                a<sub>jk</sub>, then the branch contributes a<sub>jk</sub>·x<sub>j</sub> to the value of
+                x<sub>k</sub>.
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">Node Value — Sum of Incoming Branch Signals</div>
+                $$x_k = \sum_{j} a_{jk}\, x_j$$
+                <p style="font-size:13px;color:var(--text3);margin-top:6px;">Every node value is the sum of
+                    (gain × source-node-value) over every branch entering that node.</p>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Rule</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Signal travel</td>
+                            <td>Along a branch, only in the direction of the arrow</td>
+                        </tr>
+                        <tr>
+                            <td>Branch gain</td>
+                            <td>Multiplies the signal at the branch's tail node</td>
+                        </tr>
+                        <tr>
+                            <td>Node value</td>
+                            <td>Algebraic sum of all incoming branch signals (auto-summed — no separate summing
+                                symbol needed, unlike block diagrams)</td>
+                        </tr>
+                        <tr>
+                            <td>Outgoing signal</td>
+                            <td>The full node value is transmitted, unchanged, along <em>every</em> outgoing
+                                branch (no split loss)</td>
+                        </tr>
+                        <tr>
+                            <td>Self-loop</td>
+                            <td>A branch from a node back to itself, gain a<sub>kk</sub>, contributes
+                                a<sub>kk</sub>x<sub>k</sub> to x<sub>k</sub></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">Key Simplification vs Block Diagrams</div>
+                    <p>In a block diagram, a summing junction (○) and a take-off/pick-off point (•) are drawn as
+                        separate symbols. In an SFG, both jobs are done automatically by a single node: it
+                        <em>sums</em> everything coming in and <em>repeats</em> that sum, unchanged, out along
+                        every branch leaving it. This is why SFGs are more compact.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: PATHS, FORWARD PATHS & LOOPS ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">3.3</span>
+                <h2 class="sec-t">Paths, Forward Paths, Loops &amp; Path Gain</h2>
+            </div>
+
+            <p>Before Mason's formula can be applied, every possible route through the graph must be classified.
+                GATE questions frequently test whether a candidate can correctly separate forward paths from
+                loops, and touching loops from non-touching loops — this section builds that skill using Fig 3.1.</p>
+
+            <h3 class="sub">Path</h3>
+            <p>A <strong>path</strong> is any continuous succession of branches, traversed in the direction of
+                their arrows, such that no node is encountered more than once.</p>
+
+            <h3 class="sub">Forward Path</h3>
+            <p>A <strong>forward path</strong> is a path that starts at a source node and ends at a sink node,
+                without passing through any node more than once. The <strong>forward path gain</strong>
+                (P<sub>k</sub>) is the product of all branch gains along that path.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Forward Path in Fig 3.1</div>
+                $$P_1: \; R \to x_1 \to x_2 \to x_3 \to x_4 \to C \qquad P_1 = G_1 G_2 G_3 G_4 G_5$$
+            </div>
+
+            <h3 class="sub">Loop &amp; Self-Loop</h3>
+            <p>A <strong>loop</strong> is a closed path that starts and ends at the <em>same</em> node, without
+                passing through any other node more than once. The <strong>loop gain</strong> is the product of
+                the gains of all branches forming that loop. A <strong>self-loop</strong> is the special case of
+                a loop consisting of a single branch that starts and ends at the same node.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Loops in Fig 3.1</div>
+                $$L_1: \; x_2 \to x_3 \to x_2 \qquad L_1 = -\,G_2 H_1$$
+                $$L_2: \; x_3 \to x_4 \to x_3 \qquad L_2 = -\,G_3 H_2$$
+                $$L_3: \; x_3 \to x_3 \text{ (self-loop)} \qquad L_3 = -\,H_3$$
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Reading the Graph — Step by Step</div>
+                    <p>Trace every branch leaving a node until you return to a node already visited within that
+                        same trace. If the return is to the <em>starting</em> node, it's a loop. If a route reaches
+                        the sink C without repeating a node, it's a forward path. In Fig 3.1, notice L1 (x2↔x3) and
+                        L3 (self-loop at x3) share node x3 — they are <strong>touching</strong> loops. L2 (x3↔x4)
+                        and L1 share node x3 too, so L1 and L2 also touch each other through x3.</p>
+                </div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Term</th>
+                            <th>Definition</th>
+                            <th>Example (Fig 3.1)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Path</td>
+                            <td>Any route along branch arrows, no repeated node</td>
+                            <td>x1 → x2 → x3</td>
+                        </tr>
+                        <tr>
+                            <td>Forward path</td>
+                            <td>Source → sink, no repeated node</td>
+                            <td>R → x1 → x2 → x3 → x4 → C</td>
+                        </tr>
+                        <tr>
+                            <td>Path gain</td>
+                            <td>Product of branch gains along a forward path</td>
+                            <td>P₁ = G1·G2·G3·G4·G5</td>
+                        </tr>
+                        <tr>
+                            <td>Loop</td>
+                            <td>Closed path, starts &amp; ends at same node</td>
+                            <td>x2 → x3 → x2</td>
+                        </tr>
+                        <tr>
+                            <td>Self-loop</td>
+                            <td>Single branch, node to itself</td>
+                            <td>x3 → x3 (gain −H3)</td>
+                        </tr>
+                        <tr>
+                            <td>Loop gain</td>
+                            <td>Product of gains around a loop</td>
+                            <td>L1 = −G2H1</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common GATE Trap</div>
+                    <p>A path is <strong>not</strong> allowed to visit the same node twice. Students sometimes
+                        trace "loops within loops" as single forward paths — always check that every node in your
+                        traced route is distinct. Also remember: loop gains are usually taken with their sign
+                        already included (feedback branches are typically −H, giving negative loop gains).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S4: NON-TOUCHING LOOPS ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">3.4</span>
+                <h2 class="sec-t">Non-Touching Loops</h2>
+            </div>
+
+            <p>Two loops are called <strong>non-touching</strong> if they do not share any common node. This
+                single idea is the most exam-critical concept in this chapter — Mason's formula treats touching
+                and non-touching loop combinations completely differently, and most numerical mistakes in GATE
+                come from getting this classification wrong.</p>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Definition</div>
+                    <p>Loop L<sub>a</sub> and loop L<sub>b</sub> are <strong>non-touching</strong> if they have
+                        <em>no node in common</em>. If they share even a single node, they are
+                        <strong>touching</strong>. This applies to any pair of loops — and also to a forward path
+                        and a loop (a forward path either "touches" a loop by sharing a node with it, or it
+                        doesn't).
+                    </p>
+                </div>
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch3/fig3.2.png" alt="Figure 3.2">
+                <div class="svg-cap">Fig 3.2 — Left: loops L1 (x2–x3) and L2 (x4–x5) share no common node — a
+                    non-touching pair, so the product L1·L2 is a valid term in Mason's formula. Right: two loops
+                    sharing node x3 are touching — their product is excluded.</div>
+            </div>
+
+            <h3 class="sub">Non-Touching Loops in Fig 3.1</h3>
+            <p>Applying this rule to the reference graph of Fig 3.1:</p>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Non-Touching Pair</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>L1 (nodes x2, x3) and — in a graph where a further loop
+                            existed only among x4, x5 with no shared node — would qualify</li>
+                        <li><span class="dot">▸</span>In Fig 3.1, L1 (x2–x3) and L2 (x3–x4) both use node x3, so
+                            they are touching, not non-touching</li>
+                        <li><span class="dot">▸</span>L3 (self-loop at x3) also touches both L1 and L2 through x3
+                        </li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Exam Strategy</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>List every loop and the nodes it passes through first</li>
+                        <li><span class="dot">▸</span>Compare loops pairwise — mark shared nodes</li>
+                        <li><span class="dot">▸</span>Only pairs (and higher combinations) with zero shared nodes
+                            enter the Δ expansion</li>
+                        <li><span class="dot">▸</span>A forward path touching every loop makes its cofactor
+                            Δ<sub>k</sub> = 1 — a frequent GATE shortcut</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Memory Trick</div>
+                    <p>"Touching = sharing a table (node)." If two loops never sit at the same node, they can act
+                        completely independently — which is exactly why their gains simply multiply together in
+                        Δ. If they share a node, disturbing one loop necessarily disturbs the signal at the shared
+                        node, so they cannot be treated as independent — their product is excluded.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S5: MASON'S GAIN FORMULA ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">3.5</span>
+                <h2 class="sec-t">Mason's Gain Formula</h2>
+            </div>
+
+            <p>Mason's Gain Formula gives the overall transfer function between any source node and any sink node
+                of a signal flow graph directly, using only the forward paths and loops identified in the previous
+                two sections. No block-diagram-style reduction is needed.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Mason's Gain Formula</div>
+                $$T = \frac{C(s)}{R(s)} = \frac{\sum_{k} P_k \, \Delta_k}{\Delta}$$
+            </div>
+
+            <div class="fblock"><span class="flbl">Symbol Meanings</span>
+
+<span class="fh">T</span> = overall transfer function (gain) between source and sink
+<span class="fh">P_k</span> = gain of the k-th forward path
+<span class="fh">Δ</span> = graph determinant (defined below)
+<span class="fh">Δ_k</span> = cofactor for forward path k — value of Δ with all loops touching P_k removed (set to 1 if P_k touches every loop)</div>
+
+            <div class="math-block">
+                <div class="math-lbl">Graph Determinant Δ</div>
+                $$\Delta = 1 - \sum_{a} L_a + \sum_{b} L_b L_c - \sum_{d} L_d L_e L_f + \cdots$$
+            </div>
+
+            <div class="fblock"><span class="flbl">Building Δ — term by term</span>
+
+<span class="fh">1</span> constant term, always present
+<span class="fh">− Σ L_a</span> minus the sum of ALL individual loop gains
+<span class="fh">+ Σ L_bL_c</span> plus the sum of products of gains of every possible pair of NON-TOUCHING loops
+<span class="fh">− Σ L_dL_eL_f</span> minus the sum of products of every possible triple of PAIRWISE non-touching loops
+<span class="fh">+ …</span> continue alternating sign for 4, 5, … non-touching loop combinations, until no more combinations exist</div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The Cofactor Δk — Most Common Mistake</div>
+                    <p>Δ<sub>k</sub> is <strong>not</strong> just "Δ minus the path." It is the determinant Δ
+                        recomputed using only the sub-graph of loops that do <em>not touch</em> forward path
+                        P<sub>k</sub> (delete every loop that shares even one node with P<sub>k</sub>, then rebuild
+                        Δ from what remains). If P<sub>k</sub> touches every single loop in the graph, no loops
+                        remain, so Δ<sub>k</sub> = 1 automatically.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Step-by-Step Procedure</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Step</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Identify the source node and sink node between which T is required</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>List every forward path P<sub>k</sub> and compute each path gain</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>List every individual loop L<sub>i</sub> and compute each loop gain
+                                (include sign, usually negative for negative feedback)</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Find all pairs of non-touching loops, then triples, and so on</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Assemble Δ using the alternating-sign series above</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>For each P<sub>k</sub>, delete loops touching it and recompute Δ<sub>k</sub>
+                                from the surviving loops</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>Substitute into T = ΣP<sub>k</sub>Δ<sub>k</sub> / Δ</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Sign Convention Warning</div>
+                    <p>Negative feedback branches are drawn with gain −H, so their loop gain already carries the
+                        minus sign (e.g. L = −GH). Do NOT apply an additional minus sign when substituting into
+                        "−ΣL" — that would double the sign and flip the answer. Always substitute the loop gains
+                        exactly as computed from the graph, sign included.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: WORKED DERIVATION ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">3.6</span>
+                <h2 class="sec-t">Worked Derivation — Applying Mason's Formula to Fig 3.1</h2>
+            </div>
+
+            <p>Let's now find T = C(s)/R(s) for the reference graph of Fig 3.1 completely, using the seven-step
+                procedure from Section 3.5.</p>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">DERIVATION</span>
+                    <span class="ex-title">Complete transfer function of Fig 3.1 using Mason's Gain Formula</span>
+                </div>
+                <div class="ex-body">
+                    <div class="sol-lbl">Step 1 — Source and Sink</div>
+                    <p>Source = R, Sink = C.</p>
+
+                    <div class="sol-lbl">Step 2 — Forward Paths</div>
+                    <p>Only one forward path exists — the full chain from R to C:</p>
+                    <div class="math-block">
+                        $$P_1 = G_1 G_2 G_3 G_4 G_5$$
+                    </div>
+
+                    <div class="sol-lbl">Step 3 — Individual Loops</div>
+                    <div class="math-block">
+                        $$L_1 = -G_2 H_1 \qquad L_2 = -G_3 H_2 \qquad L_3 = -H_3$$
+                    </div>
+
+                    <div class="sol-lbl">Step 4 — Non-Touching Combinations</div>
+                    <p>All three loops pass through node x3, so every possible pair — (L1,L2), (L1,L3), (L2,L3)
+                        — shares node x3. There are <strong>no non-touching loop pairs</strong> in this graph, so
+                        all higher-order terms in Δ vanish.</p>
+
+                    <div class="sol-lbl">Step 5 — Graph Determinant Δ</div>
+                    <div class="math-block">
+                        $$\Delta = 1 - (L_1+L_2+L_3) = 1-(-G_2H_1-G_3H_2-H_3)$$
+                        $$\Delta = 1 + G_2H_1 + G_3H_2 + H_3$$
+                    </div>
+
+                    <div class="sol-lbl">Step 6 — Cofactor Δ1</div>
+                    <p>The forward path P1 passes through nodes x1, x2, x3, x4 — it touches every loop
+                        (L1, L2, L3 all involve x2, x3, or x4). Since no loop is left untouched by P1:</p>
+                    <div class="math-block">
+                        $$\Delta_1 = 1$$
+                    </div>
+
+                    <div class="sol-lbl">Step 7 — Final Transfer Function</div>
+                    <div class="math-block">
+                        $$T = \frac{C(s)}{R(s)} = \frac{P_1 \Delta_1}{\Delta} =
+                        \frac{G_1G_2G_3G_4G_5}{1+G_2H_1+G_3H_2+H_3}$$
+                    </div>
+
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Sanity Check</div>
+                            <p>If H1 = H2 = H3 = 0 (no feedback at all), T reduces to G1G2G3G4G5 — the plain
+                                product of forward gains, exactly as expected for a purely feed-forward system.
+                                This "switch off the feedback and check" trick is a fast way to verify any Mason's
+                                formula answer under exam conditions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: CONSTRUCTING SFGs ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">3.7</span>
+                <h2 class="sec-t">Constructing Signal Flow Graphs</h2>
+            </div>
+
+            <p>SFGs can be built from two different starting points that appear equally often in GATE/IES papers:
+                (a) a set of simultaneous algebraic equations, or (b) an existing block diagram. Both routes are
+                shown here.</p>
+
+            <h3 class="sub">(a) From a Set of Algebraic Equations</h3>
+            <p>Each equation of the form x<sub>k</sub> = Σ a<sub>jk</sub>x<sub>j</sub> becomes one node
+                x<sub>k</sub> with an incoming branch of gain a<sub>jk</sub> from every node x<sub>j</sub> that
+                appears on its right-hand side.</p>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">METHOD</span>
+                    <span class="ex-title">Drawing an SFG directly from equations</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">Given the equations x2 = a12·x1 + a32·x3, and x3 = a23·x2 + a13·x1, draw
+                        the signal flow graph.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1:</strong> Create one node for every variable: x1, x2, x3.</p>
+                    <p><strong>Step 2:</strong> For x2 = a12·x1 + a32·x3 — draw a branch x1→x2 with gain a12, and
+                        a branch x3→x2 with gain a32.</p>
+                    <p><strong>Step 3:</strong> For x3 = a23·x2 + a13·x1 — draw a branch x2→x3 with gain a23, and
+                        a branch x1→x3 with gain a13.</p>
+                    <p>The resulting graph has a loop x2→x3→x2 (gain a23·a32) and two forward-type branches from
+                        x1.</p>
+                </div>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Order of Equations Doesn't Matter</div>
+                    <p>Unlike block diagrams, where the drawing order affects layout complexity, the SFG built
+                        from a set of equations is topologically identical no matter what order the equations are
+                        taken in — because each equation only fixes the incoming branches of one node.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">(b) From a Block Diagram</h3>
+            <p>Every summing junction and take-off point in a block diagram becomes a node in the SFG; every
+                block becomes a branch carrying that block's transfer function as its gain.</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Block Diagram Element</th>
+                            <th>SFG Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Block, gain G(s)</td>
+                            <td>Branch with transmittance G(s)</td>
+                        </tr>
+                        <tr>
+                            <td>Summing junction (± inputs)</td>
+                            <td>Node — incoming branches carry +1 or −1 as
+                                appropriate</td>
+                        </tr>
+                        <tr>
+                            <td>Take-off point</td>
+                            <td>Same node — value repeats unchanged on every outgoing
+                                branch (no extra symbol needed)</td>
+                        </tr>
+                        <tr>
+                            <td>Series blocks</td>
+                            <td>Series branches — gains multiply along the chain</td>
+                        </tr>
+                        <tr>
+                            <td>Feedback path, gain H(s)</td>
+                            <td>Branch of gain −H(s) (negative feedback) or
+                                +H(s) (positive feedback) returning to the summing node</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch3/fig3.3.png" alt="Figure 3.3">
+                <div class="svg-cap">Fig 3.3 — Standard unity-feedback block diagram (top) and its equivalent
+                    signal flow graph (bottom). The summing junction becomes node "e"; the feedback block H(s)
+                    becomes a branch of gain −H(s) returning from C to e.</div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">Verification with Mason's Formula</div>
+                    <p>For Fig 3.3: one forward path P1 = G(s), one loop L1 = −G(s)H(s), so
+                        Δ = 1 + G(s)H(s), Δ1 = 1. This gives T = G(s) / (1 + G(s)H(s)) — exactly the familiar
+                        standard negative-feedback closed-loop formula from Chapter 2, confirming that SFG and
+                        block diagram methods always agree.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S8: SFG REDUCTION TECHNIQUES ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">3.8</span>
+                <h2 class="sec-t">SFG Reduction Techniques</h2>
+            </div>
+
+            <p>Although Mason's Gain Formula solves any graph directly without redrawing, GATE and IES also test
+                the classical <strong>graph reduction rules</strong> — useful for simplifying a graph before
+                applying Mason's formula, or for questions that specifically ask for an equivalent simplified
+                SFG.</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Rule 1 — Series (Cascade) Rule</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Branches in series (one mixed node with only one incoming
+                            and one outgoing branch) combine into a single branch</li>
+                        <li><span class="dot">▸</span>Combined gain = product of the series gains</li>
+                        <li><span class="dot">▸</span>a → (gain p) → b → (gain q) → c becomes a → (gain pq) → c</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Rule 2 — Parallel Rule</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Two or more branches connecting the <em>same pair</em> of
+                            nodes in the same direction combine into one branch</li>
+                        <li><span class="dot">▸</span>Combined gain = sum of the individual gains</li>
+                        <li><span class="dot">▸</span>a → b (gain p) and a → b (gain q) becomes a → b (gain p+q)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Rule 3 — Self-Loop Elimination</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>A self-loop of gain L at node x<sub>k</sub> can be removed
+                            by dividing the gain of every branch <em>entering</em> x<sub>k</sub> by (1 − L)</li>
+                        <li><span class="dot">▸</span>Branches leaving x<sub>k</sub> are unaffected</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Rule 4 — Node Absorption (Mixed Node Elimination)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>A mixed node can be eliminated by connecting each incoming
+                            branch directly to each outgoing branch</li>
+                        <li><span class="dot">▸</span>New branch gain = (incoming gain) × (outgoing gain)</li>
+                        <li><span class="dot">▸</span>If multiple such paths result between the same two nodes,
+                            apply the parallel rule afterward</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch3/fig3.4.png" alt="Figure 3.4">
+                <div class="svg-cap">Fig 3.4 — The four classical SFG reduction rules: series, parallel, and
+                    self-loop elimination shown in miniature. Node absorption (Rule 4) applies these same series
+                    and parallel principles after removing an intermediate mixed node.</div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">When to Reduce vs When to Use Mason's Formula Directly</div>
+                    <p>For a graph with 1–2 forward paths and 1–2 loops, Mason's formula directly is usually
+                        faster than reduction. Reduction rules become useful mainly when a question explicitly
+                        asks you to simplify the graph itself, or when eliminating an obviously redundant self-loop
+                        first makes the remaining loop-touching analysis easier to see.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S9: COMPARISON TABLE ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">3.9</span>
+                <h2 class="sec-t">Block Diagram vs Signal Flow Graph — Full Comparison</h2>
+            </div>
+
+            <p>This comparison table consolidates the terminology mapping and is one of the most frequently
+                revisited references while solving mixed-format GATE questions that switch between the two
+                representations.</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Block Diagram</th>
+                            <th>Signal Flow Graph</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Basic element</td>
+                            <td>Block (rectangle) with transfer function</td>
+                            <td>Directed branch with gain (transmittance)</td>
+                        </tr>
+                        <tr>
+                            <td>Summing junction</td>
+                            <td>Explicit circle (○) with ± signs</td>
+                            <td>Implicit — every node auto-sums its inputs</td>
+                        </tr>
+                        <tr>
+                            <td>Take-off point</td>
+                            <td>Explicit dot (•)</td>
+                            <td>Implicit — every node repeats its value on all outputs</td>
+                        </tr>
+                        <tr>
+                            <td>Applicable only to</td>
+                            <td>Linear systems</td>
+                            <td>Linear systems only (same restriction)</td>
+                        </tr>
+                        <tr>
+                            <td>Reduction method</td>
+                            <td>Step-by-step block reduction (series, parallel, feedback rules)</td>
+                            <td>Mason's Gain Formula — single algebraic expression, no redrawing</td>
+                        </tr>
+                        <tr>
+                            <td>Best suited for</td>
+                            <td>Simple, 1–2 loop systems; visualising physical signal flow</td>
+                            <td>Complex, multi-loop systems; fast numerical evaluation</td>
+                        </tr>
+                        <tr>
+                            <td>Intermediate variables</td>
+                            <td>Not always explicitly shown</td>
+                            <td>Every intermediate variable is a labelled node</td>
+                        </tr>
+                        <tr>
+                            <td>Originator</td>
+                            <td>Standard control-theory notation</td>
+                            <td class="t-tel">S. J. Mason (1953)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Both Give Identical Answers</div>
+                    <p>Because both methods solve the same underlying set of linear signal equations, a correctly
+                        drawn SFG and a correctly reduced block diagram of the <em>same</em> system always produce
+                        the <em>same</em> transfer function — as verified in Section 3.7's example. Choosing
+                        between them is purely a matter of which is faster for the problem at hand.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S10: SOLVED NUMERICALS ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">3.10</span>
+                <h2 class="sec-t">Solved Numerical Examples</h2>
+            </div>
+
+            <p>Four fully worked numericals — chosen to cover non-touching loops with the +ΣL<sub>b</sub>L<sub>c</sub>
+                term, multiple forward paths with different cofactors, a direct numeric evaluation of the Section
+                3.6 derivation, and a block-diagram-to-SFG conversion — the four patterns GATE most commonly tests.</p>
+
+            <!-- Example 1 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 3.1</span>
+                    <span class="ex-title">Two non-touching loops — full Mason's Gain Formula with the +ΣLbLc
+                        term</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A signal flow graph has a single forward path R→x1→x2→x3→x4→C with gains
+                        G1=2, G2=3, G3=1, G4=4, G5=2. Two feedback loops exist: L1 between x1 and x2 with
+                        L1 = −G2H1, H1 = 0.5; and L2 between x3 and x4 with L2 = −G4H2, H2 = 0.25. Find T = C/R.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Forward path gain:</strong></p>
+                    <div class="math-block">
+                        $$P_1 = G_1G_2G_3G_4G_5 = 2\times3\times1\times4\times2 = 48$$
+                    </div>
+                    <p><strong>Loop gains:</strong></p>
+                    <div class="math-block">
+                        $$L_1 = -G_2H_1 = -3\times0.5=-1.5 \qquad L_2=-G_4H_2=-4\times0.25=-1$$
+                    </div>
+                    <p><strong>Non-touching check:</strong> L1 involves nodes x1,x2 only; L2 involves nodes x3,x4
+                        only — no shared node, so L1 and L2 are non-touching.</p>
+                    <div class="math-block">
+                        $$\Delta = 1-(L_1+L_2)+L_1L_2 = 1-(-1.5-1)+(-1.5)(-1)$$
+                        $$\Delta = 1+2.5+1.5 = 5$$
+                    </div>
+                    <p>P1 passes through x1,x2,x3,x4 — it touches both loops, so Δ1 = 1.</p>
+                    <div class="math-block">
+                        $$T = \frac{P_1\Delta_1}{\Delta} = \frac{48\times1}{5} = 9.6$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Why the +L1L2 Term Matters</div>
+                            <p>Forgetting the +L1L2 term (a very common slip) would give Δ = 1+2.5 = 3.5 and a
+                                wrong answer of T = 13.7. Always check every loop pair for a shared node before
+                                finalising Δ.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 3.2</span>
+                    <span class="ex-title">Two forward paths with different cofactors Δk</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A graph has nodes x1→x2→x3→x4→x5. Forward path P1 = x1→x2→x3→x4→x5 with
+                        gains a=1, b=2, c=1, d=3 (P1 = abcd). A second, shorter forward path P2 = x1→x2→x4→x5
+                        skips x3 directly, with gain e = 0.5 on branch x2→x4 (P2 = a·e·d). A self-loop of gain
+                        f = 0.2 exists at node x3. Find T = x5/x1.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Forward path gains:</strong></p>
+                    <div class="math-block">
+                        $$P_1 = a\cdot b\cdot c\cdot d = 1\times2\times1\times3 = 6$$
+                        $$P_2 = a\cdot e\cdot d = 1\times0.5\times3 = 1.5$$
+                    </div>
+                    <p><strong>Only one loop</strong> (self-loop at x3, gain f = 0.2), so no non-touching products
+                        exist:</p>
+                    <div class="math-block">
+                        $$\Delta = 1 - f = 1-0.2 = 0.8$$
+                    </div>
+                    <p><strong>Cofactors:</strong> P1 passes through x3 — it touches the self-loop, so
+                        Δ1 = 1. P2 bypasses x3 entirely — it does NOT touch the self-loop, so the loop survives
+                        in Δ2:</p>
+                    <div class="math-block">
+                        $$\Delta_1 = 1 \qquad \Delta_2 = 1-f = 0.8$$
+                    </div>
+                    <div class="math-block">
+                        $$T = \frac{P_1\Delta_1+P_2\Delta_2}{\Delta} = \frac{6\times1+1.5\times0.8}{0.8} =
+                        \frac{7.2}{0.8}=9$$
+                    </div>
+                    <div class="callout c-warn">
+                        <div class="ci">⚠️</div>
+                        <div class="cb">
+                            <div class="ct">GATE Trap</div>
+                            <p>It is tempting to use Δ1 = Δ2 = 1 for every forward path — wrong whenever a path
+                                bypasses a node that carries a loop. Always check each forward path against every
+                                loop individually.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 3.3</span>
+                    <span class="ex-title">Numeric evaluation of the Fig 3.1 reference graph</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">Using the general result T = G1G2G3G4G5 / (1+G2H1+G3H2+H3) derived in
+                        Section 3.6, evaluate T for G1=1, G2=2, G3=3, G4=1, G5=2, H1=0.5, H2=1, H3=0.2.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="math-block">
+                        $$\text{Numerator} = G_1G_2G_3G_4G_5 = 1\times2\times3\times1\times2 = 12$$
+                        $$\text{Denominator} = 1+G_2H_1+G_3H_2+H_3 = 1+(2\times0.5)+(3\times1)+0.2$$
+                        $$= 1+1+3+0.2 = 5.2$$
+                    </div>
+                    <div class="math-block">
+                        $$T = \frac{12}{5.2} \approx 2.31$$
+                    </div>
+                    <p>This confirms that once the symbolic transfer function is derived (Section 3.6), any
+                        numeric variant of the same graph topology is solved in seconds by direct substitution —
+                        the real payoff of Mason's formula over repeated block-diagram redrawing.</p>
+                </div>
+            </div>
+
+            <!-- Example 4 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 3.4</span>
+                    <span class="ex-title">Block diagram → SFG → Mason's formula, fully numeric</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A unity-feedback-style system (Fig 3.3 topology) has forward gain
+                        G(s) = 10 and feedback gain H(s) = 0.4. Find the closed-loop transfer function T = C/R
+                        using the SFG method, and compare with the standard block-diagram feedback formula.</div>
+                    <div class="sol-lbl">Solution — SFG Method</div>
+                    <p>From Fig 3.3: P1 = G(s) = 10, single loop L1 = −G(s)H(s) = −(10)(0.4) = −4.</p>
+                    <div class="math-block">
+                        $$\Delta = 1-L_1 = 1-(-4) = 5 \qquad \Delta_1 = 1$$
+                        $$T = \frac{P_1\Delta_1}{\Delta} = \frac{10}{5} = 2$$
+                    </div>
+                    <div class="sol-lbl">Cross-check — Standard Block Diagram Formula</div>
+                    <div class="math-block">
+                        $$T = \frac{G(s)}{1+G(s)H(s)} = \frac{10}{1+10(0.4)} = \frac{10}{5}=2$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Confirms Equivalence</div>
+                            <p>Both methods give T = 2, as they must — Mason's formula on the SFG and the
+                                standard closed-loop reduction formula on the block diagram are two notations for
+                                the identical algebra.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S11: GATE & IES QUESTIONS ═══ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr"><span class="sec-num">3.11</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Question Patterns</h2>
+            </div>
+
+            <p>Mason's Gain Formula is one of the highest-yield topics in the Control Systems syllabus —
+                appearing almost every year across GATE EE/EC/IN and IES. The patterns below are built in the
+                style of the most frequently repeated question types, marked by probability of appearance.
+                <span class="prob prob-h">🟢 HIGH</span>
+            </p>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Single loop touching the only forward path</span>
+                    <span class="pyq-year">Concept — Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p>For a signal flow graph with a single forward path of gain P and a single loop of gain L
+                        (touching the path), the transfer function C/R is:</p>
+                    <ul class="pyq-opts">
+                        <li class="correct">(A) P / (1 − L)</li>
+                        <li>(B) P / (1 + L)</li>
+                        <li>(C) P·L</li>
+                        <li>(D) (1 − L) / P</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);"><strong>Explanation:</strong>
+                        With one forward path touching the only loop, Δ1 = 1 and Δ = 1 − L, giving T = P/(1−L).
+                        This is the most repeated single-loop pattern — always identify Δ before writing the
+                        final ratio.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Sign of the non-touching loop product term</span>
+                    <span class="pyq-year">Concept — Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p>Two loops L1 and L2 in a signal flow graph share no common node. The term this pair
+                        contributes to the graph determinant Δ is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) −L1L2</li>
+                        <li class="correct">(B) +L1L2</li>
+                        <li>(C) L1 + L2</li>
+                        <li>(D) No term is added</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);"><strong>Explanation:</strong>
+                        Products of gains of pairwise non-touching loops enter Δ with a <em>positive</em> sign,
+                        as the second term of the alternating series 1 − ΣL + ΣLbLc − … This directly tests the
+                        sign convention.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Cofactor when a forward path bypasses one loop</span>
+                    <span class="pyq-year">IES Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p>An SFG has 2 forward paths and 3 individual loops, and no pair of loops is non-touching.
+                        Forward path P2 touches only 2 of the 3 loops. Its cofactor Δ2 equals:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 1</li>
+                        <li class="correct">(B) 1 − L3 (the untouched loop only)</li>
+                        <li>(C) 1 − L1 − L2 − L3</li>
+                        <li>(D) L3</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);"><strong>Explanation:</strong>
+                        Δk is Δ recomputed using only the loops NOT touching Pk. If exactly one loop (L3) is
+                        untouched by P2, then Δ2 = 1 − L3 — no non-touching-pair term since only one loop
+                        survives.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Block diagram → SFG conversion — take-off point rule</span>
+                    <span class="pyq-year">Concept — Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p>Which of the following is NOT a valid operation when converting a block diagram to a
+                        signal flow graph?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Representing each block by a branch whose gain equals the block's transfer
+                            function</li>
+                        <li>(B) Representing each summing junction by a node</li>
+                        <li class="correct">(C) Representing a take-off point by a separate node distinct from
+                            the signal's origin node</li>
+                        <li>(D) Assigning gain −H(s) to a negative feedback branch</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);"><strong>Explanation:</strong>
+                        A take-off point maps to the <em>same</em> node in the SFG as the signal's origin — not
+                        a separate node. This conceptual trap is tested repeatedly at IES level.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Forward path touching every loop in the graph</span>
+                    <span class="pyq-year">Concept — Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A forward path in a signal flow graph passes through every loop present in the graph.
+                        The cofactor Δk associated with this forward path is:</p>
+                    <ul class="pyq-opts">
+                        <li class="correct">(A) 1</li>
+                        <li>(B) 0</li>
+                        <li>(C) Equal to Δ</li>
+                        <li>(D) Equal to the loop gain</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);"><strong>Explanation:</strong>
+                        If a forward path touches every loop, no loops survive for its cofactor, so Δk = 1 by
+                        definition — a shortcut applying to most single-forward-path GATE problems.</p>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🎯</div>
+                <div class="cb">
+                    <div class="ct">Exam Strategy Summary</div>
+                    <p>Roughly 70% of GATE-level Mason's Gain Formula questions reduce to correctly identifying
+                        (i) whether loops touch, and (ii) whether a given forward path touches a given loop.
+                        Master the node-sharing check from Sections 3.3–3.4 and the rest of the formula becomes
+                        pure substitution.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S12: CHAPTER SUMMARY & CLOSING ═══ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr"><span class="sec-num">3.12</span>
+                <h2 class="sec-t">Chapter Summary</h2>
+            </div>
+
+            <!-- ═══ AI WIDGET ═══ -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+                <p>Have a question on signal flow graphs, Mason's Gain Formula, non-touching loops, or SFG
+                    reduction? Type below or pick a suggestion.</p>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="userQ" type="text"
+                        placeholder="e.g. Find C/R for an SFG with two forward paths and one self-loop using Mason's formula…">
+                    <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('Draw the signal flow graph for a system with forward gains G1, G2 and feedback H, then find C/R using Masons Gain Formula step by step.')">Basic
+                        SFG with one loop</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain with an example how to identify non-touching loops in a signal flow graph and why they get a positive sign in the determinant.')">Non-touching
+                        loops explained</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Convert this block diagram to a signal flow graph: forward path G1, G2, G3 in series, with feedback H1 around G2 alone and feedback H2 around the whole system.')">Block
+                        diagram → SFG conversion</span>
+                    <span class="ai-chip"
+                        onclick="setQ('An SFG has two forward paths P1 and P2, and three loops L1, L2, L3 where L1 and L3 are non-touching. Walk through finding the cofactors and the final transfer function.')">Multiple
+                        paths &amp; cofactors</span>
+                    <span class="ai-chip"
+                        onclick="setQ('What is the difference between a self-loop and a feedback loop in a signal flow graph, and how does self-loop elimination work?')">Self-loop
+                        elimination</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <!-- ═══ SUMMARY GRID ═══ -->
+            <h3 class="sub">Chapter Summary</h3>
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Nodes &amp; Branches</div>
+                    <p>Node = variable; auto-sums inputs, repeats value on all outputs. Branch = directed line
+                        with gain (transmittance). Source node: outputs only. Sink node: inputs only. Mixed node:
+                        both.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Paths &amp; Loops</div>
+                    <p>Forward path: source→sink, no repeated node. Path gain = product of branch gains. Loop:
+                        closed path, same start/end node. Self-loop: single branch, node to itself.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Non-Touching Loops</div>
+                    <p>Two loops are non-touching if they share NO common node. Non-touching pairs give +ΣLbLc
+                        term in Δ. Touching loops (share a node) are excluded from that term.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Mason's Gain Formula</div>
+                    <p>T = ΣPkΔk / Δ. Δ = 1 − ΣL + ΣLbLc − ΣLdLeLf + … Δk = Δ with loops touching Pk removed.
+                        If Pk touches every loop, Δk = 1.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">SFG Reduction Rules</div>
+                    <p>Series: gains multiply. Parallel: gains add. Self-loop L at node: divide incoming branch
+                        gains by (1−L). Node absorption: multiply incoming × outgoing gains.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Block Diagram ↔ SFG</div>
+                    <p>Block → branch (gain = TF). Summing junction → node. Feedback H(s) → branch of gain
+                        −H(s). Both methods always give identical T(s) for the same system.</p>
+                </div>
+            </div>
+
+
+
+            <!-- ═══ CITATIONS ═══ -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is
+                    derived from the following standard textbooks and learning resources. All explanations,
+                    derivations, diagrams and examples are original to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Nagrath, I.J. and Gopal, M. <em>Control Systems
+                                Engineering</em>, 5th ed. New Age International, 2007. Chapter 3 — Block Diagrams
+                            and Signal Flow Graphs; Mason's Gain Formula derivation and applications.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Ogata, Katsuhiko. <em>Modern Control
+                                Engineering</em>, 5th ed. Prentice Hall, 2010. Chapter 3 — Mathematical modelling
+                            of control systems; signal flow graph representation.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Nise, Norman S. <em>Control Systems
+                                Engineering</em>, 7th ed. Wiley, 2015. Chapter 5 — Reduction of multiple
+                            subsystems; signal-flow graph models and Mason's rule.</span></li>
+                    <li><span class="cite-num">[4]</span><span>IIT Kharagpur / IIT Madras NPTEL. <em>Control
+                                Systems — Lectures on Signal Flow Graphs and Mason's Gain Formula</em>. National
+                            Programme on Technology Enhanced Learning. nptel.ac.in.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Control Systems Series &nbsp;·&nbsp; Chapter 3 of 8<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations
+                    and diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Control Systems. Topic: Signal Flow Graphs & Mason's Gain Formula (Chapter 3). Cover nodes, branches, forward paths, loops, non-touching loops, and Mason's Gain Formula. Answer with step-by-step working for numericals. Base answers on Nagrath & Gopal, Ogata, Nise. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,2710 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Control Systems Ch.6 Root Locus Technique</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- KaTeX for LaTeX math rendering -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 25%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TABLE OF CONTENTS ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH (KaTeX) display ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COLUMN CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 20px;
+            border-bottom: 1px solid var(--bg3);
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            position: absolute;
+            left: 0;
+            top: 7px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── ASK CLAUDE WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* ════ LARGE DESKTOP 1024+ ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Control Systems Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 06 &nbsp;·&nbsp; Control Systems</div>
+            <h1 class="hero-title">Root Locus <em>Technique</em></h1>
+            <p class="hero-desc">Root locus fundamentals, the angle and magnitude conditions, construction rules,
+                breakaway and break-in points, angle of departure and arrival, stability analysis and controller
+                design using root locus — complete GATE, IES, and PSU exam coverage with full derivations and solved
+                examples.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Follows Ch.5 — Stability &amp; Routh-Hurwitz</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf" style="width:60%"></div>
+            </div><span class="pp">Chapter 6 of 10</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">6.1</span>Why Root Locus Exists</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">6.6</span>Stability From Root Locus</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">6.2</span>Angle &amp; Magnitude Conditions</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">6.7</span>Controller Design</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">6.3</span>Construction Rules</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">6.8</span>Solved Numericals</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">6.4</span>Breakaway &amp; Break-in Points</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">6.9</span>Common Mistakes &amp; Tricks</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">6.5</span>Angle of Departure/Arrival</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">6.10</span>GATE &amp; IES Questions</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: WHY ROOT LOCUS EXISTS ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">6.1</span>
+                <h2 class="sec-t">Why Root Locus Exists — The Big Picture</h2>
+            </div>
+
+            <p>A closed-loop control system's behaviour — how fast it settles, whether it oscillates, whether it is
+                stable at all — is decided entirely by the location of its <strong>closed-loop poles</strong> in the
+                s-plane. Routh-Hurwitz (Chapter 5) only tells you <em>whether</em> the system is stable for a given
+                gain K. It does not tell you <em>how the poles move</em> as K is tuned from 0 to ∞, and it does not
+                tell you which value of K gives a well-damped, fast response.</p>
+
+            <p><strong>Root locus</strong>, introduced by Walter R. Evans in 1948, is a graphical method that plots
+                the exact path traced by every closed-loop pole in the s-plane as the loop gain K varies from
+                <strong>0 to ∞</strong>. It converts the algebra of solving a high-order characteristic equation for
+                many values of K into a geometric sketching problem governed by a handful of rules.
+            </p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>Root locus answers the designer's real question: "If I increase the gain of my amplifier or
+                        controller, will my system still be stable, and how will its speed and overshoot change?"
+                        It bridges the gap between open-loop transfer function data (which is easy to obtain from
+                        Bode plots or frequency response tests) and closed-loop pole locations (which decide
+                        transient performance and stability).</p>
+                </div>
+            </div>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.1.png" alt="Figure 6.1">
+                <div class="svg-cap">Fig 6.1 — Root locus transforms the closed-loop characteristic equation into a
+                    visual map of pole movement versus gain K.</div>
+            </div>
+
+            <h3 class="sub">What Root Locus Tells the Designer</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Direct Uses</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Range of K for which the system remains stable</li>
+                        <li><span class="dot">▸</span>Value of K for a desired damping ratio ζ</li>
+                        <li><span class="dot">▸</span>Effect of adding poles/zeros (compensators) on stability</li>
+                        <li><span class="dot">▸</span>Break-in/breakaway points → real-root behaviour regions</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Where It Connects</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Routh-Hurwitz:</strong> gives stable K range
+                            algebraically; root locus gives it graphically with pole trajectories</li>
+                        <li><span class="dot">▸</span><strong>Bode/Nyquist:</strong> frequency-domain view of the
+                            same open-loop G(s)H(s) used here</li>
+                        <li><span class="dot">▸</span><strong>Compensator design:</strong> lead/lag networks reshape
+                            the locus to meet transient specs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: ANGLE & MAGNITUDE CONDITIONS ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">6.2</span>
+                <h2 class="sec-t">Angle and Magnitude Conditions</h2>
+            </div>
+
+            <p>Consider a unity/non-unity feedback system with open-loop transfer function <strong>G(s)H(s)</strong>
+                and forward gain K. The closed-loop characteristic equation is:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Closed-Loop Characteristic Equation</div>
+                $$1 + K\,G(s)H(s) = 0 \quad\Longrightarrow\quad K\,G(s)H(s) = -1$$
+            </div>
+
+            <p>Since <em>s</em> is complex, this single complex equation splits into two real conditions that any
+                point <em>s</em> on the root locus must satisfy simultaneously.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Angle Condition (defines the locus shape — independent of K)</div>
+                $$\angle G(s)H(s) = (2q+1)\,180^\circ, \qquad q = 0,\pm1,\pm2,\dots$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Magnitude Condition (gives the value of K at any point on the locus)</div>
+                $$K = \frac{1}{|G(s)H(s)|} = \frac{\text{product of lengths from all poles to }s}{\text{product of
+                lengths from all zeros to }s}$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">Why Two Separate Conditions?</div>
+                    <p>The angle condition alone decides <em>which points in the s-plane qualify</em> as closed-loop
+                        pole locations — this is what you sketch. The magnitude condition is only used
+                        <em>afterward</em>, to find the specific gain K that places the pole at a particular point
+                        already known to lie on the locus. You never need magnitude to sketch the locus itself.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Geometric Interpretation</h3>
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.2.png" alt="Figure 6.2">
+                <div class="svg-cap">Fig 6.2 — For any trial point s, sum the angles from every zero and subtract
+                    the sum of angles from every pole. If the result is an odd multiple of 180°, s lies on the root
+                    locus.</div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Angle Condition — General Form</span>
+
+                <span class="fh">For n poles, m zeros:</span>
+                \(\Sigma(\text{angles from zeros to } s) - \Sigma(\text{angles from poles to } s) = (2q+1)\cdot
+                180^\circ\)
+
+                <span class="fh">Magnitude Condition — General Form</span>
+                \(K = \frac{\prod (\text{distance from each pole to } s)}{\prod (\text{distance from each zero to }
+                s)}\)
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Misconception</div>
+                    <p>Students often try to use the magnitude condition to sketch the locus. This is backwards —
+                        magnitude gives K only after a point is confirmed to satisfy the angle condition. Sketching
+                        always starts with angle condition and construction rules; magnitude is the last step, used
+                        only to size K at a chosen operating point.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: CONSTRUCTION RULES ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">6.3</span>
+                <h2 class="sec-t">Rules for Construction of Root Locus</h2>
+            </div>
+
+            <p>Evans reduced the sketching problem to a set of rules derived directly from the angle condition. Apply
+                them in order and the shape of the locus emerges without solving the characteristic equation for
+                every K.</p>
+
+            <h3 class="sub">Rule 1 — Number of Branches</h3>
+            <div class="callout c-info">
+                <div class="ci">①</div>
+                <div class="cb">
+                    <div class="ct">Number of Branches = n</div>
+                    <p>The number of root locus branches equals the number of open-loop poles, <strong>n</strong>
+                        (the higher of poles/zeros count). Each branch starts at an open-loop pole (K = 0) and ends
+                        either at an open-loop zero or at infinity (K → ∞).</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Rule 2 — Starting and Ending Points</h3>
+            <p>Since <em>K = 0</em> makes the characteristic equation reduce to the open-loop poles, every branch
+                originates at a pole. As <em>K → ∞</em>, the equation is dominated by zeros, so <strong>m</strong>
+                branches terminate on the <strong>m</strong> finite open-loop zeros, and the remaining
+                <strong>(n − m)</strong> branches travel to infinity along asymptotes.
+            </p>
+
+            <h3 class="sub">Rule 3 — Locus on the Real Axis</h3>
+            <div class="callout c-key">
+                <div class="ci">③</div>
+                <div class="cb">
+                    <div class="ct">Real-Axis Segment Rule</div>
+                    <p>A point on the real axis is part of the root locus if the <strong>total number of real poles
+                            and zeros to its right is odd</strong>. This comes directly from the angle condition — real
+                        poles/zeros to the right each contribute 180°, while those to the left contribute 0°.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Rule 4 — Asymptotes (Behaviour as s → ∞)</h3>
+            <div class="math-block">
+                <div class="math-lbl">Number and Angles of Asymptotes</div>
+                $$\text{Number of asymptotes} = n - m$$
+                $$\theta_a = \frac{(2q+1)\,180^\circ}{n-m}, \qquad q = 0, 1, 2, \dots, (n-m-1)$$
+            </div>
+            <div class="math-block">
+                <div class="math-lbl">Centroid — where all asymptotes intersect on the real axis</div>
+                $$\sigma_a = \frac{\Sigma(\text{real parts of poles}) - \Sigma(\text{real parts of zeros})}{n-m}$$
+            </div>
+
+            <h3 class="sub">Rule 5 — Breakaway and Break-in Points</h3>
+            <p>Points where two or more branches meet on the real axis and then separate (breakaway) or merge back
+                in from the complex plane (break-in). Covered in full detail in §6.4.</p>
+
+            <h3 class="sub">Rule 6 — Angle of Departure / Arrival</h3>
+            <p>At complex poles, branches leave at a specific angle (angle of departure); at complex zeros, branches
+                arrive at a specific angle (angle of arrival). Covered in §6.5.</p>
+
+            <h3 class="sub">Rule 7 — Intersection With the Imaginary Axis</h3>
+            <p>Found using the Routh-Hurwitz array (auxiliary equation from the row that would go to zero) or by
+                substituting <em>s = jω</em> directly into the characteristic equation and equating real and
+                imaginary parts to zero. This gives the marginal gain K<sub>mar</sub> and the frequency of sustained
+                oscillation.</p>
+
+            <div class="svg-wrap">
+                <img src="images/ch6/fig6.3.png" alt="Figure 6.3">
+                <div class="svg-cap">Fig 6.3 — Complete sketch: 3 poles at 0, −2, −4. Real-axis locus lies between 0
+                    and −2 (odd count to the right). Breakaway point near −0.85. Three asymptotes at 60°, 180°, 300°
+                    meeting at centroid −2. Locus crosses the jω-axis at the marginal gain.</div>
+            </div>
+
+            <h3 class="sub">Rule Summary Table</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rule</th>
+                            <th>Governs</th>
+                            <th>Key Formula</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Branches</td>
+                            <td>Total number of loci</td>
+                            <td>= n (number of open-loop poles)</td>
+                        </tr>
+                        <tr>
+                            <td>Start / End</td>
+                            <td>K = 0 and K = ∞ points</td>
+                            <td>Start at poles, end at zeros or ∞</td>
+                        </tr>
+                        <tr>
+                            <td>Real-axis segment</td>
+                            <td>Which real-axis stretches are on locus</td>
+                            <td>Odd count of poles+zeros to the right</td>
+                        </tr>
+                        <tr>
+                            <td>Asymptotes</td>
+                            <td>Behaviour as s → ∞</td>
+                            <td class="t-org">θ_a = (2q+1)180°/(n−m)</td>
+                        </tr>
+                        <tr>
+                            <td>Centroid</td>
+                            <td>Asymptote intersection</td>
+                            <td class="t-org">σ_a = (Σp − Σz)/(n−m)</td>
+                        </tr>
+                        <tr>
+                            <td>Breakaway/break-in</td>
+                            <td>Real-axis merge/split points</td>
+                            <td class="t-tel">dK/ds = 0</td>
+                        </tr>
+                        <tr>
+                            <td>Departure/arrival</td>
+                            <td>Angle at complex poles/zeros</td>
+                            <td class="t-tel">θ_d = 180° − Σθ_p + Σθ_z</td>
+                        </tr>
+                        <tr>
+                            <td>jω crossing</td>
+                            <td>Marginal stability gain</td>
+                            <td class="t-grn">Routh array / s = jω substitution</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S4: BREAKAWAY AND BREAK-IN POINTS ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">6.4</span>
+                <h2 class="sec-t">Breakaway and Break-in Points</h2>
+            </div>
+
+            <p>When two branches of the root locus approach each other along the real axis, meet, and then depart
+                into the complex plane as a complex-conjugate pair, the meeting point is called a
+                <strong>breakaway point</strong>. The reverse — two complex-conjugate branches returning to the real
+                axis and then separating along it — is called a <strong>break-in point</strong>.
+            </p>
+
+            <div class="callout c-info">
+                <div class="ci">🔍</div>
+                <div class="cb">
+                    <div class="ct">Intuitive Understanding</div>
+                    <p>Between two real poles (or a pole and a zero, or two zeros), the gain K is not monotonic —
+                        it rises to a local maximum (breakaway, going pole-to-pole) or falls to a local minimum
+                        (break-in, going zero-to-zero) as s moves along that real-axis stretch. The breakaway point
+                        is exactly where dK/ds = 0, the point of maximum gain sensitivity on that segment.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Standard Method — dK/ds = 0</h3>
+            <p>From the characteristic equation <em>1 + K G(s)H(s) = 0</em>, solve for K as a function of s, then
+                differentiate and set to zero.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">General Breakaway-Point Condition</div>
+                $$K = \frac{-1}{G(s)H(s)} \quad\Longrightarrow\quad \frac{dK}{ds} = 0$$
+            </div>
+
+            <div class="fblock"><span class="flbl">Step-by-Step Procedure</span>
+
+                <span class="fh">Step 1:</span> Write characteristic equation \(1 + KG(s)H(s) = 0\)
+                <span class="fh">Step 2:</span> Solve explicitly: \(K = -1 / G(s)H(s)\)
+                <span class="fh">Step 3:</span> Differentiate: \(dK/ds = 0\), solve the resulting polynomial in \(s\)
+                <span class="fh">Step 4:</span> Reject roots NOT lying on the real-axis locus segment (Rule 3)
+                <span class="fh">Step 5:</span> Valid root(s) = breakaway/break-in point(s)
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">Quick Check — Between Two Poles vs Two Zeros</div>
+                    <p>A breakaway point lies <strong>between two poles</strong> on a valid real-axis locus segment
+                        (gain rises then branches leave). A break-in point lies <strong>between two zeros</strong>
+                        (branches arrive from complex plane then split, gain still rising toward the zeros as K→∞).
+                        Between a pole and a zero, the real-axis segment usually has neither — K varies monotonically.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Alternative Method — Repeated Root Test</h3>
+            <p>Since a breakaway point is where two real closed-loop poles coincide (a repeated root), it must
+                simultaneously satisfy the characteristic equation and its derivative:</p>
+            <div class="math-block">
+                $$1 + KG(s)H(s) = 0 \quad \text{and} \quad \frac{d}{ds}\big[1+KG(s)H(s)\big] = 0$$
+            </div>
+            <p>Eliminating K between these two equations gives the same breakaway points without explicitly writing
+                K(s) — useful when G(s)H(s) is awkward to invert.</p>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.4.png" alt="Figure 6.4">
+                <div class="svg-cap">Fig 6.4 — Gain K rises from zero at each pole to a maximum at the breakaway
+                    point, where the two real branches meet and turn into the complex plane.</div>
+            </div>
+        </div>
+
+        <!-- ═══ S5: ANGLE OF DEPARTURE AND ARRIVAL ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">6.5</span>
+                <h2 class="sec-t">Angle of Departure and Angle of Arrival</h2>
+            </div>
+
+            <p>When the open-loop system has a pair of complex-conjugate poles or zeros, the locus does not leave or
+                arrive along the real axis — it leaves/arrives at a specific angle governed by the angle condition
+                applied at a point <em>infinitesimally close</em> to that complex pole or zero.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Angle of Departure (from a complex pole p<sub>k</sub>)</div>
+                $$\theta_d = 180^\circ + \left[\Sigma\,\theta_{\text{zeros}} - \Sigma\,\theta_{\text{other
+                poles}}\right]$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Angle of Arrival (at a complex zero z<sub>k</sub>)</div>
+                $$\theta_a = 180^\circ - \left[\Sigma\,\theta_{\text{other zeros}} -
+                \Sigma\,\theta_{\text{poles}}\right]$$
+            </div>
+
+            <p>Here every angle θ is measured from the reference pole/zero to <em>all other</em> poles and zeros of
+                the system, using the standard convention that angles are measured counter-clockwise from the
+                positive real axis.</p>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.5.png" alt="Figure 6.5">
+                <div class="svg-cap">Fig 6.5 — At the complex pole p₂, the branch departs at angle θ_d computed from
+                    the angles subtended by p₁ and by the conjugate pole p₃.</div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Worked Angle Setup — 3 poles: 0, −2+j3, −2−j3</span>
+
+                <span class="fh">At pole \(p = -2+j3\), angles to other poles:</span>
+                \(\theta(0) = \text{angle from } 0 \text{ to } (-2+j3) = 180^\circ - \tan^{-1}(3/2) = 123.7^\circ\)
+                \(\theta(\bar{p}) = \text{angle from } (-2-j3) \text{ to } (-2+j3) = 90^\circ\)
+
+                <span class="fh">Departure angle:</span>
+                \(\theta_d = 180^\circ - [\theta(0) + \theta(\bar{p})] = 180^\circ - [123.7^\circ + 90^\circ] =
+                -33.7^\circ \text{ (i.e. } 326.3^\circ\text{)}\)
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">Sign Convention Reminder</div>
+                    <p>Angles measured counter-clockwise from the positive real axis are positive. When computing
+                        θ_d or θ_a, be consistent — draw a rough sketch first, mark every angle physically, then
+                        apply the formula. GATE questions frequently test only this angle arithmetic, not the full
+                        locus sketch.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: STABILITY FROM ROOT LOCUS ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">6.6</span>
+                <h2 class="sec-t">System Stability Using Root Locus</h2>
+            </div>
+
+            <p>The single biggest practical use of root locus is reading off <strong>exactly how much gain a
+                    system can tolerate</strong> before it goes unstable, and what damping / speed trade-off exists
+                below that limit — all without re-solving the characteristic equation for each trial K.</p>
+
+            <h3 class="sub">Stability Regions on the Locus</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Stable Region</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>All branches strictly in the <strong>left half
+                                s-plane</strong>
+                        </li>
+                        <li><span class="dot">▸</span>\(0 < K < K_{\text{marginal}}\)</li>
+                        <li><span class="dot">▸</span>Response decays with time</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Marginally Stable</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Locus crosses the <strong>\(j\omega\)-axis</strong> exactly</li>
+                        <li><span class="dot">▸</span>\(K = K_{\text{marginal}} \rightarrow \text{sustained oscillation
+                            at } \omega_{\text{osc}}\)</li>
+                        <li><span class="dot">▸</span>Found from Routh's auxiliary equation row</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Unstable Region</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Any branch enters the <strong>right half s-plane</strong></li>
+                        <li><span class="dot">▸</span>K &gt; K<sub>marginal</sub></li>
+                        <li><span class="dot">▸</span>Response grows without bound</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub">Finding K<sub>marginal</sub> — Two Equivalent Methods</h3>
+            <div class="fblock"><span class="flbl">Method 1 — Routh Array</span>
+
+                Form the Routh array of the closed-loop characteristic equation in terms of \(K\).
+                The row that becomes entirely zero for a critical \(K\) gives \(K_{\text{marginal}}\) directly; the
+                auxiliary equation (from the row above) gives \(\omega_{\text{osc}}\).
+
+                <span class="flbl">Method 2 — Direct Substitution \(s = j\omega\)</span>
+
+                Substitute \(s = j\omega\) into \(1 + K G(s)H(s) = 0\).
+                Separate real and imaginary parts → two equations.
+                Solve simultaneously for \(K\) and \(\omega\) → gives \(K_{\text{marginal}}\), \(\omega_{\text{osc}}\)
+                directly.
+            </div>
+
+            <h3 class="sub">Relating Damping Ratio ζ to the Locus</h3>
+            <p>For a desired transient response (specified overshoot / damping ratio ζ), draw a radial line from the
+                origin at angle <em>cos⁻¹ζ</em> from the negative real axis. Wherever this line intersects the root
+                locus is the closed-loop pole location that gives that ζ; the magnitude condition at that
+                intersection point yields the required K.</p>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.6.png" alt="Figure 6.6">
+                <div class="svg-cap">Fig 6.6 — The intersection of a constant-ζ radial line with the locus fixes both
+                    the closed-loop pole and, via the magnitude condition, the required gain K.</div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">Key Observation</div>
+                    <p>A system that is stable for small K can become unstable for large K if the locus bends into
+                        the right-half plane (common with 3+ poles and no zeros). Conversely, adding a zero (as in
+                        PD or lead compensation) can pull the locus left, increasing the stable gain range — this is
+                        the basis of root-locus-based compensator design in §6.7.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: CONTROLLER DESIGN USING ROOT LOCUS ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">6.7</span>
+                <h2 class="sec-t">Root Locus Based Controller / Compensator Design</h2>
+            </div>
+
+            <p>Root locus is not just an analysis tool — it directly guides <strong>where to place a compensator's
+                    pole and zero</strong> so the locus passes through a desired closed-loop pole location, meeting
+                given transient specifications (settling time, overshoot, rise time).</p>
+
+            <h3 class="sub">Effect of Adding a Zero (Lead / PD Action)</h3>
+            <div class="callout c-info">
+                <div class="ci">➕</div>
+                <div class="cb">
+                    <div class="ct">Adding a Zero Pulls the Locus Left</div>
+                    <p>A zero adds a positive angle contribution (+θ_z) to the angle condition. To keep the total at
+                        (2q+1)180°, the locus bends toward the zero — generally leftward, improving stability margin
+                        and speeding up response. This is the mechanism behind derivative (PD) and lead compensation.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Effect of Adding a Pole (Lag / PI Action)</h3>
+            <div class="callout c-warn">
+                <div class="ci">➖</div>
+                <div class="cb">
+                    <div class="ct">Adding a Pole Pushes the Locus Right</div>
+                    <p>A pole adds a negative angle contribution (−θ_p). The locus bends away from the new pole,
+                        generally rightward — reducing relative stability but improving steady-state accuracy. This
+                        is the mechanism behind integral (PI) and lag compensation. Lag compensators place the added
+                        pole very close to the origin, and a nearby zero, to minimise the adverse shift.</p>
+                </div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Compensator</th>
+                            <th>Adds</th>
+                            <th>Effect on Locus</th>
+                            <th>Improves</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Lead (PD-like)</td>
+                            <td>Zero closer to origin than pole</td>
+                            <td class="t-grn">Shifts locus left</td>
+                            <td>Speed, damping, phase margin</td>
+                        </tr>
+                        <tr>
+                            <td>Lag (PI-like)</td>
+                            <td>Pole closer to origin than zero</td>
+                            <td class="t-amb">Slight rightward shift near origin</td>
+                            <td>Steady-state error</td>
+                        </tr>
+                        <tr>
+                            <td>Lag-Lead</td>
+                            <td>Both a lead and a lag section</td>
+                            <td class="t-tel">Combines both effects</td>
+                            <td>Speed and accuracy together</td>
+                        </tr>
+                        <tr>
+                            <td>Gain-only (P)</td>
+                            <td>Nothing new, only scales K</td>
+                            <td>No shape change, only moves along existing locus</td>
+                            <td>Cannot fix a locus that never meets spec</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Design Procedure — Placing a Compensator Zero</h3>
+            <div class="fblock"><span class="flbl">Lead Compensator Design Steps</span>
+
+                <span class="fh">Step 1:</span> From specs (\(\%OS\), \(t_s\)), find desired \(\zeta\) and \(\omega_n\)
+                <span class="fh">Step 2:</span> Locate desired closed-loop pole \(s_d = -\zeta\omega_n +
+                j\omega_n\sqrt{1-\zeta^2}\)
+                <span class="fh">Step 3:</span> Check angle deficiency at \(s_d\) using existing (uncompensated)
+                poles/zeros:
+                \(\varphi = 180^\circ - [\text{angle condition sum with existing } G(s)H(s)]\)
+                <span class="fh">Step 4:</span> Place compensator zero/pole so its angle contribution exactly supplies
+                \(\varphi\)
+                <span class="fh">Step 5:</span> Verify with magnitude condition → gives compensator/loop gain \(K\)
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">GATE Insight — Angle Deficiency Method</div>
+                    <p>The "angle deficiency" (or angle contribution required) approach is the standard GATE-level
+                        method for lead compensator zero/pole placement — it is asked far more often than full
+                        Bode-based lead design. Practise computing φ for a target pole location quickly.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S8: SOLVED NUMERICAL EXAMPLES ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">6.8</span>
+                <h2 class="sec-t">Solved Numerical Examples</h2>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 6.1</span>
+                    <span class="ex-title">Asymptotes and centroid — G(s)H(s) = K / [s(s+2)(s+4)]</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">For the open-loop transfer function G(s)H(s) = K / [s(s+2)(s+4)], find the
+                        number of asymptotes, their angles, and the centroid.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Given:</strong> Poles at s = 0, −2, −4 → n = 3. No finite zeros → m = 0.</p>
+                    <p><strong>Number of asymptotes</strong> = n − m = 3 − 0 = 3</p>
+                    <div class="math-block">
+                        $$\theta_a = \frac{(2q+1)180^\circ}{3}, \quad q=0,1,2 \;\Rightarrow\; \theta_a = 60^\circ,\
+                        180^\circ,\ 300^\circ$$
+                    </div>
+                    <p><strong>Centroid:</strong></p>
+                    <div class="math-block">
+                        $$\sigma_a = \frac{(0)+(-2)+(-4) - 0}{3-0} = \frac{-6}{3} = -2$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Key Observation</div>
+                            <p>The real-axis locus lies between s = 0 and s = −2 (one pole to the right, an odd
+                                count). The branch from s = −4 travels along the 180° asymptote toward −∞.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 6.2</span>
+                    <span class="ex-title">Breakaway point for the same system</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">Find the breakaway point for G(s)H(s) = K / [s(s+2)(s+4)].</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — Characteristic equation:</strong></p>
+                    <div class="math-block">
+                        $$1 + \frac{K}{s(s+2)(s+4)} = 0 \;\Rightarrow\; K = -s(s+2)(s+4) = -(s^3+6s^2+8s)$$
+                    </div>
+                    <p><strong>Step 2 — Differentiate and set to zero:</strong></p>
+                    <div class="math-block">
+                        $$\frac{dK}{ds} = -(3s^2+12s+8) = 0 \;\Rightarrow\; 3s^2+12s+8=0$$
+                    </div>
+                    <p><strong>Step 3 — Solve the quadratic:</strong></p>
+                    <div class="math-block">
+                        $$s = \frac{-12 \pm \sqrt{144-96}}{6} = \frac{-12 \pm 6.93}{6} \;\Rightarrow\; s=-0.845 \text{
+                        or } s=-3.155$$
+                    </div>
+                    <p><strong>Step 4 — Reject invalid root:</strong> the real-axis locus exists only between 0 and
+                        −2 (Rule 3). So s = −3.155 is rejected (lies outside the valid segment).</p>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Answer</div>
+                            <p>Breakaway point ≈ <strong>s = −0.845</strong>, matching the sketch in Fig 6.3.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 6.3</span>
+                    <span class="ex-title">Marginal gain and jω-crossing via Routh array</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">For G(s)H(s) = K / [s(s+2)(s+4)], find the value of K at which the system
+                        becomes marginally stable, and the frequency of sustained oscillation.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — Characteristic equation:</strong></p>
+                    <div class="math-block">
+                        $$s^3 + 6s^2 + 8s + K = 0$$
+                    </div>
+                    <p><strong>Step 2 — Routh array:</strong></p>
+                    <div class="fblock">
+                        Row \(s^3\) | \(1 \quad 8\)
+                        Row \(s^2\) | \(6 \quad K\)
+                        Row \(s^1\) | \((48-K)/6 \quad 0\)
+                        Row \(s^0\) | \(K\)</div>
+                    <p><strong>Step 3 — Marginal K:</strong> the s¹ row vanishes when 48 − K = 0 → <strong>K =
+                            48</strong>.</p>
+                    <p><strong>Step 4 — Auxiliary equation</strong> (from s² row, at K = 48):</p>
+                    <div class="math-block">
+                        $$6s^2 + 48 = 0 \;\Rightarrow\; s^2=-8 \;\Rightarrow\; s=\pm j2.83$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Answer</div>
+                            <p>K<sub>marginal</sub> = 48. Locus crosses the jω-axis at ω = 2.83 rad/s. For K &lt; 48
+                                the system is stable; K &gt; 48 makes it unstable.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 6.4</span>
+                    <span class="ex-title">Angle of departure — complex pole pair</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">For G(s)H(s) = K / [(s+1)(s²+2s+5)], the complex poles are at s = −1 ± j2 and
+                        a real pole at s = −1. Find the angle of departure from the pole at s = −1 + j2.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Poles:</strong> p₁ = −1 (real), p₂ = −1+j2, p₃ = −1−j2 (conjugate pair). No finite
+                        zeros.</p>
+                    <p><strong>Angle from p₁ to p₂:</strong> vector from (−1,0) to (−1,2) is purely vertical →
+                        θ₁ = 90°</p>
+                    <p><strong>Angle from p₃ to p₂:</strong> vector from (−1,−2) to (−1,2) is purely vertical (length
+                        4, straight up) → θ₃ = 90°</p>
+                    <div class="math-block">
+                        $$\theta_d = 180^\circ - (\theta_1+\theta_3) = 180^\circ - (90^\circ+90^\circ) = 0^\circ$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Answer</div>
+                            <p>The branch departs p₂ = −1+j2 at θ_d = 0° — i.e. it initially moves parallel to the
+                                real axis before curving, a configuration frequently tested in GATE numericals.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S9: COMMON MISTAKES & MEMORY TRICKS ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">6.9</span>
+                <h2 class="sec-t">Common Student Mistakes &amp; Memory Techniques</h2>
+            </div>
+
+            <h3 class="sub">Common Student Mistakes</h3>
+            <div class="two-col">
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Frequent Errors</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Counting poles/zeros <strong>to the left</strong> instead of
+                            to the right for the real-axis rule</li>
+                        <li><span class="dot">▸</span>Forgetting that a repeated pole/zero counts multiple times
+                            (e.g. a double pole counts as 2 in the branch count)</li>
+                        <li><span class="dot">▸</span>Using magnitude condition to sketch the locus instead of
+                            angle condition</li>
+                        <li><span class="dot">▸</span>Confusing breakaway (between poles) with break-in (between
+                            zeros)</li>
+                        <li><span class="dot">▸</span>Sign error in angle of departure formula — forgetting the
+                            180° base term</li>
+                        <li><span class="dot">▸</span>Assuming the locus is always symmetric about the real axis
+                            only — it is symmetric because complex poles/zeros occur in conjugate pairs, not by
+                            default</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">GATE Traps</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Root locus always starts (\(K=0\)) at poles — never at zeros</li>
+                        <li><span class="dot">▸</span>If \(n = m\) (equal poles and zeros), there are <strong>no
+                                asymptotes</strong> — all branches terminate on finite zeros</li>
+                        <li><span class="dot">▸</span>Breakaway point formula \(dK/ds=0\) can give extra roots — always
+                            verify against Rule 3 before accepting</li>
+                        <li><span class="dot">▸</span>A locus need not cross the \(j\omega\)-axis at all — some systems
+                            are
+                            stable for all \(K > 0\) (e.g. first or second order with no zero shift)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub">Memory Techniques</h3>
+            <div class="callout c-key">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic — "POLES START, ZEROS FINISH"</div>
+                    <p>Every branch is <strong>born at a pole</strong> (K=0) and <strong>dies at a zero or at
+                            infinity</strong> (K=∞). Remembering this single sentence fixes Rules 1 and 2 instantly.</p>
+                </div>
+            </div>
+            <div class="callout c-key">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic — "ODD TO THE RIGHT"</div>
+                    <p>For the real-axis rule: count poles+zeros strictly to the <strong>right</strong> of the test
+                        point. <strong>ODD</strong> → on the locus. <strong>EVEN</strong> → not on the locus.</p>
+                </div>
+            </div>
+            <div class="callout c-key">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic — "ZERO PULLS LEFT, POLE PUSHES RIGHT"</div>
+                    <p>Adding a compensator zero bends the locus toward stability (left); adding a pole bends it
+                        toward instability (right). This single line summarises all of lead/lag compensator
+                        intuition for quick recall in the exam hall.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S10: GATE & IES QUESTIONS ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">6.10</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Style Questions</h2>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Number of asymptotes of the root locus</span>
+                    <span class="pyq-year">Concept — 2020</span>
+                </div>
+                <div class="pyq-body">
+                    <p>An open-loop transfer function has 4 poles and 1 finite zero. The number of root locus
+                        branches that go to infinity as K → ∞ is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 1</li>
+                        <li class="correct">(B) 3</li>
+                        <li>(C) 4</li>
+                        <li>(D) 5</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> Number of asymptotic branches = n − m = 4 − 1 = 3. The
+                        remaining 1 branch terminates on the single finite zero.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Real-axis segment identification</span>
+                    <span class="pyq-year">Concept — 2018</span>
+                </div>
+                <div class="pyq-body">
+                    <p>Open-loop poles at s = 0, −1, −3 and a zero at s = −2. Which real-axis segment(s) lie on the
+                        root locus?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) (−1, 0) only</li>
+                        <li class="correct">(B) (−1, 0) and (−3, −2)</li>
+                        <li>(C) (−2, −1) only</li>
+                        <li>(D) Entire negative real axis</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> Test each segment by counting poles+zeros to the right: (−1,0)
+                        has 1 (odd) → on locus. (−2,−1) has 2 (even) → not on locus. (−3,−2) has 3 (odd) → on locus.
+                        Left of −3 has 4 (even) → not on locus.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Effect of adding a pole near the origin</span>
+                    <span class="pyq-year">IES 2017</span>
+                </div>
+                <div class="pyq-body">
+                    <p>Adding an open-loop pole close to the origin (as in a lag compensator), while keeping all
+                        other poles/zeros fixed, generally:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Increases the range of K for stability</li>
+                        <li class="correct">(B) Reduces relative stability but improves steady-state accuracy</li>
+                        <li>(C) Has no effect on the locus shape</li>
+                        <li>(D) Converts all branches into straight lines</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);">
+                        <strong>Explanation:</strong> An added pole contributes a negative angle, pushing the locus
+                        toward the right-half plane (statement B). Placing it very close to the origin (lag
+                        compensation) minimises this adverse shift while still boosting low-frequency (steady-state)
+                        gain, since the compensator is designed to add a near-origin pole–zero pair.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Breakaway point validity check</span>
+                    <span class="pyq-year">Concept — 2022</span>
+                </div>
+                <div class="pyq-body">
+                    <p>Solving dK/ds = 0 for G(s)H(s) = K/[s(s+4)] gives a root at s = −2. Is this point valid as a
+                        breakaway point?</p>
+                    <ul class="pyq-opts">
+                        <li class="correct">(A) Yes — it lies on the real-axis locus segment between the two poles</li>
+                        <li>(B) No — dK/ds=0 never gives valid breakaway points for 2-pole systems</li>
+                        <li>(C) No — breakaway points require at least 3 poles</li>
+                        <li>(D) Cannot be determined without the magnitude condition</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> With poles at 0 and −4, the real-axis segment (−4, 0) is
+                        entirely on the locus (1 pole to the right, odd). s = −2 lies inside this segment, so it is
+                        a valid breakaway point — the midpoint by symmetry for two real poles with no zeros.
+                    </p>
+                </div>
+            </div>
+
+            <!-- ═══ ASK CLAUDE WIDGET ═══ -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">💬 Ask Aarova AI — Root Locus Doubts</div>
+                <p>Stuck on a breakaway point, an angle of departure calculation, or a GATE root locus PYQ? Ask
+                    directly.</p>
+                <div class="ai-input-row">
+                    <input type="text" class="ai-input" id="userQ"
+                        placeholder="e.g. Why do asymptotes intersect at the centroid?">
+                    <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('Derive the breakaway point formula dK/ds=0 from first principles for a 2-pole system.')">Derive
+                        dK/ds=0</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain step by step how to find the angle of departure at a complex pole with a worked numerical example.')">Angle
+                        of departure walkthrough</span>
+                    <span class="ai-chip"
+                        onclick="setQ('How does adding a lead compensator zero change the root locus and improve settling time? Explain with the angle deficiency method.')">Lead
+                        compensator design</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Find the marginal gain K and frequency of oscillation for G(s)H(s)=K/[s(s+1)(s+3)] using the Routh array.')">Marginal
+                        K numerical</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <!-- ═══ SUMMARY GRID ═══ -->
+            <h3 class="sub">Chapter Summary</h3>
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Fundamentals</div>
+                    <p>Root locus plots closed-loop pole paths as \(K: 0 \rightarrow \infty\). Governed by
+                        \(1+KG(s)H(s)=0\). Angle condition
+                        decides shape; magnitude condition gives \(K\).</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Conditions</div>
+                    <p>Angle: \(\angle G(s)H(s) = (2q+1)180^\circ\). Magnitude: \(K = 1/|G(s)H(s)| = \frac{\text{product
+                        of pole distances}}{\text{product of zero distances}}\).</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Construction Rules</div>
+                    <p>Branches = \(n\). Start at poles, end at zeros/\(\infty\). Real-axis rule: odd count to the
+                        right.
+                        Asymptotes: \((2q+1)180^\circ/(n-m)\), centroid = \((\Sigma p - \Sigma z)/(n-m)\).</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Breakaway / Break-in</div>
+                    <p>Solve \(dK/ds=0\), keep only roots on a valid real-axis segment. Breakaway: between two poles.
+                        Break-in: between two zeros.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Departure / Arrival</div>
+                    <p>\(\theta_d = 180^\circ - \Sigma\theta_{\text{poles}} + \Sigma\theta_{\text{zeros}}\) at a complex
+                        pole. \(\theta_a = 180^\circ - \Sigma\theta_{\text{zeros}} + \Sigma\theta_{\text{poles}}\) at a
+                        complex zero.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Stability &amp; Design</div>
+                    <p>\(j\omega\)-crossing gives \(K_{\text{marginal}}\) (Routh or \(s=j\omega\)). Zero \(\rightarrow\)
+                        shifts locus left (lead/PD). Pole \(\rightarrow\)
+                        shifts locus right (lag/PI). Angle-deficiency method places compensator zero for target \(\zeta,
+                        \omega_n\).
+                    </p>
+                </div>
+            </div>
+
+
+
+            <!-- ═══ CITATIONS ═══ -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived
+                    from the following standard textbooks and learning resources. All explanations, derivations,
+                    diagrams and examples are original to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Nagrath, I.J. and Gopal, M. <em>Control Systems
+                                Engineering</em>, 6th ed. New Age International, 2017. Chapter 6 — Root locus technique:
+                            construction rules, breakaway points, angle conditions.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Ogata, Katsuhiko. <em>Modern Control
+                                Engineering</em>, 5th ed. Pearson, 2010. Chapter 6 — Root-locus analysis and controller
+                            design using root locus.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Kuo, Benjamin C. and Golnaraghi, Farid.
+                            <em>Automatic Control Systems</em>, 9th ed. Wiley, 2009. Chapter 8 — Root locus method,
+                            angle of departure and arrival.</span></li>
+                    <li><span class="cite-num">[4]</span><span>IIT Madras NPTEL. <em>Control Systems — Lectures on
+                                Root Locus Technique</em>. National Programme on Technology Enhanced Learning.
+                            nptel.ac.in. Root locus construction and compensator design.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Control Systems Series &nbsp;·&nbsp; Chapter 6 of
+                10<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All
+                    explanations and diagrams are original to Aarova AI. Derived from standard textbooks
+                    [1–5].</span>
+            </footer>
+        </div>
+
+        <script>
+            function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+            async function askClaude() {
+                const q = document.getElementById('userQ').value.trim(); if (!q) return;
+                const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+                btn.textContent = 'Thinking…'; btn.disabled = true;
+                resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+                const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Control Systems. Topic: Root Locus Technique (Chapter 6). Cover angle/magnitude conditions, construction rules, breakaway/break-in points, angle of departure/arrival, stability analysis, and compensator design using root locus. Answer with step-by-step working for numericals. Base answers on Nagrath & Gopal, Ogata, Kuo. All content is original.`;
+                try {
+                    const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                    const data = await res.json();
+                    resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+                } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+                btn.textContent = 'Ask Claude'; btn.disabled = false;
+            }
+            document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+            /* Responsive SVG scroll hints on mobile */
+            (function () {
+                if (window.innerWidth > 600) return;
+                document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                    const hint = document.createElement('div');
+                    hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                    hint.textContent = '← scroll to see full diagram →';
+                    wrap.appendChild(hint);
+                    wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+                });
+            })();
+        </script>
+    </div>
+</body>
+
+</html>

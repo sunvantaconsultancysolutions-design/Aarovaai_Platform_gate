@@ -1,0 +1,3075 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Control Systems Ch.8 Nyquist &amp; Bode Stability Analysis</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- KaTeX for LaTeX math rendering -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 80%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TABLE OF CONTENTS ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH (KaTeX) display ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COLUMN CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 20px;
+            border-bottom: 1px solid var(--bg3);
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            position: absolute;
+            left: 0;
+            top: 6px;
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── ASK CLAUDE WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* ════ LARGE DESKTOP 1024+ ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Control Systems Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 08 &nbsp;·&nbsp; Control Systems</div>
+            <h1 class="hero-title">Nyquist &amp; <em>Bode</em> Stability Analysis</h1>
+            <p class="hero-desc">Frequency-domain stability analysis using Cauchy's argument principle, the Nyquist
+                stability criterion, Nyquist plots, Bode magnitude and phase plots, gain crossover and phase crossover
+                frequencies, and gain/phase margins — the most heavily tested topic in GATE and IES Control Systems.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Follows Ch.7 — Frequency Response Fundamentals</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div><span class="pp">Chapter 8 of 10</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">8.1</span>Why Frequency-Domain Stability?</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">8.6</span>Bode Phase Plot</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">8.2</span>Cauchy's Argument Principle</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">8.7</span>Gain &amp; Phase Margin</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">8.3</span>Nyquist Stability Criterion</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">8.8</span>Stability from Bode Plots</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">8.4</span>Nyquist Plot Construction</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">8.9</span>Solved Numericals</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">8.5</span>Bode Magnitude Plot</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">8.10</span>GATE &amp; IES Questions</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: WHY FREQUENCY-DOMAIN STABILITY ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">8.1</span>
+                <h2 class="sec-t">Why Frequency-Domain Stability Analysis?</h2>
+            </div>
+
+            <p>So far in this series, stability has been checked using the <strong>Routh-Hurwitz criterion</strong>
+                (purely algebraic, works only on the closed-loop characteristic equation) and the <strong>root
+                    locus</strong> (traces closed-loop pole locations as gain K varies, but needs the open-loop transfer
+                function in factored pole-zero form). Both methods share a limitation: they need a mathematical model of
+                the plant. In practice, many industrial plants — a furnace, a chemical reactor, an amplifier — are only
+                known through their measured <strong>frequency response</strong>: apply a sine wave of frequency ω at
+                the input, measure the magnitude and phase shift of the output sine wave.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚙️</div>
+                <div class="cb">
+                    <div class="ct">The Engineering Problem This Solves</div>
+                    <p>Given only experimentally measured magnitude and phase data of the open-loop system G(s)H(s) —
+                        with no algebraic transfer function required — how do we predict whether the <strong>closed
+                            loop</strong> will be stable? This is exactly what Nyquist and Bode analysis provide, and it
+                        is why frequency response methods are indispensable in industrial control, RF/communication
+                        systems, and power electronics feedback loops.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Where This Fits in the Control Systems Toolkit</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Time-Domain / Algebraic Tools</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Routh-Hurwitz — needs characteristic equation coefficients</li>
+                        <li><span class="dot">▸</span>Root Locus — needs open-loop poles/zeros, tracks K</li>
+                        <li><span class="dot">▸</span>Cannot be applied directly to systems with time delay
+                            e<sup>-sT</sup></li>
+                        <li><span class="dot">▸</span>Cannot use experimentally measured frequency data directly</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Frequency-Domain Tools (This Chapter)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Nyquist Criterion — works with experimental G(jω) data</li>
+                        <li><span class="dot">▸</span>Bode Plots — asymptotic straight-line approximations, easy hand
+                            sketching</li>
+                        <li><span class="dot">▸</span>Handles pure time delay naturally (phase = −ωT)</li>
+                        <li><span class="dot">▸</span>Gives a <strong>relative</strong> stability measure (margin), not
+                            just yes/no</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The Central Idea</div>
+                    <p>Both methods examine how the open-loop transfer function <strong>G(s)H(s)</strong> maps points on
+                        a chosen contour in the s-plane to the complex GH-plane. The Nyquist plot studies this mapping
+                        directly on the complex plane; the Bode plot studies the same information split into two
+                        separate curves — magnitude in dB and phase in degrees — each plotted against log ω. They are
+                        two views of the exact same underlying frequency-response data.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Real-World Engineering Applications</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Domain</th>
+                            <th>Application of Nyquist / Bode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Power Electronics</td>
+                            <td>Stability of voltage-mode / current-mode feedback loops in SMPS and inverters; phase
+                                margin &ge; 45&deg; is a standard design target</td>
+                        </tr>
+                        <tr>
+                            <td>Power Systems</td>
+                            <td>Automatic Voltage Regulator (AVR) and governor loop tuning; stability margins for
+                                wide-area damping controllers</td>
+                        </tr>
+                        <tr>
+                            <td>Electric Drives</td>
+                            <td>Current-loop and speed-loop compensator design in motor drives, ensuring adequate
+                                gain/phase margin under load variation</td>
+                        </tr>
+                        <tr>
+                            <td>Communication Systems</td>
+                            <td>Phase-locked loop (PLL) stability analysis, feedback amplifier stability against
+                                parasitic oscillation</td>
+                        </tr>
+                        <tr>
+                            <td>Industrial Automation</td>
+                            <td>PID auto-tuning software uses measured Bode data (relay-feedback tests) instead of a
+                                derived plant model</td>
+                        </tr>
+                        <tr>
+                            <td>Aerospace</td>
+                            <td>Flight-control-loop stability margins are a certification requirement, verified using
+                                Nyquist/Bode analysis</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S2: CAUCHY'S ARGUMENT PRINCIPLE ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">8.2</span>
+                <h2 class="sec-t">Cauchy's Argument Principle — The Mathematical Foundation</h2>
+            </div>
+
+            <p>The Nyquist criterion is a direct engineering application of a classical result from complex analysis
+                called <strong>Cauchy's Argument Principle</strong>. Understanding it intuitively — before the formula —
+                makes the whole chapter click.</p>
+
+            <div class="callout c-info">
+                <div class="ci">🎯</div>
+                <div class="cb">
+                    <div class="ct">Intuitive Picture</div>
+                    <p>Imagine F(s) is a function with some poles and zeros in the s-plane. Draw any closed curve in the
+                        s-plane that does not pass through a pole or zero. Now walk along this curve and, at every
+                        point, plot the value F(s) on a second complex plane (the "F-plane"). As s completes one full
+                        trip around the closed curve, the mapped point F(s) traces its own closed curve. The
+                        <strong>number of times this new curve encircles the origin</strong> tells you exactly how many
+                        more zeros than poles of F(s) were enclosed inside your original curve.
+                    </p>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Cauchy's Argument Principle</div>
+                $$N = Z - P$$
+                <p style="font-size:13px;color:var(--text3);margin-top:6px;">N = number of clockwise encirclements of
+                    the origin by F(s) as s traverses the closed contour clockwise &nbsp;|&nbsp; Z = number of zeros of
+                    F(s) enclosed by the contour &nbsp;|&nbsp; P = number of poles of F(s) enclosed by the contour</p>
+            </div>
+
+            <h3 class="sub">Applying This to Control Systems</h3>
+            <p>For a unity or non-unity feedback system, the closed-loop characteristic equation is <strong>1 + G(s)H(s)
+                    = 0</strong>. Define:</p>
+
+            <div class="fblock"><span class="flbl">Key Substitution</span>
+
+                <span class="fh">Let</span> \(F(s) = 1 + G(s)H(s)\)
+
+                <span class="fh">Zeros of \(F(s)\)</span> = roots of \(1 + G(s)H(s) = 0\) = <span class="fv">closed-loop
+                    poles</span>
+                <span class="fh">Poles of \(F(s)\)</span> = poles of \(G(s)H(s)\) = <span class="fv">open-loop
+                    poles</span>
+
+                For <span class="fv">closed-loop stability</span>, we need <span class="fv">\(Z = 0\)</span>
+                (no closed-loop poles in the right half s-plane)
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Why Not Plot F(s) = 1 + G(s)H(s) Directly?</div>
+                    <p>We instead plot G(s)H(s) itself (which engineers can measure/compute directly) and count
+                        encirclements of the point <strong>−1 + j0</strong> instead of the origin. This is because
+                        encirclements of the origin by F(s) = 1 + G(s)H(s) are identical to encirclements of the point
+                        −1+j0 by G(s)H(s) — shifting the plot left by 1 unit shifts what we call "origin" to "−1". This
+                        single trick is what makes the Nyquist plot practical: you plot the familiar open-loop frequency
+                        response and just watch how it behaves near the −1 point.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: NYQUIST STABILITY CRITERION ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">8.3</span>
+                <h2 class="sec-t">The Nyquist Stability Criterion &amp; The Nyquist Contour</h2>
+            </div>
+
+            <p>To count Z (closed-loop RHP poles) using N = Z − P, the contour chosen in the s-plane must enclose the
+                <strong>entire right half of the s-plane</strong> — because that is the unstable region we must keep
+                empty. This special contour is called the <strong>Nyquist contour</strong>.
+            </p>
+
+            <h3 class="sub">Constructing the Nyquist Contour</h3>
+            <div class="two-col">
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Three Pieces of the Contour</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Path 1:</strong> Up the positive imaginary axis, s = jω, ω
+                            : 0 → +∞</li>
+                        <li><span class="dot">▸</span><strong>Path 2:</strong> A semicircle of infinite radius R → ∞
+                            through the entire right half plane, closing the contour</li>
+                        <li><span class="dot">▸</span><strong>Path 3:</strong> Down the negative imaginary axis, s = jω,
+                            ω : −∞ → 0</li>
+                        <li><span class="dot">▸</span><strong>Indentation:</strong> a small semicircular detour of
+                            radius ε → 0 around any open-loop pole sitting exactly ON the imaginary axis (e.g. a pole at
+                            the origin, s = 0)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Why the Indentation Is Needed</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Cauchy's principle requires F(s) to have no poles or zeros exactly
+                            ON the contour</li>
+                        <li><span class="dot">▸</span>A Type-1, Type-2… system has open-loop pole(s) at s = 0, sitting
+                            exactly on the proposed path</li>
+                        <li><span class="dot">▸</span>We detour around it with an infinitesimal semicircle bulging into
+                            the right half plane, so the pole is excluded from (not enclosed by) the contour</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch8/fig8.1.png" alt="Figure 8.1">
+                <div class="svg-cap">Fig 8.1 — The Nyquist contour: travels up the j&omega; axis, an infinite semicircle
+                    through the entire right-half s-plane, back down the &minus;j&omega; axis, with a small indentation
+                    (radius &epsilon; &rarr; 0) around the open-loop pole at the origin. The contour encloses every
+                    point in the right half plane.</div>
+            </div>
+
+            <h3 class="sub">Stating the Nyquist Stability Criterion</h3>
+            <p>Applying Cauchy's principle to F(s) = 1 + G(s)H(s) over this contour, and using the −1 shift explained
+                above, gives the working form of the criterion used to analyse feedback systems:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Nyquist Stability Criterion</div>
+                $$Z = N + P$$
+                <p style="font-size:13px;color:var(--text3);margin-top:6px;">Z = number of closed-loop poles in the RHP
+                    &nbsp;|&nbsp; N = number of <em>clockwise</em> encirclements of the point (&minus;1 + j0) by the
+                    G(s)H(s) plot &nbsp;|&nbsp; P = number of open-loop poles of G(s)H(s) in the RHP</p>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Stability Condition — Memorise This Exactly</div>
+                    <p>Closed-loop system is <strong>stable</strong> if and only if <strong>Z = 0</strong>, i.e.
+                        <strong>N = −P</strong>. In words: the Nyquist plot of G(s)H(s) must encircle the point
+                        (&minus;1+j0) exactly P times in the <strong>counter-clockwise (anticlockwise)</strong>
+                        direction, where P is the number of open-loop poles already in the right half plane. If the
+                        open-loop system is itself stable (P = 0), the closed loop is stable if and only if the Nyquist
+                        plot does <strong>not encircle</strong> −1+j0 at all.
+                    </p>
+                </div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Case</th>
+                            <th>Open-Loop Poles in RHP (P)</th>
+                            <th>Required Encirclements of &minus;1</th>
+                            <th>Closed-Loop Stability</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Stable open loop, no encirclement</td>
+                            <td class="t-grn">P = 0</td>
+                            <td>N = 0</td>
+                            <td class="t-grn">Stable (Z = 0)</td>
+                        </tr>
+                        <tr>
+                            <td>Stable open loop, CW encirclement</td>
+                            <td>P = 0</td>
+                            <td class="t-red">N = 1 (clockwise)</td>
+                            <td class="t-red">Unstable (Z = 1)</td>
+                        </tr>
+                        <tr>
+                            <td>Unstable open loop, correct CCW encirclements</td>
+                            <td class="t-amb">P = 2</td>
+                            <td>N = &minus;2 (i.e. 2 CCW)</td>
+                            <td class="t-grn">Stable (Z = 0)</td>
+                        </tr>
+                        <tr>
+                            <td>Unstable open loop, insufficient encirclement</td>
+                            <td>P = 2</td>
+                            <td>N = &minus;1</td>
+                            <td class="t-red">Unstable (Z = 1)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✅</div>
+                <div class="cb">
+                    <div class="ct">GATE Shortcut — Most Problems Have P = 0</div>
+                    <p>The overwhelming majority of GATE/IES problems use open-loop stable plants (P = 0). In that
+                        common case the rule collapses to a single sentence: <strong>the Nyquist plot must not encircle
+                            the point (&minus;1+j0)</strong>. If it does encircle −1 at all (in either direction), the
+                        closed loop is unstable, and the number of clockwise encirclements directly equals the number of
+                        unstable closed-loop poles.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S4: NYQUIST PLOT CONSTRUCTION ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">8.4</span>
+                <h2 class="sec-t">Constructing the Nyquist Plot — Step by Step</h2>
+            </div>
+
+            <p>The <strong>Nyquist plot</strong> is simply the image of the Nyquist contour (Fig 8.1) under the mapping
+                G(s)H(s), drawn on the complex GH-plane. Since the contour is symmetric about the real axis (the +jω and
+                −jω halves are mirror images) and G(s)H(s) has real coefficients, the resulting plot is always symmetric
+                about the real axis too — this halves the work.</p>
+
+            <div class="fblock"><span class="flbl">General Procedure</span>
+
+                <span class="fh">Step 1 —</span> Substitute \(s = j\omega\) into \(G(s)H(s)\)
+
+                <span class="fh">Step 2 —</span> Compute \(|G(j\omega)H(j\omega)|\) and \(\angle G(j\omega)H(j\omega)\)
+                for \(\omega = 0 \to +\infty\)
+                (use standard limits: \(\omega \to 0\) and \(\omega \to \infty\) are the two most important points)
+
+                <span class="fh">Step 3 —</span> Plot the locus in the complex plane for \(\omega : 0 \to +\infty\)
+
+                <span class="fh">Step 4 —</span> Mirror the locus about the real axis to get \(\omega : -\infty \to 0\)
+                (complex conjugate of Step 3, since \(G(-j\omega)H(-j\omega) = [G(j\omega)H(j\omega)]^*\))
+
+                <span class="fh">Step 5 —</span> If there is an open-loop pole at the origin (Type \(\ge 1\) system),
+                join the two branches with a large-radius arc at infinity, sweeping clockwise through \(90^\circ\) per
+                pole at the origin
+
+                <span class="fh">Step 6 —</span> Count encirclements \(N\) of \((-1+j0)\); apply \(Z = N + P\)
+            </div>
+
+            <h3 class="sub">Worked Example — Type-1, Third-Order System</h3>
+            <p>Consider the open-loop transfer function used throughout this chapter as a running example:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Running Example System</div>
+                $$G(s)H(s) = \frac{20}{s(1+0.1s)(1+0.2s)}$$
+            </div>
+
+            <p>This system has one open-loop pole at the origin (s = 0) and two real poles at s = −10 and s = −5, so
+                <strong>P = 0</strong> (no open-loop poles in the RHP — the open loop is stable). Substituting s = jω:
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">Magnitude and Phase</div>
+                $$|G(j\omega)H(j\omega)| = \frac{20}{\omega\sqrt{1+0.01\omega^2}\sqrt{1+0.04\omega^2}}$$
+                $$\angle G(j\omega)H(j\omega) = -90^\circ - \tan^{-1}(0.1\omega) - \tan^{-1}(0.2\omega)$$
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>&#969; (rad/s)</th>
+                            <th>|G(j&#969;)H(j&#969;)|</th>
+                            <th>Phase</th>
+                            <th>Re</th>
+                            <th>Im</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0&#8314; (small)</td>
+                            <td>&#8594; &#8734;</td>
+                            <td>&#8594; &minus;90&deg;</td>
+                            <td>&#8594; 0&#8315;</td>
+                            <td>&#8594; &minus;&#8734;</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>19.51</td>
+                            <td>&minus;107.0&deg;</td>
+                            <td>&minus;5.70</td>
+                            <td>&minus;18.66</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>9.11</td>
+                            <td>&minus;123.1&deg;</td>
+                            <td>&minus;4.98</td>
+                            <td>&minus;7.63</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>2.53</td>
+                            <td>&minus;161.6&deg;</td>
+                            <td>&minus;2.40</td>
+                            <td>&minus;0.80</td>
+                        </tr>
+                        <tr>
+                            <td class="t-org">7.07</td>
+                            <td class="t-org">1.33</td>
+                            <td class="t-org">&minus;180.0&deg;</td>
+                            <td class="t-org">&minus;1.33</td>
+                            <td class="t-org">0</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>0.63</td>
+                            <td>&minus;198.4&deg;</td>
+                            <td>&minus;0.60</td>
+                            <td>+0.20</td>
+                        </tr>
+                        <tr>
+                            <td>20</td>
+                            <td>0.11</td>
+                            <td>&minus;229.4&deg;</td>
+                            <td>&minus;0.07</td>
+                            <td>+0.08</td>
+                        </tr>
+                        <tr>
+                            <td>&#8734;</td>
+                            <td>0</td>
+                            <td>&minus;270&deg;</td>
+                            <td>0</td>
+                            <td>0&#8314;</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">📍</div>
+                <div class="cb">
+                    <div class="ct">The Single Most Important Row in the Table</div>
+                    <p>At &#969; = 7.07 rad/s the phase is exactly &minus;180&deg;, meaning the plot crosses the
+                        <strong>negative real axis</strong> at this frequency. This is the <strong>phase crossover
+                            frequency</strong> (&#969;<sub>pc</sub>), and the crossing occurs at Re = &minus;1.33 — to
+                        the <strong>left</strong> of the critical point &minus;1+j0. This single number determines the
+                        entire stability verdict.
+                    </p>
+                </div>
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch8/fig8.2.png" alt="Figure 8.2">
+                <div class="svg-cap">Fig 8.2 — Nyquist plot of G(s)H(s) = 20 / [s(1+0.1s)(1+0.2s)]. Solid orange: &#969;
+                    = 0&#8314; &#8594; &#8734;. Dashed teal: mirror image for &#969; = &minus;&#8734; &#8594; 0&#8315;.
+                    Dotted grey: infinite-radius arc mapping the small indentation around the pole at the origin. The
+                    curve passes to the <strong>left</strong> of &minus;1+j0 and encircles it once in the clockwise
+                    sense.</div>
+            </div>
+
+            <h3 class="sub">Reading the Stability Verdict Off the Plot</h3>
+            <p>Tracing the plot in the direction of increasing ω (the arrows), the curve passes <strong>to the
+                    left</strong> of the point −1+j0 — that is, it wraps <strong>clockwise around −1</strong> exactly
+                once as ω sweeps from −∞ to +∞. Applying the criterion:</p>
+
+            <div class="fblock"><span class="flbl">Applying Z = N + P</span>
+
+                \(P = 0\) (open loop already stable — no RHP poles)
+                \(N = +1\) (one <span class="fv">clockwise</span> encirclement of \(-1+j0\))
+
+                \(Z = N + P = 1 + 0 = \) <span class="fv">\(1\)</span>
+
+                \(\Rightarrow\) One closed-loop pole lies in the right-half s-plane
+                \(\Rightarrow\) <span class="fh">Closed-loop system is UNSTABLE</span></div>
+
+            <div class="callout c-danger">
+                <div class="ci">🛑</div>
+                <div class="cb">
+                    <div class="ct">Interpreting the Result Physically</div>
+                    <p>Even though the open-loop plant (integrator plus two lag poles) is perfectly well-behaved on its
+                        own, closing the unity-feedback loop with this much gain (K = 20) drives the system unstable —
+                        the classic effect of too much loop gain combined with too much phase lag from multiple poles.
+                        Reducing K (which shrinks the entire plot radially toward the origin) would eventually pull the
+                        −180° crossing point back inside −1, restoring stability. This is exactly the design insight
+                        Bode plots make effortless — see Section 8.7.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Special Cases Worth Memorising</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Curve Passes to the Right of &minus;1</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>No encirclement, N = 0</li>
+                        <li><span class="dot">▸</span>If P = 0, then Z = 0 &#8594; stable</li>
+                        <li><span class="dot">▸</span>Gain K can be increased before the curve reaches &minus;1</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Curve Passes Exactly Through &minus;1</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Marginal stability — a pair of closed-loop poles sits exactly on
+                            the j&#969; axis</li>
+                        <li><span class="dot">▸</span>System oscillates with sustained (undamped) oscillations</li>
+                        <li><span class="dot">▸</span>This K is called the <strong>critical gain</strong> — same K found
+                            by Routh-Hurwitz's auxiliary equation method</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S5: BODE MAGNITUDE PLOT ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">8.5</span>
+                <h2 class="sec-t">Bode Magnitude Plot — Asymptotic Construction</h2>
+            </div>
+
+            <p>Henrik Bode's insight was to plot <strong>20 log<sub>10</sub>|G(jω)H(jω)|</strong> (in decibels, dB)
+                against <strong>log<sub>10</sub>ω</strong> instead of plotting the complex locus directly. Because the
+                transfer function is a product of simple factors, and log converts products into sums, the overall
+                magnitude plot becomes the <strong>sum of simple straight-line segments</strong> — one per factor — that
+                can be sketched by hand in minutes, without a single point-by-point calculation.</p>
+
+            <div class="callout c-info">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">Why Decibels and Log Frequency?</div>
+                    <p>dB = 20 log<sub>10</sub>|G(jω)|. Taking the log of a product
+                        G<sub>1</sub>·G<sub>2</sub>·G<sub>3</sub> turns it into a sum: 20log|G<sub>1</sub>| +
+                        20log|G<sub>2</sub>| + 20log|G<sub>3</sub>|. Each simple factor (pole, zero, or gain) then
+                        contributes an independent straight line on the dB-vs-log&omega; axes, and straight lines simply
+                        add.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Building Block Rules — Memorise These Four</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Factor</th>
+                            <th>Asymptotic Magnitude Behaviour</th>
+                            <th>Slope</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Constant gain K</td>
+                            <td>Horizontal line at 20log<sub>10</sub>K, all &omega;</td>
+                            <td>0 dB/decade</td>
+                        </tr>
+                        <tr>
+                            <td>Pole/zero at origin, (j&omega;)<sup>&#8723;n</sup></td>
+                            <td>Straight line through &omega;=1 at 0 dB, for all &omega;</td>
+                            <td class="t-org">&#8723;20n dB/decade (always, no corner)</td>
+                        </tr>
+                        <tr>
+                            <td>Simple pole, 1/(1+j&omega;/&omega;<sub>1</sub>)</td>
+                            <td>0 dB for &omega; &lt; &omega;<sub>1</sub>; breaks downward at &omega; =
+                                &omega;<sub>1</sub></td>
+                            <td class="t-red">&minus;20 dB/decade after corner</td>
+                        </tr>
+                        <tr>
+                            <td>Simple zero, (1+j&omega;/&omega;<sub>1</sub>)</td>
+                            <td>0 dB for &omega; &lt; &omega;<sub>1</sub>; breaks upward at &omega; =
+                                &omega;<sub>1</sub></td>
+                            <td class="t-grn">+20 dB/decade after corner</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The Corner (Break) Frequency</div>
+                    <p>For a first-order factor (1 + j&omega;/&omega;<sub>1</sub>)<sup>&#8723;1</sup>, the "corner
+                        frequency" &omega;<sub>1</sub> = 1/&tau; is exactly where the asymptotic straight line changes
+                        slope. Below &omega;<sub>1</sub> the term contributes ~0 dB (negligible); above
+                        &omega;<sub>1</sub> it contributes &#8723;20 dB/decade. The maximum error between the true curve
+                        and the asymptotic approximation is exactly <strong>3 dB, occurring at &omega; =
+                            &omega;<sub>1</sub> itself</strong> — a very common GATE fact.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Worked Example — Sketching G(s)H(s) = 20 / [s(1+0.1s)(1+0.2s)]</h3>
+            <p>Rewrite in standard Bode (time-constant) form and identify each factor:</p>
+
+            <div class="fblock"><span class="flbl">Factor-by-Factor Breakdown</span>
+
+                \(G(j\omega)H(j\omega) = \frac{20}{j\omega (1+j0.1\omega)(1+j0.2\omega)}\)
+
+                <span class="fh">Factor 1:</span> \(K = 20 \to\) horizontal line at \(20\log(20) = 26.02\text{ dB}\)
+                <span class="fh">Factor 2:</span> \(1/(j\omega) \to\) \(-20\text{ dB/decade}\) line through \(\omega=1\)
+                at \(0\text{ dB}\) (no corner, Type-1 pole)
+                <span class="fh">Factor 3:</span> \(1/(1+j0.1\omega) \to\) corner at \(\omega_1 = 1/0.1 = \) <span
+                    class="fv">\(5\text{ rad/s}\)</span>, slope \(-20\text{ dB/dec}\) after
+                <span class="fh">Factor 4:</span> \(1/(1+j0.2\omega) \to\) corner at \(\omega_2 = 1/0.2 = \) <span
+                    class="fv">\(10\text{ rad/s}\)</span>, slope \(-20\text{ dB/dec}\) after
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Frequency Range</th>
+                            <th>Active Slope Contributions</th>
+                            <th>Net Slope</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>&#969; &lt; 5 rad/s</td>
+                            <td>Only the pole at origin is active</td>
+                            <td class="t-org">&minus;20 dB/decade</td>
+                        </tr>
+                        <tr>
+                            <td>5 &lt; &#969; &lt; 10 rad/s</td>
+                            <td>Origin pole + pole at &#969;=5</td>
+                            <td class="t-red">&minus;40 dB/decade</td>
+                        </tr>
+                        <tr>
+                            <td>&#969; &gt; 10 rad/s</td>
+                            <td>Origin pole + pole at &#969;=5 + pole at &#969;=10</td>
+                            <td class="t-red">&minus;60 dB/decade</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch8/fig8.3.png" alt="Figure 8.3">
+                <div class="svg-cap">Fig 8.3 — Asymptotic Bode magnitude plot. Slope is &minus;20 dB/decade below
+                    &#969;=5, breaks to &minus;40 dB/decade between the two corner frequencies, and &minus;60 dB/decade
+                    beyond &#969;=10. The curve crosses 0 dB at the gain crossover frequency &#969;<sub>gc</sub> = 10
+                    rad/s.</div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✏️</div>
+                <div class="cb">
+                    <div class="ct">Hand-Sketching Shortcut for GATE</div>
+                    <p>Start the line at any convenient low frequency using dB = 20log<sub>10</sub>K &minus;
+                        20n·log<sub>10</sub>&#969; (n = type number), draw with the initial slope of &minus;20n
+                        dB/decade, then simply <strong>bend the line by &minus;20 dB/decade at every pole corner
+                            frequency and by +20 dB/decade at every zero corner frequency</strong>, in ascending order
+                        of corner frequency. No point-by-point computation is required — this is exactly why Bode plots
+                        are the preferred hand-sketching tool over Nyquist plots in exams.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: BODE PHASE PLOT ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">8.6</span>
+                <h2 class="sec-t">Bode Phase Plot</h2>
+            </div>
+
+            <p>The phase plot is built the same additive way: each simple factor contributes its own arctangent phase
+                curve, and the total phase is the algebraic sum, plotted against log&omega;.</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Factor</th>
+                            <th>Phase Contribution &#8736;</th>
+                            <th>&#969;=0</th>
+                            <th>&#969;=&#8734;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Constant gain K &gt; 0</td>
+                            <td>0&deg; (always)</td>
+                            <td>0&deg;</td>
+                            <td>0&deg;</td>
+                        </tr>
+                        <tr>
+                            <td>Pole at origin, 1/(j&#969;)<sup>n</sup></td>
+                            <td>&minus;90n&deg; (constant, all &#969;)</td>
+                            <td>&minus;90n&deg;</td>
+                            <td>&minus;90n&deg;</td>
+                        </tr>
+                        <tr>
+                            <td>Simple pole, 1/(1+j&#969;/&#969;&#8321;)</td>
+                            <td>&minus;tan&#8315;&#185;(&#969;/&#969;&#8321;)</td>
+                            <td>0&deg;</td>
+                            <td>&minus;90&deg;</td>
+                        </tr>
+                        <tr>
+                            <td>Simple zero, (1+j&#969;/&#969;&#8321;)</td>
+                            <td>+tan&#8315;&#185;(&#969;/&#969;&#8321;)</td>
+                            <td>0&deg;</td>
+                            <td>+90&deg;</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">Rule of Thumb for Sketching Phase</div>
+                    <p>Each simple-pole phase curve passes through <strong>&minus;45&deg; exactly at its own corner
+                            frequency</strong> and is essentially flat (0&deg; or &minus;90&deg;) a decade below/above
+                        the corner. A common hand-sketching approximation draws the transition as a straight line from
+                        0&deg; at &#969;<sub>1</sub>/10 to &minus;90&deg; at 10&#969;<sub>1</sub>, passing through
+                        &minus;45&deg; at &#969;<sub>1</sub>.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Worked Example — Phase Curve for the Running Example</h3>
+            <div class="math-block">
+                <div class="math-lbl">Total Phase</div>
+                $$\angle G(j\omega)H(j\omega) = -90^\circ - \tan^{-1}(0.1\omega) - \tan^{-1}(0.2\omega)$$
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>&#969; (rad/s)</th>
+                            <th>0.1</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>5</th>
+                            <th>7.07</th>
+                            <th>10</th>
+                            <th>20</th>
+                            <th>50</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Phase</td>
+                            <td>&minus;91.7&deg;</td>
+                            <td>&minus;107.0&deg;</td>
+                            <td>&minus;123.1&deg;</td>
+                            <td>&minus;161.6&deg;</td>
+                            <td class="t-org">&minus;180.0&deg;</td>
+                            <td class="t-red">&minus;198.4&deg;</td>
+                            <td>&minus;229.4&deg;</td>
+                            <td>&minus;253.0&deg;</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch8/fig8.4.png" alt="Figure 8.4">
+                <div class="svg-cap">Fig 8.4 — Bode phase plot. Phase falls monotonically from &minus;90&deg;
+                    (&#969;&#8594;0, one pole at origin) toward &minus;270&deg; (&#969;&#8594;&#8734;, three poles
+                    total). Crosses &minus;180&deg; at &#969;<sub>pc</sub>=7.07 rad/s.</div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: GAIN MARGIN & PHASE MARGIN ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">8.7</span>
+                <h2 class="sec-t">Gain Crossover, Phase Crossover, Gain Margin &amp; Phase Margin</h2>
+            </div>
+
+            <p>Bode plots don't just answer "stable or unstable?" — they quantify <strong>how far</strong> the system is
+                from instability. This is the single biggest advantage over a plain yes/no Routh-Hurwitz check, and it
+                is why gain margin and phase margin are universal design specifications in industry.</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Gain Crossover Frequency, &#969;<sub>gc</sub></div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>The frequency at which |G(j&#969;)H(j&#969;)| = 1, i.e. <strong>0
+                                dB</strong></li>
+                        <li><span class="dot">▸</span>Found from the <strong>magnitude</strong> plot</li>
+                        <li><span class="dot">▸</span>In our example: &#969;<sub>gc</sub> = 10 rad/s</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Phase Crossover Frequency, &#969;<sub>pc</sub></div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>The frequency at which &#8736;G(j&#969;)H(j&#969;) =
+                            <strong>&minus;180&deg;</strong>
+                        </li>
+                        <li><span class="dot">▸</span>Found from the <strong>phase</strong> plot</li>
+                        <li><span class="dot">▸</span>In our example: &#969;<sub>pc</sub> = 7.07 rad/s</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Gain Margin (GM)</div>
+                $$\text{GM (dB)} = -20\log_{10}|G(j\omega_{pc})H(j\omega_{pc})| = 0 - (\text{dB value of the magnitude
+                curve at } \omega_{pc})$$
+                <p style="font-size:13px;color:var(--text3);margin-top:6px;">GM is the extra gain (in dB) that can be
+                    added before the magnitude curve reaches 0 dB exactly at the frequency where phase is already
+                    &minus;180&deg;.</p>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Phase Margin (PM)</div>
+                $$\text{PM} = 180^\circ + \angle G(j\omega_{gc})H(j\omega_{gc})$$
+                <p style="font-size:13px;color:var(--text3);margin-top:6px;">PM is the additional phase lag that can be
+                    tolerated at the gain crossover frequency before the phase reaches &minus;180&deg; exactly where the
+                    magnitude is already 0 dB.</p>
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch8/fig8.5.png" alt="Figure 8.5">
+                <div class="svg-cap">Fig 8.5 — Combined Bode plot for the running example. Both margins are negative: GM
+                    = &minus;6.02 dB and PM = &minus;18.43&deg;, which agrees with the Nyquist-plot verdict
+                    (encirclement of &minus;1) that this closed loop is unstable at K = 20.</div>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Sign Convention — the Most Exam-Critical Rule in This Chapter</div>
+                    <p><strong>Positive GM and positive PM &#8658; stable.</strong> <strong>Negative GM or negative PM
+                            &#8658; unstable.</strong> A negative gain margin means the magnitude curve is already
+                        <em>above</em> 0 dB at &#969;<sub>pc</sub> (too much gain at the &minus;180&deg; frequency). A
+                        negative phase margin means the phase curve has already fallen <em>below</em> &minus;180&deg; at
+                        &#969;<sub>gc</sub> (too much phase lag at the 0 dB frequency). Both margins always carry the
+                        <strong>same sign</strong> for a well-posed single-loop system — if you compute one positive and
+                        one negative, re-check your working.
+                    </p>
+                </div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>&#969;<sub>gc</sub> vs &#969;<sub>pc</sub></th>
+                            <th>GM</th>
+                            <th>PM</th>
+                            <th>Stability</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="t-grn">&#969;<sub>gc</sub> &lt; &#969;<sub>pc</sub></td>
+                            <td class="t-grn">Positive</td>
+                            <td class="t-grn">Positive</td>
+                            <td class="t-grn">Stable</td>
+                        </tr>
+                        <tr>
+                            <td class="t-red">&#969;<sub>gc</sub> &gt; &#969;<sub>pc</sub></td>
+                            <td class="t-red">Negative</td>
+                            <td class="t-red">Negative</td>
+                            <td class="t-red">Unstable</td>
+                        </tr>
+                        <tr>
+                            <td>&#969;<sub>gc</sub> = &#969;<sub>pc</sub></td>
+                            <td>0 dB</td>
+                            <td>0&deg;</td>
+                            <td class="t-amb">Marginally stable</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🎯</div>
+                <div class="cb">
+                    <div class="ct">Industry Design Targets</div>
+                    <p>Typical practical design specifications call for <strong>GM ≥ 6 dB</strong> and <strong>PM
+                            between 30&deg; and 60&deg;</strong> (45&deg; is the most common single-number target). Too
+                        little margin risks instability from real-world parameter drift and unmodelled dynamics; too
+                        much margin (very large PM) usually means a sluggish, overly conservative response. PM also has
+                        a direct time-domain link: <strong>higher PM &#8658; lower peak overshoot</strong> and better
+                        damping in the closed-loop step response — the approximate relation &#950; &#8776; PM/100 (PM in
+                        degrees) is a well-known GATE rule of thumb for PM up to about 70&deg;.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S8: STABILITY FROM BODE PLOTS ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">8.8</span>
+                <h2 class="sec-t">Reading Stability Directly From Bode Plots</h2>
+            </div>
+
+            <p>With &#969;<sub>gc</sub>, &#969;<sub>pc</sub>, GM and PM defined, stability assessment from a Bode plot
+                reduces to a single visual check, without ever drawing the Nyquist plot.</p>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The One-Line Rule (for open-loop-stable, minimum-phase systems, P = 0)</div>
+                    <p>The closed loop is stable <strong>if and only if the gain crossover frequency occurs before the
+                            phase crossover frequency</strong>, i.e. <strong>&#969;<sub>gc</sub> &lt;
+                            &#969;<sub>pc</sub></strong>. Equivalently: at the frequency where the magnitude curve
+                        crosses 0 dB, the phase must still be above (less negative than) &minus;180&deg;.</p>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Stable Picture</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Magnitude crosses 0 dB <strong>while phase is still above
+                                &minus;180&deg;</strong></li>
+                        <li><span class="dot">▸</span>&#969;<sub>gc</sub> &lt; &#969;<sub>pc</sub></li>
+                        <li><span class="dot">▸</span>GM &gt; 0, PM &gt; 0</li>
+                        <li><span class="dot">▸</span>Nyquist plot passes to the <strong>right</strong> of &minus;1</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Unstable Picture (our example)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Magnitude is <strong>still above</strong> 0 dB when phase reaches
+                            &minus;180&deg;</li>
+                        <li><span class="dot">▸</span>&#969;<sub>gc</sub> &gt; &#969;<sub>pc</sub> (10 &gt; 7.07 here)
+                        </li>
+                        <li><span class="dot">▸</span>GM &lt; 0, PM &lt; 0</li>
+                        <li><span class="dot">▸</span>Nyquist plot passes to the <strong>left</strong> of &minus;1</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub">The Role of Loop Gain K — Design Insight</h3>
+            <p>Increasing K in G(s)H(s) shifts the <strong>entire magnitude curve up</strong> (by 20log<sub>10</sub>K)
+                without changing the phase curve at all (gain has zero phase contribution). This means
+                &#969;<sub>pc</sub> is completely independent of K, while &#969;<sub>gc</sub> moves to the right as K
+                increases. There is therefore a unique <strong>critical gain K<sub>c</sub></strong> at which
+                &#969;<sub>gc</sub> exactly equals &#969;<sub>pc</sub> — this is the marginal-stability gain, identical
+                to the value found from Routh-Hurwitz's auxiliary-equation method or from the root-locus jω-axis
+                crossing.</p>
+
+            <div class="fblock"><span class="flbl">Finding Critical Gain K_c for the Running Example</span>
+
+                At \(\omega = \omega_{pc} = 7.07\text{ rad/s}\), the plot must pass exactly through \(-1+j0\).
+
+                \(|G(j7.07)H(j7.07)|\) at \(K=20\) was found to be \(1.33\) (Section 8.4)
+                For marginal stability we need \(|G(j7.07)H(j7.07)| = 1\) exactly
+
+                <span class="fh">\(K_c = K \times (1/1.33) = 20/1.33 \approx 15.0\)</span>
+
+                Check: this matches the \(K_c\) obtained from Routh's array for
+                \(s(1+0.1s)(1+0.2s) + K = 0 \to 0.02s^3 + 0.3s^2 + s + K = 0\)
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✅</div>
+                <div class="cb">
+                    <div class="ct">Why This Cross-Check Matters</div>
+                    <p>Nyquist/Bode analysis and Routh-Hurwitz are two completely independent mathematical routes to the
+                        <strong>same</strong> critical gain — a powerful way to self-verify answers under exam time
+                        pressure. If your Bode-plot K<sub>c</sub> and your Routh-array K<sub>c</sub> disagree, you have
+                        made an arithmetic error somewhere.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S9: SOLVED NUMERICALS ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">8.9</span>
+                <h2 class="sec-t">Solved Numericals</h2>
+            </div>
+
+            <!-- Example 1 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 8.1</span>
+                    <span class="ex-title">Number of RHP closed-loop poles from encirclement count</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">The open-loop transfer function G(s)H(s) has 2 poles in the right-half s-plane (P
+                        = 2). Its Nyquist plot encircles the point &minus;1+j0 twice in the counter-clockwise direction.
+                        Determine the number of closed-loop poles in the right-half s-plane and comment on stability.
+                    </div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Given:</strong> P = 2, counter-clockwise encirclements = 2 &nbsp;&#8658;&nbsp; by sign
+                        convention, clockwise encirclements N = &minus;2.</p>
+                    <div class="math-block">
+                        $$Z = N + P = (-2) + 2 = 0$$
+                    </div>
+                    <p>Since Z = 0, there are <strong>no</strong> closed-loop poles in the right-half s-plane.</p>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Conclusion</div>
+                            <p>The closed-loop system is <strong>stable</strong>, even though the open loop itself was
+                                unstable (P = 2 &gt; 0). This illustrates the general principle: feedback can stabilise
+                                an unstable open-loop plant, provided the Nyquist plot encircles &minus;1 exactly P
+                                times counter-clockwise — the precise number needed to "cancel" the open-loop
+                                instability.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 8.2</span>
+                    <span class="ex-title">Phase margin from a simple first-order-plus-integrator loop</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A unity-feedback system has G(s) = 50 / [s(s+5)]. Find the gain crossover
+                        frequency and the phase margin. Comment on stability.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — Standard time-constant form:</strong></p>
+                    <div class="math-block">
+                        $$G(s) = \frac{50}{s(s+5)} = \frac{10}{s(1+0.2s)}$$
+                    </div>
+                    <p><strong>Step 2 — Magnitude and phase:</strong></p>
+                    <div class="math-block">
+                        $$|G(j\omega)| = \frac{10}{\omega\sqrt{1+0.04\omega^2}} \qquad \angle G(j\omega) = -90^\circ -
+                        \tan^{-1}(0.2\omega)$$
+                    </div>
+                    <p><strong>Step 3 — Find &#969;<sub>gc</sub> by setting |G(j&#969;)| = 1:</strong></p>
+                    <p>Since the corner frequency (&#969;=5) is well above the likely crossover, first try the
+                        low-frequency asymptote |G| &#8776; 10/&#969;: setting 10/&#969;<sub>gc</sub> = 1 gives
+                        &#969;<sub>gc</sub> &#8776; 10 rad/s. But 10 &gt; 5 (corner), so the asymptote assumption is
+                        invalid — solve exactly instead:</p>
+                    <div class="math-block">
+                        $$\frac{10}{\omega\sqrt{1+0.04\omega^2}} = 1 \implies 100 = \omega^2(1+0.04\omega^2) \implies
+                        0.04\omega^4 + \omega^2 - 100 = 0$$
+                    </div>
+                    <p>Let x = &#969;&#178;: 0.04x&#178; + x &minus; 100 = 0 &#8658; x = [&minus;1 + &#8730;(1+16)] /
+                        0.08 = [&minus;1+4.123]/0.08 &#8776; 39.04 &#8658; <strong>&#969;<sub>gc</sub> &#8776; 6.25
+                            rad/s</strong></p>
+                    <p><strong>Step 4 — Phase margin:</strong></p>
+                    <div class="math-block">
+                        $$\angle G(j6.25) = -90^\circ - \tan^{-1}(0.2\times6.25) = -90^\circ - \tan^{-1}(1.25) =
+                        -90^\circ - 51.3^\circ = -141.3^\circ$$
+                        $$\text{PM} = 180^\circ - 141.3^\circ = 38.7^\circ$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Conclusion</div>
+                            <p>PM = 38.7&deg; &gt; 0 &#8658; the closed loop is <strong>stable</strong>, with a moderate
+                                margin somewhat below the ideal 45&deg; target — acceptable but not generous. Since this
+                                system has only 2 poles total, phase can never reach &minus;180&deg; at any finite
+                                &#969; (max phase lag &#8594; &minus;180&deg; only as &#969;&#8594;&#8734;), so
+                                &#969;<sub>pc</sub> does not exist at a finite frequency and GM = +&#8734; — a
+                                second-order Type-1 loop with no finite zero is <strong>unconditionally stable</strong>
+                                for all K &gt; 0, a well-known GATE fact.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 8.3</span>
+                    <span class="ex-title">Effect of pure time delay on phase margin</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">The system of Example 8.2 is fitted with a sensor that introduces a pure transport
+                        delay of T = 0.05 s, so that G(s) = 10e<sup>&minus;0.05s</sup> / [s(1+0.2s)]. Find the new phase
+                        margin at the same &#969;<sub>gc</sub> = 6.25 rad/s (magnitude is unaffected by delay) and
+                        comment.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>A pure time delay e<sup>&minus;sT</sup> has magnitude 1 (0 dB) at all frequencies — it does not
+                        shift &#969;<sub>gc</sub> — but adds a phase lag of &minus;&#969;T radians that grows linearly
+                        (and unboundedly) with frequency:</p>
+                    <div class="math-block">
+                        $$\angle e^{-j\omega T} = -\omega T \text{ (radians)} = -\frac{180\,\omega T}{\pi} \text{
+                        (degrees)}$$
+                    </div>
+                    <p>At &#969;<sub>gc</sub> = 6.25 rad/s, T = 0.05 s: additional phase =
+                        &minus;(6.25)(0.05)(180/&#960;) = &minus;0.3125 rad = &minus;17.9&deg;</p>
+                    <div class="math-block">
+                        $$\text{New PM} = 38.7^\circ - 17.9^\circ = 20.8^\circ$$
+                    </div>
+                    <div class="callout c-warn">
+                        <div class="ci">⚠️</div>
+                        <div class="cb">
+                            <div class="ct">Conclusion &amp; Engineering Insight</div>
+                            <p>The system is still stable (PM = 20.8&deg; &gt; 0) but the margin has dropped sharply and
+                                now sits below any comfortable design target. This example demonstrates the single
+                                biggest practical strength of frequency-response methods over Routh-Hurwitz or root
+                                locus: <strong>time delay cannot be handled exactly by either of those algebraic
+                                    techniques</strong> (e<sup>&minus;sT</sup> is not a polynomial), yet it drops
+                                directly and exactly into a Bode phase calculation as a linear phase term.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S10: GATE & IES QUESTIONS ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">8.10</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Nyquist encirclement — closed-loop stability condition</span>
+                    <span class="pyq-year">Concept — Recurring</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The open-loop transfer function of a unity-feedback system is stable and has no poles in the
+                        right-half s-plane. For the closed-loop system to be stable, the Nyquist plot of G(s)H(s) must:
+                    </p>
+                    <ul class="pyq-opts">
+                        <li>(A) Encircle the origin once in the clockwise direction</li>
+                        <li class="correct">(B) Not encircle the point (&minus;1+j0) at all</li>
+                        <li>(C) Encircle the point (&minus;1+j0) once in the clockwise direction</li>
+                        <li>(D) Pass through the point (&minus;1+j0)</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);"><strong>Explanation:</strong> With P
+                        = 0 (open loop already stable), the criterion Z = N + P reduces to Z = N. For closed-loop
+                        stability we need Z = 0, so N must be 0 — no encirclement of &minus;1+j0 in either direction.
+                        This is the single most frequently tested Nyquist fact in GATE.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Phase margin from crossover frequencies — numerical</span>
+                    <span class="pyq-year">Numerical — Recurring pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p>For a certain open-loop system, the gain crossover frequency is 4 rad/s where the phase is
+                        &minus;130&deg;, and the phase crossover frequency is 8 rad/s where the gain is &minus;10 dB.
+                        The phase margin and gain margin of the system are:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) PM = &minus;50&deg;, GM = &minus;10 dB</li>
+                        <li class="correct">(B) PM = 50&deg;, GM = 10 dB</li>
+                        <li>(C) PM = 130&deg;, GM = 8 dB</li>
+                        <li>(D) PM = 50&deg;, GM = &minus;10 dB</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);"><strong>Explanation:</strong> PM =
+                        180&deg; + &#8736;G(j&#969;<sub>gc</sub>) = 180 + (&minus;130) = 50&deg;. GM = &minus;(dB value
+                        at &#969;<sub>pc</sub>) = &minus;(&minus;10) = 10 dB. Both margins are positive and
+                        &#969;<sub>gc</sub> (4) &lt; &#969;<sub>pc</sub> (8), consistent with a stable system — always
+                        sanity-check that both signs agree.</p>
+                </div>
+            </div>
+
+            <!-- IES PYQ -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Bode magnitude slope for a Type-2 system</span>
+                    <span class="pyq-year">IES — Recurring pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The initial slope of the Bode magnitude plot of a Type-2 system (two poles at the origin) at very
+                        low frequencies is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 0 dB/decade</li>
+                        <li>(B) &minus;20 dB/decade</li>
+                        <li class="correct">(C) &minus;40 dB/decade</li>
+                        <li>(D) &minus;60 dB/decade</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);"><strong>Explanation:</strong> A pole
+                        at the origin of multiplicity n contributes a constant slope of &minus;20n dB/decade at all
+                        frequencies below the first finite corner frequency (it has no corner of its own). For Type-2
+                        (n=2), the initial slope is &minus;40 dB/decade — memorise "Type number &times; (&minus;20
+                        dB/decade) = initial slope" as a direct formula.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 4 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Effect of increasing loop gain K on stability margins</span>
+                    <span class="pyq-year">Concept — Recurring</span>
+                </div>
+                <div class="pyq-body">
+                    <p>For a minimum-phase open-loop stable system, if the loop gain K is increased (all poles/zeros
+                        unchanged), which of the following statements is correct?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Both &#969;<sub>gc</sub> and &#969;<sub>pc</sub> increase</li>
+                        <li class="correct">(B) &#969;<sub>gc</sub> increases; &#969;<sub>pc</sub> stays unchanged; gain
+                            and phase margins reduce</li>
+                        <li>(C) &#969;<sub>pc</sub> increases; &#969;<sub>gc</sub> stays unchanged</li>
+                        <li>(D) Neither crossover frequency changes</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);"><strong>Explanation:</strong>
+                        Increasing K shifts the magnitude plot up by 20log<sub>10</sub>K with zero effect on phase, so
+                        &#969;<sub>pc</sub> (defined purely by the phase curve) is unchanged, while &#969;<sub>gc</sub>
+                        (where the now-higher magnitude curve crosses 0 dB) moves right, closer to &#969;<sub>pc</sub>.
+                        Both GM and PM shrink as a direct consequence — this is the standard "how much can I raise the
+                        gain" design question.</p>
+                </div>
+            </div>
+
+            <!-- IES PYQ 2 -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Nyquist criterion — number of unstable poles from N and
+                        P</span>
+                    <span class="pyq-year">IES — Numerical pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p>An open-loop transfer function has one pole in the right-half s-plane. Its Nyquist plot encircles
+                        &minus;1+j0 once in the clockwise direction. The number of closed-loop poles in the right-half
+                        s-plane is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 0</li>
+                        <li>(B) 1</li>
+                        <li class="correct">(C) 2</li>
+                        <li>(D) Cannot be determined</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);"><strong>Explanation:</strong> P = 1,
+                        clockwise encirclement means N = +1 (positive N convention for clockwise). Z = N + P = 1 + 1 =
+                        2. This is a favourite IES trap — students often forget that when P &gt; 0, a clockwise
+                        encirclement makes matters strictly worse (adds to, rather than cancels, the instability),
+                        unlike the P = 0 case.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Quick Revision — Memory Tricks</h3>
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic: "GM guards the Gain axis, PM guards the Phase axis"</div>
+                    <p><strong>G</strong>ain <strong>M</strong>argin is read off the <strong>m</strong>agnitude plot at
+                        the <strong>p</strong>hase crossover frequency (&#969;<sub>pc</sub>) — note the cross-over: gain
+                        margin needs the phase-crossover point. <strong>P</strong>hase <strong>M</strong>argin is read
+                        off the <strong>p</strong>hase plot at the <strong>g</strong>ain crossover frequency
+                        (&#969;<sub>gc</sub>) — phase margin needs the gain-crossover point. Each margin is always
+                        measured at the <em>other</em> curve's crossover frequency.</p>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The "Z = N + P, Stability needs Z = 0" Chain</div>
+                    <p>Write this exact sequence on your rough sheet in every Nyquist problem: <strong>(1)</strong>
+                        Count P from the open-loop transfer function (poles with positive real part).
+                        <strong>(2)</strong> Count N from the plot (clockwise encirclements of &minus;1, positive sign
+                        for clockwise). <strong>(3)</strong> Compute Z = N + P. <strong>(4)</strong> Stable only if Z =
+                        0. This four-step chain resolves essentially every GATE/IES Nyquist question without needing to
+                        actually sketch the full plot.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ AI WIDGET ═══ -->
+        <div class="ai-prompt">
+            <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+            <p>Have a question on Nyquist plots, Bode plots, gain/phase margin, or crossover frequencies? Type below or
+                pick a suggestion.</p>
+            <div class="ai-input-row">
+                <input class="ai-input" id="userQ" type="text"
+                    placeholder="e.g. Sketch the Bode plot for G(s)=100/[s(s+2)(s+10)] and find the phase margin…">
+                <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+            </div>
+            <div class="ai-suggest">
+                <span class="ai-chip"
+                    onclick="setQ('Explain step by step why the Nyquist contour needs a small indentation around a pole at the origin, and which side it bulges to and why.')">Why
+                    indent around origin pole?</span>
+                <span class="ai-chip"
+                    onclick="setQ('For G(s)H(s) = K/[s(s+2)(s+10)], find the critical value of K for marginal stability using the Bode plot method, and verify using Routh-Hurwitz.')">Find
+                    K_c — Bode vs Routh</span>
+                <span class="ai-chip"
+                    onclick="setQ('What is a minimum-phase system and why does the Bode stability criterion (ωgc < ωpc) only apply to minimum-phase, open-loop-stable systems?')">Minimum-phase
+                    systems?</span>
+                <span class="ai-chip"
+                    onclick="setQ('Derive the relation ζ ≈ PM/100 between phase margin and damping ratio for a standard second-order system.')">PM
+                    vs damping ratio &#950;</span>
+                <span class="ai-chip"
+                    onclick="setQ('A system has G(s)H(s) = 10/[s²(1+0.5s)]. Sketch the Nyquist plot and determine closed-loop stability, including the effect of the double pole at the origin.')">Type-2
+                    system Nyquist plot</span>
+            </div>
+            <div class="ai-response" id="aiResp"></div>
+        </div>
+
+        <!-- ═══ SUMMARY GRID ═══ -->
+        <h3 class="sub">Chapter Summary</h3>
+        <div class="sum-grid">
+            <div class="sum-card sc-o">
+                <div class="sum-lbl">Cauchy &amp; Nyquist Criterion</div>
+                <p>\(N = Z - P\) for any \(F(s)\). Setting \(F(s) = 1+G(s)H(s)\) and shifting to count encirclements of
+                    \(-1\) gives \(Z = N + P\). Stable \(\iff Z = 0 \iff N = -P\).</p>
+            </div>
+            <div class="sum-card sc-g">
+                <div class="sum-lbl">Nyquist Contour &amp; Plot</div>
+                <p>Contour: \(+j\omega\) axis, infinite semicircle through RHP, \(-j\omega\) axis, with
+                    \(\epsilon\)-indentation around \(j\omega\)-axis poles. Plot is symmetric about the real axis.</p>
+            </div>
+            <div class="sum-card sc-t">
+                <div class="sum-lbl">Bode Magnitude Plot</div>
+                <p>\(20\log|G(j\omega)|\) vs \(\log\omega\). Straight-line asymptotes: pole/zero at origin gives
+                    constant
+                    \(\mp 20n\text{ dB/dec}\); simple pole/zero bends \(\mp 20\text{ dB/dec}\) at its corner frequency
+                    \(\omega=1/\tau\).
+                </p>
+            </div>
+            <div class="sum-card sc-a">
+                <div class="sum-lbl">Bode Phase Plot</div>
+                <p>Phase = sum of individual \(\angle\)factor contributions. Pole at origin: constant \(-90n^\circ\).
+                    Simple pole: \(-\tan^{-1}(\omega/\omega_1)\), passing through \(-45^\circ\) at its
+                    own corner.</p>
+            </div>
+            <div class="sum-card sc-r">
+                <div class="sum-lbl">Crossover Frequencies</div>
+                <p>\(\omega_{gc}\): where \(|G(j\omega)H(j\omega)| = 1\) (\(0\text{ dB}\)) &mdash; from magnitude plot.
+                    \(\omega_{pc}\): where \(\angle G(j\omega)H(j\omega) = -180^\circ\) &mdash; from phase plot.
+                </p>
+            </div>
+            <div class="sum-card sc-g">
+                <div class="sum-lbl">Gain &amp; Phase Margin</div>
+                <p>\(GM = -20\log|G(j\omega_{pc})|\) (\(\text{dB}\)). \(PM = 180^\circ + \angle G(j\omega_{gc})\).
+                    Stable
+                    \(\iff\) both positive \(\iff \omega_{gc} < \omega_{pc}\). Typical targets: \(GM \ge 6\text{dB}\),
+                        \(PM=30^\circ\text{–}60^\circ\).</p>
+            </div>
+        </div>
+
+
+
+        <!-- ═══ CITATIONS ═══ -->
+        <div class="citations" id="citations">
+            <div class="cite-h">References &amp; Citations</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from the
+                following standard textbooks and learning resources. All explanations, derivations, diagrams and worked
+                examples are original to Aarova AI.</p>
+            <ul class="cite-list">
+                <li><span class="cite-num">[1]</span><span>Nise, Norman S. <em>Control Systems Engineering</em>, 7th ed.
+                        Wiley, 2015. Chapter 10 &mdash; Frequency Response Techniques: Nyquist criterion, Bode plots,
+                        gain and phase margin.</span></li>
+                <li><span class="cite-num">[2]</span><span>Ogata, Katsuhiko. <em>Modern Control Engineering</em>, 5th
+                        ed. Prentice Hall, 2010. Chapter 8 &mdash; Frequency-response analysis and stability
+                        criteria.</span></li>
+                <li><span class="cite-num">[3]</span><span>Nagrath, I.J. and Gopal, M. <em>Control Systems
+                            Engineering</em>, 6th ed. New Age International, 2017. Chapter 8 &mdash; Nyquist stability
+                        criterion and Bode plot construction.</span></li>
+                <li><span class="cite-num">[4]</span><span>Kuo, Benjamin C. and Golnaraghi, Farid. <em>Automatic Control
+                            Systems</em>, 9th ed. Wiley, 2009. Chapter 9 &mdash; Frequency-domain analysis of control
+                        systems.</span></li>
+                <li><span class="cite-num">[5]</span><span>IIT Madras / IIT Kharagpur NPTEL. <em>Control Systems &mdash;
+                            Lectures on Frequency Response and Stability</em>. National Programme on Technology Enhanced
+                        Learning. nptel.ac.in.</span></li>
+            </ul>
+        </div>
+
+        <hr>
+        <footer>
+            <strong>Aarova AI</strong> &nbsp;·&nbsp; Control Systems Series &nbsp;·&nbsp; Chapter 8 of 10<br>
+            <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp;
+                PSU Electrical Engineering</span><br>
+            <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and diagrams
+                are original to Aarova AI. Derived from standard textbooks [1&ndash;6].</span>
+        </footer>
+    </div>
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Control Systems. Topic: Nyquist and Bode Stability Analysis (Chapter 8). Cover Cauchy's argument principle, Nyquist contour and plot, Bode magnitude/phase plots, gain crossover, phase crossover, gain margin, phase margin. Answer with step-by-step working for numericals. Base answers on Nise, Ogata, Kuo, Nagrath & Gopal. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

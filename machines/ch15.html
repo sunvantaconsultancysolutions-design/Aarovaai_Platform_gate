@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#fdf6ee">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Aarova AI — Parallel Operation of Transformers</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)'],['$','$']], displayMath: [['\\[','\\]'],['$$','$$']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] }
+};
+</script>
+<style>
+/* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+:root{
+  --bg:#fdf6ee;--bg2:#f8ede0;--bg3:#f0e0cc;--bg4:#e8d0b8;
+  --text:#1e1208;--text2:#3d2010;--text3:#6b3e22;--muted:#9a6e50;
+  --orange:#c95f1a;--orange-md:#e07235;--orange-lt:#f5956a;
+  --orange-bg:#fdebd8;--orange-bdr:#f0b48a;
+  --green:#2d6648;--green-bg:#dff0e8;--green-bdr:#8ecaaa;
+  --teal:#1e6b68;--teal-bg:#d8eeed;--teal-bdr:#7ec4c2;
+  --amber:#a05c00;--amber-bg:#fef0d0;--amber-bdr:#f0c060;
+  --red:#9a2020;--red-bg:#fde8e8;--red-bdr:#e89090;
+  --border:#ddc8b0;--border2:#c8a888;
+  --radius:14px;
+  --shadow:0 2px 16px rgba(150,80,20,0.10);
+  --shadow-md:0 6px 28px rgba(150,80,20,0.14);
+  --page-px:clamp(14px,4vw,48px);
+  --section-gap:clamp(36px,6vw,64px);
+  --card-px:clamp(14px,2.5vw,22px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;font-size:18px;-webkit-text-size-adjust:100%;}
+body{background:var(--bg);color:var(--text2);font-family:'Lora',Georgia,serif;line-height:1.85;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+img,svg{max-width:100%;display:block;}
+
+.page{max-width:900px;margin:0 auto;padding:0 var(--page-px) 80px;}
+
+.site-header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(253,246,238,0.96);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1.5px solid var(--border);
+  padding:12px var(--page-px);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.logo{font-family:'Playfair Display',serif;font-size:clamp(14px,2.5vw,18px);font-weight:700;color:var(--orange);white-space:nowrap;}
+.logo-sub{font-family:'Lora',serif;font-size:11px;color:var(--muted);margin-left:8px;font-weight:400;}
+.hbadges{display:flex;gap:5px;flex-wrap:wrap;}
+.hbadge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--orange-bg);border:1px solid var(--orange-bdr);color:var(--orange);white-space:nowrap;}
+
+.hero{padding:clamp(28px,6vw,64px) 0 clamp(22px,4vw,44px);border-bottom:1.5px solid var(--border);margin-bottom:clamp(24px,4vw,44px);}
+.eyebrow{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.15em;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:9px;}
+.eyebrow::before{content:'';display:inline-block;width:24px;height:2.5px;background:var(--orange);border-radius:2px;flex-shrink:0;}
+h1.hero-title{font-family:'Playfair Display',serif;font-size:clamp(28px,7vw,52px);font-weight:800;color:var(--text);line-height:1.1;margin-bottom:14px;}
+h1.hero-title em{font-style:italic;color:var(--orange);}
+.hero-desc{font-size:clamp(14px,2vw,17px);color:var(--text3);max-width:640px;line-height:1.75;font-weight:400;margin-bottom:22px;}
+.badge-row{display:flex;flex-wrap:wrap;gap:7px;}
+.badge{font-size:12px;padding:4px 13px;border-radius:22px;border:1.5px solid var(--border2);color:var(--text3);background:var(--bg2);font-family:'Lora',serif;}
+.badge-p{background:var(--orange-bg);border-color:var(--orange-bdr);color:var(--orange);font-weight:600;}
+
+.progress-bar{display:flex;align-items:center;gap:12px;background:var(--orange-bg);border:1.5px solid var(--orange-bdr);border-radius:10px;padding:11px 16px;margin-bottom:clamp(20px,4vw,40px);}
+.pl{font-size:12px;font-weight:600;color:var(--orange);white-space:nowrap;}
+.pt{flex:1;height:7px;background:rgba(201,95,26,0.18);border-radius:4px;overflow:hidden;min-width:30px;}
+.pf{height:100%;width:55%;background:var(--orange);border-radius:4px;}
+.pp{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--orange);white-space:nowrap;}
+
+.toc{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--orange);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin-bottom:clamp(28px,5vw,52px);}
+.toc-h{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:14px;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0 24px;}
+.toc-item{display:flex;align-items:baseline;gap:9px;font-size:14px;color:var(--text3);text-decoration:none;padding:7px 0;border-bottom:1px dashed transparent;transition:color .2s,border-color .2s;line-height:1.5;}
+.toc-item:hover,.toc-item:focus{color:var(--orange);border-bottom-color:var(--orange-lt);}
+.toc-n{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--orange);min-width:28px;flex-shrink:0;}
+
+.section{margin-bottom:var(--section-gap);opacity:0;transform:translateY(12px);animation:rise .42s forwards;}
+@keyframes rise{to{opacity:1;transform:none;}}
+.section:nth-child(1){animation-delay:.04s}.section:nth-child(2){animation-delay:.09s}
+.section:nth-child(3){animation-delay:.13s}.section:nth-child(4){animation-delay:.17s}
+.section:nth-child(5){animation-delay:.21s}.section:nth-child(6){animation-delay:.25s}
+.section:nth-child(7){animation-delay:.29s}.section:nth-child(8){animation-delay:.33s}
+.section:nth-child(9){animation-delay:.37s}.section:nth-child(10){animation-delay:.41s}
+.section:nth-child(11){animation-delay:.45s}.section:nth-child(12){animation-delay:.49s}
+.sec-hdr{display:flex;align-items:center;gap:12px;margin-bottom:clamp(14px,3vw,24px);padding-bottom:12px;border-bottom:1.5px solid var(--border);}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-bdr);padding:3px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+h2.sec-t{font-family:'Playfair Display',serif;font-size:clamp(18px,3.5vw,26px);font-weight:700;color:var(--text);line-height:1.2;}
+h3.sub{font-family:'Playfair Display',serif;font-size:clamp(15px,2.5vw,19px);font-weight:600;color:var(--text2);margin:clamp(20px,3vw,32px) 0 10px;display:flex;align-items:center;gap:9px;}
+h3.sub::before{content:'';display:inline-block;width:4px;height:16px;background:var(--orange-lt);border-radius:2px;flex-shrink:0;}
+p{margin-bottom:14px;color:var(--text2);font-size:clamp(14px,2vw,17px);line-height:1.85;}
+strong{font-weight:600;color:var(--text);}
+sup.cite{font-size:9px;color:var(--teal);font-weight:700;cursor:pointer;vertical-align:super;margin-left:1px;}
+
+.callout{border-radius:10px;padding:clamp(11px,2vw,16px) clamp(13px,2vw,20px);margin:16px 0;display:flex;gap:11px;align-items:flex-start;}
+.ci{font-size:17px;flex-shrink:0;margin-top:2px;line-height:1;}
+.cb{flex:1;min-width:0;}
+.ct{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.cb p{margin:0;font-size:clamp(13px,1.8vw,15.5px);line-height:1.68;}
+.c-info{background:var(--orange-bg);border-left:4px solid var(--orange);}.c-info .ct{color:var(--orange);}.c-info p{color:var(--text2);}
+.c-tip{background:var(--green-bg);border-left:4px solid var(--green);}.c-tip .ct{color:var(--green);}.c-tip p{color:#1e4d38;}
+.c-key{background:var(--teal-bg);border-left:4px solid var(--teal);}.c-key .ct{color:var(--teal);}.c-key p{color:#154e4c;}
+.c-warn{background:var(--amber-bg);border-left:4px solid var(--amber);}.c-warn .ct{color:var(--amber);}.c-warn p{color:#6e3f00;}
+.c-danger{background:var(--red-bg);border-left:4px solid var(--red);}.c-danger .ct{color:var(--red);}.c-danger p{color:#6e1515;}
+
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0;border-radius:10px;border:1.5px solid var(--border);box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:clamp(12px,1.8vw,15px);}
+thead tr{background:var(--bg3);}
+thead th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);border-bottom:1.5px solid var(--border);white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--bg3);transition:background .12s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg2);}
+tbody td{padding:10px 14px;color:var(--text2);vertical-align:top;line-height:1.55;}
+tbody td:first-child{font-weight:600;color:var(--text);}
+.t-org{color:var(--orange)!important;font-weight:600!important;}
+.t-grn{color:var(--green)!important;font-weight:600!important;}
+.t-red{color:var(--red)!important;font-weight:600!important;}
+.t-amb{color:var(--amber)!important;font-weight:600!important;}
+.t-tel{color:var(--teal)!important;font-weight:600!important;}
+
+.fblock{
+  background:var(--bg3);border:1.5px solid var(--border2);border-left:4px solid var(--orange-lt);
+  border-radius:10px;padding:clamp(13px,2vw,20px) clamp(14px,2vw,24px);
+  margin:14px 0;font-size:clamp(13px,1.9vw,15px);
+  color:var(--text);line-height:2;overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.fblock .flbl{font-family:'Lora',serif;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px;display:block;}
+.fv{color:var(--orange);}.feq{color:var(--green);font-weight:500;}.fh{color:var(--teal);}
+
+.svg-wrap{
+  background:var(--bg2);border:1.5px solid var(--border);
+  border-radius:12px;padding:clamp(12px,2.5vw,24px);
+  margin:16px 0;box-shadow:var(--shadow);
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.svg-wrap svg, .svg-wrap img{width:100%;height:auto;min-width:300px;display:block;}
+.svg-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.svg-scroll svg{min-width:560px;width:100%;height:auto;display:block;}
+.svg-cap{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;font-style:italic;line-height:1.5;}
+.svg-cite{font-size:10.5px;color:var(--teal);text-align:center;margin-top:3px;}
+
+.example{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);margin:20px 0;box-shadow:var(--shadow);overflow:hidden;}
+.ex-hdr{background:var(--bg3);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;border-bottom:1.5px solid var(--border);flex-wrap:wrap;}
+.ex-num{font-size:9px;font-weight:700;background:var(--orange);color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.06em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.ex-title{font-size:13px;font-weight:600;color:var(--text2);line-height:1.4;}
+.ex-body{padding:clamp(13px,2vw,22px) var(--card-px);}
+.ex-q{font-size:clamp(13px,2vw,15.5px);color:var(--text);background:var(--orange-bg);border-left:4px solid var(--orange);padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:14px;line-height:1.62;}
+.sol-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--green);margin-bottom:9px;}
+
+.gate-card{background:#fff;border:1.5px solid var(--teal-bdr);border-radius:var(--radius);margin:18px 0;box-shadow:var(--shadow);overflow:hidden;}
+.gate-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.gate-tag{font-size:9px;font-weight:700;background:var(--teal);color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.07em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.gate-title{font-size:13px;font-weight:600;color:var(--teal);line-height:1.4;}
+.gate-body{padding:clamp(13px,2vw,20px) var(--card-px);}
+.gate-body p{color:var(--text2);font-size:clamp(13px,2vw,15.5px);}
+.pyq-card{background:#fff;border:1.5px solid var(--teal-bdr);border-radius:var(--radius);margin:18px 0;box-shadow:var(--shadow);overflow:hidden;}
+.pyq-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.pyq-tag{font-size:9px;font-weight:700;color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.07em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.pyq-gate{background:var(--teal);}.pyq-ies{background:var(--green);}
+.pyq-hdr.ies-hdr{background:var(--green-bg);border-color:var(--green-bdr);}
+.pyq-card.ies-card{border-color:var(--green-bdr);}
+.pyq-title{font-size:13px;font-weight:600;color:var(--teal);line-height:1.4;flex:1;}
+.pyq-title-ies{color:var(--green);}
+.pyq-year{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;}
+.pyq-body{padding:clamp(13px,2vw,20px) var(--card-px);}
+.pyq-body p{color:var(--text2);font-size:clamp(13px,2vw,15.5px);}
+.pyq-opts{list-style:none;margin:10px 0;display:flex;flex-direction:column;gap:6px;}
+.pyq-opts li{font-size:clamp(13px,1.8vw,15px);color:var(--text2);padding:9px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg2);font-family:'Lora',serif;cursor:default;min-height:44px;display:flex;align-items:center;line-height:1.45;}
+.pyq-opts li.correct{background:var(--green-bg);border-color:var(--green-bdr);color:var(--green);font-weight:600;}
+
+.two-col{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0;}
+.mini-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:var(--card-px);box-shadow:var(--shadow);}
+.mc-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:11px;}
+.mc-grn .mc-t{color:var(--green);}.mc-red .mc-t{color:var(--red);}.mc-org .mc-t{color:var(--orange);}.mc-tel .mc-t{color:var(--teal);}.mc-amb .mc-t{color:var(--amber);}
+.mc-list{list-style:none;}
+.mc-list li{font-size:clamp(13px,1.8vw,15px);color:var(--text2);padding:6px 0;border-bottom:1px solid var(--bg3);display:flex;align-items:flex-start;gap:9px;line-height:1.5;}
+.mc-list li:last-child{border-bottom:none;}
+.dot{color:var(--muted);flex-shrink:0;margin-top:2px;}
+
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:16px 0;}
+.sum-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);transition:box-shadow .2s,transform .15s;}
+.sum-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.sum-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px;}
+.sum-card p{font-size:clamp(12px,1.7vw,14px);color:var(--text3);margin:0;line-height:1.62;}
+.sc-o .sum-lbl{color:var(--orange);}.sc-g .sum-lbl{color:var(--green);}.sc-t .sum-lbl{color:var(--teal);}.sc-a .sum-lbl{color:var(--amber);}.sc-r .sum-lbl{color:var(--red);}
+
+.citations{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--teal);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin-top:36px;}
+.cite-h{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:16px;}
+.cite-list{list-style:none;}
+.cite-list li{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:clamp(12px,1.8vw,14px);color:var(--text2);line-height:1.62;}
+.cite-list li:last-child{border-bottom:none;}
+.cite-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--teal);background:var(--teal-bg);padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;height:fit-content;margin-top:2px;}
+.cite-list em{color:var(--orange-md);font-style:italic;}
+
+.ai-prompt{background:linear-gradient(135deg,var(--teal-bg),var(--orange-bg));border:2px solid var(--teal-bdr);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin:28px 0;box-shadow:var(--shadow-md);}
+.ai-prompt-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:7px;}
+.ai-prompt>p{color:var(--text2);font-size:14px;margin-bottom:12px;}
+.ai-input-row{display:flex;gap:9px;flex-wrap:wrap;}
+.ai-input{flex:1;min-width:0;width:100%;padding:11px 14px;border-radius:9px;border:1.5px solid var(--border2);background:var(--bg);font-family:'Lora',serif;font-size:14px;color:var(--text);outline:none;-webkit-appearance:none;}
+.ai-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(30,107,104,0.12);}
+.ai-btn{padding:11px 20px;border-radius:9px;background:var(--teal);color:#fff;border:none;font-family:'Lora',serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .18s;white-space:nowrap;min-height:44px;-webkit-appearance:none;}
+.ai-btn:hover{background:#155250;}
+.ai-suggest{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.ai-chip{font-size:11px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--teal-bdr);color:var(--teal);background:var(--bg);cursor:pointer;font-family:'Lora',serif;transition:background .15s;min-height:36px;display:flex;align-items:center;}
+.ai-chip:hover,.ai-chip:active{background:var(--teal-bg);}
+.ai-response{margin-top:14px;padding:13px 15px;background:#fff;border-radius:8px;border:1.5px solid var(--border);font-size:14px;color:var(--text2);display:none;line-height:1.72;white-space:pre-wrap;overflow-x:auto;}
+
+hr{border:none;border-top:1.5px solid var(--border);margin:40px 0;}
+footer{text-align:center;padding:26px 0;font-size:12px;color:var(--muted);border-top:1.5px solid var(--border);}
+footer strong{color:var(--orange);}
+
+@media(min-width:481px) and (max-width:768px){
+  html{font-size:16.5px;}
+  .logo-sub{display:none;}
+  .svg-wrap{padding:12px 10px;}
+  .svg-wrap svg, .svg-wrap img{min-width:480px;}
+  .toc-grid{grid-template-columns:repeat(2,1fr);gap:0 20px;}
+  .two-col{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .sum-grid{grid-template-columns:repeat(2,1fr);gap:11px;}
+  .fblock{word-break:break-word;font-size:12px;line-height:1.8;}
+  thead th,tbody td{padding:8px 10px;}
+  .pyq-year{margin-left:0;}
+}
+@media(max-width:480px){
+  html{font-size:15.5px;}
+  .logo-sub{display:none;}
+  .hbadges{display:none;}
+  .site-header{padding:10px 14px;}
+  h1.hero-title{font-size:clamp(26px,8vw,34px);}
+  .hero-desc{font-size:14px;}
+  .toc-grid{grid-template-columns:1fr;}
+  .toc-item{font-size:14px;padding:9px 0;}
+  .toc{padding:14px 16px;}
+  h2.sec-t{font-size:clamp(16px,5vw,20px);}
+  h3.sub{font-size:clamp(14px,4.5vw,17px);}
+  p{font-size:15px;}
+  .svg-wrap{padding:10px 8px;border-radius:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .svg-wrap svg, .svg-wrap img{min-width:520px;width:520px;height:auto;}
+  .svg-wrap.svg-simple svg{min-width:280px;width:100%;}
+  .fblock{word-break:break-word;font-size:11.5px;line-height:1.75;padding:12px;border-radius:8px;}
+  .tw{border-radius:8px;}
+  thead th{font-size:9px;padding:8px 10px;}
+  tbody td{font-size:12px;padding:8px 10px;}
+  .two-col{grid-template-columns:1fr;gap:10px;}
+  .sum-grid{grid-template-columns:1fr;gap:9px;}
+  .ai-input-row{flex-direction:column;}
+  .ai-input{font-size:15px;}
+  .ai-btn{width:100%;font-size:15px;padding:13px;}
+  .pyq-year{display:none;}
+  .citations{padding:14px 14px;}
+}
+@media(min-width:1024px){
+  .page{padding:0 48px 100px;}
+  .toc-grid{grid-template-columns:repeat(3,1fr);}
+  .two-col{grid-template-columns:repeat(2,1fr);}
+  .sum-grid{grid-template-columns:repeat(3,1fr);}
+  .svg-wrap svg, .svg-wrap img{min-width:auto;width:100%;}
+}
+@media(hover:none){
+  .toc-item:hover{color:var(--text3);border-bottom-color:transparent;}
+  .sum-card:hover{transform:none;box-shadow:var(--shadow);}
+}
+@media print{
+  .site-header,.ai-prompt,footer{display:none;}
+  .section{opacity:1;transform:none;animation:none;}
+  .svg-wrap{break-inside:avoid;}
+  body{font-size:12pt;}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">Aarova AI <span class="logo-sub">Electrical Machines Series</span></div>
+  <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span class="hbadge">PSU</span></div>
+</header>
+
+<div class="page">
+<div class="hero">
+  <div class="eyebrow">Transformers &nbsp;·&nbsp; Chapter 4</div>
+  <h1 class="hero-title">Parallel Operation of <em>Transformers</em></h1>
+  <p class="hero-desc">Conditions for parallel operation, load sharing with equal &amp; unequal voltage ratios, Millman's theorem method, per-unit load analysis, magnetisation current harmonics, and complete GATE &amp; IES exam concepts with solved numericals.</p>
+  <div class="badge-row">
+    <span class="badge badge-p">GATE EE</span><span class="badge">IES E&amp;T</span><span class="badge">PSU Electrical</span><span class="badge">1-φ &amp; 3-φ Transformers</span>
+  </div>
+</div>
+
+<div class="progress-bar">
+  <span class="pl">Series Progress</span><div class="pt"><div class="pf"></div></div><span class="pp">Chapter 4 of 8</span>
+</div>
+
+<div class="toc">
+  <div class="toc-h">Contents</div>
+  <div class="toc-grid">
+    <a href="#s1" class="toc-item"><span class="toc-n">4.1</span>Why Parallel Operation?</a>
+    <a href="#s2" class="toc-item"><span class="toc-n">4.2</span>Conditions — 1-φ &amp; 3-φ</a>
+    <a href="#s3" class="toc-item"><span class="toc-n">4.3</span>Load Sharing — Equal Ratios</a>
+    <a href="#s4" class="toc-item"><span class="toc-n">4.4</span>Load Sharing — n Transformers</a>
+    <a href="#s5" class="toc-item"><span class="toc-n">4.5</span>Per-Unit Load Analysis</a>
+    <a href="#s6" class="toc-item"><span class="toc-n">4.6</span>Unequal Voltage Ratios</a>
+    <a href="#s7" class="toc-item"><span class="toc-n">4.7</span>Millman's Theorem Method</a>
+    <a href="#s8" class="toc-item"><span class="toc-n">4.8</span>Magnetisation Current</a>
+    <a href="#s9" class="toc-item"><span class="toc-n">4.9</span>3rd Harmonic &amp; Winding</a>
+    <a href="#s10" class="toc-item"><span class="toc-n">4.10</span>Solved Numericals</a>
+    <a href="#s11" class="toc-item"><span class="toc-n">4.11</span>GATE &amp; IES Concepts</a>
+    <a href="#s12" class="toc-item"><span class="toc-n">4.12</span>Miscellaneous Topics</a>
+  </div>
+</div>
+
+<!-- ═══ S1: WHY PARALLEL ═══ -->
+<div class="section" id="s1">
+  <div class="sec-hdr"><span class="sec-num">4.1</span><h2 class="sec-t">Why Parallel Operation?</h2></div>
+
+  <p>In power systems it is often necessary to connect two or more transformers in parallel — their primaries connected to the same supply bus and secondaries feeding a common load bus. This is done for several practical reasons.<sup class="cite">[1]</sup></p>
+
+  <div class="two-col">
+    <div class="mini-card mc-org">
+      <div class="mc-t">Advantages of Parallel Operation</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span><strong>Load growth:</strong> existing transformer can be retained and a new one added in parallel, avoiding replacement.</span></li>
+        <li><span class="dot">→</span><span><strong>Reliability:</strong> if one unit trips, others continue to supply load — no complete blackout.</span></li>
+        <li><span class="dot">→</span><span><strong>Maintenance:</strong> one unit can be taken off for maintenance while others carry the load.</span></li>
+        <li><span class="dot">→</span><span><strong>Economy:</strong> during light load, one unit can be de-energised saving no-load losses.</span></li>
+        <li><span class="dot">→</span><span><strong>Transport:</strong> smaller units are easier to transport than one large unit.</span></li>
+      </ul>
+    </div>
+    <div class="mini-card mc-red">
+      <div class="mc-t">Disadvantages / Caution</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span>If conditions are not met, large circulating currents flow even at no-load, wasting copper losses.</span></li>
+        <li><span class="dot">→</span><span>Unequal impedance ratios cause <em>disproportionate</em> load sharing — one transformer can overload.</span></li>
+        <li><span class="dot">→</span><span>Wrong polarity connection creates a dead short circuit across both transformers.</span></li>
+        <li><span class="dot">→</span><span>3-φ transformers of different phasor groups cannot be paralleled — 30° phase difference causes very large circulating currents.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout c-key">
+    <div class="ci">💡</div>
+    <div class="cb">
+      <div class="ct">Key Concept</div>
+      <p>The total installed capacity of parallel transformers need not be used fully. What matters is that the load is shared <em>proportionally</em> to their kVA ratings so that neither unit is overloaded while the other runs under-loaded.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S2: CONDITIONS ═══ -->
+<div class="section" id="s2">
+  <div class="sec-hdr"><span class="sec-num">4.2</span><h2 class="sec-t">Conditions for Parallel Operation</h2></div>
+
+  <p>The following conditions must be satisfied before connecting two (or more) transformers in parallel. They apply to both 1-φ and 3-φ units, with additional conditions for 3-φ only.<sup class="cite">[1][2]</sup></p>
+
+  <h3 class="sub">Group A — For Both 1-φ and 3-φ Transformers</h3>
+
+  <div class="callout c-danger">
+    <div class="ci">⛔</div>
+    <div class="cb">
+      <div class="ct">Condition 1 — Same Polarity (MUST)</div>
+      <p><strong>Same polarity</strong> means the dots (or voltage polarities at corresponding terminals) must be connected together: <em>dot-to-dot</em> and <em>non-dot-to-non-dot</em>. If polarity is reversed, the two secondary EMFs add together in the loop, creating a dead short circuit. This condition is <strong>ABSOLUTE</strong> — violation results in catastrophic failure.</p>
+    </div>
+  </div>
+
+  <!-- Polarity SVG -->
+  <div class="svg-wrap svg-simple">
+    <img src="images/ch15.15/fig14.1.png" alt="figure 14.1">
+    <div class="svg-cap">Fig 4.1 — Correct parallel connection with same polarity. Dots (instantaneous positive terminals) must be connected together.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §3.10; Chapman [1], §2.9</div>
+  </div>
+
+  <div class="callout c-warn">
+    <div class="ci">⚠️</div>
+    <div class="cb">
+      <div class="ct">Condition 2 — Equal Voltage Ratios / Same Voltage Rating (MUST)</div>
+      <p>The turns ratios (and hence rated secondary voltages) of the transformers to be paralleled <strong>must be equal</strong>. If \(E_A \neq E_B\), a circulating current flows in the loop formed by the two secondaries even at no-load:
+      \[ I_{circ} = \frac{E_A - E_B}{Z_A + Z_B} \]
+      This circulating current is wattless (flows in the loop, not the load) and causes unnecessary copper losses and possible overheating. A <em>small</em> difference may be tolerated if unavoidable, but ideally both transformers must have the same voltage rating.</p>
+    </div>
+  </div>
+
+  <div class="callout c-tip">
+    <div class="ci">✅</div>
+    <div class="cb">
+      <div class="ct">Condition 3 — Same Per-Unit Impedance (Desirable)</div>
+      <p>For <strong>proportional load sharing</strong> (each transformer carries load in proportion to its kVA rating), the per-unit (pu) impedances of all transformers on a common base must be equal. If pu impedances differ, the transformer with lower pu impedance carries a disproportionately higher fraction of the total load and may reach full load first — causing the combination to be limited below its total rating.</p>
+    </div>
+  </div>
+
+  <div class="callout c-tip">
+    <div class="ci">✅</div>
+    <div class="cb">
+      <div class="ct">Condition 4 — Same X/R Ratio (Desirable)</div>
+      <p>For both transformers to operate at the <strong>same power factor</strong> as the load, their impedance angles (X/R ratios) must be equal. If X/R ratios differ, the transformer with a higher X/R ratio will operate at a lower power factor than the other, and the currents drawn by the two will be out of phase with each other. This leads to one transformer supplying reactive power to the other, reducing overall efficiency.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Group B — Additional Conditions for 3-φ Transformers Only</h3>
+
+  <div class="callout c-danger">
+    <div class="ci">⛔</div>
+    <div class="cb">
+      <div class="ct">Condition 5 — Same Phase Sequence (MUST)</div>
+      <p>The phase sequence of the secondary voltages of both transformers must be the same (e.g., both R-Y-B or both R-B-Y). If phase sequences differ, at every instant there is a voltage difference between the two secondary terminals of the same phase, causing very large circulating currents.</p>
+    </div>
+  </div>
+
+  <div class="callout c-danger">
+    <div class="ci">⛔</div>
+    <div class="cb">
+      <div class="ct">Condition 6 — Zero Phase Difference / Same Phasor Group (MUST)</div>
+      <p>There must be <strong>zero phase difference</strong> between the corresponding line voltages of the two transformers. This means that only transformers belonging to the <strong>same phasor group</strong> may be paralleled. For example: Yy0 with Yy0, Dd0 with Dd0, Yy6 with Yy6, Yd1 with Yd1 — but NOT Yy0 with Yd1. Changing the sequence of 1° connections gives a 30° lead/lag shift, making parallel operation impossible within the same group.</p>
+    </div>
+  </div>
+
+  <!-- Phase sequence SVG -->
+  <div class="svg-wrap svg-simple">
+    <img src="images/ch15.15/fig14.2.png" alt="figure 14.2">
+    <div class="svg-cap">Fig 4.2 — Only transformers within the same phasor group may be paralleled. Mixing groups introduces 30° or 180° phase differences, causing large circulating currents.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §3.10, p.146</div>
+  </div>
+
+  <!-- Conditions Table -->
+  <div class="tw">
+    <table>
+      <thead><tr><th>#</th><th>Condition</th><th>Applicability</th><th>Status</th><th>Effect if Violated</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Same polarity</td><td>1-φ &amp; 3-φ</td><td class="t-red">MUST</td><td>Short circuit — catastrophic failure</td></tr>
+        <tr><td>2</td><td>Equal voltage ratios</td><td>1-φ &amp; 3-φ</td><td class="t-red">MUST</td><td>Circulating current at no-load; copper losses</td></tr>
+        <tr><td>3</td><td>Same pu impedance</td><td>1-φ &amp; 3-φ</td><td class="t-amb">Desirable</td><td>Disproportionate load sharing; overload of one unit</td></tr>
+        <tr><td>4</td><td>Same X/R ratio</td><td>1-φ &amp; 3-φ</td><td class="t-amb">Desirable</td><td>Different pf operation; reactive power circulation</td></tr>
+        <tr><td>5</td><td>Same phase sequence</td><td>3-φ only</td><td class="t-red">MUST</td><td>Very large circulating currents</td></tr>
+        <tr><td>6</td><td>Same phasor group (zero phase diff.)</td><td>3-φ only</td><td class="t-red">MUST</td><td>30° voltage difference → large circulating currents</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ S3: LOAD SHARING EQUAL RATIOS ═══ -->
+<div class="section" id="s3">
+  <div class="sec-hdr"><span class="sec-num">4.3</span><h2 class="sec-t">Load Sharing — Equal Voltage Ratios (\(E_A = E_B\))</h2></div>
+
+  <p>When two transformers A and B have equal voltage ratios (and hence no circulating current at no-load), both are represented by their Thévenin equivalent with a common voltage source. The equivalent circuit reduces to two impedances \(Z_A\) and \(Z_B\) in parallel feeding the common load \(Z_L\).<sup class="cite">[1][2]</sup></p>
+
+  <!-- Equivalent circuit SVG -->
+  <div class="svg-wrap">
+    <img src="images/ch15.15/fig14.3.png" alt="figure 14.3">
+    <div class="svg-cap">Fig 4.3 — Equivalent circuit for two transformers in parallel with equal voltage ratios. \(Z_A, Z_B\) are referred-to-secondary equivalent impedances.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §3.10, p.147</div>
+  </div>
+
+  <h3 class="sub">Derivation of Load-Sharing Equations</h3>
+
+  <p>Since \(E_A = E_B\), there is no circulating current at no-load. When load \(Z_L\) is connected, applying KVL to the mesh formed by \(Z_A\) and \(Z_B\):</p>
+
+  <div class="fblock">
+    <span class="flbl">KVL — Loop Equation (Equal EMFs)</span>
+\[ V_Z = I_A \cdot Z_A = I_B \cdot Z_B = I_L \cdot Z_p \]
+
+where \[ Z_p = \frac{Z_A \cdot Z_B}{Z_A + Z_B} \quad \text{(parallel impedance)} \]
+
+Therefore:
+\[ I_A = \frac{Z_B}{Z_A + Z_B} \times I_L \]
+\[ I_B = \frac{Z_A}{Z_A + Z_B} \times I_L \]
+  </div>
+
+  <p>Taking complex conjugate and multiplying by terminal voltage \(\vec{V}\), the complex power shared by each transformer is:</p>
+
+  <div class="fblock">
+    <span class="flbl">Complex Power — Load Sharing (2 Transformers, Equal Ratios)</span>
+\[ S_A^* = \frac{Z_B}{Z_A + Z_B} \times S_L^* \]
+
+\[ S_B^* = \frac{Z_A}{Z_A + Z_B} \times S_L^* \]
+
+\[ S_L = S_A + S_B \quad \text{(complex power balance)} \]
+
+Note: \(Z_A, Z_B\) must be in actual ohms (not per-unit)
+  </div>
+
+  <div class="callout c-warn">
+    <div class="ci">⚠️</div>
+    <div class="cb">
+      <div class="ct">Important — Impedance Base Conversion</div>
+      <p>If pu impedances are given on individual transformer bases, they <strong>must be converted to a common base</strong> before using the load-sharing formulas. The actual (ohmic) impedance is:
+      \[ Z_j(\Omega) = Z_{j(pu)} \times Z_{j(base)} = Z_{j(pu)} \times \frac{V_{rated}^2}{S_{rated}} \]</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S4: n TRANSFORMERS ═══ -->
+<div class="section" id="s4">
+  <div class="sec-hdr"><span class="sec-num">4.4</span><h2 class="sec-t">Load Sharing — \(n\) Transformers in Parallel</h2></div>
+
+  <p>The two-transformer result extends naturally to \(n\) transformers. Each transformer \(j\) has an equivalent impedance \(Z_j\) (all referred to the secondary). Since all secondary EMFs are equal (equal voltage ratios), the load sharing is governed by:<sup class="cite">[2]</sup></p>
+
+  <div class="fblock">
+    <span class="flbl">General Formula — n Transformers in Parallel (Equal Ratios)</span>
+\[ I_A \cdot Z_A = I_B \cdot Z_B = I_C \cdot Z_C = \dots = I_n \cdot Z_n = I_L \times Z_p \]
+
+where \[ Z_p = \frac{1}{\frac{1}{Z_A} + \frac{1}{Z_B} + \dots + \frac{1}{Z_n}} \]
+
+Solving:
+\[ I_j = \frac{I_L}{Z_j \cdot \left( \frac{1}{Z_A} + \frac{1}{Z_B} + \dots + \frac{1}{Z_n} \right)} \]
+
+Or equivalently:
+\[ I_j = \frac{I_L}{ \left(\frac{Z_j}{Z_A}\right) \cdot \frac{Z_A}{Z_A} + \left(\frac{Z_j}{Z_B}\right) \cdot \dots } \]
+  </div>
+
+  <p>The complex power taken by transformer \(j\) is:</p>
+
+  <div class="fblock">
+    <span class="flbl">Complex Power Sharing — Transformer j</span>
+\[ S_j^* = V^* \times I_j \]
+
+For 2 transformers:
+\[ S_A^* = \frac{Z_B}{Z_A + Z_B} \times S_L^* \]
+\[ S_B^* = \frac{Z_A}{Z_A + Z_B} \times S_L^* \]
+  </div>
+
+  <div class="callout c-key">
+    <div class="ci">💡</div>
+    <div class="cb">
+      <div class="ct">Physical Insight</div>
+      <p>Current distributes <em>inversely</em> proportional to impedance: transformer with <strong>lower impedance draws more current</strong> and carries more load. This is the fundamental reason why equal pu impedances are needed for equal load sharing — if \(Z_A < Z_B\), transformer A reaches full load first, limiting the total output below \(S_A + S_B\).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S5: PER UNIT ANALYSIS ═══ -->
+<div class="section" id="s5">
+  <div class="sec-hdr"><span class="sec-num">4.5</span><h2 class="sec-t">Per-Unit Load Analysis &amp; Proportional Load Sharing</h2></div>
+
+  <p>When the transformer impedances are expressed in per-unit (pu), the load sharing analysis becomes very convenient. The pu loading of each transformer (i.e., the fraction of its rated capacity it carries) is inversely proportional to its pu impedance on its own base.<sup class="cite">[2]</sup></p>
+
+  <div class="fblock">
+    <span class="flbl">Per-Unit Load Analysis — Derivation</span>
+\[ S_j^* \propto \frac{1}{Z_j(\Omega)} \quad \text{[from load sharing formula]} \]
+
+Since \[ Z_j(\Omega) = Z_{j(pu)} \times Z_{j(base)} \]
+
+And \[ Z_{j(base)} = \frac{V_{rated}^2}{S_{rated}} \]
+
+Therefore: \[ S_j^* \propto \frac{S_{j(rated)}}{Z_{j(pu)}} \]
+
+In pu on transformer's own base:
+\[ S_j^*(pu) = \frac{S_j^*}{S_{j(rated)}} \propto \frac{1}{Z_{j(pu)}} \]
+
+<strong>Key result:</strong> The transformer with LOWEST pu impedance
+carries the HIGHEST fraction of its rated capacity
+\(\to\) It reaches Full Load FIRST.
+  </div>
+
+  <div class="callout c-info">
+    <div class="ci">📌</div>
+    <div class="cb">
+      <div class="ct">Condition for Proportional Load Sharing (Equal % Loading)</div>
+      <p>For all transformers to carry the same <em>fraction</em> of their rated capacity (i.e., all at the same % loading), we require:
+      \[ S_j \propto S_{j(rated)} \quad \Longleftrightarrow \quad \frac{S_j}{S_{j(rated)}} = \text{constant} \quad \Longleftrightarrow \quad Z_{j(pu)} = \text{constant} \]
+      This is the <strong>same pu impedance condition</strong>. When pu impedances are equal, both transformers reach full load simultaneously, and the combination delivers its maximum total rated output.</p>
+    </div>
+  </div>
+
+  <!-- PU table -->
+  <div class="tw">
+    <table>
+      <thead><tr><th>Transformer</th><th>Rating (kVA)</th><th>\(Z_{pu}\)</th><th>Load Carried</th><th>Reaches FL First?</th></tr></thead>
+      <tbody>
+        <tr><td>A</td><td>1000</td><td class="t-grn">0.05 pu</td><td class="t-grn">Higher fraction</td><td class="t-red">YES — first to overload</td></tr>
+        <tr><td>B</td><td>500</td><td class="t-red">0.10 pu</td><td class="t-amb">Lower fraction</td><td>No</td></tr>
+        <tr><td colspan="5" style="font-size:12px;color:var(--muted);padding:8px 14px;">Example: If Z_A(pu) < Z_B(pu), transformer A carries relatively more load and will be the limiting unit</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ S6: UNEQUAL VOLTAGE RATIOS ═══ -->
+<div class="section" id="s6">
+  <div class="sec-hdr"><span class="sec-num">4.6</span><h2 class="sec-t">Unequal Voltage Ratios (\(E_A \neq E_B\))</h2></div>
+
+  <p>When the two transformers have slightly different turns ratios (and hence \(E_A \neq E_B\)), there is a circulating current even at no-load. Under load, the analysis requires two simultaneous mesh equations.<sup class="cite">[1][2]</sup></p>
+
+  <div class="svg-wrap">
+    <img src="images/ch15.15/fig14.4.png" alt="figure 14.4">
+    <div class="svg-cap">Fig 4.4 — Unequal voltage ratios: \(E_A \neq E_B\). Two mesh equations must be solved simultaneously for \(I_A\) and \(I_B\). A circulating current flows even at no-load.</div>
+  </div>
+
+  <h3 class="sub">Solving the Mesh Equations</h3>
+
+  <div class="fblock">
+    <span class="flbl">Steps — Unequal Voltage Ratios</span>
+Step 1: Write KVL mesh equations:
+\[ (Z_A + Z_L) I_A + Z_L I_B = E_A \]  ...(i)
+\[ Z_L I_A + (Z_B + Z_L) I_B = E_B \]  ...(ii)
+
+Step 2: Solve simultaneous equations for \( I_A \) and \( I_B \).
+
+Step 3: \[ I_L = I_A + I_B \]
+
+Step 4: \[ V = I_L \cdot Z_L \]
+
+Step 5: \[ S_A = V \cdot I_A^*, \quad S_B = V \cdot I_B^* \]
+  </div>
+</div>
+
+<!-- ═══ S7: MILLMAN'S THEOREM ═══ -->
+<div class="section" id="s7">
+  <div class="sec-hdr"><span class="sec-num">4.7</span><h2 class="sec-t">Millman's Theorem (Parallel Generator Theorem)</h2></div>
+
+  <p>For \(n\) transformers in parallel with <em>unequal</em> voltage ratios, Millman's theorem (also called the parallel generator theorem) provides a systematic, compact method to find the common terminal voltage and individual currents.<sup class="cite">[2][3]</sup></p>
+
+  <div class="fblock">
+    <span class="flbl">Millman's Theorem — Formulation</span>
+The terminal voltage of the parallel combination is:
+\[ V = I_{sc} \times Z_p \]
+
+where the short-circuit current is:
+\[ I_{sc} = \sum_{j=1}^{n} \frac{E_j}{Z_j} \]
+
+and the parallel impedance is:
+\[ \frac{1}{Z_p} = \frac{1}{Z_L} + \sum_{j=1}^{n} \frac{1}{Z_j} \]
+
+Individual transformer currents:
+\[ I_j = \frac{E_j - V}{Z_j} \]
+
+Load current:
+\[ I_L = \frac{V}{Z_L} \]
+
+Check: \( I_L = \sum I_j \) \quad (KCL verification)
+  </div>
+
+  <div class="callout c-tip">
+    <div class="ci">✅</div>
+    <div class="cb">
+      <div class="ct">Verification of Millman's Result</div>
+      <p>After computing \(V\), always verify:
+      \[ S_L = V \cdot I_L^* = \frac{V^2}{Z_L^*} = \sum_{j} S_j = \sum_{j} V \cdot I_j^* \]
+      This cross-checks that complex power balance is maintained.</p>
+    </div>
+  </div>
+
+  <div class="gate-card">
+    <div class="gate-hdr"><span class="gate-tag">GATE EE CONCEPT</span><span class="gate-title">Why Millman's Method is Preferred in GATE</span></div>
+    <div class="gate-body">
+      <p>In GATE numerical problems, when \(E_A \neq E_B\), Millman's theorem reduces the solution to a single-step voltage calculation followed by simple current division, avoiding the need to solve two simultaneous phasor equations. This saves significant time in a timed exam setting. Always convert all impedances to actual ohms using the common base before applying the formula.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S8: MAGNETISATION CURRENT ═══ -->
+<div class="section" id="s8">
+  <div class="sec-hdr"><span class="sec-num">4.8</span><h2 class="sec-t">Magnetisation Current Phenomenon in Transformers</h2></div>
+
+  <p>The magnetisation (no-load) current of a transformer exhibits important harmonic characteristics that affect the winding connection choice. This is a frequently examined topic in GATE and IES.<sup class="cite">[2][4]</sup></p>
+
+  <p>If the applied voltage to the transformer is sinusoidal, then by Faraday's law the core flux must also be sinusoidal. However, if the magnetisation curve (B-H curve) of the core material were <strong>linear</strong>, the magnetising current would also be sinusoidal.</p>
+
+  <p>In practice, modern transformers are operated with <strong>high flux density</strong> in the core for economic reasons (to reduce iron volume). This drives the core into <strong>deep saturation</strong>, making the magnetisation curve highly non-linear. As a result, to maintain a sinusoidal flux, the magnetising current becomes <em>peaky</em> — it must be non-sinusoidal and contain a dominant <strong>3rd harmonic component</strong>.</p>
+
+  <!-- Waveform SVG -->
+  <div class="svg-wrap">
+    <img src="images/ch15.15/fig14.5.png" alt="figure 14.5">
+    <div class="svg-cap">Fig 4.5 — Left: sinusoidal flux waveform. Right: corresponding peaky magnetising current with dominant 3rd harmonic, resulting from the non-linear B-H characteristic at high flux densities.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §3.11, p.151</div>
+  </div>
+
+  <div class="callout c-info">
+    <div class="ci">📌</div>
+    <div class="cb">
+      <div class="ct">The 3rd Harmonic Problem — Where Can It Flow?</div>
+      <p>The 3rd harmonic components of the three-phase magnetising currents are <strong>all in phase</strong> with each other (they are zero-sequence currents). Therefore they can only flow if a zero-sequence path exists in the electric circuit:</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="mini-card mc-grn">
+      <div class="mc-t">3rd Harmonic CAN Flow</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span>Single-phase transformers in a 1-φ circuit</span></li>
+        <li><span class="dot">→</span><span>3-φ star-connected winding if <strong>neutral is connected to source neutral</strong></span></li>
+        <li><span class="dot">→</span><span>Closed delta winding (circulates inside the delta)</span></li>
+        <li><span class="dot">→</span><span>3-φ bank of 1-φ transformers (independent magnetic circuits)</span></li>
+        <li><span class="dot">→</span><span>3-φ shell-type transformer</span></li>
+        <li><span class="dot">→</span><span>5-limbed (or 4-limbed) core-type transformer</span></li>
+      </ul>
+    </div>
+    <div class="mini-card mc-red">
+      <div class="mc-t">3rd Harmonic CANNOT Flow</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span>Star connection with <strong>isolated neutral</strong> (neutral NOT connected to source)</span></li>
+        <li><span class="dot">→</span><span>Delta-star connection without delta tertiary</span></li>
+        <li><span class="dot">→</span><span>3-limbed core-type transformer in Y-Y connection without delta tertiary — most common case!</span></li>
+        <li><span class="dot">→</span><span>In these, 3rd harmonic current is suppressed → flux becomes flat-topped</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S9: 3RD HARMONIC WINDING ═══ -->
+<div class="section" id="s9">
+  <div class="sec-hdr"><span class="sec-num">4.9</span><h2 class="sec-t">3rd Harmonic Flux, Oscillating Neutral &amp; Delta Winding</h2></div>
+
+  <h3 class="sub">Case A: Star-Star (Y-Y) Connection — 3-Limbed Core</h3>
+  <p>In a 3-limbed core-type transformer with Y-Y connection and the primary star neutral <em>not</em> connected to the source neutral, there is <strong>no path for 3rd harmonic magnetising current</strong>. The magnetising current remains sinusoidal. However, with a sinusoidal magnetising current, the core flux becomes <strong>flat-topped</strong>, containing a dominant depressing 3rd harmonic flux component. This flat-topped flux induces a <strong>peaky EMF</strong> in the windings with a large 3rd harmonic voltage component.<sup class="cite">[2][4]</sup></p>
+
+  <div class="callout c-danger">
+    <div class="ci">⛔</div>
+    <div class="cb">
+      <div class="ct">Oscillating Neutral — The Critical Problem</div>
+      <p>In a Y-Y connection with isolated neutrals, the 3rd harmonic voltages in the three phases are all equal in magnitude and in phase. The neutral point voltage therefore oscillates at the 3rd harmonic frequency. This is called the <strong>oscillating neutral</strong> (or floating/shifting neutral) problem. Consequence: the three line-to-neutral voltages are unequal and contain large 3rd harmonic components, creating high insulation stress and interference with communication circuits.</p>
+    </div>
+  </div>
+
+  <!-- 3rd harmonic phasor SVG -->
+  <div class="svg-wrap svg-simple">
+    <img src="images/ch15.15/fig14.6.png" alt="figure 14.6">
+    <div class="svg-cap">Fig 4.6 — Oscillating neutral: the 3rd harmonic voltages in Y-Y are all in-phase and equal, causing the neutral to oscillate at 3× supply frequency. Solution: add a delta winding (tertiary).</div>
+  </div>
+
+  <h3 class="sub">Solution: The Delta (Δ) Winding</h3>
+
+  <p>The standard solution to the oscillating neutral and 3rd harmonic problems is to provide a <strong>closed delta winding</strong>. This can be:</p>
+
+  <div class="two-col">
+    <div class="mini-card mc-teal">
+      <div class="mc-t">Benefits of Delta Winding</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span>Provides a low-impedance path for zero-sequence (3rd harmonic) magnetising currents to circulate inside the delta loop</span></li>
+        <li><span class="dot">→</span><span>Restores the flux waveform to sinusoidal (harmonic variation of flux is restored)</span></li>
+        <li><span class="dot">→</span><span>Eliminates the oscillating neutral problem</span></li>
+        <li><span class="dot">→</span><span>Facilitates single-phase loads (reduces the floating neutral effect)</span></li>
+        <li><span class="dot">→</span><span>Prevents current choking in Δ-Y transformers</span></li>
+        <li><span class="dot">→</span><span>Helps detect unsymmetrical faults (especially ground faults)</span></li>
+      </ul>
+    </div>
+    <div class="mini-card mc-amb">
+      <div class="mc-t">3-Limbed Core Type — Special Note</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span>Magnetically interlinked — 3rd harmonic flux forms zero-sequence component finding <strong>very high reluctance path</strong> through air and tank walls</span></li>
+        <li><span class="dot">→</span><span>Magnitude of 3rd harmonic flux very low, but causes tank valve (wall) heating</span></li>
+        <li><span class="dot">→</span><span>Large 3-limbed core TF provided with a copper shield (screen) around the core to minimise 3rd harmonic flux leakage and tank heating</span></li>
+        <li><span class="dot">→</span><span>Can be connected Y-Y without Δ if unbalance is small</span></li>
+        <li><span class="dot">→</span><span>If 5th &amp; 7th harmonics are also objectionable → use 4 or 5 limbed core</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Winding connections SVG -->
+  <div class="svg-wrap svg-simple">
+    <img src="images/ch15.15/fig14.7.png" alt="figure 14.7">
+    <div class="svg-cap">Fig 4.7 — Common 3-φ transformer connections. The tertiary delta (dashed) provides a zero-sequence path for 3rd harmonic currents, resolving the oscillating neutral problem in Y-Y cores.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §3.11, p.151–155</div>
+  </div>
+</div>
+
+<!-- ═══ S10: SOLVED NUMERICAL ═══ -->
+<div class="section" id="s10">
+  <div class="sec-hdr"><span class="sec-num">4.10</span><h2 class="sec-t">Solved Numericals</h2></div>
+
+  <div class="example">
+    <div class="ex-hdr"><span class="ex-num">EXAMPLE 4.1</span><span class="ex-title">Load Sharing — Two 1-φ Transformers (Standard Textbook Type)</span></div>
+    <div class="ex-body">
+      <div class="ex-q">Two 1-φ transformers rated 1000 kVA and 500 kVA respectively are connected in parallel on both HV (11 kV) and LV (400 V) sides. They have equal voltage ratings of 11 kV/400 V. Their pu impedances are \( Z_A = 0.02 + j0.07 \) pu and \( Z_B = 0.0455 + j0.0788 \) pu respectively.
+      (a) How will the following loads be shared: (i) 360 kVA at 0.9 PF lagging; (ii) 500 kW at UPF.
+      (b) What is the largest 0.8 PF lagging load that can be delivered by the parallel combination at rated voltage? Determine the load shared and operating PF of each transformer under these conditions.</div>
+
+      <div class="sol-lbl">Solution</div>
+
+      <p><strong>Given data:</strong> \( Z_A = 0.0728\angle 74.05° \) pu on 1000 kVA base; \( Z_B = 0.091\angle 60° \) pu on 500 kVA base.</p>
+
+      <p><strong>Since \(|Z_A| < |Z_B|\)</strong>, transformer A will go to full load first (lower pu impedance → higher pu loading).</p>
+
+      <p><strong>Convert to common base</strong> (Select 1000 kVA as common base):</p>
+
+      <div class="fblock">
+        <span class="flbl">Base Conversion</span>
+\begin{align*}
+Z_{B(new)} &= Z_{B(old)} \times \left( \frac{\text{Common base}}{\text{B's own base}} \right) \\
+           &= 0.091\angle60^\circ \times \left(\frac{1000}{500}\right) \\
+           &= 0.182\angle60^\circ \text{ pu}
+\end{align*}
+
+So on common 1000 kVA base:
+\[ Z_A = 0.0728\angle74.05^\circ \text{ pu} \quad \text{(unchanged, same base)} \]
+\[ Z_B = 0.182\angle60^\circ \text{ pu} \quad \text{(converted to 1000 kVA base)} \]
+      </div>
+
+      <p><strong>Part (a)(i): Load = 360 kVA at 0.9 PF lagging</strong></p>
+      <div class="fblock">
+        <span class="flbl">Part (a)(i) — 360 kVA @ 0.9 pf lag</span>
+\[ S_L = 360\angle-25.84^\circ \text{ kVA} \quad [\cos^{-1}(0.9) = 25.84^\circ] \]
+
+\begin{align*}
+S_A^* &= \frac{Z_{B(new)}}{Z_A + Z_{B(new)}} \times S_L^* \\
+Z_A + Z_{B(new)} &= 0.0728\angle74.05^\circ + 0.182\angle60^\circ \\
+                 &= (0.02 + j0.07) + (0.091 + j0.1576) \\
+                 &= 0.111 + j0.2276 = 0.2534\angle63.98^\circ \\
+S_A^* &= \left(\frac{0.182\angle60^\circ}{0.2534\angle63.98^\circ}\right) \times 360\angle25.84^\circ \\
+      &= 0.7183\angle-3.98^\circ \times 360\angle25.84^\circ \\
+      &= 258.6\angle21.86^\circ \text{ kVA}
+\end{align*}
+
+\[ \therefore S_A = 258.6\angle-21.86^\circ \text{ kVA} \quad \text{(i.e. 240.1 kW at 0.928 PF lagging)} \]
+
+\begin{align*}
+S_B^* &= \frac{Z_A}{Z_A + Z_B} \times S_L^* \\
+      &= \left(\frac{0.0728\angle74.05^\circ}{0.2534\angle63.98^\circ}\right) \times 360\angle25.84^\circ \\
+      &= 0.2874\angle10.07^\circ \times 360\angle25.84^\circ \\
+      &= 103.5\angle35.91^\circ \text{ kVA}
+\end{align*}
+
+\[ \therefore S_B = 103.5\angle-35.91^\circ \text{ kVA} \quad \text{(i.e. 83.8 kW at 0.810 PF lagging)} \]
+
+Check: 
+\begin{align*}
+S_A + S_B &= 258.6\angle-21.86^\circ + 103.5\angle-35.91^\circ \\
+          &= (240.1 - j96.2) + (83.8 - j60.8) \\
+          &= 323.9 - j157 \approx 360\angle-25.84^\circ \;\checkmark
+\end{align*}
+      </div>
+
+      <p><strong>Part (a)(ii): Load = 500 kW at UPF</strong></p>
+      <div class="fblock">
+        <span class="flbl">Part (a)(ii) — 500 kW at Unity PF</span>
+\[ S_L = 500\angle0^\circ \text{ kVA} \]
+
+\begin{align*}
+S_A^* &= 0.7183\angle-3.98^\circ \times 500\angle0^\circ \\
+      &= 359.2\angle-3.98^\circ \text{ kVA} \quad \text{(i.e. 358.9 kW at 0.997 PF lagging)} \\
+S_B^* &= 0.2874\angle10.07^\circ \times 500\angle0^\circ \\
+      &= 143.7\angle10.07^\circ \text{ kVA} \quad \text{(i.e. 141.5 kW at 0.985 PF lead)}
+\end{align*}
+      </div>
+
+      <p><strong>Part (b): Maximum 0.8 PF lagging load</strong></p>
+      <div class="fblock">
+        <span class="flbl">Part (b) — Maximum Load at 0.8 PF Lagging</span>
+Since \(|Z_A| < |Z_B|\), transformer A has higher pu loading \(\to\) A reaches FL first.
+
+At FL: \( S_A = 1000 \text{ kVA (rated)} \)
+
+From load sharing: 
+\[ S_A = \left| \frac{Z_{B(new)}}{Z_A + Z_{B(new)}} \right| \times S_L \]
+
+\[ \frac{|S_A|}{|S_L|} = 0.7183 \]
+
+So: \( S_L = \frac{1000}{0.7183} = 1391.9 \text{ kVA} \)
+
+For \( S_A = 1000\angle\varphi_A \text{ kVA} \) and \( S_L = 1391.9\angle-36.87^\circ \text{ kVA} \):
+
+\begin{align*}
+S_A^* &= 0.7183\angle-3.98^\circ \times 1391.9\angle36.87^\circ \\
+      &= 1000\angle32.89^\circ \text{ kVA}
+\end{align*}
+
+\[ \therefore S_A = 1000\angle-32.89^\circ = 838.1 \text{ kW} + j544.3 \text{ kVAR} \]
+\[ \to \text{PF} = \cos(32.89^\circ) = 0.839 \text{ PF lagging} \]
+
+\begin{align*}
+S_B &= S_L - S_A = 1391.9\angle-36.87^\circ - 1000\angle-32.89^\circ \\
+    &= (1113.5 - j835.1) - (838.1 - j544.3) \\
+    &= 275.4 - j290.8 = 400.1\angle-46.6^\circ \text{ kVA}
+\end{align*}
+
+\[ \therefore \text{Maximum load} = 1391.9 \text{ kVA at 0.8 PF lagging} \]
+Transformer A carries: 1000 kVA at 0.839 PF lag (at FL) <br>
+Transformer B carries: 400.1 kVA at 0.685 PF lag
+      </div>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="ex-hdr"><span class="ex-num">EXAMPLE 4.2</span><span class="ex-title">Millman's Theorem — Unequal Voltage Ratios</span></div>
+    <div class="ex-body">
+      <div class="ex-q">Two transformers A and B are connected in parallel to a common load \(2 + j1.5\,\Omega\). Impedances referred to secondary are \(Z_A = (0.15 + 0.5j)\,\Omega\) and \(Z_B = (0.1 + 0.6j)\,\Omega\). No-load terminal voltages are \(E_A = 207\angle 0°\,\text{V}\) and \(E_B = 205\angle 0°\,\text{V}\). Find the power output and PF of each transformer.</div>
+
+      <div class="sol-lbl">Solution — Millman's Theorem</div>
+      <div class="fblock">
+        <span class="flbl">Applying Millman's Theorem</span>
+\begin{align*}
+I_{sc} &= \frac{E_A}{Z_A} + \frac{E_B}{Z_B} \\
+       &= \frac{207\angle0^\circ}{0.15+0.5j} + \frac{205\angle0^\circ}{0.1+0.6j} \\
+       &= \frac{207}{0.5219\angle73.3^\circ} + \frac{205}{0.6083\angle80.5^\circ} \\
+       &= 396.65\angle-73.3^\circ + 337.05\angle-80.5^\circ \\
+       &= (113.8 - j379.9) + (55.5 - j332.3) \\
+       &= 169.3 - j712.2 = 732.1\angle-76.62^\circ \text{ A}
+\end{align*}
+
+\begin{align*}
+\frac{1}{Z_p} &= \frac{1}{Z_L} + \frac{1}{Z_A} + \frac{1}{Z_B} \\
+              &= \frac{1}{2+j1.5} + \frac{1}{0.15+0.5j} + \frac{1}{0.1+0.6j} \\
+              &= (0.32 - j0.24) + (0.54 - j1.796) + (0.266 - j1.597) \\
+              &= 1.126 - j3.633 = 3.803\angle-72.8^\circ
+\end{align*}
+
+\[ Z_p = \frac{1}{3.803\angle-72.8^\circ} = 0.263\angle72.8^\circ \;\Omega \]
+
+\[ V = I_{sc} \times Z_p = 732.1\angle-76.62^\circ \times 0.263\angle72.8^\circ = 192.6\angle-3.82^\circ \text{ V} \]
+
+\begin{align*}
+I_A &= \frac{E_A - V}{Z_A} = \frac{207 - 192.6\angle-3.82^\circ}{0.5219\angle73.3^\circ} \\
+    &= \frac{207 - (192.35 - j12.82)}{0.5219\angle73.3^\circ} \\
+    &= \frac{14.65 + j12.82}{0.5219\angle73.3^\circ} \\
+    &= \frac{19.45\angle41.2^\circ}{0.5219\angle73.3^\circ} = 37.27\angle-32.1^\circ \text{ A}
+\end{align*}
+
+\begin{align*}
+I_B &= \frac{E_B - V}{Z_B} = \frac{205 - 192.6\angle-3.82^\circ}{0.6083\angle80.5^\circ} \\
+    &= \frac{12.65 + j12.82}{0.6083\angle80.5^\circ} \\
+    &= \frac{18.05\angle45.3^\circ}{0.6083\angle80.5^\circ} = 29.67\angle-35.2^\circ \text{ A}
+\end{align*}
+
+\begin{align*}
+I_L &= I_A + I_B = 37.27\angle-32.1^\circ + 29.67\angle-35.2^\circ \\
+    &= (31.56 - j19.78) + (24.27 - j17.10) \\
+    &= 55.83 - j36.88 = 66.7\angle-33.5^\circ \text{ A}
+\end{align*}
+
+\begin{align*}
+S_A &= V \cdot I_A^* = 192.6\angle-3.82^\circ \times 37.27\angle32.1^\circ = 7177\angle28.28^\circ \text{ VA} \\
+    &= 6.32 \text{ kW} + j3.40 \text{ kVAR} \to \text{PF} = \cos(28.28^\circ) = 0.880 \text{ lag}
+\end{align*}
+
+\begin{align*}
+S_B &= V \cdot I_B^* = 192.6\angle-3.82^\circ \times 29.67\angle35.2^\circ = 5714\angle31.38^\circ \text{ VA} \\
+    &= 4.88 \text{ kW} + j2.98 \text{ kVAR} \to \text{PF} = \cos(31.38^\circ) = 0.854 \text{ lag}
+\end{align*}
+
+\[ S_L = V \cdot I_L^* = 192.6\angle-3.82^\circ \times 66.7\angle33.5^\circ = 12847\angle29.68^\circ \text{ VA} \;\checkmark \]
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S11: GATE & IES ═══ -->
+<div class="section" id="s11">
+  <div class="sec-hdr"><span class="sec-num">4.11</span><h2 class="sec-t">GATE &amp; IES Previous Year Concepts</h2></div>
+
+  <div class="pyq-card">
+    <div class="pyq-hdr"><span class="pyq-tag pyq-gate">GATE EE</span><span class="pyq-title">Two transformers in parallel — load sharing condition</span><span class="pyq-year">GATE 2019</span></div>
+    <div class="pyq-body">
+      <p>Two transformers of ratings 100 kVA and 200 kVA are connected in parallel. Their pu impedances are 0.04 pu and 0.02 pu respectively (on their own kVA bases). They share a 240 kVA load. Which transformer carries more load per unit of its rated capacity?</p>
+      <ul class="pyq-opts">
+        <li>100 kVA transformer carries more load per unit (lower pu Z)</li>
+        <li class="correct">✓ 100 kVA transformer: S_pu ∝ 1/Z_pu = 1/0.04 = 25; 200 kVA: 1/0.02 = 50 → both different → 200 kVA carries more load per unit</li>
+        <li>Both carry equal load per unit</li>
+        <li>Depends on the load power factor</li>
+      </ul>
+      <p style="font-size:13px;color:var(--teal);margin-top:8px;"><strong>Key insight:</strong> \( S_{j(pu)} \propto 1/Z_{j(pu)} \). The 200 kVA transformer has lower pu impedance (0.02 vs 0.04), so it carries a higher fraction of its rated capacity. It is the limiting unit.</p>
+    </div>
+  </div>
+
+  <div class="pyq-card">
+    <div class="pyq-hdr"><span class="pyq-tag pyq-gate">GATE EE</span><span class="pyq-title">Conditions for parallel operation — 3-φ transformer phasor groups</span><span class="pyq-year">GATE 2016</span></div>
+    <div class="pyq-body">
+      <p>Which of the following pairs of 3-phase transformer connections can be operated in parallel?</p>
+      <ul class="pyq-opts">
+        <li>Yy0 with Yd1</li>
+        <li class="correct">✓ Yy0 with Dd0 — both in Group I (0° phase shift)</li>
+        <li>Dy11 with Yd1</li>
+        <li>Yy6 with Yy0</li>
+      </ul>
+      <p style="font-size:13px;color:var(--teal);margin-top:8px;"><strong>Rule:</strong> Only transformers in the same phasor group can be paralleled. Yy0 and Dd0 both belong to Group I (0° phase displacement).</p>
+    </div>
+  </div>
+
+  <div class="pyq-card ies-card">
+    <div class="pyq-hdr ies-hdr"><span class="pyq-tag pyq-ies">IES E&amp;T</span><span class="pyq-title pyq-title-ies">3rd harmonic — oscillating neutral and winding connection</span><span class="pyq-year">IES 2017</span></div>
+    <div class="pyq-body">
+      <p>In a star-star connected 3-phase transformer bank, if the neutral of the primary is not connected to the source neutral, what happens to the magnetising current?</p>
+      <ul class="pyq-opts">
+        <li>Magnetising current becomes peaky, containing 3rd harmonic</li>
+        <li class="correct">✓ Magnetising current remains sinusoidal, but core flux becomes flat-topped with dominant depressing 3rd harmonic flux component</li>
+        <li>Both current and flux remain sinusoidal</li>
+        <li>3rd harmonic current circulates in the delta winding</li>
+      </ul>
+      <p style="font-size:13px;color:var(--green);margin-top:8px;"><strong>Explanation:</strong> In Y-Y with isolated neutrals, 3rd harmonic (zero-sequence) currents cannot flow. So the current is forced to remain sinusoidal, but the non-linear B-H relationship then requires the flux to become flat-topped. This flat-topped flux induces a peaky EMF with large 3rd harmonic voltage, causing the oscillating neutral phenomenon.</p>
+    </div>
+  </div>
+
+  <div class="pyq-card ies-card">
+    <div class="pyq-hdr ies-hdr"><span class="pyq-tag pyq-ies">IES E&amp;T</span><span class="pyq-title pyq-title-ies">Equal pu impedance — proportional load sharing proof</span><span class="pyq-year">IES 2015</span></div>
+    <div class="pyq-body">
+      <p>State and prove the condition for proportional load sharing between two transformers in parallel.</p>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px;"><strong>Answer:</strong> The condition is that both transformers must have equal per-unit impedances on a common base. Proof: From \(S_j^* = (Z_k)/(Z_j+Z_k) \cdot S_L^*\), the pu loading is \(S_{j(pu)} \propto S_{j}/S_{j(rated)} \propto 1/Z_{j(pu)}\). For \(S_{A(pu)} = S_{B(pu)}\), we need \(Z_{A(pu)} = Z_{B(pu)}\). Under this condition, both transformers reach full load simultaneously, utilising the total rated capacity optimally.</p>
+    </div>
+  </div>
+
+  <div class="gate-card">
+    <div class="gate-hdr"><span class="gate-tag">GATE EE CONCEPT</span><span class="gate-title">Phantom Loading in Parallel Transformer Tests</span></div>
+    <div class="gate-body">
+      <p><strong>Phantom loading</strong> is a test method where rated current flows through the transformer windings but no actual power is delivered to a load. The two transformers under test are connected in parallel with their secondaries connected in phase opposition — rated current circulates in the loop without consuming full rated power from the supply. This allows testing of parallel operation conditions economically by measuring only the losses, not supplying the full kVA output.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S12: MISCELLANEOUS ═══ -->
+<div class="section" id="s12">
+  <div class="sec-hdr"><span class="sec-num">4.12</span><h2 class="sec-t">Miscellaneous Topics — Design &amp; Practical Aspects</h2></div>
+
+  <h3 class="sub">Tap Changers</h3>
+  <p>A tap changer adjusts the turns ratio of a transformer without taking it off-line (on-load tap changer, OLTC) or only when de-energised (off-load tap changer). Tap changers are placed on the HV side because it has fewer turns, each turn contributes more change per tap position (with a 100:1 ratio, one turn change on the LV side changes voltage by 1V while one turn change on the HV side changes it by 100V). On-load tap changers require good cooling since switching arcs generate heat.</p>
+
+  <div class="two-col">
+    <div class="mini-card mc-org">
+      <div class="mc-t">On-Load Tap Changer (OLTC)</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span>Can operate under load (costly)</span></li>
+        <li><span class="dot">→</span><span>Requires good cooling — arcing during switching</span></li>
+        <li><span class="dot">→</span><span>Used for voltage regulation under varying load</span></li>
+        <li><span class="dot">→</span><span>Typical range: ±10% in steps of 1.25% or 2.5%</span></li>
+      </ul>
+    </div>
+    <div class="mini-card mc-tel">
+      <div class="mc-t">Off-Load Tap Changer</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span>Must de-energise transformer first (cheap)</span></li>
+        <li><span class="dot">→</span><span>No arcing — simple mechanical switch</span></li>
+        <li><span class="dot">→</span><span>Used for seasonal or long-term voltage adjustment</span></li>
+        <li><span class="dot">→</span><span>Taps placed at centre of winding — axial forces balanced</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="sub">Core Design — Stepped Core &amp; Cooling</h3>
+
+  <div class="two-col">
+    <div class="mini-card mc-amb">
+      <div class="mc-t">Scaling Laws for Transformers</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span>If linear dimensions scale by factor \(k\): KVA rating scales as \(k^4\)</span></li>
+        <li><span class="dot">→</span><span>Losses scale as \(k^3\); Surface area scales as \(k^2\)</span></li>
+        <li><span class="dot">→</span><span>Moment of inertia scales as \(k^5\)</span></li>
+        <li><span class="dot">→</span><span>Example: if \(k=3\), KVA = 81×, losses = 27×, surface area = 9× — heat dissipation problem!</span></li>
+        <li><span class="dot">→</span><span>Hence large TF requires forced cooling (ONAN, OFAN, OFAF)</span></li>
+      </ul>
+    </div>
+    <div class="mini-card mc-grn">
+      <div class="mc-t">Transformer Cooling Methods</div>
+      <ul class="mc-list">
+        <li><span class="dot">→</span><span><strong>AN</strong> — Air Natural (small TF)</span></li>
+        <li><span class="dot">→</span><span><strong>AF</strong> — Air Forced (air blast)</span></li>
+        <li><span class="dot">→</span><span><strong>ONAN</strong> — Oil Natural, Air Natural</span></li>
+        <li><span class="dot">→</span><span><strong>OFAN</strong> — Oil Forced (pump), Air Natural → radiator size ↑</span></li>
+        <li><span class="dot">→</span><span><strong>OFAF</strong> — Oil Forced, Air Forced</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="sub">Shell Type vs Core Type — Key Differences</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Property</th><th>Shell Type</th><th>Core Type</th></tr></thead>
+      <tbody>
+        <tr><td>Iron surrounds winding?</td><td class="t-grn">Yes (Cu surrounded by Fe)</td><td>No (Fe surrounded by Cu)</td></tr>
+        <tr><td>Typical application</td><td>High current, low voltage</td><td>High voltage, low current</td></tr>
+        <tr><td>Winding shape</td><td>Rectangular coils</td><td>Circular (round) coils</td></tr>
+        <tr><td>Stepped core use</td><td>Less common</td><td class="t-org">Yes — two-step cruciform for max area, min perimeter</td></tr>
+        <tr><td>3rd harmonic flux</td><td class="t-grn">Can flow easily (independent magnetic paths)</td><td class="t-red">High reluctance path through air/tank in 3-limb</td></tr>
+        <tr><td>Yoke cross-section</td><td>Same as limb</td><td class="t-org">20% higher than limb (to avoid saturation)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sum-grid">
+    <div class="sum-card sc-o">
+      <div class="sum-lbl">Condition 1</div>
+      <p>Same polarity — dots must connect to dots. ABSOLUTE MUST. Violation = short circuit.</p>
+    </div>
+    <div class="sum-card sc-g">
+      <div class="sum-lbl">Condition 2</div>
+      <p>Equal voltage ratios — same turns ratio. MUST. Otherwise circulating current at no-load.</p>
+    </div>
+    <div class="sum-card sc-t">
+      <div class="sum-lbl">Condition 3</div>
+      <p>Equal pu impedance. DESIRABLE. Needed for proportional load sharing. \(Z_{pu}\) = const.</p>
+    </div>
+    <div class="sum-card sc-a">
+      <div class="sum-lbl">Condition 4</div>
+      <p>Equal X/R ratio. DESIRABLE. Needed for same PF operation as load.</p>
+    </div>
+    <div class="sum-card sc-r">
+      <div class="sum-lbl">3-φ Only (5 &amp; 6)</div>
+      <p>Same phase sequence AND same phasor group (zero phase difference). MUST for 3-φ.</p>
+    </div>
+    <div class="sum-card sc-g">
+      <div class="sum-lbl">Load Sharing Key</div>
+      <p>Lower pu impedance → higher fraction of rated load → reaches full load first → limiting unit.</p>
+    </div>
+  </div>
+
+  <!-- AI Ask widget -->
+  <div class="ai-prompt">
+    <div class="ai-prompt-title">🤖 Ask Aarova AI — Transformers</div>
+    <p>Have a doubt about parallel operation, load sharing, or transformer harmonics? Ask below.</p>
+    <div class="ai-input-row">
+      <input id="userQ" class="ai-input" type="text" placeholder="e.g. Why does a transformer with lower pu Z reach full load first?" />
+      <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+    </div>
+    <div class="ai-suggest">
+      <button class="ai-chip" onclick="setQ('What happens when two transformers with unequal voltage ratios are connected in parallel?')">Unequal voltage ratios</button>
+      <button class="ai-chip" onclick="setQ('Explain Millman theorem for parallel transformers step by step')">Millman's theorem</button>
+      <button class="ai-chip" onclick="setQ('Why is a delta winding added to a star-star transformer?')">Why delta tertiary?</button>
+      <button class="ai-chip" onclick="setQ('How to convert pu impedance to a common base for parallel transformers?')">pu base conversion</button>
+    </div>
+    <div id="aiResp" class="ai-response"></div>
+  </div>
+
+  <div class="callout c-info">
+    <div class="ci">➡️</div>
+    <div class="cb"><div class="ct">Coming Next — Chapter 5</div><p>Autotransformers — theory, savings in material, conversion of two-winding to auto, advantages and limitations, equivalent circuit, and complete GATE &amp; IES exam concepts.</p></div>
+  </div>
+</div>
+
+<!-- CITATIONS -->
+<div class="citations" id="citations">
+  <div class="cite-h">References &amp; Citations</div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from the following standard textbooks. No content is reproduced verbatim — all explanations, examples, numerical values, and diagrams are original to Aarova AI.</p>
+  <ul class="cite-list">
+    <li><span class="cite-num">[1]</span><span>Chapman, Stephen J. <em>Electric Machinery Fundamentals</em>, 5th ed. McGraw-Hill, 2012. Chapter 2, §2.9: Parallel operation of transformers, conditions, load sharing.</span></li>
+    <li><span class="cite-num">[2]</span><span>Kothari, D.P. and Nagrath, I.J. <em>Electric Machines</em>, 4th ed. Tata McGraw-Hill, 2010. Chapter 3, §3.10–3.11: Parallel operation conditions, load sharing with equal/unequal ratios, pu analysis, magnetising current harmonics, oscillating neutral, delta winding necessity.</span></li>
+    <li><span class="cite-num">[3]</span><span>Fitzgerald, A.E., Kingsley, C. and Umans, S.D. <em>Electric Machinery</em>, 6th ed. McGraw-Hill, 2003. Chapter 2: Transformers — parallel operation, Millman's theorem application, pu system.</span></li>
+    <li><span class="cite-num">[4]</span><span>IIT Kharagpur NPTEL. <em>Basic Electrical Technology — Lectures 19–24: Transformers</em>. National Programme on Technology Enhanced Learning. Available at: nptel.ac.in. Covers parallel operation, harmonic analysis, and practical transformer design aspects.</span></li>
+  </ul>
+</div>
+
+<hr>
+<footer>
+  <strong>Aarova AI</strong> &nbsp;·&nbsp; Electrical Machines Series &nbsp;·&nbsp; Chapter 4 of 8<br>
+  <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+  <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">Content derived from standard textbooks [1–4]. All explanations and diagrams are original to Aarova AI.</span>
+</footer>
+</div>
+
+<script>
+function setQ(t){document.getElementById('userQ').value=t;document.getElementById('userQ').focus();}
+async function askClaude(){
+  const q=document.getElementById('userQ').value.trim();if(!q)return;
+  const btn=document.querySelector('.ai-btn');const resp=document.getElementById('aiResp');
+  btn.textContent='Thinking…';btn.disabled=true;
+  resp.style.display='block';resp.textContent='Generating answer…';
+  const sys=`You are Aarova AI, an expert GATE EE and IES tutor. Topic: Parallel Operation of Transformers (Chapter 4). Answer clearly with step-by-step working for numericals. Base answers on Chapman, Kothari & Nagrath, and Fitzgerald. All content original. Keep answers concise but complete.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:q}]})});
+    const data=await res.json();
+    resp.textContent=data.content?.map(c=>c.text||'').join('\n')||'No response.';
+  }catch(e){resp.textContent='Could not connect. Please try again.';}
+  btn.textContent='Ask Aarova AI';btn.disabled=false;
+}
+document.getElementById('userQ').addEventListener('keydown',e=>{if(e.key==='Enter')askClaude();});
+
+/* Responsive SVG scroll hints on mobile */
+(function(){
+  if(window.innerWidth>600)return;
+  document.querySelectorAll('.svg-wrap').forEach(function(wrap){
+    const hint=document.createElement('div');
+    hint.style.cssText='font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+    hint.textContent='← scroll to see full diagram →';
+    wrap.appendChild(hint);
+    wrap.addEventListener('touchstart',function(){hint.style.display='none';},{once:true,passive:true});
+  });
+})();
+</script>
+</body>
+</html>

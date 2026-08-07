@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#fdf6ee">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Aarova AI — EM Ch.2 Induction Motor: Starting, Speed Control & Braking</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+/* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+:root{
+  --bg:#fdf6ee;--bg2:#f8ede0;--bg3:#f0e0cc;--bg4:#e8d0b8;
+  --text:#1e1208;--text2:#3d2010;--text3:#6b3e22;--muted:#9a6e50;
+  --orange:#c95f1a;--orange-md:#e07235;--orange-lt:#f5956a;
+  --orange-bg:#fdebd8;--orange-bdr:#f0b48a;
+  --green:#2d6648;--green-bg:#dff0e8;--green-bdr:#8ecaaa;
+  --teal:#1e6b68;--teal-bg:#d8eeed;--teal-bdr:#7ec4c2;
+  --amber:#a05c00;--amber-bg:#fef0d0;--amber-bdr:#f0c060;
+  --red:#9a2020;--red-bg:#fde8e8;--red-bdr:#e89090;
+  --border:#ddc8b0;--border2:#c8a888;
+  --radius:14px;
+  --shadow:0 2px 16px rgba(150,80,20,0.10);
+  --shadow-md:0 6px 28px rgba(150,80,20,0.14);
+  --page-px:clamp(14px,4vw,48px);
+  --section-gap:clamp(36px,6vw,64px);
+  --card-px:clamp(14px,2.5vw,22px);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;font-size:18px;-webkit-text-size-adjust:100%;}
+body{background:var(--bg);color:var(--text2);font-family:'Lora',Georgia,serif;line-height:1.85;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+img,svg{max-width:100%;display:block;}
+.page{max-width:900px;margin:0 auto;padding:0 var(--page-px) 80px;}
+/* HEADER */
+.site-header{position:sticky;top:0;z-index:100;background:rgba(253,246,238,0.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1.5px solid var(--border);padding:12px var(--page-px);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.logo{font-family:'Playfair Display',serif;font-size:clamp(14px,2.5vw,18px);font-weight:700;color:var(--orange);white-space:nowrap;}
+.logo-sub{font-family:'Lora',serif;font-size:11px;color:var(--muted);margin-left:8px;font-weight:400;}
+.hbadges{display:flex;gap:5px;flex-wrap:wrap;}
+.hbadge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--orange-bg);border:1px solid var(--orange-bdr);color:var(--orange);white-space:nowrap;}
+/* HERO */
+.hero{padding:clamp(28px,6vw,64px) 0 clamp(22px,4vw,44px);border-bottom:1.5px solid var(--border);margin-bottom:clamp(24px,4vw,44px);}
+.eyebrow{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.15em;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:9px;}
+.eyebrow::before{content:'';display:inline-block;width:24px;height:2.5px;background:var(--orange);border-radius:2px;flex-shrink:0;}
+h1.hero-title{font-family:'Playfair Display',serif;font-size:clamp(28px,7vw,52px);font-weight:800;color:var(--text);line-height:1.1;margin-bottom:14px;}
+h1.hero-title em{font-style:italic;color:var(--orange);}
+.hero-desc{font-size:clamp(14px,2vw,17px);color:var(--text3);max-width:640px;line-height:1.75;font-weight:400;margin-bottom:22px;}
+.badge-row{display:flex;flex-wrap:wrap;gap:7px;}
+.badge{font-size:12px;padding:4px 13px;border-radius:22px;border:1.5px solid var(--border2);color:var(--text3);background:var(--bg2);font-family:'Lora',serif;}
+.badge-p{background:var(--orange-bg);border-color:var(--orange-bdr);color:var(--orange);font-weight:600;}
+/* PROGRESS BAR */
+.progress-bar{display:flex;align-items:center;gap:12px;background:var(--orange-bg);border:1.5px solid var(--orange-bdr);border-radius:10px;padding:11px 16px;margin-bottom:clamp(20px,4vw,40px);}
+.pl{font-size:12px;font-weight:600;color:var(--orange);white-space:nowrap;}
+.pt{flex:1;height:7px;background:rgba(201,95,26,0.18);border-radius:4px;overflow:hidden;min-width:30px;}
+.pf{height:100%;width:32%;background:var(--orange);border-radius:4px;}
+.pp{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--orange);white-space:nowrap;}
+/* TOC */
+.toc{background:var(--bg2);border:1.5px solid var(--border);border-left:4px solid var(--orange);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin-bottom:clamp(28px,5vw,52px);}
+.toc-h{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:14px;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0 24px;}
+.toc-item{display:flex;align-items:baseline;gap:9px;font-size:14px;color:var(--text3);text-decoration:none;padding:7px 0;border-bottom:1px dashed transparent;transition:color .2s,border-color .2s;line-height:1.5;}
+.toc-item:hover,.toc-item:focus{color:var(--orange);border-bottom-color:var(--orange-lt);}
+.toc-n{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--orange);min-width:28px;flex-shrink:0;}
+/* SECTION */
+.section{margin-bottom:var(--section-gap);opacity:0;transform:translateY(12px);animation:rise .42s forwards;}
+@keyframes rise{to{opacity:1;transform:none;}}
+.section:nth-child(1){animation-delay:.04s}.section:nth-child(2){animation-delay:.09s}
+.section:nth-child(3){animation-delay:.13s}.section:nth-child(4){animation-delay:.17s}
+.section:nth-child(5){animation-delay:.21s}.section:nth-child(6){animation-delay:.25s}
+.section:nth-child(7){animation-delay:.29s}.section:nth-child(8){animation-delay:.33s}
+.section:nth-child(9){animation-delay:.37s}.section:nth-child(10){animation-delay:.41s}
+.section:nth-child(11){animation-delay:.45s}.section:nth-child(12){animation-delay:.49s}
+.sec-hdr{display:flex;align-items:center;gap:12px;margin-bottom:clamp(14px,3vw,24px);padding-bottom:12px;border-bottom:1.5px solid var(--border);}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-bdr);padding:3px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+h2.sec-t{font-family:'Playfair Display',serif;font-size:clamp(18px,3.5vw,26px);font-weight:700;color:var(--text);line-height:1.2;}
+h3.sub{font-family:'Playfair Display',serif;font-size:clamp(15px,2.5vw,19px);font-weight:600;color:var(--text2);margin:clamp(20px,3vw,32px) 0 10px;display:flex;align-items:center;gap:9px;}
+h3.sub::before{content:'';display:inline-block;width:4px;height:16px;background:var(--orange-lt);border-radius:2px;flex-shrink:0;}
+p{margin-bottom:14px;color:var(--text2);font-size:clamp(14px,2vw,17px);line-height:1.85;}
+strong{font-weight:600;color:var(--text);}
+sup.cite{font-size:9px;color:var(--teal);font-weight:700;cursor:pointer;vertical-align:super;margin-left:1px;}
+/* CALLOUTS */
+.callout{border-radius:10px;padding:clamp(11px,2vw,16px) clamp(13px,2vw,20px);margin:16px 0;display:flex;gap:11px;align-items:flex-start;}
+.ci{font-size:17px;flex-shrink:0;margin-top:2px;line-height:1;}
+.cb{flex:1;min-width:0;}
+.ct{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.cb p{margin:0;font-size:clamp(13px,1.8vw,15.5px);line-height:1.68;}
+.c-info{background:var(--orange-bg);border-left:4px solid var(--orange);}.c-info .ct{color:var(--orange);}.c-info p{color:var(--text2);}
+.c-tip{background:var(--green-bg);border-left:4px solid var(--green);}.c-tip .ct{color:var(--green);}.c-tip p{color:#1e4d38;}
+.c-key{background:var(--teal-bg);border-left:4px solid var(--teal);}.c-key .ct{color:var(--teal);}.c-key p{color:#154e4c;}
+.c-warn{background:var(--amber-bg);border-left:4px solid var(--amber);}.c-warn .ct{color:var(--amber);}.c-warn p{color:#6e3f00;}
+.c-danger{background:var(--red-bg);border-left:4px solid var(--red);}.c-danger .ct{color:var(--red);}.c-danger p{color:#6e1515;}
+/* TABLE */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:16px 0;border-radius:10px;border:1.5px solid var(--border);box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:clamp(12px,1.8vw,15px);}
+thead tr{background:var(--bg3);}
+thead th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);border-bottom:1.5px solid var(--border);white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--bg3);transition:background .12s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg2);}
+tbody td{padding:10px 14px;color:var(--text2);vertical-align:top;line-height:1.55;}
+tbody td:first-child{font-weight:600;color:var(--text);}
+.t-org{color:var(--orange)!important;font-weight:600!important;}
+.t-grn{color:var(--green)!important;font-weight:600!important;}
+.t-red{color:var(--red)!important;font-weight:600!important;}
+.t-amb{color:var(--amber)!important;font-weight:600!important;}
+.t-tel{color:var(--teal)!important;font-weight:600!important;}
+/* FORMULA BLOCK */
+.fblock{background:var(--bg3);border:1.5px solid var(--border2);border-left:4px solid var(--orange-lt);border-radius:10px;padding:clamp(13px,2vw,20px) clamp(14px,2vw,24px);margin:14px 0;font-family:'JetBrains Mono',monospace;font-size:clamp(11.5px,1.8vw,13.5px);color:var(--text);line-height:2;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:pre;}
+.fblock .flbl{font-family:'Lora',serif;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px;white-space:normal;display:block;}
+.fv{color:var(--orange);}.feq{color:var(--green);font-weight:500;}.fh{color:var(--teal);}
+/* SVG WRAP */
+.svg-wrap{background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;padding:clamp(12px,2.5vw,24px);margin:16px 0;box-shadow:var(--shadow);overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.svg-wrap svg, .svg-wrap img{width:100%;height:auto;min-width:300px;display:block;}
+.svg-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.svg-scroll svg{min-width:560px;width:100%;height:auto;display:block;}
+.svg-cap{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;font-style:italic;line-height:1.5;}
+.svg-cite{font-size:10.5px;color:var(--teal);text-align:center;margin-top:3px;}
+/* EXAMPLES */
+.example{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);margin:20px 0;box-shadow:var(--shadow);overflow:hidden;}
+.ex-hdr{background:var(--bg3);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;border-bottom:1.5px solid var(--border);flex-wrap:wrap;}
+.ex-num{font-size:9px;font-weight:700;background:var(--orange);color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.06em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.ex-title{font-size:13px;font-weight:600;color:var(--text2);line-height:1.4;}
+.ex-body{padding:clamp(13px,2vw,22px) var(--card-px);}
+.ex-q{font-size:clamp(13px,2vw,15.5px);color:var(--text);background:var(--orange-bg);border-left:4px solid var(--orange);padding:10px 14px;border-radius:0 8px 8px 0;margin-bottom:14px;line-height:1.62;}
+.sol-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;color:var(--green);margin-bottom:9px;}
+/* GATE / PYQ CARDS */
+.gate-card{background:#fff;border:1.5px solid var(--teal-bdr);border-radius:var(--radius);margin:18px 0;box-shadow:var(--shadow);overflow:hidden;}
+.gate-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.gate-tag{font-size:9px;font-weight:700;background:var(--teal);color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.07em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.gate-title{font-size:13px;font-weight:600;color:var(--teal);line-height:1.4;}
+.gate-body{padding:clamp(13px,2vw,20px) var(--card-px);}
+.gate-body p{color:var(--text2);font-size:clamp(13px,2vw,15.5px);}
+.pyq-card{background:#fff;border:1.5px solid var(--teal-bdr);border-radius:var(--radius);margin:18px 0;box-shadow:var(--shadow);overflow:hidden;}
+.pyq-hdr{background:var(--teal-bg);border-bottom:1.5px solid var(--teal-bdr);padding:9px var(--card-px);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.pyq-tag{font-size:9px;font-weight:700;color:#fff;padding:3px 9px;border-radius:5px;letter-spacing:.07em;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.pyq-gate{background:var(--teal);}.pyq-ies{background:var(--green);}
+.pyq-hdr.ies-hdr{background:var(--green-bg);border-color:var(--green-bdr);}
+.pyq-card.ies-card{border-color:var(--green-bdr);}
+.pyq-title{font-size:13px;font-weight:600;color:var(--teal);line-height:1.4;flex:1;}
+.pyq-title-ies{color:var(--green);}
+.pyq-year{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;}
+.pyq-body{padding:clamp(13px,2vw,20px) var(--card-px);}
+.pyq-body p{color:var(--text2);font-size:clamp(13px,2vw,15.5px);}
+.pyq-opts{list-style:none;margin:10px 0;display:flex;flex-direction:column;gap:6px;}
+.pyq-opts li{font-size:clamp(13px,1.8vw,15px);color:var(--text2);padding:9px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg2);font-family:'Lora',serif;cursor:default;min-height:44px;display:flex;align-items:center;line-height:1.45;}
+.pyq-opts li.correct{background:var(--green-bg);border-color:var(--green-bdr);color:var(--green);font-weight:600;}
+/* TWO COLUMN CARDS */
+.two-col{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0;}
+.mini-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:var(--card-px);box-shadow:var(--shadow);}
+.mc-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:11px;}
+.mc-grn .mc-t{color:var(--green);}.mc-red .mc-t{color:var(--red);}.mc-org .mc-t{color:var(--orange);}.mc-tel .mc-t{color:var(--teal);}.mc-amb .mc-t{color:var(--amber);}
+.mc-list{list-style:none;}
+.mc-list li{font-size:clamp(13px,1.8vw,15px);color:var(--text2);padding:6px 0;border-bottom:1px solid var(--bg3);display:flex;align-items:flex-start;gap:9px;line-height:1.5;}
+.mc-list li:last-child{border-bottom:none;}
+.dot{color:var(--muted);flex-shrink:0;margin-top:2px;}
+/* SUMMARY GRID */
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:16px 0;}
+.sum-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);transition:box-shadow .2s,transform .15s;}
+.sum-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.sum-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px;}
+.sum-card p{font-size:clamp(12px,1.7vw,14px);color:var(--text3);margin:0;line-height:1.62;}
+.sc-o .sum-lbl{color:var(--orange);}.sc-g .sum-lbl{color:var(--green);}.sc-t .sum-lbl{color:var(--teal);}.sc-a .sum-lbl{color:var(--amber);}.sc-r .sum-lbl{color:var(--red);}
+/* CITATIONS */
+.citations{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin-top:40px;}
+.cite-h{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:14px;}
+.cite-list{list-style:none;}
+.cite-list li{display:flex;gap:10px;font-size:13px;color:var(--text3);padding:8px 0;border-bottom:1px solid var(--bg3);line-height:1.6;}
+.cite-list li:last-child{border-bottom:none;}
+.cite-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);flex-shrink:0;font-weight:600;}
+/* AI PROMPT */
+.ai-prompt{background:var(--teal-bg);border:1.5px solid var(--teal-bdr);border-radius:var(--radius);padding:clamp(18px,3vw,30px);margin:40px 0 20px;}
+.ai-prompt-title{font-family:'Playfair Display',serif;font-size:clamp(15px,2.5vw,20px);font-weight:700;color:var(--teal);margin-bottom:10px;}
+.ai-input-row{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap;}
+.ai-input{flex:1;min-width:180px;padding:10px 14px;border:1.5px solid var(--teal-bdr);border-radius:9px;font-family:'Lora',serif;font-size:14px;background:#fff;color:var(--text);outline:none;}
+.ai-input:focus{border-color:var(--teal);}
+.ai-btn{background:var(--teal);color:#fff;border:none;border-radius:9px;padding:10px 22px;font-family:'Lora',serif;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s;}
+.ai-btn:hover{background:#155250;}
+.ai-suggest{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.ai-chip{font-size:12px;padding:6px 14px;background:#fff;border:1.5px solid var(--teal-bdr);border-radius:22px;color:var(--teal);cursor:pointer;font-family:'Lora',serif;transition:background .15s,color .15s;line-height:1.4;}
+.ai-chip:hover{background:var(--teal);color:#fff;}
+.ai-response{display:none;background:#fff;border:1.5px solid var(--teal-bdr);border-radius:10px;padding:16px 20px;margin-top:14px;font-size:14px;color:var(--text2);line-height:1.85;white-space:pre-wrap;font-family:'Lora',serif;}
+/* FOOTER */
+footer{text-align:center;padding:28px 0 8px;font-size:13px;color:var(--muted);font-family:'Lora',serif;border-top:1.5px solid var(--border);}
+/* RESPONSIVE */
+@media(max-width:480px){
+  html{font-size:16px;}
+  .toc-grid{grid-template-columns:1fr;}
+  .two-col{grid-template-columns:1fr;}
+  .sum-grid{grid-template-columns:repeat(2,1fr);}
+  .ai-input-row{flex-direction:column;}
+  .fblock{font-size:11px;}
+}
+@media(min-width:481px) and (max-width:768px){
+  .toc-grid{grid-template-columns:repeat(2,1fr);}
+  .two-col{grid-template-columns:repeat(2,1fr);}
+  .sum-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(min-width:769px){
+  .page{padding:0 48px 100px;}
+  .toc-grid{grid-template-columns:repeat(3,1fr);}
+  .two-col{grid-template-columns:repeat(2,1fr);}
+  .sum-grid{grid-template-columns:repeat(3,1fr);}
+  .svg-wrap svg, .svg-wrap img{min-width:auto;width:100%;}
+}
+@media(hover:none){
+  .toc-item:hover{color:var(--text3);border-bottom-color:transparent;}
+  .sum-card:hover{transform:none;box-shadow:var(--shadow);}
+}
+@media print{
+  .site-header,.ai-prompt,footer{display:none;}
+  .section{opacity:1;transform:none;animation:none;}
+  .svg-wrap{break-inside:avoid;}
+  body{font-size:12pt;}
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="logo">Aarova AI <span class="logo-sub">Electrical Machines Series</span></div>
+  <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span class="hbadge">PSU</span></div>
+</header>
+<div class="page">
+
+<div class="hero">
+  <div class="eyebrow">Chapter 02 &nbsp;·&nbsp; Induction Motors</div>
+  <h1 class="hero-title">Starting, Speed Control &amp; <em>Braking</em></h1>
+  <p class="hero-desc">Induction motor starting methods (DOL, stator resistance, autotransformer, star-delta, rotor resistance), speed control from stator &amp; rotor side, and braking techniques — with complete GATE &amp; IES exam concepts, SVG circuit diagrams, and worked numericals.</p>
+  <div class="badge-row">
+    <span class="badge badge-p">GATE EE</span><span class="badge">IES E&amp;T</span><span class="badge">PSU Electrical</span><span class="badge">3-Phase Induction Motor</span>
+  </div>
+</div>
+
+<div class="progress-bar">
+  <span class="pl">Series Progress</span><div class="pt"><div class="pf"></div></div><span class="pp">Chapter 2 of 8</span>
+</div>
+
+<div class="toc">
+  <div class="toc-h">Contents</div>
+  <div class="toc-grid">
+    <a href="#s1" class="toc-item"><span class="toc-n">2.1</span>Why Starting is a Problem</a>
+    <a href="#s2" class="toc-item"><span class="toc-n">2.2</span>DOL Starting</a>
+    <a href="#s3" class="toc-item"><span class="toc-n">2.3</span>Stator Resistance Starting</a>
+    <a href="#s4" class="toc-item"><span class="toc-n">2.4</span>Autotransformer Starting</a>
+    <a href="#s5" class="toc-item"><span class="toc-n">2.5</span>Star-Delta Starting</a>
+    <a href="#s6" class="toc-item"><span class="toc-n">2.6</span>Rotor Resistance Starting</a>
+    <a href="#s7" class="toc-item"><span class="toc-n">2.7</span>Speed Control — Stator Side</a>
+    <a href="#s8" class="toc-item"><span class="toc-n">2.8</span>Speed Control — Rotor Side</a>
+    <a href="#s9" class="toc-item"><span class="toc-n">2.9</span>Braking Methods</a>
+    <a href="#s10" class="toc-item"><span class="toc-n">2.10</span>GATE &amp; IES Concepts</a>
+  </div>
+</div>
+
+<!-- ═══ S1: WHY STARTING IS A PROBLEM ═══ -->
+<div class="section" id="s1">
+  <div class="sec-hdr"><span class="sec-num">2.1</span><h2 class="sec-t">Why Starting Is a Problem in Induction Motors</h2></div>
+
+  <p>When rated voltage is applied across the stator of an induction motor at standstill (N = 0), the slip s = 1. Under this condition, the rotor behaves exactly like the secondary of a short-circuited transformer — the rotor EMF is at its maximum, and since the rotor circuit impedance is low, an extremely large rotor current flows.</p>
+
+  <p>The stator must supply this rotor current through mutual flux, so the <strong>stator also draws a very large current from the supply</strong> — typically 5 to 8 times the full-load current. This inrush is momentary (lasts only until the motor accelerates), but it causes:</p>
+
+  <div class="two-col">
+    <div class="mini-card mc-red">
+      <div class="mc-t">Problems</div>
+      <ul class="mc-list">
+        <li><span class="dot">▸</span>Severe voltage dip in the supply lines, disturbing other loads</li>
+        <li><span class="dot">▸</span>Excessive heating in stator windings during start</li>
+        <li><span class="dot">▸</span>High mechanical stress on motor shaft &amp; coupling</li>
+        <li><span class="dot">▸</span>Tripping of overload protection devices</li>
+      </ul>
+    </div>
+    <div class="mini-card mc-grn">
+      <div class="mc-t">Key Insight</div>
+      <ul class="mc-list">
+        <li><span class="dot">▸</span>Motors are rugged and can withstand starting current</li>
+        <li><span class="dot">▸</span>Problem is the effect on the supply system</li>
+        <li><span class="dot">▸</span>Small motors (&lt;5 kW) may start directly (DOL)</li>
+        <li><span class="dot">▸</span>Larger motors need reduced voltage / rotor resistance methods</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout c-key">
+    <div class="ci">📐</div>
+    <div class="cb"><div class="ct">Core Relationship</div>
+      <p>The rotor current at standstill: \(I_2 = \dfrac{E_2}{R_2 + jX_2}\). Since \(E_2\) is maximum at s=1 and \((R_2 + jX_2)\) is fixed, \(I_2\) is very large. All starting methods work by either reducing \(E_2\) (reduced voltage) or increasing \(R_2\) (rotor resistance starting).</p>
+    </div>
+  </div>
+
+  <h3 class="sub">The Five Starting Methods — Overview</h3>
+  <div class="tw">
+    <table>
+      <thead><tr>
+        <th>Method</th><th>Applies To</th><th>Starting Torque</th><th>Starting Current</th><th>Cost</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>DOL (Direct Online)</td><td>Squirrel cage, &lt;5 kW (1φ), &lt;5 kW (3φ)</td><td class="t-grn">Full</td><td class="t-red">5–8× I_FL</td><td class="t-grn">Lowest</td></tr>
+        <tr><td>Stator Resistance/Reactance</td><td>Squirrel cage</td><td class="t-org">Reduced (x²)</td><td class="t-grn">Reduced (x)</td><td class="t-org">Low</td></tr>
+        <tr><td>Autotransformer</td><td>Squirrel cage, large rating</td><td class="t-org">Reduced (x²)</td><td class="t-grn">Reduced (x²)</td><td class="t-red">High</td></tr>
+        <tr><td>Star-Delta</td><td>Squirrel cage, designed for Δ</td><td class="t-org">1/3 of DOL</td><td class="t-grn">1/3 of DOL</td><td class="t-org">Low</td></tr>
+        <tr><td>Rotor Resistance</td><td>Slip-ring (wound rotor)</td><td class="t-grn">Can be max</td><td class="t-grn">Reduced</td><td class="t-org">Medium</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ S2: DOL STARTING ═══ -->
+<div class="section" id="s2">
+  <div class="sec-hdr"><span class="sec-num">2.2</span><h2 class="sec-t">Direct Online (DOL) Starting</h2></div>
+
+  <p>In DOL starting, the stator is directly connected to the full supply voltage using a push-on / push-off switch. The motor experiences full rated voltage at the moment of starting, so the starting current is maximum but the starting torque is also maximum.</p>
+
+  <div class="svg-wrap">
+    <img src="images/ch18.18/fig19.1.png" alt="Fig 2.1 — DOL Starter circuit with contactor and protection" style="width:100%;height:auto;">
+    <div class="svg-cap">Fig 2.1 — DOL starter circuit with contactor, bimetallic overload relay, and undervoltage protection. No current-limiting element in series.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §6.11; Chapman [1], §6.8</div>
+  </div>
+
+  <div class="two-col">
+    <div class="mini-card mc-grn">
+      <div class="mc-t">Advantages</div>
+      <ul class="mc-list">
+        <li><span class="dot">✓</span>Simplest and cheapest starter</li>
+        <li><span class="dot">✓</span>Maximum starting torque</li>
+        <li><span class="dot">✓</span>Push ON / Push OFF operation</li>
+        <li><span class="dot">✓</span>Two protections built-in</li>
+      </ul>
+    </div>
+    <div class="mini-card mc-red">
+      <div class="mc-t">Disadvantages</div>
+      <ul class="mc-list">
+        <li><span class="dot">✗</span>Starting current 5–8× full-load current</li>
+        <li><span class="dot">✗</span>Severe voltage dip in supply lines</li>
+        <li><span class="dot">✗</span>Only suitable for small motors (&lt;5 kW single-phase, &lt;5 kW three-phase)</li>
+        <li><span class="dot">✗</span>Not a reduced voltage starter</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout c-info">
+    <div class="ci">⚡</div>
+    <div class="cb"><div class="ct">Two Protections in DOL</div>
+      <p><strong>Overload protection:</strong> Thermal bimetallic elements trip on overcurrent. <strong>Undervoltage protection:</strong> Contactor coil de-energises when power fails — prevents unintentional restart when power is restored. This is a critical safety feature.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S3: STATOR RESISTANCE STARTING ═══ -->
+<div class="section" id="s3">
+  <div class="sec-hdr"><span class="sec-num">2.3</span><h2 class="sec-t">Stator Resistance / Reactance Starting</h2></div>
+
+  <p>External resistors (or reactors) are inserted in series with each stator phase at starting. This creates a voltage drop across the external impedance, so the voltage appearing across the motor stator terminals is reduced — reducing both starting current and starting EMF.</p>
+
+  <p>Let the fraction of full voltage applied be <em>x</em> (where x &lt; 1). Since <strong>torque ∝ (voltage)²</strong>, the starting torque is reduced by x², while starting current is reduced only by x (linearly).</p>
+
+  <div class="svg-wrap">
+    <img src="images/ch18.18/fig19.2.png" alt="Fig 2.2 — Stator resistance starting circuit diagram" style="width:100%;height:auto;">
+    <div class="svg-cap">Fig 2.2 — Stator resistance starting: external resistors in series reduce the terminal voltage to xV. Bypassed by contactor after motor picks up speed.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §6.12; Bimbhra [3], §5.11</div>
+  </div>
+
+  <div class="fblock"><span class="flbl">Key Formulae — Stator Resistance / Reactance Starting</span><span class="fv">x</span>         = fraction of full supply voltage applied (x &lt; 1)
+
+Starting current :  <span class="feq">Ist = x × If_DOL</span>
+Starting torque  :  <span class="feq">Tst/Tf = x² × (Ist_DOL/If)² × sF</span>
+
+Torque penalty is SQUARE of current reduction.
+Reactors: efficiency (η) not greatly affected but power factor is low lagging.</div>
+
+  <div class="callout c-warn">
+    <div class="ci">⚠️</div>
+    <div class="cb"><div class="ct">Important Distinction</div>
+      <p>With stator resistance: <strong>supply current = motor current (series circuit)</strong> → current from supply is reduced by x. With autotransformer: supply current is reduced by x², which is a greater benefit — hence autotransformer is preferred for large motors despite higher cost.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S4: AUTOTRANSFORMER STARTING ═══ -->
+<div class="section" id="s4">
+  <div class="sec-hdr"><span class="sec-num">2.4</span><h2 class="sec-t">Autotransformer Starting</h2></div>
+
+  <p>An autotransformer with tapping ratio x (x &lt; 1) steps down the supply voltage to xV at the motor terminals. The <strong>motor starting current from the motor side</strong> is x times the DOL starting current. However, because the autotransformer is a transformer, the <strong>supply-side current is further reduced by x</strong> — making the supply current x² times the DOL starting current.</p>
+
+  <div class="svg-wrap">
+    <img src="images/ch18.18/fig19.3.png" alt="Fig 2.3 — Auto-transformer starter circuit diagram" style="width:100%;height:auto;">
+    <div class="svg-cap">Fig 2.3 — Autotransformer starter with selectable tappings (60%, 70%, 80%, 90%). Supply current reduced by x², motor current reduced by x. Used for large cage motors.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §6.13; Chapman [1], §6.8</div>
+  </div>
+
+  <div class="fblock"><span class="flbl">Autotransformer — Key Relations</span>Tapping ratio:       <span class="fv">x</span> (e.g. 0.6, 0.7, 0.8, 0.9)
+
+Motor terminal volt: <span class="feq">V_motor = x × V_supply</span>
+Motor start current: <span class="feq">I_st_motor = x × I_DOL</span>   (at motor terminals)
+Supply-side current: <span class="feq">I_st_supply = x² × I_DOL</span>  (transformer action!)
+
+Torque ratio:        <span class="feq">Tst/Tf = x² × (Ist_DOL/If)² × sF</span>
+
+Compare with stator resistance: same torque formula x²,
+but supply current with AT = x²×I_DOL vs SR = x×I_DOL
+→ AT is more effective in reducing supply disturbance.</div>
+
+  <div class="callout c-tip">
+    <div class="ci">💡</div>
+    <div class="cb"><div class="ct">GATE Trap: Why AT Reduces Supply Current by x² not x</div>
+      <p>Motor draws x·I_DOL at motor voltage xV. The autotransformer secondary current is x·I_DOL. Primary current = (secondary turns/primary turns) × secondary current = x × (x·I_DOL) = x²·I_DOL. This "double reduction" makes AT far superior for large motors.</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="mini-card mc-grn">
+      <div class="mc-t">Advantages</div>
+      <ul class="mc-list">
+        <li><span class="dot">✓</span>Flexible tapping for optimum torque/current</li>
+        <li><span class="dot">✓</span>Supply current reduced by x² (best of all reduced-voltage methods)</li>
+        <li><span class="dot">✓</span>Good η during starting (transformer losses only)</li>
+        <li><span class="dot">✓</span>Preferred for large motors (&gt;25 kW)</li>
+      </ul>
+    </div>
+    <div class="mini-card mc-red">
+      <div class="mc-t">Disadvantages</div>
+      <ul class="mc-list">
+        <li><span class="dot">✗</span>Most expensive of the cage motor starters</li>
+        <li><span class="dot">✗</span>Requires a suitable 3-phase autotransformer</li>
+        <li><span class="dot">✗</span>Bulkier than other starters</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S5: STAR-DELTA STARTING ═══ -->
+<div class="section" id="s5">
+  <div class="sec-hdr"><span class="sec-num">2.5</span><h2 class="sec-t">Star-Delta (Y-Δ) Starting</h2></div>
+
+  <p>Star-delta starting is the most common and economical reduced-voltage starting method for squirrel cage motors in the 5–30 kW range. It requires only a single TPDT (Triple Pole Double Throw) switch — no external resistors or transformers.</p>
+
+  <p><strong>Principle:</strong> The motor stator is designed for delta (Δ) connection at rated speed. During starting, it is connected in star (Y), which reduces the phase voltage to V/√3. When the motor accelerates to about 70–90% of synchronous speed, the switch throws to delta, applying full phase voltage V.</p>
+
+  <div class="svg-wrap">
+    <img src="images/ch18.18/fig19.4.png" alt="Fig 2.4 — Star-Delta starter winding connections during start and run" style="width:100%;height:auto;">
+    <div class="svg-cap">Fig 2.4 — Star (Y) connection during starting reduces phase voltage to V/√3. Switch throws to delta (Δ) when motor reaches ≈80% of synchronous speed for normal rated operation. Uses TPDT switch only.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §6.14; Chapman [1], §6.8</div>
+  </div>
+
+  <div class="fblock"><span class="flbl">Star-Delta — Quantitative Analysis</span>During START (Y connection):
+  V_phase(Y) = V_L / √3
+  I_st(Y)    = (V_L/√3) / Z_ph = I_st_DOL / 3     [current ratio = 1/3]
+
+During RUN (Δ connection):
+  V_phase(Δ) = V_L      (full phase voltage)
+
+<span class="fh">Starting Torque Ratio:</span>
+  <span class="feq">Tst/Tf = (1/3) × (Ist_DOL/If)² × sF</span>
+
+Both starting current AND torque are reduced to <span class="fv">1/3</span> of DOL values.
+Current from supply = 1/3 × I_DOL (line current in star)</div>
+
+  <div class="callout c-warn">
+    <div class="ci">⚠️</div>
+    <div class="cb"><div class="ct">Limitation: Voltage Surge at Switchover</div>
+      <p>When switching from Y to Δ, there is a <strong>momentary transient (voltage surge)</strong> because the motor EMF and supply are not in phase at the instant of switching. This can cause a current spike. For this reason, star-delta is not suitable for motors &gt;3.3 kV (those motors are usually designed for star connection anyway).</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Comparison: Why Star-Delta vs Autotransformer at x = 1/√3?</h3>
+  <p>An autotransformer at x = 1/√3 ≈ 0.577 gives x² = 1/3, <em>exactly the same torque and supply current as star-delta</em>. The difference: with AT the motor sees xV throughout starting, with Y-Δ there is a hard switchover. AT is more controllable but more expensive. Star-delta is preferred for the 5–30 kW range.</p>
+</div>
+
+<!-- ═══ S6: ROTOR RESISTANCE STARTING ═══ -->
+<div class="section" id="s6">
+  <div class="sec-hdr"><span class="sec-num">2.6</span><h2 class="sec-t">Rotor Resistance Starting (Slip-Ring / Wound Rotor IM)</h2></div>
+
+  <p>External resistance is inserted into the rotor circuit via slip rings and brushes. This method is <strong>only applicable to wound-rotor (slip-ring) induction motors</strong>. The stator receives full rated voltage — so starting current from the supply is not as severely large as in DOL cage motors, and the <strong>starting torque is dramatically increased</strong>.</p>
+
+  <div class="svg-wrap">
+    <img src="images/ch18.18/fig19.5.png" alt="Fig 2.5 — Rotor resistance starting circuit diagram" style="width:100%;height:auto;">
+    <div class="svg-cap">Fig 2.5 — Rotor resistance starter: external resistance in rotor circuit via slip rings. Stator gets full voltage. Resistance stepped out as motor accelerates. Improves starting torque dramatically.</div>
+    <div class="svg-cite">Basis: Nagrath &amp; Kothari [2], §6.15; Bimbhra [3], §5.13</div>
+  </div>
+
+  <div class="fblock"><span class="flbl">Rotor Resistance — Physics</span>Torque:   <span class="feq">T ∝ (E₂)² × R₂ / (R₂² + s²X₂²)</span>
+
+At standstill (s=1):  T ∝ E₂² × R₂ / (R₂² + X₂²)
+Maximum torque when:  <span class="feq">R₂(total) = X₂  ⟹  T_max at s=1 (standstill!)</span>
+
+This is why rotor resistance starting is the ONLY method
+that can give maximum torque at starting.
+
+Rotor copper loss = s × Power transferred to rotor
+At high s: more loss → not suitable for long-duration or wide-range speed control.</div>
+
+  <div class="two-col">
+    <div class="mini-card mc-grn">
+      <div class="mc-t">Advantages</div>
+      <ul class="mc-list">
+        <li><span class="dot">✓</span>Technically best starting method</li>
+        <li><span class="dot">✓</span>Starting torque can equal maximum torque</li>
+        <li><span class="dot">✓</span>Smooth acceleration as resistance is cut out</li>
+        <li><span class="dot">✓</span>Reduces starting current while increasing torque</li>
+        <li><span class="dot">✓</span>Preferred for high-inertia loads (electric traction)</li>
+      </ul>
+    </div>
+    <div class="mini-card mc-red">
+      <div class="mc-t">Disadvantages</div>
+      <ul class="mc-list">
+        <li><span class="dot">✗</span>Only for wound-rotor (slip-ring) motors</li>
+        <li><span class="dot">✗</span>Slip rings, brushes need maintenance</li>
+        <li><span class="dot">✗</span>High copper loss in external resistance</li>
+        <li><span class="dot">✗</span>Motor is more expensive than cage type</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S7: SPEED CONTROL — STATOR SIDE ═══ -->
+<div class="section" id="s7">
+  <div class="sec-hdr"><span class="sec-num">2.7</span><h2 class="sec-t">Speed Control — Stator Side Methods</h2></div>
+
+  <p>Induction motors are less popular than DC shunt motors for speed control because even though the T-s characteristics are identical in shape, DC motors offer far more effective and efficient control. Despite this, speed control of IMs is important for variable-speed drives.</p>
+
+  <p>Speed: \(N = N_s(1-s) = \dfrac{120f}{P}(1-s)\). Control can be from stator (supply voltage, frequency, or pole changing) or rotor side (resistance, slip power recovery, cascading).</p>
+
+  <h3 class="sub">Method 1 — Supply Voltage Control</h3>
+
+  <p>The supply voltage is varied (using an autotransformer or thyristor controller). Since \(T \propto V^2\), reducing voltage shifts the T-s curve down. For constant load torque, the motor reacts by increasing its slip — so speed reduces.</p>
+
+  <div class="svg-wrap">
+    <img src="images/ch18.18/fig19.6.png" alt="Fig 2.6 — Supply voltage control T-s curves" style="width:100%;height:auto;">
+    <div class="svg-cap">Fig 2.6 — Supply voltage control: reducing V shifts T-s curve down (T ∝ V²). Motor operates at higher slip for same load torque. Inefficient — more I²R loss at lower speed.</div>
+  </div>
+
+  <div class="callout c-warn">
+    <div class="ci">⚠️</div>
+    <div class="cb"><div class="ct">Inefficiency of Voltage Control</div>
+      <p>At reduced voltage, for the same load torque, the motor runs at higher slip. Rotor copper loss = s × air-gap power → higher slip means more copper loss. The motor draws more current for the same mechanical output, becoming inefficient. Hence voltage control is not preferred for wide-range or long-duration speed control.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Method 2 — Variable Frequency Control (V/f Control)</h3>
+
+  <p>Frequency is varied by a power electronic converter (inverter/VFD). Since synchronous speed \(N_s = 120f/P\), varying f directly controls speed. To avoid core saturation, the V/f ratio must be kept constant:</p>
+
+  <div class="fblock"><span class="flbl">V/f (Variable Frequency Drive) — Key Relations</span>Stator EMF:       <span class="feq">V₁ ≈ E ≈ 4.44 f N₁ Bm A</span>
+
+Maintain flux:     <span class="feq">Bm ∝ V/f = constant</span>
+
+Max torque:        <span class="feq">Tmax ∝ (1/Ns) × E₂²/(2X₂)</span>
+                   = (3×60/2πNs) × E₂²/(2X₂)
+
+At reduced f:
+  Ns decreases →  Ns1 = (f/f1)×Ns
+  E2 decreases →  E21 = (f/f1)×E2
+  X2 decreases →  X21 = (f/f1)×X2
+
+Therefore:         <span class="feq">Tmax ∝ E₂²/(Ns×X₂) = constant!</span>
+
+Within V/f control range: maximum and breakdown torque remain the same.</div>
+
+  <div class="callout c-tip">
+    <div class="ci">💡</div>
+    <div class="cb"><div class="ct">V/f Control — GATE Key Point</div>
+      <p>When V/f is kept constant, the slip at maximum torque \(s_m = R_2/X_2\) changes (since X₂ = 2πfL₂ varies with f, while R₂ is constant). At lower frequencies, \(s_m\) increases. This means the T-s curves shift but the maximum torque is preserved — a key advantage over voltage control. Requires an expensive power electronic converter.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Method 3 — Pole Changing</h3>
+  <p>Only gives discrete speed steps. Two methods: (a) Multiple windings — two independent sets of windings in the stator slots, designed for different pole numbers (e.g. 2-pole and 4-pole). Depending on speed requirement, one is connected to supply, other is disconnected. <strong>Increases motor size and cost.</strong></p>
+  <p>(b) Consequent pole changing — a single winding is reconnected externally to produce different pole formations. Only squirrel cage rotors are suitable since the rotor automatically adjusts to any pole number on the stator. Gives only 2:1 speed ratio per winding set.</p>
+
+  <div class="svg-wrap">
+    <img src="images/ch18.18/fig19.7.png" alt="Fig 2.7 — Consequent pole changing 2-pole to 4-pole" style="width:100%;height:auto;">
+    <div class="svg-cap">Fig 2.7 — Consequent pole changing: same winding reconnected to produce 2× poles → half the synchronous speed. Only squirrel cage motors support this method.</div>
+  </div>
+
+  <h3 class="sub">Method 4 — Stator Resistance Speed Control</h3>
+  <p>Same principle as stator resistance starting — resistors inserted in series to reduce voltage. However, as a speed control method it is disadvantageous: motor draws large current for same torque at lower speed → poor efficiency. Preferred only for small motors and for short duration control because of its low cost.</p>
+</div>
+
+<!-- ═══ S8: SPEED CONTROL — ROTOR SIDE ═══ -->
+<div class="section" id="s8">
+  <div class="sec-hdr"><span class="sec-num">2.8</span><h2 class="sec-t">Speed Control — Rotor Side Methods</h2></div>
+
+  <h3 class="sub">Method 1 — Rotor Resistance Control</h3>
+  <p>External resistance is inserted in the rotor circuit of a slip-ring motor. Torque equation: \(T \propto \dfrac{s}{R_2}\). For constant torque operation, if R₂ increases, s must increase proportionally — so speed decreases. The speed can be varied smoothly.</p>
+
+  <div class="svg-wrap">
+    <img src="images/ch18.18/fig19.8.png" alt="Fig 2.8 — Rotor resistance control T-s characteristics" style="width:100%;height:auto;">
+    <div class="svg-cap">Fig 2.8 — Rotor resistance control: increasing R₂ shifts sm to higher slip values. For constant load torque, motor operates at higher slip → lower speed. Max torque remains constant (only sm changes).</div>
+  </div>
+
+  <div class="callout c-danger">
+    <div class="ci">🔴</div>
+    <div class="cb"><div class="ct">Why Rotor Resistance Control is Inefficient</div>
+      <p>All slip power = \(s \times P_{air-gap}\) is dissipated as heat in the external rotor resistance. At low speed (high s), this loss is enormous. Therefore rotor resistance control is not suitable for wide-range or continuous speed control. It is used only for starting or brief speed adjustment in traction applications.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Method 2 — Slip Power Recovery (Kramer / Scherbius)</h3>
+  <p>Instead of wasting slip power as heat, it is recovered and fed back to the supply. External voltage at slip frequency is <strong>injected into the rotor circuit</strong> through slip rings. Depending on the phase of injected voltage:</p>
+  <ul style="margin:0 0 14px 18px;color:var(--text2);font-size:clamp(14px,2vw,17px);line-height:1.85;">
+    <li style="margin-bottom:8px;"><strong>Add to rotor EMF</strong> (in phase with sE₂): increases rotor current → torque ↑ → slip ↓ → speed ↑ (supersynchronous)</li>
+    <li><strong>Oppose rotor EMF</strong> (antiphase): reduces rotor current → torque ↓ → motor reacts by increasing slip → speed ↓ (subsynchronous)</li>
+  </ul>
+  <p>This method is expensive and does not give a wide speed range. Modern implementation uses static Kramer scheme (diode rectifier + inverter) — commonly used in large pump and fan drives.</p>
+
+  <h3 class="sub">Method 3 — Cascading / Tandem Connection</h3>
+  <p>Two slip-ring induction motors are mechanically coupled (same shaft) and electrically connected — the rotor output of Motor 1 (at slip frequency) feeds the stator of Motor 2. This gives multiple discrete speed options.</p>
+
+  <div class="fblock"><span class="flbl">Cascading — Speed Equations</span>Synchronous speeds:
+  Motor 1:  <span class="feq">N₁ = (120f/P₁)(1−s₁)</span>
+  Motor 2:  <span class="feq">N₂ = (120×s₁f/P₂)(1−s₂)</span>
+
+Since both shafts are coupled: N₁ = N₂ = N
+Setting s₁s₂ → 0:
+  <span class="feq">N = 120f / (P₁ ± P₂)</span>
+
+  + sign: Cumulative cascading (same phase sequence for M2)
+  − sign: Differential cascading (reversed phase sequence for M2)
+
+<span class="fh">Four speed options with cascading:</span>
+  N₃ = 120f/P₁         (M1 alone)
+  N₄ = 120f/P₂         (M2 alone)
+  N₁ = 120f/(P₁+P₂)    (cumulative cascade)
+  N₂ = 120f/(P₁−P₂)    (differential cascade)</div>
+
+  <div class="callout c-key">
+    <div class="ci">🔑</div>
+    <div class="cb"><div class="ct">GATE Concept: Cascading Requirements</div>
+      <p>Both motors must be slip-ring type. The phase sequence of rotor output of Motor 1 determines whether the cascade is cumulative (+) or differential (−). Differential cascading requires the poles of the two motors to be different (especially for differential). This drive provides 4 speed steps including independent operation of each motor.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ S9: BRAKING ═══ -->
+<div class="section" id="s9">
+  <div class="sec-hdr"><span class="sec-num">2.9</span><h2 class="sec-t">Braking of Induction Motors</h2></div>
+
+  <p>Braking is done intentionally to stop the motor rapidly at a required instant. It is essential in manufacturing processes and drive systems. Braking in induction motors is analogous to braking in DC motors — three fundamental methods exist.</p>
+
+  <h3 class="sub">Method 1 — Plugging (Counter-Current Braking)</h3>
+  <p>The phase sequence of the supply is reversed (by interchanging any two phase terminals across the stator) while the motor is running. The magnetic field immediately reverses direction, but the rotor continues rotating in the original direction due to inertia.</p>
+  <p>This means the relative speed between field and rotor = N_s + N (very large!), so a very large braking torque is developed. The motor tries to rotate in the reverse direction — it must be <strong>disconnected from supply before reaching zero speed</strong> using a speed-sensing relay (zero-speed switch), otherwise it will reverse.</p>
+
+  <div class="svg-wrap">
+    <img src="images/ch18.18/fig19.9.png" alt="Fig 2.9 — Plugging slip during braking" style="width:100%;height:auto;">
+    <div class="svg-cap">Fig 2.9 — Plugging: reversed phase sequence creates s ≈ 2 (sum of normal slip + rotor slip). Extremely effective braking. High rotor temperature — motor must be designed for this condition.</div>
+  </div>
+
+  <h3 class="sub">Method 2 — Dynamic (Rheostatic) Braking</h3>
+  <p>The 3-phase supply is disconnected and a DC voltage is applied across any two stator phases. This creates a stationary (non-rotating) magnetic flux in the air gap. The rotating rotor cuts this stationary flux, generating currents in the rotor and producing a braking torque.</p>
+
+  <div class="svg-wrap">
+    <img src="images/ch18.18/fig19.10.png" alt="Fig 2.10 — Dynamic braking DC applied to stator" style="width:100%;height:auto;">
+    <div class="svg-cap">Fig 2.10 — Dynamic braking: 3φ AC disconnected; DC applied to 2 stator phases (star or delta connection). Creates stationary flux. Rotating rotor generates braking EMF, current, and torque. No danger of speed reversal.</div>
+  </div>
+
+  <div class="callout c-tip">
+    <div class="ci">💡</div>
+    <div class="cb"><div class="ct">Advantage Over Plugging</div>
+      <p>Dynamic braking has <strong>no danger of speed reversal</strong> — unlike plugging, the motor naturally comes to rest without reversing. However, induced rotor currents must be controlled (from stator or rotor side if slip-ring) to avoid overheating. This method produces a constant stationary time-varying flux — it is similar to regenerative braking but the energy is dissipated rather than recovered.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Method 3 — Regenerative Braking</h3>
+  <p>Regenerative braking is not intentional braking — it occurs naturally when the motor speed exceeds synchronous speed (N &gt; N_s). In this condition, the slip becomes negative (s &lt; 0), and the motor acts as an induction <strong>generator</strong>, feeding real power back into the supply lines.</p>
+
+  <div class="fblock"><span class="flbl">Regenerative Braking — Condition</span>Normal motoring:   N &lt; Ns,  s = (Ns − N)/Ns &gt; 0
+Regenerative:      N &gt; Ns,  <span class="feq">s = (Ns − N)/Ns &lt; 0</span>
+
+When s &lt; 0:
+  E₂ reverses sign → I₂ reverses → T reverses (braking torque)
+  Rotor component of stator current reverses → IM feeds active power to supply
+
+During regeneration:
+  Magnetising current I₀ still drawn from supply (lagging) → VAR consumed
+  Active power fed back → only magnetising current from supply</div>
+
+  <div class="callout c-key">
+    <div class="ci">📌</div>
+    <div class="cb"><div class="ct">Regenerative Braking — Practical Significance</div>
+      <p>This is not intentional braking and will not stop the motor. It occurs naturally with overhauling loads (descending load on a hoist) or during frequency reduction in VFD drives. It is particularly useful in <strong>mountain railways where slip-ring motors are preferred</strong> — they feed power back to the grid while descending, saving energy. During this braking, the motor still draws magnetising (reactive) current from the supply.</p>
+    </div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr>
+        <th>Braking Method</th><th>Principle</th><th>Speed Reversal Risk</th><th>Energy</th><th>Application</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Plugging</td><td>Phase sequence reversed; s ≈ 2</td><td class="t-red">High — must disconnect at N=0</td><td class="t-red">All dissipated in rotor</td><td>Quick stop needed</td></tr>
+        <tr><td>Dynamic</td><td>DC applied to stator; stationary flux</td><td class="t-grn">None</td><td class="t-org">Dissipated in rotor</td><td>Precise stopping position</td></tr>
+        <tr><td>Regenerative</td><td>N &gt; Ns; s &lt; 0; IM becomes generator</td><td class="t-grn">None (N → Ns naturally)</td><td class="t-grn">Returned to supply</td><td>Overhauling loads, mountain railways</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ S10: GATE & IES CONCEPTS ═══ -->
+<div class="section" id="s10">
+  <div class="sec-hdr"><span class="sec-num">2.10</span><h2 class="sec-t">GATE &amp; IES Exam Concepts — Worked Numericals</h2></div>
+
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EXAMPLE 2.1</span>
+      <span class="ex-title">Autotransformer Starting — Find tapping ratio for given starting torque</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">A 3-phase squirrel cage IM draws 6 times full-load current at full voltage starting (DOL). Full-load slip = 0.05. An autotransformer starter is used. Find the tapping ratio x if the starting torque must be 1.5 times full-load torque.</div>
+      <div class="sol-lbl">Solution</div>
+      <p><strong>Given:</strong> I_st (DOL) / I_f = 6, s_f = 0.05, T_st / T_f = 1.5</p>
+      <p>Using autotransformer torque formula: \[\frac{T_{st}}{T_f} = x^2 \left(\frac{I_{st\_DOL}}{I_f}\right)^2 s_f\]</p>
+      <p>Substituting: \[1.5 = x^2 \times (6)^2 \times 0.05 = x^2 \times 1.8\]</p>
+      <p>\[x^2 = \frac{1.5}{1.8} = 0.833 \quad \Rightarrow \quad x = 0.913\]</p>
+      <p><strong>Answer:</strong> Tapping ratio x = 0.913 (approximately 91.3% tap). <em>Note: standard tappings are 60%, 70%, 80%, 90% — use 90% tap.</em></p>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EXAMPLE 2.2</span>
+      <span class="ex-title">Star-Delta Starting — Torque ratio with given full-load parameters</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">For a 3-phase IM, I_st(DOL)/I_f = 7 and s_f = 0.04. Find T_st/T_f for (a) DOL starting, (b) Star-delta starting.</div>
+      <div class="sol-lbl">Solution</div>
+      <p><strong>(a) DOL starting:</strong> \[\frac{T_{st}}{T_f} = \left(\frac{I_{st}}{I_f}\right)^2 \times s_f = (7)^2 \times 0.04 = 49 \times 0.04 = \mathbf{1.96}\]</p>
+      <p><strong>(b) Star-delta starting:</strong> Starting torque is 1/3 of DOL starting torque: \[\frac{T_{st}}{T_f} = \frac{1}{3} \times 1.96 = \mathbf{0.653}\]</p>
+      <p>Also using formula directly: \[\frac{T_{st}(Y)}{T_f} = \frac{1}{3}\left(\frac{I_{st\_DOL}}{I_f}\right)^2 \times s_f = \frac{1}{3} \times 49 \times 0.04 = 0.653\]</p>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EXAMPLE 2.3</span>
+      <span class="ex-title">Cascading Connection — Find operating speeds</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">A 50 Hz supply feeds a cascaded set of two slip-ring induction motors. Motor 1 has P₁ = 4 poles, Motor 2 has P₂ = 6 poles. Both are mechanically coupled. Find all four possible operating speeds.</div>
+      <div class="sol-lbl">Solution</div>
+      <p>\[N_s = \frac{120f}{P}\]</p>
+      <p><strong>M1 alone:</strong> \(N_{s1} = \dfrac{120 \times 50}{4} = \mathbf{1500 \text{ rpm}}\)</p>
+      <p><strong>M2 alone:</strong> \(N_{s2} = \dfrac{120 \times 50}{6} = \mathbf{1000 \text{ rpm}}\)</p>
+      <p><strong>Cumulative cascade (P₁ + P₂):</strong> \(N = \dfrac{120 \times 50}{4+6} = \dfrac{6000}{10} = \mathbf{600 \text{ rpm}}\)</p>
+      <p><strong>Differential cascade (P₁ − P₂):</strong> \(N = \dfrac{120 \times 50}{|4-6|} = \dfrac{6000}{2} = \mathbf{3000 \text{ rpm}}\) (Note: 3000 rpm is supersynchronous — valid only if phase sequence of M2's rotor output is reversed relative to M1)</p>
+    </div>
+  </div>
+
+  <div class="example">
+    <div class="ex-hdr">
+      <span class="ex-num">EXAMPLE 2.4</span>
+      <span class="ex-title">Slip Power Recovery — Frequency of injected voltage</span>
+    </div>
+    <div class="ex-body">
+      <div class="ex-q">A 50 Hz 4-pole induction motor runs at 1200 rpm. What should be the frequency of voltage injected into the rotor for obtaining steady torque?</div>
+      <div class="sol-lbl">Solution</div>
+      <p>Synchronous speed: \(N_s = \dfrac{120 \times 50}{4} = 1500\text{ rpm}\)</p>
+      <p>Slip: \(s = \dfrac{N_s - N}{N_s} = \dfrac{1500 - 1200}{1500} = \dfrac{300}{1500} = 0.2\)</p>
+      <p>Rotor frequency = slip frequency: \(f_{rotor} = s \times f = 0.2 \times 50 = \mathbf{10\text{ Hz}}\)</p>
+      <p><em>The injected voltage must be at rotor frequency (10 Hz) — i.e., at slip frequency — to maintain steady torque. This is the principle of slip power recovery (Kramer scheme).</em></p>
+    </div>
+  </div>
+
+  <!-- GATE PYQ Cards -->
+  <div class="pyq-card">
+    <div class="pyq-hdr">
+      <span class="pyq-tag pyq-gate">GATE EE</span>
+      <span class="pyq-title">Starting torque of an IM with reduced voltage starting</span>
+      <span class="pyq-year">2019</span>
+    </div>
+    <div class="pyq-body">
+      <p>In a 3-phase squirrel cage induction motor, when the supply voltage is reduced to half, the starting torque becomes:</p>
+      <ul class="pyq-opts">
+        <li>A) Half of original starting torque</li>
+        <li class="correct">B) One-fourth of original starting torque</li>
+        <li>C) Twice the original starting torque</li>
+        <li>D) Remains unchanged</li>
+      </ul>
+      <p><strong>Explanation:</strong> Starting torque \(T_{st} \propto V^2\). If V → V/2, then \(T_{st} \propto (V/2)^2 = V^2/4\). So T_st becomes 1/4 of original. This is why reduced voltage starting significantly reduces starting torque — the main trade-off.</p>
+    </div>
+  </div>
+
+  <div class="pyq-card">
+    <div class="pyq-hdr">
+      <span class="pyq-tag pyq-gate">GATE EE</span>
+      <span class="pyq-title">Star-Delta vs DOL — comparison of starting current</span>
+      <span class="pyq-year">2017</span>
+    </div>
+    <div class="pyq-body">
+      <p>A 3-phase IM has a full-load current of 100 A. In star-delta starting, the line current drawn during starting as a fraction of DOL starting current is:</p>
+      <ul class="pyq-opts">
+        <li>A) 1/√3</li>
+        <li>B) 1/2</li>
+        <li class="correct">C) 1/3</li>
+        <li>D) 1/√6</li>
+      </ul>
+      <p><strong>Explanation:</strong> In star connection, phase voltage = V/√3. Phase current = (V/√3)/Z_ph = I_DOL_phase/√3. In star, I_line = I_phase. In delta (DOL), I_line = √3 × I_phase. So I_line(Y)/I_line(DOL) = (I_DOL_phase/√3)/(√3 × I_DOL_phase) = 1/3.</p>
+    </div>
+  </div>
+
+  <div class="pyq-card ies-card">
+    <div class="pyq-hdr ies-hdr">
+      <span class="pyq-tag pyq-ies">IES</span>
+      <span class="pyq-title pyq-title-ies">Rotor resistance starting — which motor type?</span>
+      <span class="pyq-year">2018</span>
+    </div>
+    <div class="pyq-body">
+      <p>Rotor resistance starting is applicable to which type of induction motor?</p>
+      <ul class="pyq-opts">
+        <li>A) Squirrel cage induction motor only</li>
+        <li>B) Single-phase induction motor only</li>
+        <li class="correct">C) Slip-ring (wound rotor) induction motor only</li>
+        <li>D) Both squirrel cage and slip-ring motors</li>
+      </ul>
+      <p><strong>Explanation:</strong> Rotor resistance starting requires access to rotor circuit through slip rings and brushes. Squirrel cage motors have short-circuited rotor bars — no external connection possible. Only slip-ring (wound rotor) motors allow external resistance to be inserted in the rotor circuit.</p>
+    </div>
+  </div>
+
+  <div class="pyq-card">
+    <div class="pyq-hdr">
+      <span class="pyq-tag pyq-gate">GATE EE</span>
+      <span class="pyq-title">Regenerative braking condition</span>
+      <span class="pyq-year">2020</span>
+    </div>
+    <div class="pyq-body">
+      <p>An induction motor operates in regenerative braking mode when:</p>
+      <ul class="pyq-opts">
+        <li>A) Rotor speed is zero and stator is energised</li>
+        <li>B) Motor is connected in star configuration</li>
+        <li class="correct">C) Rotor speed exceeds synchronous speed (N &gt; Ns), giving negative slip</li>
+        <li>D) DC voltage is applied to stator windings</li>
+      </ul>
+      <p><strong>Explanation:</strong> Regenerative braking occurs when s &lt; 0, i.e., N &gt; Ns. The slip becomes negative, torque reverses (becomes braking torque), and the machine acts as an induction generator feeding real power back to the supply. Option C is correct.</p>
+    </div>
+  </div>
+
+  <div class="gate-card">
+    <div class="gate-hdr">
+      <span class="gate-tag">CONCEPT</span>
+      <span class="gate-title">Starting Torque Comparison — All Methods</span>
+    </div>
+    <div class="gate-body">
+      <p>For the same motor with I_st(DOL)/I_f = 7 and s_f = 0.04:</p>
+      <div class="fblock"><span class="flbl">Comparative Starting Torque Ratio (Tst/Tf)</span>DOL starting:       <span class="feq">= (7)² × 0.04 = 1.96</span>
+Star-Delta:          <span class="feq">= (1/3) × 1.96 = 0.653</span>
+AT x=0.8:            <span class="feq">= (0.8)² × 1.96 = 1.254</span>
+Stator R, x=0.8:     <span class="feq">= (0.8)² × 1.96 = 1.254</span>  (same formula, different supply current)
+Rotor R (slip-ring): <span class="feq">Can achieve Tst = Tmax (best!)</span>
+
+Key: AT x=0.577 ≈ star-delta (x² = 1/3)</div>
+    </div>
+  </div>
+</div>
+
+<!-- AI PROMPT -->
+<div class="ai-prompt">
+  <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+  <p>Have a question on induction motor starting methods, speed control, or braking? Type below or pick a suggestion.</p>
+  <div class="ai-input-row">
+    <input class="ai-input" id="userQ" type="text" placeholder="e.g. Derive the torque ratio for autotransformer starting...">
+    <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+  </div>
+  <div class="ai-suggest">
+    <span class="ai-chip" onclick="setQ('A 3-phase IM has full-load slip 0.05 and starting current 6 times full-load. Find tapping x for star-delta equivalent autotransformer starting torque.')">AT equivalent to Y-Δ</span>
+    <span class="ai-chip" onclick="setQ('Explain why V/f control maintains constant maximum torque in induction motor speed control — derive from first principles')">V/f control derivation</span>
+    <span class="ai-chip" onclick="setQ('Compare plugging, dynamic braking, and regenerative braking in terms of energy dissipation, stopping time, and applications')">Braking methods comparison</span>
+    <span class="ai-chip" onclick="setQ('Two slip-ring motors with 4 and 8 poles are cascade-connected on 50 Hz supply. Find all possible speeds including both cumulative and differential modes.')">Cascading — all speeds</span>
+    <span class="ai-chip" onclick="setQ('Why is rotor resistance starting considered the best method technically? What is the condition for maximum starting torque?')">Rotor resistance — max torque condition</span>
+  </div>
+  <div class="ai-response" id="aiResp"></div>
+</div>
+
+<!-- CHAPTER SUMMARY -->
+<h3 class="sub">Chapter Summary</h3>
+<div class="sum-grid">
+  <div class="sum-card sc-o"><div class="sum-lbl">DOL Starting</div><p>Full voltage. I_st = 5–8× I_FL. Suitable only for small motors (&lt;5 kW). Two protections: overload (bimetallic) + undervoltage. Simplest, cheapest.</p></div>
+  <div class="sum-card sc-g"><div class="sum-lbl">Star-Delta</div><p>TPDT switch only. V_phase(Y) = V/√3. Tst = 1/3 of DOL. I_line = 1/3 of DOL. Switchover transient at ~80% Ns. Best for 5–30 kW range.</p></div>
+  <div class="sum-card sc-t"><div class="sum-lbl">Autotransformer</div><p>Tapping x &lt; 1. I_supply = x²·I_DOL. Tst/Tf = x²(Ist/If)²sF. Best reduced-voltage method (supply current = x²). Expensive. Best for large cage motors.</p></div>
+  <div class="sum-card sc-a"><div class="sum-lbl">Rotor Resistance</div><p>Slip-ring motors only. Tst maximised when R₂=X₂. Technically the best method. Used in traction. Speed also controllable but inefficient for wide range.</p></div>
+  <div class="sum-card sc-r"><div class="sum-lbl">V/f Speed Control</div><p>Bm ∝ V/f = const. Tmax constant in range. Requires power electronic inverter (VFD). Sm changes but Tmax preserved. Most popular modern method.</p></div>
+  <div class="sum-card sc-g"><div class="sum-lbl">Braking</div><p>Plugging: s≈2, fastest but energy wasted, reversal risk. Dynamic: DC to stator, no reversal. Regenerative: N&gt;Ns (s&lt;0), energy returned, mountain railways.</p></div>
+</div>
+
+<div class="callout c-tip" style="margin-top:22px">
+  <div class="ci">➡️</div>
+  <div class="cb"><div class="ct">Coming Next — Chapter 3</div><p>Transformers — equivalent circuit, voltage regulation, efficiency at different loads, all-day efficiency, Scott-T connection, three-phase transformer connections (Yy, Dd, Yd, Dy), vector groups, parallel operation conditions, with complete GATE &amp; IES coverage.</p></div>
+</div>
+
+<!-- CITATIONS -->
+<div class="citations" id="citations">
+  <div class="cite-h">References &amp; Citations</div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content derived from standard textbooks. Explanations, diagrams, and numerical examples are original to Aarova AI.</p>
+  <ul class="cite-list">
+    <li><span class="cite-num">[1]</span><span>Chapman, Stephen J. <em>Electric Machinery Fundamentals</em>, 5th ed. McGraw-Hill, 2012. Chapter 6, §6.8–6.10: Induction motor starting, speed control, braking.</span></li>
+    <li><span class="cite-num">[2]</span><span>Nagrath, I.J. and Kothari, D.P. <em>Electric Machines</em>, 4th ed. Tata McGraw-Hill, 2010. Chapter 6, §6.11–6.17: Starting methods, reduced voltage starters, speed control, braking — complete treatment with worked examples.</span></li>
+    <li><span class="cite-num">[3]</span><span>Bimbhra, P.S. <em>Electrical Machinery</em>, 7th ed. Khanna Publishers, 2011. Chapter 5: Induction motors — starting, control, braking, cascading, slip power recovery.</span></li>
+    <li><span class="cite-num">[4]</span><span>IIT Kharagpur NPTEL. <em>Basic Electrical Technology — Lectures 33–38: Induction Motor Starting and Speed Control</em>. Available at: nptel.ac.in.</span></li>
+  </ul>
+</div>
+
+<hr>
+<footer>
+  <strong>Aarova AI</strong> &nbsp;·&nbsp; Electrical Machines Series &nbsp;·&nbsp; Chapter 2 of 8<br>
+  <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+  <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">Content derived from standard textbooks [1–4]. All explanations and diagrams are original to Aarova AI.</span>
+</footer>
+</div>
+
+<script>
+function setQ(t){document.getElementById('userQ').value=t;document.getElementById('userQ').focus();}
+async function askClaude(){
+  const q=document.getElementById('userQ').value.trim();if(!q)return;
+  const btn=document.querySelector('.ai-btn');const resp=document.getElementById('aiResp');
+  btn.textContent='Thinking…';btn.disabled=true;
+  resp.style.display='block';resp.textContent='Generating answer…';
+  const sys=`You are Aarova AI, an expert GATE EE and IES tutor. Topic: 3-Phase Induction Motor — Starting Methods, Speed Control, and Braking (Chapter 2). Answer clearly with step-by-step working for numericals. Base answers on Chapman, Nagrath & Kothari, and Bimbhra. All content original. Format answers clearly with numbered steps.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:q}]})});
+    const data=await res.json();
+    resp.textContent=data.content?.map(c=>c.text||'').join('\n')||'No response.';
+  }catch(e){resp.textContent='Could not connect. Please try again.';}
+  btn.textContent='Ask Aarova AI';btn.disabled=false;
+}
+document.getElementById('userQ').addEventListener('keydown',e=>{if(e.key==='Enter')askClaude();});
+
+/* Responsive SVG scroll hints on mobile */
+(function(){
+  if(window.innerWidth>600)return;
+  document.querySelectorAll('.svg-wrap').forEach(function(wrap){
+    const hint=document.createElement('div');
+    hint.style.cssText='font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+    hint.textContent='← scroll to see full diagram →';
+    wrap.appendChild(hint);
+    wrap.addEventListener('touchstart',function(){hint.style.display='none';},{once:true,passive:true});
+  });
+})();
+</script>
+</body>
+</html>

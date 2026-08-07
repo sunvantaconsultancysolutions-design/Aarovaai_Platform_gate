@@ -1,0 +1,2568 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#fdf6ee">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Aarova AI — EM Ch.2 DC Motors</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <!-- MathJax for Math Formulas -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+    :root {
+      --bg: #fdf6ee;
+      --bg2: #f8ede0;
+      --bg3: #f0e0cc;
+      --bg4: #e8d0b8;
+      --text: #1e1208;
+      --text2: #3d2010;
+      --text3: #6b3e22;
+      --muted: #9a6e50;
+      --orange: #c95f1a;
+      --orange-md: #e07235;
+      --orange-lt: #f5956a;
+      --orange-bg: #fdebd8;
+      --orange-bdr: #f0b48a;
+      --green: #2d6648;
+      --green-bg: #dff0e8;
+      --green-bdr: #8ecaaa;
+      --teal: #1e6b68;
+      --teal-bg: #d8eeed;
+      --teal-bdr: #7ec4c2;
+      --amber: #a05c00;
+      --amber-bg: #fef0d0;
+      --amber-bdr: #f0c060;
+      --red: #9a2020;
+      --red-bg: #fde8e8;
+      --red-bdr: #e89090;
+      --border: #ddc8b0;
+      --border2: #c8a888;
+      --radius: 14px;
+      --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+      --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+      --page-px: clamp(14px, 4vw, 48px);
+      --section-gap: clamp(36px, 6vw, 64px);
+      --card-px: clamp(14px, 2.5vw, 22px);
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 18px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text2);
+      font-family: 'Lora', Georgia, serif;
+      line-height: 1.85;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg2);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 3px;
+    }
+
+    img,
+    svg {
+      max-width: 100%;
+      display: block;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 var(--page-px) 80px;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(253, 246, 238, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1.5px solid var(--border);
+      padding: 12px var(--page-px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(14px, 2.5vw, 18px);
+      font-weight: 700;
+      color: var(--orange);
+      white-space: nowrap;
+    }
+
+    .logo-sub {
+      font-family: 'Lora', serif;
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: 8px;
+      font-weight: 400;
+    }
+
+    .hbadges {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .hbadge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--orange-bg);
+      border: 1px solid var(--orange-bdr);
+      color: var(--orange);
+      white-space: nowrap;
+    }
+
+    .hero {
+      padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+      border-bottom: 1.5px solid var(--border);
+      margin-bottom: clamp(24px, 4vw, 44px);
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--orange);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 2.5px;
+      background: var(--orange);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    h1.hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 7vw, 52px);
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 14px;
+    }
+
+    h1.hero-title em {
+      font-style: italic;
+      color: var(--orange);
+    }
+
+    .hero-desc {
+      font-size: clamp(14px, 2vw, 17px);
+      color: var(--text3);
+      max-width: 640px;
+      line-height: 1.75;
+      font-weight: 400;
+      margin-bottom: 22px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .badge {
+      font-size: 12px;
+      padding: 4px 13px;
+      border-radius: 22px;
+      border: 1.5px solid var(--border2);
+      color: var(--text3);
+      background: var(--bg2);
+      font-family: 'Lora', serif;
+    }
+
+    .badge-p {
+      background: var(--orange-bg);
+      border-color: var(--orange-bdr);
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    .progress-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--orange-bg);
+      border: 1.5px solid var(--orange-bdr);
+      border-radius: 10px;
+      padding: 11px 16px;
+      margin-bottom: clamp(20px, 4vw, 40px);
+    }
+
+    .pl {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--orange);
+      white-space: nowrap;
+    }
+
+    .pt {
+      flex: 1;
+      height: 7px;
+      background: rgba(201, 95, 26, 0.18);
+      border-radius: 4px;
+      overflow: hidden;
+      min-width: 30px;
+    }
+
+    .pf {
+      height: 100%;
+      width: 28%;
+      background: var(--orange);
+      border-radius: 4px;
+    }
+
+    .pp {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--orange);
+      white-space: nowrap;
+    }
+
+    .toc {
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-left: 4px solid var(--orange);
+      border-radius: var(--radius);
+      padding: clamp(16px, 3vw, 28px);
+      margin-bottom: clamp(28px, 5vw, 52px);
+    }
+
+    .toc-h {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 0 24px;
+    }
+
+    .toc-item {
+      display: flex;
+      align-items: baseline;
+      gap: 9px;
+      font-size: 14px;
+      color: var(--text3);
+      text-decoration: none;
+      padding: 7px 0;
+      border-bottom: 1px dashed transparent;
+      transition: color .2s, border-color .2s;
+      line-height: 1.5;
+    }
+
+    .toc-item:hover,
+    .toc-item:focus {
+      color: var(--orange);
+      border-bottom-color: var(--orange-lt);
+    }
+
+    .toc-n {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--orange);
+      min-width: 28px;
+      flex-shrink: 0;
+    }
+
+    .section {
+      margin-bottom: var(--section-gap);
+      opacity: 0;
+      transform: translateY(12px);
+      animation: rise .42s forwards;
+    }
+
+    @keyframes rise {
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .section:nth-child(1) {
+      animation-delay: .04s
+    }
+
+    .section:nth-child(2) {
+      animation-delay: .09s
+    }
+
+    .section:nth-child(3) {
+      animation-delay: .13s
+    }
+
+    .section:nth-child(4) {
+      animation-delay: .17s
+    }
+
+    .section:nth-child(5) {
+      animation-delay: .21s
+    }
+
+    .section:nth-child(6) {
+      animation-delay: .25s
+    }
+
+    .section:nth-child(7) {
+      animation-delay: .29s
+    }
+
+    .section:nth-child(8) {
+      animation-delay: .33s
+    }
+
+    .section:nth-child(9) {
+      animation-delay: .37s
+    }
+
+    .section:nth-child(10) {
+      animation-delay: .41s
+    }
+
+    .section:nth-child(11) {
+      animation-delay: .45s
+    }
+
+    .section:nth-child(12) {
+      animation-delay: .49s
+    }
+
+    .section:nth-child(13) {
+      animation-delay: .53s
+    }
+
+    .section:nth-child(14) {
+      animation-delay: .57s
+    }
+
+    .sec-hdr {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: clamp(14px, 3vw, 24px);
+      padding-bottom: 12px;
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    .sec-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      background: var(--orange-bg);
+      color: var(--orange);
+      border: 1px solid var(--orange-bdr);
+      padding: 3px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    h2.sec-t {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(18px, 3.5vw, 26px);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    h3.sub {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(15px, 2.5vw, 19px);
+      font-weight: 600;
+      color: var(--text2);
+      margin: clamp(20px, 3vw, 32px) 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    h3.sub::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 16px;
+      background: var(--orange-lt);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    p {
+      margin-bottom: 14px;
+      color: var(--text2);
+      font-size: clamp(14px, 2vw, 17px);
+      line-height: 1.85;
+    }
+
+    strong {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    sup.cite {
+      font-size: 9px;
+      color: var(--teal);
+      font-weight: 700;
+      cursor: pointer;
+      vertical-align: super;
+      margin-left: 1px;
+    }
+
+    .callout {
+      border-radius: 10px;
+      padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+      margin: 16px 0;
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+    }
+
+    .ci {
+      font-size: 17px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      line-height: 1;
+    }
+
+    .cb {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ct {
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 4px;
+    }
+
+    .cb p {
+      margin: 0;
+      font-size: clamp(13px, 1.8vw, 15.5px);
+      line-height: 1.68;
+    }
+
+    .c-info {
+      background: var(--orange-bg);
+      border-left: 4px solid var(--orange);
+    }
+
+    .c-info .ct {
+      color: var(--orange);
+    }
+
+    .c-info p {
+      color: var(--text2);
+    }
+
+    .c-tip {
+      background: var(--green-bg);
+      border-left: 4px solid var(--green);
+    }
+
+    .c-tip .ct {
+      color: var(--green);
+    }
+
+    .c-tip p {
+      color: #1e4d38;
+    }
+
+    .c-key {
+      background: var(--teal-bg);
+      border-left: 4px solid var(--teal);
+    }
+
+    .c-key .ct {
+      color: var(--teal);
+    }
+
+    .c-key p {
+      color: #154e4c;
+    }
+
+    .c-warn {
+      background: var(--amber-bg);
+      border-left: 4px solid var(--amber);
+    }
+
+    .c-warn .ct {
+      color: var(--amber);
+    }
+
+    .c-warn p {
+      color: #6e3f00;
+    }
+
+    .c-danger {
+      background: var(--red-bg);
+      border-left: 4px solid var(--red);
+    }
+
+    .c-danger .ct {
+      color: var(--red);
+    }
+
+    .c-danger p {
+      color: #6e1515;
+    }
+
+    .tw {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 16px 0;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: clamp(12px, 1.8vw, 15px);
+    }
+
+    thead tr {
+      background: var(--bg3);
+    }
+
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--text3);
+      border-bottom: 1.5px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--bg3);
+      transition: background .12s;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--bg2);
+    }
+
+    tbody td {
+      padding: 10px 14px;
+      color: var(--text2);
+      vertical-align: top;
+      line-height: 1.55;
+    }
+
+    tbody td:first-child {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .t-org {
+      color: var(--orange) !important;
+      font-weight: 600 !important;
+    }
+
+    .t-grn {
+      color: var(--green) !important;
+      font-weight: 600 !important;
+    }
+
+    .t-red {
+      color: var(--red) !important;
+      font-weight: 600 !important;
+    }
+
+    .t-amb {
+      color: var(--amber) !important;
+      font-weight: 600 !important;
+    }
+
+    .t-tel {
+      color: var(--teal) !important;
+      font-weight: 600 !important;
+    }
+
+    .fblock {
+      background: var(--bg3);
+      border: 1.5px solid var(--border2);
+      border-left: 4px solid var(--orange-lt);
+      border-radius: 10px;
+      padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+      margin: 14px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(11.5px, 1.8vw, 13.5px);
+      color: var(--text);
+      line-height: 2;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      white-space: pre;
+    }
+
+    .fblock .flbl {
+      font-family: 'Lora', serif;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: 5px;
+      white-space: normal;
+      display: block;
+    }
+
+    .fv {
+      color: var(--orange);
+    }
+
+    .feq {
+      color: var(--green);
+      font-weight: 500;
+    }
+
+    .fh {
+      color: var(--teal);
+    }
+
+    .svg-wrap {
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: clamp(12px, 2.5vw, 24px);
+      margin: 16px 0;
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .svg-wrap svg,
+    .svg-wrap img {
+      width: 100%;
+      height: auto;
+      min-width: 300px;
+      display: block;
+    }
+
+    .svg-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .svg-scroll svg {
+      min-width: 560px;
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .svg-cap {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    .svg-cite {
+      font-size: 10.5px;
+      color: var(--teal);
+      text-align: center;
+      margin-top: 3px;
+    }
+
+    .example {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      margin: 20px 0;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .ex-hdr {
+      background: var(--bg3);
+      padding: 9px var(--card-px);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      border-bottom: 1.5px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .ex-num {
+      font-size: 9px;
+      font-weight: 700;
+      background: var(--orange);
+      color: #fff;
+      padding: 3px 9px;
+      border-radius: 5px;
+      letter-spacing: .06em;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .ex-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text2);
+      line-height: 1.4;
+    }
+
+    .ex-body {
+      padding: clamp(13px, 2vw, 22px) var(--card-px);
+    }
+
+    .ex-q {
+      font-size: clamp(13px, 2vw, 15.5px);
+      color: var(--text);
+      background: var(--orange-bg);
+      border-left: 4px solid var(--orange);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 14px;
+      line-height: 1.62;
+    }
+
+    .sol-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .10em;
+      color: var(--green);
+      margin-bottom: 9px;
+    }
+
+    .gate-card {
+      background: #fff;
+      border: 1.5px solid var(--teal-bdr);
+      border-radius: var(--radius);
+      margin: 18px 0;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .gate-hdr {
+      background: var(--teal-bg);
+      border-bottom: 1.5px solid var(--teal-bdr);
+      padding: 9px var(--card-px);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .gate-tag {
+      font-size: 9px;
+      font-weight: 700;
+      background: var(--teal);
+      color: #fff;
+      padding: 3px 9px;
+      border-radius: 5px;
+      letter-spacing: .07em;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .gate-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--teal);
+      line-height: 1.4;
+    }
+
+    .gate-body {
+      padding: clamp(13px, 2vw, 20px) var(--card-px);
+    }
+
+    .gate-body p {
+      color: var(--text2);
+      font-size: clamp(13px, 2vw, 15.5px);
+    }
+
+    .pyq-card {
+      background: #fff;
+      border: 1.5px solid var(--teal-bdr);
+      border-radius: var(--radius);
+      margin: 18px 0;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .pyq-hdr {
+      background: var(--teal-bg);
+      border-bottom: 1.5px solid var(--teal-bdr);
+      padding: 9px var(--card-px);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .pyq-tag {
+      font-size: 9px;
+      font-weight: 700;
+      color: #fff;
+      padding: 3px 9px;
+      border-radius: 5px;
+      letter-spacing: .07em;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .pyq-gate {
+      background: var(--teal);
+    }
+
+    .pyq-ies {
+      background: var(--green);
+    }
+
+    .pyq-hdr.ies-hdr {
+      background: var(--green-bg);
+      border-color: var(--green-bdr);
+    }
+
+    .pyq-card.ies-card {
+      border-color: var(--green-bdr);
+    }
+
+    .pyq-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--teal);
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .pyq-title-ies {
+      color: var(--green);
+    }
+
+    .pyq-year {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .pyq-body {
+      padding: clamp(13px, 2vw, 20px) var(--card-px);
+    }
+
+    .pyq-body p {
+      color: var(--text2);
+      font-size: clamp(13px, 2vw, 15.5px);
+    }
+
+    .pyq-opts {
+      list-style: none;
+      margin: 10px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pyq-opts li {
+      font-size: clamp(13px, 1.8vw, 15px);
+      color: var(--text2);
+      padding: 9px 13px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--bg2);
+      font-family: 'Lora', serif;
+      cursor: default;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      line-height: 1.45;
+    }
+
+    .pyq-opts li.correct {
+      background: var(--green-bg);
+      border-color: var(--green-bdr);
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+      margin: 16px 0;
+    }
+
+    .mini-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: var(--card-px);
+      box-shadow: var(--shadow);
+    }
+
+    .mc-t {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      margin-bottom: 11px;
+    }
+
+    .mc-grn .mc-t {
+      color: var(--green);
+    }
+
+    .mc-red .mc-t {
+      color: var(--red);
+    }
+
+    .mc-org .mc-t {
+      color: var(--orange);
+    }
+
+    .mc-tel .mc-t {
+      color: var(--teal);
+    }
+
+    .mc-amb .mc-t {
+      color: var(--amber);
+    }
+
+    .mc-list {
+      list-style: none;
+    }
+
+    .mc-list li {
+      font-size: clamp(13px, 1.8vw, 15px);
+      color: var(--text2);
+      padding: 6px 0;
+      border-bottom: 1px solid var(--bg3);
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      line-height: 1.5;
+    }
+
+    .mc-list li:last-child {
+      border-bottom: none;
+    }
+
+    .dot {
+      color: var(--muted);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .sum-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .sum-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+      transition: box-shadow .2s, transform .15s;
+    }
+
+    .sum-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .sum-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      margin-bottom: 6px;
+    }
+
+    .sum-card p {
+      font-size: clamp(12px, 1.7vw, 14px);
+      color: var(--text3);
+      margin: 0;
+      line-height: 1.62;
+    }
+
+    .sc-o .sum-lbl {
+      color: var(--orange);
+    }
+
+    .sc-g .sum-lbl {
+      color: var(--green);
+    }
+
+    .sc-t .sum-lbl {
+      color: var(--teal);
+    }
+
+    .sc-a .sum-lbl {
+      color: var(--amber);
+    }
+
+    .sc-r .sum-lbl {
+      color: var(--red);
+    }
+
+    .citations {
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-left: 4px solid var(--teal);
+      border-radius: var(--radius);
+      padding: clamp(16px, 3vw, 28px);
+      margin-top: 36px;
+    }
+
+    .cite-h {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .cite-list {
+      list-style: none;
+    }
+
+    .cite-list li {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: clamp(12px, 1.8vw, 14px);
+      color: var(--text2);
+      line-height: 1.62;
+    }
+
+    .cite-list li:last-child {
+      border-bottom: none;
+    }
+
+    .cite-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--teal);
+      background: var(--teal-bg);
+      padding: 2px 7px;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      height: fit-content;
+      margin-top: 2px;
+    }
+
+    .cite-list em {
+      color: var(--orange-md);
+      font-style: italic;
+    }
+
+    .ai-prompt {
+      background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+      border: 2px solid var(--teal-bdr);
+      border-radius: var(--radius);
+      padding: clamp(16px, 3vw, 28px);
+      margin: 28px 0;
+      box-shadow: var(--shadow-md);
+    }
+
+    .ai-prompt-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--teal);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .ai-prompt>p {
+      color: var(--text2);
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .ai-input-row {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .ai-input {
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 9px;
+      border: 1.5px solid var(--border2);
+      background: var(--bg);
+      font-family: 'Lora', serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .ai-input:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+    }
+
+    .ai-btn {
+      padding: 11px 20px;
+      border-radius: 9px;
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      font-family: 'Lora', serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s;
+      white-space: nowrap;
+      min-height: 44px;
+      -webkit-appearance: none;
+    }
+
+    .ai-btn:hover {
+      background: #155250;
+    }
+
+    .ai-btn:active {
+      background: #0f3d3b;
+    }
+
+    .ai-suggest {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .ai-chip {
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--teal-bdr);
+      color: var(--teal);
+      background: var(--bg);
+      cursor: pointer;
+      font-family: 'Lora', serif;
+      transition: background .15s;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+    }
+
+    .ai-chip:hover,
+    .ai-chip:active {
+      background: var(--teal-bg);
+    }
+
+    .ai-response {
+      margin-top: 14px;
+      padding: 13px 15px;
+      background: #fff;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      font-size: 14px;
+      color: var(--text2);
+      display: none;
+      line-height: 1.72;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+
+    hr {
+      border: none;
+      border-top: 1.5px solid var(--border);
+      margin: 40px 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 26px 0;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1.5px solid var(--border);
+    }
+
+    footer strong {
+      color: var(--orange);
+    }
+
+    @media(min-width:481px) and (max-width:768px) {
+      html {
+        font-size: 16.5px;
+      }
+
+      .logo-sub {
+        display: none;
+      }
+
+      .svg-wrap {
+        padding: 12px 10px;
+      }
+
+      .svg-wrap svg,
+      .svg-wrap img {
+        min-width: 480px;
+      }
+
+      .toc-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0 20px;
+      }
+
+      .two-col {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
+      .sum-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 11px;
+      }
+
+      .fblock {
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 12px;
+        line-height: 1.8;
+      }
+
+      thead th,
+      tbody td {
+        padding: 8px 10px;
+      }
+
+      .pyq-year {
+        margin-left: 0;
+      }
+    }
+
+    @media(max-width:480px) {
+      html {
+        font-size: 15.5px;
+      }
+
+      .logo-sub {
+        display: none;
+      }
+
+      .hbadges {
+        display: none;
+      }
+
+      .site-header {
+        padding: 10px 14px;
+      }
+
+      h1.hero-title {
+        font-size: clamp(26px, 8vw, 34px);
+      }
+
+      .hero-desc {
+        font-size: 14px;
+      }
+
+      .badge-row .badge {
+        font-size: 11px;
+        padding: 4px 10px;
+      }
+
+      .progress-bar {
+        padding: 9px 12px;
+        gap: 8px;
+      }
+
+      .pl {
+        font-size: 11px;
+      }
+
+      .toc-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .toc-item {
+        font-size: 14px;
+        padding: 9px 0;
+      }
+
+      .toc {
+        padding: 14px 16px;
+      }
+
+      .sec-hdr {
+        gap: 9px;
+      }
+
+      h2.sec-t {
+        font-size: clamp(16px, 5vw, 20px);
+      }
+
+      h3.sub {
+        font-size: clamp(14px, 4.5vw, 17px);
+      }
+
+      p {
+        font-size: 15px;
+      }
+
+      .svg-wrap {
+        padding: 10px 8px;
+        border-radius: 10px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .svg-wrap svg,
+      .svg-wrap img {
+        min-width: 520px;
+        width: 520px;
+        height: auto;
+      }
+
+      .svg-wrap.svg-simple svg {
+        min-width: 280px;
+        width: 100%;
+      }
+
+      .svg-cap {
+        font-size: 11px;
+      }
+
+      .fblock {
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 11.5px;
+        line-height: 1.75;
+        padding: 12px 12px;
+        border-radius: 8px;
+      }
+
+      .tw {
+        border-radius: 8px;
+      }
+
+      thead th {
+        font-size: 9px;
+        padding: 8px 10px;
+        letter-spacing: .06em;
+      }
+
+      tbody td {
+        font-size: 12px;
+        padding: 8px 10px;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .sum-grid {
+        grid-template-columns: 1fr;
+        gap: 9px;
+      }
+
+      .mini-card {
+        padding: 13px 14px;
+      }
+
+      .sum-card {
+        padding: 14px 16px;
+      }
+
+      .callout {
+        padding: 11px 13px;
+        gap: 9px;
+      }
+
+      .ci {
+        font-size: 16px;
+      }
+
+      .cb p {
+        font-size: 13.5px;
+      }
+
+      .ex-hdr {
+        padding: 8px 13px;
+      }
+
+      .ex-body {
+        padding: 12px 13px;
+      }
+
+      .ex-q {
+        font-size: 13.5px;
+        padding: 9px 12px;
+      }
+
+      .gate-hdr,
+      .pyq-hdr {
+        padding: 8px 13px;
+        gap: 7px;
+      }
+
+      .gate-body,
+      .pyq-body {
+        padding: 12px 13px;
+      }
+
+      .pyq-opts li {
+        font-size: 13px;
+        padding: 9px 11px;
+      }
+
+      .pyq-year {
+        display: none;
+      }
+
+      .ai-prompt {
+        padding: 14px 14px;
+      }
+
+      .ai-input-row {
+        flex-direction: column;
+      }
+
+      .ai-input {
+        font-size: 15px;
+      }
+
+      .ai-btn {
+        width: 100%;
+        justify-content: center;
+        font-size: 15px;
+        padding: 13px;
+      }
+
+      .ai-chip {
+        font-size: 11px;
+      }
+
+      .ai-suggest {
+        gap: 5px;
+      }
+
+      .cite-list li {
+        font-size: 12.5px;
+        gap: 9px;
+      }
+
+      .citations {
+        padding: 14px 14px;
+      }
+
+      footer {
+        padding: 20px 0;
+        font-size: 11.5px;
+      }
+    }
+
+    @media(min-width:1024px) {
+      .page {
+        padding: 0 48px 100px;
+      }
+
+      .toc-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .two-col {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .sum-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .svg-wrap svg,
+      .svg-wrap img {
+        min-width: auto;
+        width: 100%;
+      }
+    }
+
+    @media(hover:none) {
+      .toc-item:hover {
+        color: var(--text3);
+        border-bottom-color: transparent;
+      }
+
+      .sum-card:hover {
+        transform: none;
+        box-shadow: var(--shadow);
+      }
+
+      .ai-btn:hover {
+        background: var(--teal);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div style="display:flex;align-items:center;">
+      <span class="logo">Aarova AI</span>
+      <span class="logo-sub">Electrical Machines · Chapter 2</span>
+    </div>
+    <div class="hbadges">
+      <span class="hbadge">GATE EE</span>
+      <span class="hbadge">IES E&amp;T</span>
+      <span class="hbadge">DC Motors</span>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="eyebrow">Electrical Machines · Chapter 2</div>
+      <h1 class="hero-title">DC <em>Motors</em></h1>
+      <p class="hero-desc">Principle of operation, back EMF, torque equations, types of DC motors, characteristics,
+        speed regulation — with GATE &amp; IES previous year concepts, solved examples, and inline circuit diagrams.</p>
+      <div class="badge-row">
+        <span class="badge badge-p">GATE EE</span>
+        <span class="badge badge-p">IES E&amp;T</span>
+        <span class="badge">Fleming's LH Rule</span>
+        <span class="badge">Back EMF</span>
+        <span class="badge">Torque Equations</span>
+        <span class="badge">Speed–Torque Characteristics</span>
+        <span class="badge">Speed Regulation</span>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-bar">
+      <span class="pl">Chapter Progress</span>
+      <div class="pt">
+        <div class="pf"></div>
+      </div>
+      <span class="pp">Ch 2 of 8</span>
+    </div>
+
+    <!-- TOC -->
+    <div class="toc">
+      <div class="toc-h">Contents</div>
+      <div class="toc-grid">
+        <a class="toc-item" href="#s1"><span class="toc-n">01</span>Introduction &amp; Principle</a>
+        <a class="toc-item" href="#s2"><span class="toc-n">02</span>Back EMF</a>
+        <a class="toc-item" href="#s3"><span class="toc-n">03</span>Types of DC Motors</a>
+        <a class="toc-item" href="#s4"><span class="toc-n">04</span>Voltage &amp; Current Equations</a>
+        <a class="toc-item" href="#s5"><span class="toc-n">05</span>Significance of Back EMF</a>
+        <a class="toc-item" href="#s6"><span class="toc-n">06</span>Torque &amp; Power</a>
+        <a class="toc-item" href="#s7"><span class="toc-n">07</span>Speed Equation</a>
+        <a class="toc-item" href="#s8"><span class="toc-n">08</span>Motor Characteristics</a>
+        <a class="toc-item" href="#s9"><span class="toc-n">09</span>Speed Regulation</a>
+        <a class="toc-item" href="#s10"><span class="toc-n">10</span>GATE &amp; IES PYQs</a>
+        <a class="toc-item" href="#s11"><span class="toc-n">11</span>Solved Examples</a>
+        <a class="toc-item" href="#s12"><span class="toc-n">12</span>Ask Aarova AI</a>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+  SECTION 1 — Introduction & Principle
+═══════════════════════════════════════ -->
+    <div class="section" id="s1">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 01</span>
+        <h2 class="sec-t">Introduction &amp; Principle of Operation</h2>
+      </div>
+
+      <p>DC motors are among the most widely used electrical machines in industry because of their <strong>highest
+          starting torque</strong>, wide range of accurate, simple, and efficient <strong>speed control</strong>. The
+        same DC machine can be operated either as a generator or as a motor — this is the principle of reversibility of
+        DC machines.<sup class="cite">[1]</sup></p>
+
+      <div class="callout c-key">
+        <div class="ci">⚡</div>
+        <div class="cb">
+          <div class="ct">Core Principle</div>
+          <p>When a current-carrying conductor is placed in a magnetic field, it experiences a mechanical force. The
+            magnitude is given by <strong>F = B·i·l</strong> Newtons, and the direction by <strong>Fleming's Left-Hand
+              Rule</strong> (motor rule).</p>
+        </div>
+      </div>
+
+      <h3 class="sub">Fleming's Left-Hand Rule (Motor Rule)</h3>
+      <p>Hold the left hand such that the <strong>forefinger</strong> points in the direction of the magnetic field
+        (flux), the <strong>middle finger</strong> in the direction of current, and the <strong>thumb</strong> gives the
+        direction of the mechanical force (motion) experienced by the conductor.</p>
+
+      <!-- SVG: Fleming's LHR diagram -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch6.6/fig1.1.png" alt="Figure 1">
+        <div class="svg-cap">Fig. 1 — Fleming's Left-Hand Rule: Forefinger = Flux, Middle finger = Current, Thumb =
+          Force (Motion)</div>
+        <div class="svg-cite">[Ref: Chapman §7.1; Kothari §5.1]</div>
+      </div>
+
+      <!-- SVG: Basic DC Motor (single coil) -->
+      <div class="svg-wrap">
+        <img src="images/ch6.6/fig1.2.png" alt="Figure 2">
+        <div class="svg-cap">Fig. 2 — Basic DC motor: single coil in magnetic field. Current in conductor A is into page
+          (⊗), in B is out of page (⊙). Forces produce clockwise torque. Commutator maintains unidirectional torque.
+        </div>
+        <div class="svg-cite">[Ref: Chapman §7.2; Kothari §5.2]</div>
+      </div>
+
+      <div class="callout c-info">
+        <div class="ci">📌</div>
+        <div class="cb">
+          <div class="ct">Role of Commutator in Motor</div>
+          <p>The function of the commutator in a DC motor is to <strong>produce unidirectional torque</strong>. It
+            ensures that the current in the conductors under a given pole always flows in the same direction, so the
+            torque is always in the same rotational direction. If the generator rotates clockwise, the motor (with same
+            notation) rotates anticlockwise.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+  SECTION 2 — Back EMF
+═══════════════════════════════════════ -->
+    <div class="section" id="s2">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 02</span>
+        <h2 class="sec-t">Generator Action in Motor — Back EMF</h2>
+      </div>
+
+      <p>When the armature conductors of a motor rotate in the magnetic field, by Faraday's law, an EMF is induced in
+        them. By applying the <strong>right-hand rule</strong> (generator rule) to the rotating motor armature, the
+        direction of this induced EMF is found to be <strong>exactly opposite to the applied supply voltage</strong>.
+        Therefore, it is called <strong>back EMF</strong> or <strong>counter EMF</strong> (\(E_b\)).<sup
+          class="cite">[2]</sup></p>
+
+      <div class="fblock"><span class="flbl">Back EMF Formula (same as generator EMF formula)</span>\[ E_b = \frac{\phi
+        Z N P}{60 A} \]
+
+        where:
+        \(\phi\) = flux per pole (Wb)
+        \(Z\) = total number of armature conductors
+        \(N\) = speed of armature (rpm)
+        \(P\) = number of poles
+        \(A\) = number of parallel paths
+
+        Also: \(E_b \propto \phi N\) (for given machine geometry)</div>
+
+      <!-- SVG: Motor circuit showing back EMF -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch6.6/fig1.3.png" alt="Figure 3">
+        <div class="svg-cap">Fig. 3 — DC motor equivalent circuit. V = supply voltage, Eb = back EMF, Ra = armature
+          resistance, \(I_a\) = armature current.</div>
+      </div>
+
+      <div class="callout c-tip">
+        <div class="ci">💡</div>
+        <div class="cb">
+          <div class="ct">Key Insight — Eb vs V</div>
+          <p>In a motor, <strong>Eb &lt; V</strong> always (unlike generator where Eg &gt; V). The difference (V − Eb)
+            drives the armature current \(I_a\) = (V − Eb)/Ra. When load increases → speed falls → Eb falls → \(I_a\)
+            increases → torque increases to meet load. This is the <em>self-regulating</em> nature of back EMF.</p>
+        </div>
+      </div>
+
+      <!-- SVG: Energy Conversion Block -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch6.6/fig1.4.png" alt="Figure 4">
+        <div class="svg-cap">Fig. 3b — Energy conversion occurs through opposition: Mechanical opposition in Generator,
+          Electrical opposition (Back EMF) in Motor.</div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════
+  SECTION 3 — Types of DC Motors
+═══════════════════════════════════════ -->
+    <div class="section" id="s3">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 03</span>
+        <h2 class="sec-t">Types of DC Motors</h2>
+      </div>
+
+      <p>The construction of DC motors is identical to DC generators; therefore the classification is also similar.
+        Based on the excitation of the field winding, DC motors are classified as:<sup class="cite">[1][2]</sup></p>
+
+      <!-- SVG: Classification tree -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch6.6/fig1.5.png" alt="Figure 5">
+        <div class="svg-cap">Fig. 4 — Classification of DC Motors</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+  SECTION 4 — Voltage & Current Equations
+═══════════════════════════════════════ -->
+    <div class="section" id="s4">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 04</span>
+        <h2 class="sec-t">Voltage &amp; Current Equations</h2>
+      </div>
+      <p>Each motor type has distinct circuit equations depending on how the field and armature windings are connected.
+        BCD = brush contact drop (typically 1–2 V, often neglected in GATE problems unless stated).<sup
+          class="cite">[2]</sup></p>
+
+      <h3 class="sub">① Separately Excited Motor</h3>
+      <p>The field winding is supplied from a separate DC source (V<sub>f</sub>), independent of the armature supply
+        (V).</p>
+      <!-- SVG: Sep excited circuit -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch6.6/fig1.6.png" alt="Figure 6">
+        <div class="svg-cap">Fig. 7 — Series DC motor circuit</div>
+      </div>
+
+      <div class="fblock"><span class="flbl">Series Motor Equations</span>\[ V = E_b + I_a(R_a + R_{se}) + BCD \]
+        \[ I_a = I_{se} = I_L \quad \text{(single loop current)} \]</div>
+
+      <h3 class="sub">④ Long Shunt Compound Motor</h3>
+      <!-- SVG: Long Shunt Motor -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch6.6/fig1.7.png" alt="Figure 7">
+        <div class="svg-cap">Fig. 8 — Long Shunt Compound Motor</div>
+      </div>
+
+      <div class="fblock"><span class="flbl">Long Shunt Compound Equations</span>\[ V = E_b + I_a(R_{se} + R_a) + BCD \]
+        \[ I_L = I_a + I_{sh} \]
+        \[ I_{sh} = \frac{V}{R_{sh}} \quad \text{(shunt field across full supply)} \]</div>
+
+      <h3 class="sub">⑤ Short Shunt Compound Motor</h3>
+      <!-- SVG: Short Shunt Motor -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch6.6/fig1.8.png" alt="Figure 8">
+        <div class="svg-cap">Fig. 9 — Short Shunt Compound Motor</div>
+      </div>
+
+      <div class="fblock"><span class="flbl">Short Shunt Compound Equations</span>\[ V = E_b + I_L \cdot R_{se} + I_a
+        \cdot R_a + BCD \]
+        \[ I_L = I_{sh} + I_a \]
+        \[ I_{sh} = \frac{V - I_L \cdot R_{se}}{R_{sh}} \quad \text{(shunt field across armature only)} \]</div>
+
+      <!-- Comparison Table -->
+      <div class="tw">
+        <table>
+          <thead>
+            <tr>
+              <th>Motor Type</th>
+              <th>\(I_a\) (armature)</th>
+              <th>IL (line)</th>
+              <th>Ish (shunt field)</th>
+              <th>Voltage Eqn.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Separately Excited</td>
+              <td class="t-org">\(I_a\) = IL</td>
+              <td>Given</td>
+              <td>From separate source</td>
+              <td>V = Eb + \(I_a\)·Ra</td>
+            </tr>
+            <tr>
+              <td>Shunt</td>
+              <td class="t-grn">\(I_a\) = IL − Ish</td>
+              <td>\(I_a\) + Ish</td>
+              <td>V/Rsh</td>
+              <td>V = Eb + \(I_a\)·Ra</td>
+            </tr>
+            <tr>
+              <td>Series</td>
+              <td class="t-amb">\(I_a\) = IL</td>
+              <td>\(I_a\)</td>
+              <td>—</td>
+              <td>V = Eb + \(I_a\)(Ra+Rse)</td>
+            </tr>
+            <tr>
+              <td>Long Shunt</td>
+              <td class="t-tel">\(I_a\) = IL − Ish</td>
+              <td>\(I_a\) + Ish</td>
+              <td>V/Rsh</td>
+              <td>V = Eb + \(I_a\)(Ra+Rse)</td>
+            </tr>
+            <tr>
+              <td>Short Shunt</td>
+              <td class="t-red">\(I_a\) = IL − Ish</td>
+              <td>\(I_a\) + Ish</td>
+              <td>(V−IL·Rse)/Rsh</td>
+              <td>V = Eb + IL·Rse + \(I_a\)·Ra</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+  SECTION 5 — Significance of Back EMF
+═══════════════════════════════════════ -->
+    <div class="section" id="s5">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 05</span>
+        <h2 class="sec-t">Significance of Back EMF</h2>
+      </div>
+
+      <p>Back EMF plays a fundamentally important role in the operation of DC motors. Understanding it is critical for
+        GATE/IES. The three main significances are:<sup class="cite">[2][3]</sup></p>
+
+      <div class="two-col">
+        <div class="mini-card mc-org">
+          <div class="mc-t">① Electromech. Energy Conversion</div>
+          <ul class="mc-list">
+            <li><span class="dot">→</span><span>Back EMF opposes the applied voltage and limits armature current.</span>
+            </li>
+            <li><span class="dot">→</span><span>Product \( E_b \cdot I_a \) represents the electrical equivalent of
+                mechanical power developed in the armature: \( P_{\text{mech}} = E_b \cdot I_a \) (watts).</span></li>
+            <li><span class="dot">→</span><span>No back EMF = no energy conversion (motor stalls and burns).</span></li>
+          </ul>
+        </div>
+        <div class="mini-card mc-grn">
+          <div class="mc-t">② Motor Efficiency</div>
+          <ul class="mc-list">
+            <li><span class="dot">→</span><span>\( \eta = \frac{\text{Output}}{\text{Input}} = \frac{E_b \cdot I_a}{V
+                \cdot I_a} = \mathbf{\frac{E_b}{V}} \)</span></li>
+            <li><span class="dot">→</span><span>Higher \(E_b\) → higher efficiency. Motor is most efficient near
+                full-load speed (\(E_b \approx 0.95V\) typically).</span></li>
+            <li><span class="dot">→</span><span>At no load: \(E_b \to V\), \(I_a \to 0\), \(\eta \to 1\) (ideal).</span>
+            </li>
+          </ul>
+        </div>
+        <div class="mini-card mc-tel">
+          <div class="mc-t">③ Self-Regulating Nature</div>
+          <ul class="mc-list">
+            <li><span class="dot">→</span><span>Load ↑ → Speed ↓ → \(E_b\) ↓ → \(I_a\) ↑ → Torque ↑ (matches
+                load).</span></li>
+            <li><span class="dot">→</span><span>Load removed → Speed ↑ → \(E_b\) ↑ → \(I_a\) ↓ → Torque ↓.</span></li>
+            <li><span class="dot">→</span><span>Motor automatically reaches new equilibrium speed. \(I_a =
+                \frac{V-E_b}{R_a}\) acts as self-regulator.</span></li>
+          </ul>
+        </div>
+        <div class="mini-card mc-amb">
+          <div class="mc-t">Maximum Mechanical Power</div>
+          <ul class="mc-list">
+            <li><span class="dot">→</span><span>\(P_m = V \cdot I_a - I_a^2 \cdot R_a\)</span></li>
+            <li><span class="dot">→</span><span>\(dP_m/dt = 0\) gives: \(I_a \cdot R_a = V/2\), so <strong>\(E_b =
+                  V/2\)</strong></span></li>
+            <li><span class="dot">→</span><span>At \(P_{m,\text{max}}\): \(\eta = E_b/V = 1/2 =\)
+                <strong>50%</strong></span></li>
+            <li><span class="dot">→</span><span>Motors are not designed for this — designed for max \(\eta\) near rated
+                load.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="fblock"><span class="flbl">Power Balance in DC Motor Armature</span>\( V \cdot I_a \) = Power input to
+        armature
+        \( I_a^2 \cdot R_a \) = Copper loss in armature resistance
+        \( E_b \cdot I_a \) = Mechanical power developed (\( P_{\text{mech}} \))
+
+        Therefore: \[ P_{\text{mech}} = E_b \cdot I_a = V \cdot I_a - I_a^2 \cdot R_a \]
+
+        Shaft output: \( P_{\text{shaft}} = P_{\text{mech}} - \text{Rotational losses (iron + friction & windage)} \)
+        Rotational losses → iron losses + mechanical losses (\( = \text{lost torque} \times \omega \))</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+  SECTION 6 — Torque & Power
+═══════════════════════════════════════ -->
+    <div class="section" id="s6">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 06</span>
+        <h2 class="sec-t">Torque Equations</h2>
+      </div>
+
+      <!-- SVG: Torque Definition -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch6.6/fig1.9.png" alt="Figure 9">
+        <div class="svg-cap">Fig. 10a — Torque is the twisting moment produced by force F acting at radius r.</div>
+      </div>
+
+      <p>Torque is the turning or twisting moment of force about an axis, expressed in N·m. For a DC motor, the
+        <strong>electromagnetic (armature) torque</strong> T<sub>a</sub> is derived from the power developed in the
+        armature:<sup class="cite">[1][2]</sup>
+      </p>
+
+      <div class="fblock"><span class="flbl">Derivation of Torque Equation</span>Power developed in arm: \( P = E_b
+        \cdot I_a = \frac{2\pi N T}{60} \) (watts)
+
+        \( E_b = \frac{\phi Z N P}{60 A} \) → Substitute:
+
+        \( I_a \times \frac{\phi Z N P}{60 A} = \frac{2\pi N T}{60} \)
+
+        \( T = \frac{\phi Z P}{2\pi A} \times I_a \)
+
+        \[ T_a = \frac{1}{2\pi} \times \left(\frac{\phi Z P}{A}\right) \times I_a \quad [\text{N}\cdot\text{m}] \]
+
+        \[ T_a \propto \phi \cdot I_a \quad \text{(for given machine geometry Z, P, A are constant)} \]
+
+        Torque ratio: \[ \frac{T_2}{T_1} = \left(\frac{\phi_2}{\phi_1}\right) \times \left(\frac{I_{a2}}{I_{a1}}\right)
+        \]</div>
+
+      <div class="callout c-warn">
+        <div class="ci">⚠️</div>
+        <div class="cb">
+          <div class="ct">Series vs Shunt Torque Ratio</div>
+          <p><strong>Shunt motor (\(\phi\) constant):</strong> T2/T1 = Ia2/Ia1 (linear)<br>
+            <strong>Series motor (\(\phi\) ∝ \(I_a\), below saturation):</strong> T2/T1 = (Ia2/Ia1)² — parabolic
+            relationship!<br>
+            <strong>Series motor (above saturation, \(\phi\) ≈ constant):</strong> T2/T1 = Ia2/Ia1 — reverts to linear.
+            This is why series motors have highest starting torque and are used in traction.
+          </p>
+        </div>
+      </div>
+
+      <h3 class="sub">Shaft Torque (T<sub>sh</sub>) vs Armature Torque (T<sub>a</sub>)</h3>
+      <p>The armature torque T<sub>a</sub> is not fully available at the shaft. Part is consumed to overcome iron losses
+        and mechanical friction/windage losses (together called <strong>lost torque</strong> or <strong>stray
+          losses</strong>).</p>
+
+      <div class="fblock"><span class="flbl">Torque relationships</span>\( T_a \) = Armature torque (electromagnetic
+        torque)
+        \( T_{sh} \) = Shaft torque (useful output torque)
+        \[ T_a - T_{sh} = \text{Lost torque (due to iron + mechanical losses)} \]
+
+        Power output = \( \frac{2\pi N \cdot T_{sh}}{60} \) (watts)
+        Power developed = \( \frac{2\pi N \cdot T_a}{60} = E_b \cdot I_a \) (watts)</div>
+
+      <!-- SVG: Power flow diagram -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch6.6/fig1.10.png" alt="Figure 10">
+        <div class="svg-cap">Fig. 10 — Power flow diagram in a DC motor</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+  SECTION 7 — Speed Equation
+═══════════════════════════════════════ -->
+    <div class="section" id="s7">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 07</span>
+        <h2 class="sec-t">Speed Equation of DC Motor</h2>
+      </div>
+      <p>From the back EMF formula, the speed of a DC motor can be expressed as:<sup class="cite">[1][2]</sup></p>
+
+      <div class="fblock"><span class="flbl">Speed Equation</span>Since \(E_b = \frac{\phi Z N P}{60A}\) → \(N =
+        \frac{E_b \times 60A}{\phi Z P}\)
+
+        For a given machine: \(Z\), \(P\), \(A\) are constants, so:
+
+        \[ N \propto \frac{E_b}{\phi} = \frac{V - I_a R_a}{\phi} \]
+
+        Speed ratio:
+        \[ \frac{N_2}{N_1} = \left(\frac{E_{b2}}{E_{b1}}\right) \times \left(\frac{\phi_1}{\phi_2}\right) \]
+
+        If flux is constant (shunt motor):
+        \[ \frac{N_2}{N_1} = \frac{E_{b2}}{E_{b1}} \]</div>
+
+      <div class="callout c-info">
+        <div class="ci">📌</div>
+        <div class="cb">
+          <div class="ct">Speed Control Methods (GATE important)</div>
+          <p>Speed N ∝ (V − \(I_a\)·Ra)/\(\phi\). Three ways to control speed:<br>
+            <strong>1. Armature resistance control</strong> — add external resistance in armature circuit (reduces speed
+            below base speed, wasteful).<br>
+            <strong>2. Field flux control</strong> — reduce \(\phi\) by weakening field (increases speed above base
+            speed, used in shunt/compound motors).<br>
+            <strong>3. Armature voltage control</strong> — vary V (Ward-Leonard method, modern: chopper/inverter
+            control). Most efficient.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout c-danger">
+        <div class="ci">🚫</div>
+        <div class="cb">
+          <div class="ct">CRITICAL — Never Start Series Motor at No Load!</div>
+          <p>At no load: \(I_a\) → 0 → \(\phi\)se → 0 → N → ∞ (dangerously high speed). The series motor can reach
+            speeds that mechanically destroy it. Series motors must always be directly coupled to the load —
+            <strong>never use belt drives</strong> (belt may slip off → no-load runaway).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+  SECTION 8 — Motor Characteristics
+═══════════════════════════════════════ -->
+    <div class="section" id="s8">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 08</span>
+        <h2 class="sec-t">Motor Characteristics</h2>
+      </div>
+      <p>Three important characteristics for each motor type: (1) Torque vs \(I_a\), (2) Speed vs \(I_a\), (3) Speed vs
+        Torque. The last two have the same shape.<sup class="cite">[1][2]</sup></p>
+
+      <h3 class="sub">① Shunt Motor Characteristics</h3>
+      <div class="svg-wrap">
+        <img src="images/ch6.6/fig1.11.png" alt="Figure 11">
+        <div class="svg-cap">Fig. 11 — Shunt motor: T vs \(I_a\) is linear (T ∝ \(I_a\), \(\phi\) constant). Speed vs
+          \(I_a\) is nearly flat — "constant speed motor" (N drops slightly from N₀ due to IaRa drop).</div>
+      </div>
+
+      <div class="callout c-tip">
+        <div class="ci">✅</div>
+        <div class="cb">
+          <div class="ct">Shunt Motor Properties</div>
+          <p>Shunt motors have excellent speed regulation; they are approximately <strong>constant-speed
+              motors</strong>. They have low-to-medium starting torque. Best suited for manufacturing applications like
+            steel rolling, Al rolling, lathes, machine tools. The characteristics of shunt motors are nearly identical
+            to induction motors, but shunt motors are preferred for <strong>superior speed control</strong>.</p>
+        </div>
+      </div>
+
+      <h3 class="sub">② Series Motor Characteristics</h3>
+      <p>Since \(\phi\) ∝ \(I_a\) (before saturation), torque T ∝ \(\phi\)·\(I_a\) ∝ Ia². This gives a
+        <strong>parabolic</strong> T–\(I_a\) curve. The speed drops sharply as load increases (hyperbolic N–\(I_a\)
+        curve).
+      </p>
+
+      <div class="svg-wrap">
+        <img src="images/ch6.6/fig1.12.png" alt="Figure 12">
+        <div class="svg-cap">Fig. 12 — Series motor: T ∝ Ia² below saturation (parabolic), speed drops hyperbolically
+          with load. Highest starting torque of all DC motors.</div>
+      </div>
+
+      <h3 class="sub">③ Compound Motor Characteristics (Cumulative)</h3>
+      <!-- SVG: Comparison chart -->
+      <div class="svg-wrap">
+        <img src="images/ch6.6/fig1.13.png" alt="Figure 13">
+        <div class="svg-cap">Fig. 13 — Comparison of N–T characteristics. Shunt: nearly flat (constant speed).
+          Cumulative compound: intermediate. Series: sharp droop (variable speed).</div>
+      </div>
+
+      <!-- Applications table -->
+      <div class="tw">
+        <table>
+          <thead>
+            <tr>
+              <th>Motor Type</th>
+              <th>Starting Torque</th>
+              <th>Speed Regulation</th>
+              <th>Key Applications</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Shunt Motor</td>
+              <td class="t-amb">Medium</td>
+              <td class="t-grn">Excellent (best SR)</td>
+              <td>Lathes, machine tools, steel rolling mills, centrifugal pumps</td>
+            </tr>
+            <tr>
+              <td>Series Motor</td>
+              <td class="t-grn">Highest</td>
+              <td class="t-red">Very Poor (variable)</td>
+              <td>Electric traction, cranes, hoists, electric locomotives, lifts</td>
+            </tr>
+            <tr>
+              <td>Compound (Cum.)</td>
+              <td class="t-grn">High</td>
+              <td class="t-amb">Good</td>
+              <td>Punches, shears, presses, compressors — intermittent heavy loads</td>
+            </tr>
+            <tr>
+              <td>Compound (Diff.)</td>
+              <td class="t-red">Low</td>
+              <td class="t-red">Unstable</td>
+              <td>Very limited practical use (unstable characteristics)</td>
+            </tr>
+            <tr>
+              <td>Sep. Excited</td>
+              <td class="t-amb">Controllable</td>
+              <td class="t-grn">Excellent</td>
+              <td>Servo motors, precise speed control applications</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SVG: Torque vs IL -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch6.6/fig1.14.png" alt="Diagram 1" style="width:100%;height:auto;border-radius:10px;">
+        <div class="svg-cap">Fig. 14 — Torque vs Line Current for all DC motors. Note how all curves intersect at the
+          rated load, but Series provides the highest starting torque for overloads.</div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════
+  SECTION 9 — Speed Regulation
+═══════════════════════════════════════ -->
+    <div class="section" id="s9">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 09</span>
+        <h2 class="sec-t">Speed Regulation</h2>
+      </div>
+      <p>Speed regulation (SR) is defined as the change in speed when the full load across the motor is disconnected
+        (i.e., from full load to no load), expressed as a percentage of rated (full load) speed.<sup
+          class="cite">[2]</sup></p>
+
+      <div class="fblock"><span class="flbl">Speed Regulation Formula</span>\[ \%SR = \frac{N_0 - N}{N} \times 100 \]
+
+        where:
+        \(N_0\) = no-load speed (rpm)
+        \(N\) = full-load (rated) speed (rpm)
+
+        Lower SR → better speed regulation (more constant speed motor)
+        <span class="fh">Shunt motor:</span> Best SR (≈ 5–10%)
+        <span class="fh">Series motor:</span> Very poor SR (speed varies widely with load)
+        <span class="fh">Differential:</span> Negative SR — speed rises with load (unstable, no practical use)
+      </div>
+
+      <div class="callout c-key">
+        <div class="ci">🎯</div>
+        <div class="cb">
+          <div class="ct">Generator Action in Motor — Important Contrast (GATE PYQ)</div>
+          <p>For generator: Eg &gt; V, \(I_a\) = (Eg−V)/Ra, mechanical input → electrical output.<br>
+            For motor: Eb &lt; V, \(I_a\) = (V−Eb)/Ra, electrical input → mechanical output.<br>
+            At rated load, motor has: EbIa = electrical equivalent of mech. power developed; VIL = total electrical
+            power input. VIL − EbIa = total copper loss.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+  SECTION 10 — GATE & IES PYQs
+═══════════════════════════════════════ -->
+    <div class="section" id="s10">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 10</span>
+        <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+      </div>
+
+      <!-- PYQ 1 -->
+      <div class="pyq-card">
+        <div class="pyq-hdr">
+          <span class="pyq-tag pyq-gate">GATE EE</span>
+          <span class="pyq-title">The back EMF of a DC motor is proportional to:</span>
+          <span class="pyq-year">GATE 2019</span>
+        </div>
+        <div class="pyq-body">
+          <ul class="pyq-opts">
+            <li>(a) Armature current only</li>
+            <li class="correct">(b) Speed × Flux (\(\phi\)N)</li>
+            <li>(c) Speed only</li>
+            <li>(d) Flux only</li>
+          </ul>
+          <div class="callout c-tip" style="margin-top:10px">
+            <div class="ci">✅</div>
+            <div class="cb">
+              <div class="ct">Solution</div>
+              <p>Eb = \(\phi\)ZNP/60A. Since Z, P, A are machine constants: <strong>Eb ∝ \(\phi\)N</strong>. Answer (b).
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PYQ 2 -->
+      <div class="pyq-card">
+        <div class="pyq-hdr">
+          <span class="pyq-tag pyq-gate">GATE EE</span>
+          <span class="pyq-title">A DC motor has Ra = 0.5 Ω, V = 200 V, Eb = 180 V. Find armature current
+            \(I_a\).</span>
+          <span class="pyq-year">GATE 2018</span>
+        </div>
+        <div class="pyq-body">
+          <ul class="pyq-opts">
+            <li>(a) 400 A</li>
+            <li class="correct">(b) 40 A</li>
+            <li>(c) 20 A</li>
+            <li>(d) 360 A</li>
+          </ul>
+          <div class="callout c-tip" style="margin-top:10px">
+            <div class="ci">✅</div>
+            <div class="cb">
+              <div class="ct">Solution</div>
+              <p>\(I_a\) = (V − Eb)/Ra = (200 − 180)/0.5 = 20/0.5 = <strong>40 A</strong>. Answer (b).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PYQ 3 -->
+      <div class="pyq-card ies-card">
+        <div class="pyq-hdr ies-hdr">
+          <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+          <span class="pyq-title pyq-title-ies">The condition for maximum mechanical power developed in a DC motor
+            is:</span>
+          <span class="pyq-year">IES 2020</span>
+        </div>
+        <div class="pyq-body">
+          <ul class="pyq-opts">
+            <li>(a) Eb = V</li>
+            <li class="correct">(b) Eb = V/2</li>
+            <li>(c) \(I_a\)·Ra = Eb</li>
+            <li>(d) \(I_a\)·Ra = 0</li>
+          </ul>
+          <div class="callout c-tip" style="margin-top:10px">
+            <div class="ci">✅</div>
+            <div class="cb">
+              <div class="ct">Solution</div>
+              <p>Pm = Eb·\(I_a\) = VIa − Ia²Ra. dPm/dIa = 0 → V = 2IaRa → IaRa = V/2. Since V = Eb + IaRa → <strong>Eb =
+                  V/2</strong>. Under this condition η = Eb/V = 50%. Answer (b).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PYQ 4 -->
+      <div class="pyq-card">
+        <div class="pyq-hdr">
+          <span class="pyq-tag pyq-gate">GATE EE</span>
+          <span class="pyq-title">A 4-pole, 220V DC shunt motor has armature resistance 0.5Ω. At no load it runs at 1200
+            rpm with armature current 4A. At full load, armature current = 40A. Find the full-load speed. Assume flux is
+            constant.</span>
+          <span class="pyq-year">GATE 2022</span>
+        </div>
+        <div class="pyq-body">
+          <p>Given: V=220V, Ra=0.5Ω, N₁=1200rpm, Ia1=4A, Ia2=40A, \(\phi\)=constant</p>
+          <div class="callout c-tip" style="margin-top:10px">
+            <div class="ci">✅</div>
+            <div class="cb">
+              <div class="ct">Step-by-step Solution</div>
+              <p>Eb1 = V − Ia1·Ra = 220 − 4×0.5 = 220 − 2 = <strong>218 V</strong><br>
+                Eb2 = V − Ia2·Ra = 220 − 40×0.5 = 220 − 20 = <strong>200 V</strong><br>
+                Since \(\phi\) constant: N2/N1 = Eb2/Eb1<br>
+                N2 = 1200 × (200/218) = 1200 × 0.9174 ≈ <strong>1101 rpm</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PYQ 5 -->
+      <div class="pyq-card ies-card">
+        <div class="pyq-hdr ies-hdr">
+          <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+          <span class="pyq-title pyq-title-ies">Why is a series motor preferred over a shunt motor for electric
+            traction?</span>
+          <span class="pyq-year">IES 2016</span>
+        </div>
+        <div class="pyq-body">
+          <div class="callout c-tip">
+            <div class="ci">✅</div>
+            <div class="cb">
+              <div class="ct">Answer</div>
+              <p>The series motor is preferred for traction because:<br>
+                <strong>1.</strong> T ∝ Ia² → very high starting torque at low speed (exactly what traction needs for
+                starting heavy loads).<br>
+                <strong>2.</strong> Speed automatically decreases as load increases — ideal for constant power
+                characteristic of traction.<br>
+                <strong>3.</strong> Regenerative braking is possible (act as series generator when decelerating).<br>
+                Shunt motors have low starting torque and nearly constant speed — unsuitable for widely varying traction
+                loads.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GATE concept: differentially compounded -->
+      <div class="gate-card">
+        <div class="gate-hdr">
+          <span class="gate-tag">GATE CONCEPT</span>
+          <span class="gate-title">Differentially Compounded Motor — Why Unstable?</span>
+        </div>
+        <div class="gate-body">
+          <p>In a differentially compounded motor: T ∝ (\(\phi\)sh − \(\phi\)se)·\(I_a\). As load (\(I_a\)) increases,
+            \(\phi\)se increases, so net flux (\(\phi\)sh − \(\phi\)se) decreases. This means torque can actually
+            decrease as \(I_a\) increases — creating <strong>unstable torque–speed characteristics</strong>. Speed
+            regulation is negative (speed rises with load). This makes it impractical. The motor may even reverse
+            direction at starting if series flux dominates shunt flux during the large starting current.</p>
+          <!-- SVG: Differential Compound -->
+          <div class="svg-wrap svg-simple" style="margin: 12px 0;">
+            <img src="images/ch6.6/fig1.15.png" alt="Diagram 2" style="width:100%;height:auto;border-radius:10px;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+  SECTION 11 — Solved Examples
+═══════════════════════════════════════ -->
+    <div class="section" id="s11">
+      <div class="sec-hdr">
+        <span class="sec-num">§ 11</span>
+        <h2 class="sec-t">Solved Numerical Examples</h2>
+      </div>
+
+      <!-- Example 1 -->
+      <div class="example">
+        <div class="ex-hdr">
+          <span class="ex-num">EX 01</span>
+          <span class="ex-title">Back EMF, Torque, and Power in a Shunt Motor</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-q">A 240V DC shunt motor has Ra = 0.4Ω, Rsh = 200Ω. At full load, IL = 30A. Find: (i) back EMF
+            Eb, (ii) armature copper loss, (iii) mechanical power developed.</div>
+          <div class="sol-lbl">Solution</div>
+          <p><strong>Shunt current:</strong> Ish = V/Rsh = 240/200 = <strong>1.2 A</strong></p>
+          <p><strong>Armature current:</strong> \(I_a\) = IL − Ish = 30 − 1.2 = <strong>28.8 A</strong></p>
+          <p><strong>(i) Back EMF:</strong> Eb = V − \(I_a\)·Ra = 240 − 28.8 × 0.4 = 240 − 11.52 = <strong>228.48
+              V</strong></p>
+          <p><strong>(ii) Armature Cu loss:</strong> Ia²Ra = (28.8)² × 0.4 = 829.44 × 0.4 = <strong>331.8 W</strong></p>
+          <p><strong>(iii) Mechanical power developed:</strong> Pmech = Eb·\(I_a\) = 228.48 × 28.8 = <strong>6580 W ≈
+              6.58 kW</strong></p>
+          <div class="fblock" style="margin-top:10px"><span class="fv">Check:</span> \(V \cdot I_a = 240 \times 28.8 =
+            6912 \text{ W} = P_{\text{mech}} + \text{Cu loss} = 6580 + 332 \checkmark\)</div>
+        </div>
+      </div>
+
+      <!-- Example 2 -->
+      <div class="example">
+        <div class="ex-hdr">
+          <span class="ex-num">EX 02</span>
+          <span class="ex-title">Speed of DC Series Motor Under Different Loads</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-q">A DC series motor runs at 800 rpm with a line current of 20A when connected to 250V supply.
+            Ra = 0.3Ω, Rse = 0.2Ω. If the load torque is increased so that line current becomes 30A, find the new speed.
+            Assume flux is proportional to current.</div>
+          <div class="sol-lbl">Solution</div>
+          <p><strong>Condition 1:</strong> IL1 = Ia1 = 20A, N1 = 800 rpm</p>
+          <p>Eb1 = V − Ia1(Ra + Rse) = 250 − 20 × (0.3 + 0.2) = 250 − 10 = <strong>240 V</strong></p>
+          <p><strong>Condition 2:</strong> IL2 = Ia2 = 30A</p>
+          <p>Eb2 = 250 − 30 × 0.5 = 250 − 15 = <strong>235 V</strong></p>
+          <p>Since \(\phi\) ∝ \(I_a\) (below saturation): \(\phi\)1/\(\phi\)2 = Ia1/Ia2 = 20/30 = 2/3</p>
+          <p><strong>Speed ratio:</strong> N2/N1 = (Eb2/Eb1) × (\(\phi\)1/\(\phi\)2) = (235/240) × (20/30)</p>
+          <p>N2 = 800 × (235/240) × (20/30) = 800 × 0.9792 × 0.6667 = <strong>≈ 522 rpm</strong></p>
+        </div>
+      </div>
+
+      <!-- Example 3 -->
+      <div class="example">
+        <div class="ex-hdr">
+          <span class="ex-num">EX 03</span>
+          <span class="ex-title">Motor Efficiency and Shaft Torque</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-q">A 10 kW, 250V DC shunt motor runs at 1000 rpm at full load with η = 85%. Rotational losses =
+            500W. Find: (i) shaft torque, (ii) armature torque.</div>
+          <div class="sol-lbl">Solution</div>
+          <p><strong>Input power:</strong> Pin = Output/η = 10000/0.85 = <strong>11765 W</strong></p>
+          <p><strong>(i) Shaft (output) torque:</strong> P_shaft = 2\(\pi\)N·Tsh/60 → Tsh = P_shaft × 60 / (2\(\pi\)N)
+          </p>
+          <p>Tsh = 10000 × 60 / (2\(\pi\) × 1000) = <strong>95.5 N·m</strong></p>
+          <p><strong>Mechanical power developed:</strong> Pmech = P_shaft + Rotational losses = 10000 + 500 =
+            <strong>10500 W</strong>
+          </p>
+          <p><strong>(ii) Armature torque:</strong> Ta = Pmech × 60 / (2\(\pi\)N) = 10500 × 60 / (2\(\pi\) × 1000) =
+            <strong>100.3 N·m</strong>
+          </p>
+          <p><strong>Lost torque:</strong> Ta − Tsh = 100.3 − 95.5 = <strong>4.8 N·m</strong> (due to friction/iron
+            losses)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+  SECTION 12 — Ask Aarova AI
+═══════════════════════════════════════ -->
+    <div class="section" id="s12">
+      <div class="ai-prompt">
+        <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+        <p>Have a question on DC motors, back EMF, torque equations, speed control, or GATE/IES problems? Type below or
+          pick a suggestion.</p>
+        <div class="ai-input-row">
+          <input class="ai-input" id="userQ" type="text"
+            placeholder="e.g. Explain why series motor has maximum starting torque with derivation…">
+          <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+        </div>
+        <div class="ai-suggest">
+          <span class="ai-chip"
+            onclick="setQ('Derive the torque equation of a DC motor from first principles and explain why T ∝ \(\phi\)Ia')">Torque
+            derivation</span>
+          <span class="ai-chip"
+            onclick="setQ('Explain with equations why differentially compounded motor is unstable and has no practical use')">Differential
+            compound instability</span>
+          <span class="ai-chip"
+            onclick="setQ('A 500V DC shunt motor has Ra=0.5Ω, Rsh=250Ω, no-load current=5A, no-load speed=1000rpm. At full load IL=60A. Find full-load speed and efficiency if rotational losses=400W')">Full-load
+            speed &amp; efficiency</span>
+          <span class="ai-chip"
+            onclick="setQ('What are the three methods of speed control of DC motors? Compare them in terms of efficiency and applications')">Speed
+            control methods</span>
+          <span class="ai-chip"
+            onclick="setQ('Explain the condition for maximum mechanical power developed in a DC motor. Why is the efficiency 50% at this condition?')">Max
+            power condition</span>
+        </div>
+        <div class="ai-response" id="aiResp"></div>
+      </div>
+
+      <!-- Summary cards -->
+      <h3 class="sub">Chapter Summary</h3>
+      <div class="sum-grid">
+        <div class="sum-card sc-o">
+          <div class="sum-lbl">Principle</div>
+          <p>\( F = BIl \) Newton. Fleming's Left-Hand Rule (motor rule). Commutator produces unidirectional torque.
+            Same DC machine can be motor or generator (reversibility).</p>
+        </div>
+        <div class="sum-card sc-g">
+          <div class="sum-lbl">Back EMF</div>
+          <p>\( E_b = \frac{\phi ZNP}{60A} \). \( E_b \propto \phi N \). In motor: \( E_b < V \). \(
+              I_a=\frac{V-E_b}{R_a} \). Back EMF makes motor self-regulating. Max \( P_m \) when \( E_b=V/2 \), \(
+              \eta=50\% \).</p>
+        </div>
+        <div class="sum-card sc-t">
+          <div class="sum-lbl">Torque</div>
+          <p>\( T_a = \frac{1}{2\pi}\left(\frac{\phi ZP}{A}\right) \cdot I_a \). \( T \propto \phi I_a \). Shunt: \( T
+            \propto I_a \). Series: \( T \propto I_a^2 \) (below sat.). \( \frac{T_2}{T_1} =
+            \left(\frac{\phi_2}{\phi_1}\right)\left(\frac{I_{a2}}{I_{a1}}\right) \).</p>
+        </div>
+        <div class="sum-card sc-a">
+          <div class="sum-lbl">Speed</div>
+          <p>\( N \propto \frac{E_b}{\phi} = \frac{V-I_a R_a}{\phi} \). Speed control: armature resistance, field flux,
+            armature voltage. Shunt: constant speed. Series: never at NL.</p>
+        </div>
+        <div class="sum-card sc-r">
+          <div class="sum-lbl">Types &amp; Uses</div>
+          <p>Shunt: best SR, lathes, mills. Series: highest T, traction/cranes. Cumulative: presses/compressors.
+            Differential: unstable, no practical use. Sep. excited: servo systems.</p>
+        </div>
+        <div class="sum-card sc-g">
+          <div class="sum-lbl">Speed Regulation</div>
+          <p>\( \%SR = \frac{N_0-N}{N} \times 100 \). Shunt: best (5–10%). Series: very poor. Diff: negative SR
+            (unstable). Lower SR = better constant-speed performance.</p>
+        </div>
+      </div>
+
+      <div class="callout c-tip" style="margin-top:22px">
+        <div class="ci">➡️</div>
+        <div class="cb">
+          <div class="ct">Coming Next — Chapter 3</div>
+          <p>Starting and Speed Control of DC Motors — starters (3-point, 4-point), Ward-Leonard control, rheostatic
+            speed control, field weakening, modern chopper/PWM drives, and braking methods with GATE &amp; IES concepts.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CITATIONS -->
+    <div class="citations" id="citations">
+      <div class="cite-h">References &amp; Citations</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from the
+        following standard textbooks. No content is reproduced verbatim — all explanations, examples, and diagrams are
+        original to Aarova AI.</p>
+      <ul class="cite-list">
+        <li><span class="cite-num">[1]</span><span>Chapman, Stephen J. <em>Electric Machinery Fundamentals</em>, 5th ed.
+            McGraw-Hill, 2012. Chapter 7, §7.1–7.8: DC motor principle, back EMF, torque equations, motor types, speed
+            control, and characteristics.</span></li>
+        <li><span class="cite-num">[2]</span><span>Kothari, D.P. and Nagrath, I.J. <em>Electric Machines</em>, 4th ed.
+            Tata McGraw-Hill, 2010. Chapter 6, §6.1–6.9: DC motor working principle, back EMF, voltage equations, torque
+            equation, characteristics of all DC motor types, speed regulation.</span></li>
+        <li><span class="cite-num">[3]</span><span>Fitzgerald, A.E., Kingsley, C. and Umans, S.D. <em>Electric
+              Machinery</em>, 6th ed. McGraw-Hill, 2003. Chapter 7: DC Machines — motor operation, torque-speed curves,
+            back EMF significance.</span></li>
+        <li><span class="cite-num">[4]</span><span>IIT Kharagpur NPTEL. <em>Basic Electrical Technology — Lectures
+              36–42: DC Motors</em>. National Programme on Technology Enhanced Learning. Available at: nptel.ac.in.
+            Covers DC motor types, back EMF, torque, speed control, starting.</span></li>
+      </ul>
+    </div>
+
+    <hr>
+    <footer>
+      <strong>Aarova AI</strong> &nbsp;·&nbsp; Electrical Machines Series &nbsp;·&nbsp; Chapter 2 of 8<br>
+      <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp; PSU
+        Electrical Engineering</span><br>
+      <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">Content derived from standard
+        textbooks [1–4]. All explanations and diagrams are original to Aarova AI.</span>
+    </footer>
+  </div>
+
+  <script>
+    function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+    async function askClaude() {
+      const q = document.getElementById('userQ').value.trim(); if (!q) return;
+      const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+      btn.textContent = 'Thinking…'; btn.disabled = true;
+      resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+      const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Electrical Machines. Topic: DC Motors (Chapter 2). Answer clearly with step-by-step working for numericals. Base answers on Chapman (Electric Machinery Fundamentals), Kothari & Nagrath (Electric Machines), and Fitzgerald. Cover: back EMF, torque equations, motor types, characteristics, speed regulation, and GATE/IES level problems. All content must be original — no verbatim reproduction from textbooks.`;
+      try {
+        const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+        const data = await res.json();
+        resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+      } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+      btn.textContent = 'Ask Aarova AI'; btn.disabled = false;
+    }
+    document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+    (function () {
+      if (window.innerWidth > 600) return;
+      document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+        const hint = document.createElement('div');
+        hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+        hint.textContent = '← scroll to see full diagram →';
+        wrap.appendChild(hint);
+        wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+      });
+    })();
+  </script>
+</body>
+
+</html>

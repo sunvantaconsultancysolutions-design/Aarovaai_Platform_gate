@@ -1,0 +1,2931 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Control Systems Ch.4 Time Response Analysis</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- KaTeX for LaTeX math rendering -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 25%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TABLE OF CONTENTS ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH (KaTeX) display ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COLUMN CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 20px;
+            border-bottom: 1px solid var(--bg3);
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            position: absolute;
+            left: 0;
+            top: 8px;
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── ASK CLAUDE WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* ════ LARGE DESKTOP 1024+ ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Control Systems Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 04 &nbsp;·&nbsp; Control Systems</div>
+            <h1 class="hero-title">Time Response <em>Analysis</em></h1>
+            <p class="hero-desc">Standard test signals, first-order and second-order system responses, time-domain
+                specifications (rise time, peak time, overshoot, settling time), steady-state error, and static error
+                constants — the single most numerically-tested chapter in GATE EE and IES Control Systems.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Follows Ch.3 — Block Diagrams &amp; Signal Flow Graphs</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf" style="width:40%"></div>
+            </div><span class="pp">Chapter 4 of 10</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">4.1</span>Why Time Response Matters</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">4.7</span>Rise Time &amp; Peak Time</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">4.2</span>Standard Test Signals</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">4.8</span>Max. Overshoot &amp; Settling Time</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">4.3</span>First-Order Systems</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">4.9</span>Steady-State Error</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">4.4</span>Second-Order Systems — Standard Form</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">4.10</span>Static Error Constants &amp; System
+                    Type</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">4.5</span>Types of Damped Response</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">4.11</span>Solved Numericals</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">4.6</span>Underdamped Step Response</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">4.12</span>GATE &amp; IES Questions</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: WHY TIME RESPONSE MATTERS ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">4.1</span>
+                <h2 class="sec-t">Why Time Response Matters — The Big Picture</h2>
+            </div>
+
+            <p>Every control system — a lift stopping at a floor, a robotic arm placing a component, a voltage
+                regulator holding 230 V, an aircraft autopilot levelling out — must eventually settle down and do its
+                job. But <strong>how</strong> it gets there matters just as much as whether it gets there. Does the
+                lift overshoot the floor and bounce back? Does the voltage regulator oscillate before settling? Does
+                the robotic arm take 50 ms or 5 seconds to reach position? <strong>Time response analysis</strong>
+                is the branch of control theory that answers exactly these questions — it studies how a system's
+                output c(t) evolves with time when a known input r(t) is applied.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚙️</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>A system may be perfectly stable (it does reach the desired value eventually) yet still be
+                        unusable in practice if it overshoots badly, oscillates for too long, or reacts too slowly.
+                        Time response specifications — rise time, overshoot, settling time — are the practical
+                        "report card" that tells a design engineer whether a controller is good enough to deploy.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Where This Fits in the Design Flow</h3>
+            <div class="fblock"><span class="flbl">Typical Control System Design Sequence</span>
+
+                <span class="fh">Model the plant</span> → <span class="fh">Reduce block diagram / SFG</span> (Ch.3) →
+                <span class="fh">Analyse time response</span> (this chapter) → <span class="fh">Check stability</span>
+                (Routh-Hurwitz) → <span class="fh">Tune with root locus / frequency response</span> → <span
+                    class="fh">Design compensator</span>
+            </div>
+
+            <p>This chapter builds directly on the transfer function C(s)/R(s) you obtained by block diagram
+                reduction or Mason's gain formula in Chapter 3. Given that transfer function and a standard test
+                input, we now find \(c(t)\) — the actual time-domain behaviour — and extract numbers that GATE, IES and
+                PSU papers test relentlessly.</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">What This Chapter Covers</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Standard test signals: impulse, step, ramp, parabolic</li>
+                        <li><span class="dot">▸</span>First-order system step &amp; ramp response</li>
+                        <li><span class="dot">▸</span>Second-order system — four types of damped response</li>
+                        <li><span class="dot">▸</span>Time-domain specs: \(t_d\), \(t_r\), \(t_p\), \(M_p\), \(t_s\)</li>
+                        <li><span class="dot">▸</span>Steady-state error and static error constants \(K_p\), \(K_v\), \(K_a\)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Real-World Applications</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Power systems:</strong> AVR (automatic voltage
+                            regulator) response after a load change</li>
+                        <li><span class="dot">▸</span><strong>Robotics:</strong> arm settling time before next
+                            pick-place cycle</li>
+                        <li><span class="dot">▸</span><strong>EVs:</strong> motor speed loop response to
+                            accelerator step input</li>
+                        <li><span class="dot">▸</span><strong>HVAC:</strong> thermostat approach to set-point
+                            without excessive overshoot</li>
+                        <li><span class="dot">▸</span><strong>Aerospace:</strong> autopilot pitch response —
+                            overshoot must stay within safety limits</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: STANDARD TEST SIGNALS ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">4.2</span>
+                <h2 class="sec-t">Standard Test Signals</h2>
+            </div>
+
+            <p>We cannot test a control system against every possible real-world input in advance, so control
+                engineers use a small family of <strong>standard test signals</strong> that mimic the harshest
+                practical demands: a sudden disturbance (impulse), a sudden change in set-point (step), a steadily
+                changing target (ramp), and a constantly accelerating target (parabolic). If a system performs well
+                against these idealised signals, it will behave predictably against real disturbances too.</p>
+
+            <div class="svg-wrap">
+                <img src="images/ch4/fig4.1.png" alt="Figure 4.1">
+                <div class="svg-cap">Fig 4.1 — The four standard test signals used to evaluate transient and
+                    steady-state performance of control systems.</div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Signal</th>
+                            <th>Time Domain r(t)</th>
+                            <th>Laplace R(s)</th>
+                            <th>Physical Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Impulse</td>
+                            <td>Aδ(t)</td>
+                            <td>A</td>
+                            <td>Sudden shock / disturbance of very short duration and large magnitude</td>
+                        </tr>
+                        <tr>
+                            <td>Step</td>
+                            <td>A·u(t)</td>
+                            <td>A/s</td>
+                            <td>Sudden, instantaneous change in set-point (most commonly used test signal)</td>
+                        </tr>
+                        <tr>
+                            <td>Ramp</td>
+                            <td>A·t·u(t)</td>
+                            <td>A/s²</td>
+                            <td>Target changing at constant rate — e.g. tracking a constant-velocity target</td>
+                        </tr>
+                        <tr>
+                            <td>Parabolic</td>
+                            <td>A(t²/2)·u(t)</td>
+                            <td>A/s³</td>
+                            <td>Target under constant acceleration — e.g. tracking a constant-acceleration target</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Why the Step Input Dominates GATE Numericals</div>
+                    <p>The unit step is used almost exclusively for transient specifications (t_r, t_p, M_p, t_s)
+                        because it represents the worst-case "sudden change" a system will realistically face. Ramp
+                        and parabolic inputs are reserved for steady-state error analysis, where we check if the
+                        system can <em>track</em> a moving target without a growing lag.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Relationship Between the Signals</h3>
+            <p>Each signal is the time-integral of the one before it — impulse → step → ramp → parabolic. In the
+                s-domain this means each successive signal simply divides by an extra factor of s:</p>
+            <div class="math-block">
+                $$\mathcal{L}\{\delta(t)\}=1 \;\xrightarrow{\div s}\; \mathcal{L}\{u(t)\}=\frac{1}{s}
+                \;\xrightarrow{\div s}\; \mathcal{L}\{t\,u(t)\}=\frac{1}{s^2} \;\xrightarrow{\div s}\;
+                \mathcal{L}\left\{\frac{t^2}{2}u(t)\right\}=\frac{1}{s^3}$$
+            </div>
+        </div>
+
+        <!-- ═══ S3: FIRST-ORDER SYSTEMS ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">4.3</span>
+                <h2 class="sec-t">First-Order Systems</h2>
+            </div>
+
+            <p>A first-order system has a transfer function with a single pole — physically, this models systems
+                with one energy-storage element: an RC circuit (one capacitor), a thermal system (one thermal mass),
+                or a DC motor's speed loop (one dominant electrical or mechanical time constant).</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Standard First-Order Transfer Function</div>
+                $$\frac{C(s)}{R(s)} = \frac{1}{Ts+1}$$
+            </div>
+            <p>Here <strong>T</strong> is the <strong>time constant</strong> of the system, in seconds — the single
+                parameter that fully determines how fast the system responds.</p>
+
+            <h3 class="sub">Unit Step Response</h3>
+            <p>For a unit step input, R(s) = 1/s, so:</p>
+            <div class="math-block">
+                $$C(s) = \frac{1}{s(Ts+1)} = \frac{1}{s} - \frac{T}{Ts+1} = \frac{1}{s}-\frac{1}{s+1/T}$$
+                $$c(t) = 1 - e^{-t/T} \quad (t \geq 0)$$
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch4/fig4.2.png" alt="Figure 4.2">
+                <div class="svg-cap">Fig 4.2 — Unit step response of a first-order system c(t) = 1 − e^(−t/T). At
+                    t = T the response reaches 63.2% of its final value — this is the defining property of the time
+                    constant.</div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time elapsed</th>
+                            <th>t = T</th>
+                            <th>t = 2T</th>
+                            <th>t = 3T</th>
+                            <th>t = 4T</th>
+                            <th>t = 5T</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>c(t) as % of final value</td>
+                            <td class="t-org">63.2%</td>
+                            <td>86.5%</td>
+                            <td>95.0%</td>
+                            <td>98.2%</td>
+                            <td class="t-grn">99.3%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">Rule of Thumb</div>
+                    <p>A first-order system is considered practically "settled" after <strong>4T to 5T</strong> — this
+                        is exactly where the ±2% settling-time criterion for first-order systems comes from (4T ≈
+                        98.2%, well within 2% of final value).</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Other Response Specifications</h3>
+            <div class="fblock"><span class="flbl">First-Order System — Key Formulas</span>
+
+                <span class="fh">Rise time (10%–90%):</span> <span class="feq">t_r = 2.2T</span>
+                <span class="fh">Time constant:</span> <span class="feq">T = 1/a</span>, where pole is at s = −a = −1/T
+                <span class="fh">Settling time (2%):</span> <span class="feq">t_s ≈ 4T</span>
+                <span class="fh">No overshoot:</span> A first-order system's step response <span class="feq">NEVER
+                    overshoots</span> — it is a monotonically rising exponential
+            </div>
+
+            <h3 class="sub">Unit Ramp Response</h3>
+            <p>For a unit ramp input, R(s) = 1/s²:</p>
+            <div class="math-block">
+                $$C(s)=\frac{1}{s^2(Ts+1)} \;\Rightarrow\; c(t) = t - T + Te^{-t/T}$$
+            </div>
+            <p>The steady-state error for a ramp input to a first-order (Type 0, since 1/(Ts+1) has no pole at origin
+                — this specific unity-feedback closed loop form is treated as Type-1 in most GATE textbooks when
+                derived from G(s)=1/Ts) is a <strong>constant lag of T</strong> — the output tracks the ramp but
+                permanently trails behind by T seconds worth of ramp value. This links directly to the steady-state
+                error discussion in §4.9.</p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Student Mistake</div>
+                    <p>Students often assume <em>every</em> first-order system behaves identically — but the formula
+                        \(c(t) = 1 - e^{-t/T}\) applies to the <strong>closed-loop unity feedback response</strong> of
+                        the specific transfer function \(1/(Ts+1)\). Always verify the given transfer function is
+                        already in this standard first-order closed-loop form before applying these shortcut
+                        formulas directly.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S4: SECOND-ORDER SYSTEMS — STANDARD FORM ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">4.4</span>
+                <h2 class="sec-t">Second-Order Systems — Standard Form</h2>
+            </div>
+
+            <p>Most real control systems — motor position/speed loops, mechanical suspensions, RLC circuits,
+                voltage regulators with a single dominant feedback loop — are well-approximated by a
+                <strong>second-order</strong> transfer function. This is the single most important model in the
+                entire Control Systems syllabus because nearly every performance specification (overshoot, settling
+                time, rise time) has a clean closed-form formula only for this standard form.
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">Standard Second-Order Closed-Loop Transfer Function</div>
+                $$\frac{C(s)}{R(s)} = \frac{\omega_n^2}{s^2 + 2\zeta\omega_n s + \omega_n^2}$$
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">ω_n — Undamped Natural Frequency</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>The frequency at which the system would oscillate if there
+                            were <strong>zero damping</strong> (ζ = 0)</li>
+                        <li><span class="dot">▸</span>Units: rad/s</li>
+                        <li><span class="dot">▸</span>Determines how "fast" the system is — higher ω_n → faster
+                            response</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">ζ (zeta) — Damping Ratio</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>A dimensionless number describing how oscillatory the
+                            response is</li>
+                        <li><span class="dot">▸</span>ζ = 0 → sustained oscillation; ζ = 1 → no oscillation, fastest
+                            non-overshooting response</li>
+                        <li><span class="dot">▸</span>Most practical systems are designed for 0.4 ≤ ζ ≤ 0.8</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub">The Characteristic Equation and Its Roots (Poles)</h3>
+            <p>The denominator set to zero gives the characteristic equation, whose roots are the closed-loop
+                poles:</p>
+            <div class="math-block">
+                $$s^2 + 2\zeta\omega_n s + \omega_n^2 = 0$$
+                $$s_{1,2} = -\zeta\omega_n \pm \omega_n\sqrt{\zeta^2-1} = -\zeta\omega_n \pm j\omega_n\sqrt{1-\zeta^2}$$
+            </div>
+            <p>Define the <strong>damped natural frequency</strong> ω_d = ω_n√(1−ζ²) — this is the actual frequency
+                of oscillation you observe in the underdamped step response (it is always less than ω_n because
+                damping slows the oscillation down).</p>
+
+            <div class="svg-wrap">
+                <img src="images/ch4/fig4.3.png" alt="Figure 4.3">
+                <div class="svg-cap">Fig 4.3 — s-plane pole locations for different damping ratios. As ζ increases
+                    from 0 to 1, the complex poles swing from the imaginary axis toward the negative real axis at
+                    angle θ = cos⁻¹ζ from the negative real axis; beyond ζ = 1 the poles split and move along the
+                    real axis.</div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Pole Angle Relationship</span>
+
+                <span class="fh">Angle from negative real axis:</span> <span class="feq">θ = cos⁻¹(ζ)</span>
+                <span class="fh">Distance from origin:</span> <span class="feq">|s| = ω_n</span> (always, regardless of
+                ζ, for 0 ≤ ζ ≤ 1)
+                <span class="fh">Real part (decay rate):</span> <span class="feq">σ = ζω_n</span>
+                <span class="fh">Imaginary part (osc. freq.):</span> <span class="feq">ω_d = ω_n√(1−ζ²)</span>
+            </div>
+        </div>
+
+        <!-- ═══ S5: TYPES OF DAMPED RESPONSE ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">4.5</span>
+                <h2 class="sec-t">Types of Damped Response</h2>
+            </div>
+
+            <p>Depending on the value of ζ, the same second-order system can behave in four qualitatively different
+                ways. Recognising which case applies — instantly, from the value of ζ or from the pole locations —
+                is one of the highest-yield skills for GATE.</p>
+
+            <div class="svg-wrap">
+                <img src="images/ch4/fig4.4.png" alt="Figure 4.4">
+                <div class="svg-cap">Fig 4.4 — Unit step response of the same second-order system (ω_n = 1 rad/s)
+                    for four different damping ratios. Critically damped is the fastest response that still avoids
+                    overshoot entirely.</div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Case</th>
+                            <th>ζ value</th>
+                            <th>Pole nature</th>
+                            <th>Step response behaviour</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Undamped</td>
+                            <td class="t-red">ζ = 0</td>
+                            <td>Purely imaginary, s = ±jω_n</td>
+                            <td>Sustained (undying) oscillation forever — never settles</td>
+                        </tr>
+                        <tr>
+                            <td>Underdamped</td>
+                            <td class="t-org">0 &lt; ζ &lt; 1</td>
+                            <td>Complex conjugate pair, negative real part</td>
+                            <td>Damped oscillation — overshoots then settles; most common practical case</td>
+                        </tr>
+                        <tr>
+                            <td>Critically damped</td>
+                            <td class="t-tel">ζ = 1</td>
+                            <td>Real, equal, repeated: s = −ω_n, −ω_n</td>
+                            <td>Fastest possible response with <strong>zero</strong> overshoot</td>
+                        </tr>
+                        <tr>
+                            <td>Overdamped</td>
+                            <td class="t-grn">ζ &gt; 1</td>
+                            <td>Real, unequal, both negative</td>
+                            <td>Slow, sluggish, no overshoot — approaches final value gradually</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">GATE Favourite: Ranking by Speed</div>
+                    <p>For the same ω_n, the ranking from fastest to slowest settling is: <strong>critically damped
+                            &gt; underdamped (moderate ζ) &gt; overdamped</strong>. Critically damped is the boundary
+                        case — the fastest response that still has zero overshoot. This exact fact is tested
+                        repeatedly as a conceptual (non-numerical) GATE question.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: UNDERDAMPED STEP RESPONSE ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">4.6</span>
+                <h2 class="sec-t">Underdamped Step Response — Full Derivation</h2>
+            </div>
+
+            <p>Because the underdamped case (0 &lt; ζ &lt; 1) is the one every time-domain specification is derived
+                from, it deserves a full step-by-step derivation. For a unit step input, R(s) = 1/s:</p>
+
+            <div class="math-block">
+                $$C(s) = \frac{\omega_n^2}{s(s^2+2\zeta\omega_n s+\omega_n^2)}$$
+            </div>
+            <p>Using partial fractions and completing the square in the denominator (with σ = ζω_n and ω_d =
+                ω_n√(1−ζ²)):</p>
+            <div class="math-block">
+                $$C(s) = \frac{1}{s} - \frac{s+2\zeta\omega_n}{(s+\zeta\omega_n)^2+\omega_d^2}$$
+            </div>
+            <p>Taking the inverse Laplace transform:</p>
+            <div class="math-block">
+                <div class="math-lbl">Underdamped Unit Step Response</div>
+                $$c(t) = 1 - \frac{e^{-\zeta\omega_n t}}{\sqrt{1-\zeta^2}}\sin(\omega_d t + \theta), \qquad \theta =
+                \cos^{-1}\zeta = \tan^{-1}\!\frac{\sqrt{1-\zeta^2}}{\zeta}$$
+            </div>
+
+            <p>This single equation is the source of every formula in §4.7 and §4.8. Physically it says: the output
+                rises toward 1, overshoots, and the overshoot decays inside an exponential envelope
+                e^(−ζω_n t)/√(1−ζ²) while oscillating at frequency ω_d.</p>
+
+            <div class="svg-wrap">
+                <img src="images/ch4/fig4.5.png" alt="Figure 4.5">
+                <div class="svg-cap">Fig 4.5 — Underdamped step response (ζ = 0.5, ω_n = 1 rad/s) with the four
+                    time-domain specifications marked: rise time t_r, peak time t_p, maximum overshoot M_p, and
+                    settling time t_s.</div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">Reading the Formula</div>
+                    <p>Set c(t) = 0 and solve sin(ω_d t + θ) = 0 for the smallest positive t to find t_r (first
+                        crossing of the final value). Differentiate c(t) and set dc/dt = 0 to find t_p (the peak
+                        occurs when the sinusoidal term is momentarily stationary). Both derivations are standard
+                        GATE-level calculus and are shown fully in §4.7.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: RISE TIME & PEAK TIME ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">4.7</span>
+                <h2 class="sec-t">Time-Domain Specifications — Delay Time, Rise Time &amp; Peak Time</h2>
+            </div>
+
+            <p>These specifications quantify <strong>how fast</strong> a system responds. All formulas below apply
+                to the standard underdamped second-order system with parameters ζ and ω_n.</p>
+
+            <h3 class="sub">Delay Time (t_d)</h3>
+            <p>Time taken for the response to reach <strong>50%</strong> of its final value, for the first time.</p>
+            <div class="math-block">
+                $$t_d \approx \frac{1+0.7\zeta}{\omega_n} \quad \text{(commonly used empirical approximation)}$$
+            </div>
+
+            <h3 class="sub">Rise Time (t_r)</h3>
+            <p>For underdamped systems, rise time is conventionally the time for the response to go from
+                <strong>0% to 100%</strong> of the final value for the first time (unlike overdamped systems, where
+                10%–90% is used since the response never reaches 100% until t → ∞).
+            </p>
+            <div class="math-block">
+                <div class="math-lbl">Derivation</div>
+                $$c(t_r) = 1 \;\Rightarrow\; \frac{e^{-\zeta\omega_n t_r}}{\sqrt{1-\zeta^2}}\sin(\omega_d
+                t_r+\theta)=0$$
+                $$\Rightarrow \sin(\omega_d t_r + \theta) = 0 \;\Rightarrow\; \omega_d t_r + \theta = \pi \text{ (first
+                non-trivial root)}$$
+                $$\boxed{t_r = \frac{\pi-\theta}{\omega_d}}, \qquad \theta = \cos^{-1}\zeta$$
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">Engineering Interpretation</div>
+                    <p>Larger ω_d (i.e. larger ω_n, or smaller ζ) → smaller t_r → faster rise. This is why increasing
+                        controller gain (which typically increases ω_n) speeds up the response — but usually at the
+                        cost of a lower ζ and hence more overshoot. This trade-off is central to controller tuning.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Peak Time (t_p)</h3>
+            <p>Time taken to reach the <strong>first (and largest) peak</strong> of the overshoot.</p>
+            <div class="math-block">
+                <div class="math-lbl">Derivation — set dc/dt = 0</div>
+                $$\frac{dc}{dt}\Big|_{t=t_p} = \frac{\omega_n}{\sqrt{1-\zeta^2}}e^{-\zeta\omega_n t}\sin(\omega_d t) =
+                0$$
+                $$\Rightarrow \sin(\omega_d t_p) = 0 \;\Rightarrow\; \omega_d t_p = \pi \text{ (first peak)}$$
+                $$\boxed{t_p = \frac{\pi}{\omega_d} = \frac{\pi}{\omega_n\sqrt{1-\zeta^2}}}$$
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Student Mistake</div>
+                    <p>Students frequently confuse t_r's formula (π − θ)/ω_d with t_p's formula π/ω_d. Remember: t_p
+                        uses the <strong>full</strong> π because the peak occurs at exactly half the oscillation
+                        period; t_r uses (π − θ) because it depends on where the response starts relative to the
+                        sinusoid's phase θ.</p>
+                </div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Section Summary — Speed Specifications</span>
+
+                <span class="fh">Delay time:</span> <span class="feq">t_d ≈ (1 + 0.7ζ)/ω_n</span>
+                <span class="fh">Rise time (0–100%):</span> <span class="feq">t_r = (π − θ)/ω_d</span>, θ = cos⁻¹ζ
+                <span class="fh">Peak time:</span> <span class="feq">t_p = π/ω_d = π/(ω_n√(1−ζ²))</span>
+            </div>
+        </div>
+
+        <!-- ═══ S8: MAXIMUM OVERSHOOT & SETTLING TIME ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">4.8</span>
+                <h2 class="sec-t">Time-Domain Specifications — Maximum Overshoot &amp; Settling Time</h2>
+            </div>
+
+            <h3 class="sub">Maximum (Peak) Overshoot (M_p)</h3>
+            <p>The amount by which the response exceeds its final steady-state value, expressed as a fraction (or
+                percentage) of that final value. Substitute t = t_p = π/ω_d back into c(t):</p>
+            <div class="math-block">
+                <div class="math-lbl">Derivation</div>
+                $$c(t_p) = 1 - \frac{e^{-\zeta\omega_n(\pi/\omega_d)}}{\sqrt{1-\zeta^2}}\sin(\pi+\theta) =
+                1+e^{-\zeta\pi/\sqrt{1-\zeta^2}}$$
+                $$M_p = c(t_p) - 1 = e^{-\zeta\pi/\sqrt{1-\zeta^2}}$$
+                $$\% M_p = e^{-\zeta\pi/\sqrt{1-\zeta^2}} \times 100$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Critical Property — M_p Depends ONLY on ζ</div>
+                    <p>Notice that ω_n does not appear anywhere in the M_p formula. This means <strong>overshoot is
+                            controlled entirely by the damping ratio ζ</strong>, regardless of how fast (ω_n) the
+                        system is. This is one of the most tested conceptual facts in GATE Control Systems.</p>
+                </div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ζ</th>
+                            <th>0.1</th>
+                            <th>0.2</th>
+                            <th>0.3</th>
+                            <th>0.4</th>
+                            <th>0.5</th>
+                            <th>0.6</th>
+                            <th>0.7</th>
+                            <th>0.8</th>
+                            <th>1.0</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>%M_p</td>
+                            <td class="t-red">72.9%</td>
+                            <td>52.7%</td>
+                            <td>37.2%</td>
+                            <td>25.4%</td>
+                            <td>16.3%</td>
+                            <td>9.5%</td>
+                            <td>4.6%</td>
+                            <td>1.5%</td>
+                            <td class="t-grn">0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>The commonly used "well-damped" design range ζ = 0.4–0.7 gives overshoot roughly between 4.6% and
+                25.4% — this is why most practical controllers are tuned to ζ ≈ 0.6–0.707, balancing speed against
+                acceptable overshoot.</p>
+
+            <h3 class="sub">Settling Time (t_s)</h3>
+            <p>Time required for the response to reach and <strong>stay within</strong> a specified tolerance band
+                (usually ±2% or ±5%) of the final value. The response envelope is bounded by
+                1 ± e^(−ζω_n t)/√(1−ζ²), so t_s is found by setting the envelope equal to the tolerance:</p>
+            <div class="math-block">
+                <div class="math-lbl">Standard Settling Time Formulas (envelope-based approximation)</div>
+                $$t_s (2\%) = \frac{4}{\zeta\omega_n} = 4\tau \qquad t_s (5\%) = \frac{3}{\zeta\omega_n} = 3\tau$$
+            </div>
+            <p>where τ = 1/(ζω_n) is the <strong>time constant of the envelope</strong> — analogous to the T of a
+                first-order system, since the dominant decay is governed purely by the real part of the pole,
+                σ = ζω_n.</p>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">Memory Trick — "4 for 2, 3 for 5"</div>
+                    <p>The 2% criterion needs 4 time constants (4/ζω_n); the 5% criterion needs 3 time constants
+                        (3/ζω_n). Both numbers come from solving e^(−x) = tolerance: e^(−4) ≈ 0.018 (~2%),
+                        e^(−3) ≈ 0.050 (5%).</p>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">GATE Trap — Settling Time Depends on ζω_n, NOT ζ Alone</div>
+                    <p>Unlike M_p, settling time depends on the <strong>product</strong> ζω_n (the real part of the
+                        pole), not on ζ in isolation. Two systems with the same ζ but different ω_n will have
+                        completely different settling times. Always check both parameters before comparing t_s
+                        across systems.</p>
+                </div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Section Summary — Overshoot &amp; Settling</span>
+
+                <span class="fh">Max overshoot:</span> <span class="feq">\(M_p = e^{-\zeta\pi/\sqrt{1-\zeta^2}}\)</span>, depends ONLY on \(\zeta\)
+                <span class="fh">Settling time 2%:</span> <span class="feq">\(t_s = 4/(\zeta\omega_n)\)</span>
+                <span class="fh">Settling time 5%:</span> <span class="feq">\(t_s = 3/(\zeta\omega_n)\)</span>
+                <span class="fh">Number of oscillations before settling (2%):</span> <span class="feq">\(\approx t_s/T_d =
+                    2/(\pi\sqrt{1-\zeta^2})\)</span>
+            </div>
+        </div>
+
+        <!-- ═══ S9: STEADY-STATE ERROR ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">4.9</span>
+                <h2 class="sec-t">Steady-State Error</h2>
+            </div>
+
+            <p>While §4.7–4.8 describe the <strong>transient</strong> (short-term) behaviour, steady-state error
+                describes the <strong>long-term</strong> accuracy of a system — how far off the output settles from
+                the desired input, after all transients have died out. A system with excellent transient response
+                but poor steady-state accuracy is still an unacceptable design.</p>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch4/fig4.6.png" alt="Figure 4.6">
+                <div class="svg-cap">Fig 4.6 — Standard unity/non-unity feedback loop. Steady-state error is the
+                    limiting value of e(t) = r(t) − c(t) as t → ∞, computed directly from E(s).</div>
+            </div>
+
+            <h3 class="sub">The Final Value Theorem Approach</h3>
+            <p>For the error signal E(s) = R(s)/(1 + G(s)H(s)) in a unity/non-unity feedback loop, steady-state
+                error is found using the <strong>Final Value Theorem</strong> — avoiding the need to find e(t)
+                explicitly:</p>
+            <div class="math-block">
+                <div class="math-lbl">Steady-State Error Formula</div>
+                $$e_{ss} = \lim_{t\to\infty} e(t) = \lim_{s\to0} sE(s) = \lim_{s\to0}\frac{sR(s)}{1+G(s)H(s)}$$
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">Validity Condition</div>
+                    <p>The Final Value Theorem is valid only if all poles of sE(s) lie in the left half s-plane
+                        (i.e. the closed-loop system must first be checked for stability). Applying it to an
+                        unstable system gives a meaningless finite answer — always confirm stability first, using
+                        Routh-Hurwitz if needed.</p>
+                </div>
+            </div>
+
+            <p>The steady-state error therefore depends on <strong>two things</strong>: which test signal R(s) is
+                applied, and how many poles G(s)H(s) has at the origin (s = 0) — called the <strong>system
+                    type</strong>, covered next in §4.10.</p>
+        </div>
+
+        <!-- ═══ S10: STATIC ERROR CONSTANTS & SYSTEM TYPE ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">4.10</span>
+                <h2 class="sec-t">Static Error Constants &amp; System Type</h2>
+            </div>
+
+            <p>To avoid re-deriving e_ss from scratch for every input, control engineers define three
+                <strong>static error constants</strong> — one for each standard test signal — computed directly
+                from the open-loop transfer function G(s)H(s).
+            </p>
+
+            <div class="fblock"><span class="flbl">Static Error Constants</span>
+
+                <span class="fh">Position error constant:</span> <span class="feq">K_p = lim(s→0) G(s)H(s)</span>
+                <span class="fh">Velocity error constant:</span> <span class="feq">K_v = lim(s→0) s·G(s)H(s)</span>
+                <span class="fh">Acceleration error constant:</span> <span class="feq">K_a = lim(s→0) s²·G(s)H(s)</span>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Steady-State Error in Terms of Error Constants (unity feedback)</div>
+                $$e_{ss}(\text{step}) = \frac{1}{1+K_p} \qquad e_{ss}(\text{ramp}) = \frac{1}{K_v} \qquad
+                e_{ss}(\text{parabolic}) = \frac{1}{K_a}$$
+            </div>
+
+            <h3 class="sub">System Type — Defined by Poles at the Origin</h3>
+            <p>The <strong>type</strong> of a system is simply the number of poles of G(s)H(s) located exactly at
+                s = 0 (i.e. the power of s in the denominator that is factored out as sⁿ). This single integer
+                determines, in advance, which error constants are finite and which are zero or infinite.</p>
+
+            <div class="fblock"><span class="flbl">General Open-Loop Form</span>
+
+                <span class="fh">G(s)H(s) = </span>K(1+sT_a)(1+sT_b)... / [ sᴺ (1+sT_1)(1+sT_2)... ]
+                <span class="fh">N = 0</span> → Type 0 <span class="fh">N = 1</span> → Type 1 <span class="fh">N =
+                    2</span> → Type 2
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>System Type</th>
+                            <th>K_p</th>
+                            <th>K_v</th>
+                            <th>K_a</th>
+                            <th>e_ss (Step)</th>
+                            <th>e_ss (Ramp)</th>
+                            <th>e_ss (Parabolic)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Type 0</td>
+                            <td class="t-org">Finite</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td class="t-org">1/(1+K_p) — finite</td>
+                            <td class="t-red">∞</td>
+                            <td class="t-red">∞</td>
+                        </tr>
+                        <tr>
+                            <td>Type 1</td>
+                            <td>∞</td>
+                            <td class="t-org">Finite</td>
+                            <td>0</td>
+                            <td class="t-grn">0</td>
+                            <td class="t-org">1/K_v — finite</td>
+                            <td class="t-red">∞</td>
+                        </tr>
+                        <tr>
+                            <td>Type 2</td>
+                            <td>∞</td>
+                            <td>∞</td>
+                            <td class="t-org">Finite</td>
+                            <td class="t-grn">0</td>
+                            <td class="t-grn">0</td>
+                            <td class="t-org">1/K_a — finite</td>
+                        </tr>
+                        <tr>
+                            <td>Type ≥ 3</td>
+                            <td>∞</td>
+                            <td>∞</td>
+                            <td>∞</td>
+                            <td class="t-grn">0</td>
+                            <td class="t-grn">0</td>
+                            <td class="t-grn">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic — "One Type Higher = One Error Type Better"</div>
+                    <p>Each increase in system type eliminates the error for one more "level" of input: Type 0 can
+                        only track a constant (with offset), Type 1 tracks a constant exactly and a ramp with
+                        constant lag, Type 2 tracks a ramp exactly and a parabola with constant lag. This diagonal
+                        pattern in the table is worth memorising visually rather than the individual formulas.</p>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common GATE Trap — Non-Unity Feedback</div>
+                    <p>The simple formulas e_ss = 1/(1+K_p) etc. apply <strong>only to unity feedback</strong>
+                        systems [H(s) = 1]. For non-unity feedback, always go back to the fundamental Final Value
+                        Theorem formula e_ss = lim(s→0) sR(s)/[1+G(s)H(s)] rather than misapplying the shortcut
+                        formulas — this is a very common source of errors in GATE numericals.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S11: SOLVED NUMERICALS ═══ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr"><span class="sec-num">4.11</span>
+                <h2 class="sec-t">Solved Numericals</h2>
+            </div>
+
+            <!-- Example 1 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 4.1</span>
+                    <span class="ex-title">Find ζ, ω_n, t_p, %M_p, t_s for a standard second-order system</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A unity feedback control system has the open-loop transfer function
+                        C(s)/R(s) = 25/(s² + 6s + 25). Find the damping ratio, natural frequency, peak time, percent
+                        overshoot, and 2% settling time.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — Compare with standard form:</strong></p>
+                    <div class="math-block">
+                        $$\frac{\omega_n^2}{s^2+2\zeta\omega_n s+\omega_n^2} = \frac{25}{s^2+6s+25}$$
+                    </div>
+                    <p>Matching: ω_n² = 25 → ω_n = 5 rad/s. Matching: 2ζω_n = 6 → ζ = 6/(2×5) = 0.6</p>
+                    <p><strong>Step 2 — Peak time:</strong></p>
+                    <div class="math-block">
+                        $$\omega_d = \omega_n\sqrt{1-\zeta^2} = 5\sqrt{1-0.36} = 5\times0.8 = 4 \text{ rad/s}$$
+                        $$t_p = \frac{\pi}{\omega_d} = \frac{3.1416}{4} = 0.785 \text{ s}$$
+                    </div>
+                    <p><strong>Step 3 — Percent overshoot:</strong></p>
+                    <div class="math-block">
+                        $$\%M_p = e^{-\zeta\pi/\sqrt{1-\zeta^2}}\times100 = e^{-0.6\pi/0.8}\times100 =
+                        e^{-2.356}\times100 = 9.48\%$$
+                    </div>
+                    <p><strong>Step 4 — Settling time (2%):</strong></p>
+                    <div class="math-block">
+                        $$t_s = \frac{4}{\zeta\omega_n} = \frac{4}{0.6\times5} = \frac{4}{3} = 1.33 \text{ s}$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Answer</div>
+                            <p>ζ = 0.6, ω_n = 5 rad/s, t_p = 0.785 s, %M_p = 9.48%, t_s(2%) = 1.33 s.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 4.2</span>
+                    <span class="ex-title">Design ζ from a given percent overshoot specification</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A second-order system is required to have a maximum overshoot of no more than
+                        16.3%. Determine the minimum damping ratio ζ that satisfies this requirement.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>Starting from the overshoot formula and solving for ζ:</p>
+                    <div class="math-block">
+                        $$0.163 = e^{-\zeta\pi/\sqrt{1-\zeta^2}}$$
+                        $$\ln(0.163) = \frac{-\zeta\pi}{\sqrt{1-\zeta^2}} \;\Rightarrow\; -1.814 =
+                        \frac{-\zeta\pi}{\sqrt{1-\zeta^2}}$$
+                        $$\Rightarrow \frac{\zeta}{\sqrt{1-\zeta^2}} = \frac{1.814}{\pi} = 0.5774 \;\Rightarrow\; \zeta
+                        = 0.5$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Answer</div>
+                            <p>ζ = 0.5 (minimum required damping ratio). Any ζ ≥ 0.5 will keep overshoot at or below
+                                16.3%, since %M_p decreases monotonically as ζ increases.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 4.3</span>
+                    <span class="ex-title">System type and steady-state error — velocity error constant</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A unity feedback system has G(s) = 100/[s(s+2)(s+5)]. Find the system type,
+                        K_p, K_v, K_a, and the steady-state error when the input is a unit ramp. (a) 0.1 (b) 1 (c) 10
+                        (d) ∞</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>System type:</strong> G(s) has exactly one pole at s = 0 (the factor "s" in the
+                        denominator) → <strong>Type 1</strong> system.</p>
+                    <div class="math-block">
+                        $$K_p = \lim_{s\to0}G(s) = \infty \; (\text{Type 1 or higher} \Rightarrow K_p \text{ always }
+                        \infty)$$
+                        $$K_v = \lim_{s\to0}sG(s) = \lim_{s\to0}\frac{100s}{s(s+2)(s+5)} = \frac{100}{2\times5} = 10$$
+                        $$K_a = \lim_{s\to0}s^2G(s) = \lim_{s\to0}\frac{100s^2}{s(s+2)(s+5)} = 0$$
+                    </div>
+                    <p><strong>Steady-state error for unit ramp:</strong></p>
+                    <div class="math-block">
+                        $$e_{ss}(\text{ramp}) = \frac{1}{K_v} = \frac{1}{10} = 0.1$$
+                    </div>
+                    <p><strong>Answer: (a) 0.1</strong></p>
+                </div>
+            </div>
+
+            <!-- Example 4 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 4.4</span>
+                    <span class="ex-title">First-order system — find T from rise time</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A first-order system C(s)/R(s) = 1/(Ts+1) has a measured 10%–90% rise time of
+                        4.4 seconds. Find the time constant T and the time at which the response reaches 98% of its
+                        final value.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — Find T from rise time:</strong></p>
+                    <div class="math-block">
+                        $$t_r = 2.2T \;\Rightarrow\; T = \frac{t_r}{2.2} = \frac{4.4}{2.2} = 2 \text{ s}$$
+                    </div>
+                    <p><strong>Step 2 — Time to reach 98% (≈ 4T):</strong></p>
+                    <div class="math-block">
+                        $$t_{98\%} \approx 4T = 4\times2 = 8 \text{ s}$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Answer</div>
+                            <p>T = 2 s; the response reaches 98% of its final value at t ≈ 8 s (matching the 4T rule
+                                from §4.3).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 5 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 4.5</span>
+                    <span class="ex-title">Finding ω_n and ζ from measured overshoot and peak time</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">The unit step response of a second-order servo system shows a first
+                        overshoot of 20% occurring at t = 1 second. Determine ζ and ω_n.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — Find ζ from %M_p = 20%:</strong></p>
+                    <div class="math-block">
+                        $$0.20 = e^{-\zeta\pi/\sqrt{1-\zeta^2}} \;\Rightarrow\; \ln(0.20) = -1.609 =
+                        \frac{-\zeta\pi}{\sqrt{1-\zeta^2}}$$
+                        $$\frac{\zeta}{\sqrt{1-\zeta^2}} = \frac{1.609}{\pi} = 0.512 \;\Rightarrow\; \zeta \approx
+                        0.456$$
+                    </div>
+                    <p><strong>Step 2 — Find ω_n from t_p = 1 s:</strong></p>
+                    <div class="math-block">
+                        $$t_p = \frac{\pi}{\omega_n\sqrt{1-\zeta^2}} \;\Rightarrow\; 1 =
+                        \frac{\pi}{\omega_n\sqrt{1-0.456^2}}$$
+                        $$\omega_n = \frac{\pi}{\sqrt{1-0.208}} = \frac{3.1416}{0.890} = 3.53 \text{ rad/s}$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Answer</div>
+                            <p>ζ ≈ 0.456, ω_n ≈ 3.53 rad/s.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S12: GATE & IES QUESTIONS ═══ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr"><span class="sec-num">4.12</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Concepts</h2>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">High Probability Topics in Time Response Analysis
+                        <span class="prob prob-h">🟢 HIGH</span></span>
+                </div>
+                <div class="gate-body">
+                    <p>Time Response Analysis is consistently one of the highest-weightage topics in GATE EE and
+                        IES E&amp;T Control Systems:</p>
+                    <div class="two-col">
+                        <div class="mini-card mc-grn">
+                            <div class="mc-t">🟢 High Probability (GATE)</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>Finding ζ, ω_n from C(s)/R(s) and computing t_p, %M_p,
+                                    t_s</li>
+                                <li><span class="dot">▸</span>System type identification and static error constants
+                                </li>
+                                <li><span class="dot">▸</span>Steady-state error for step/ramp/parabolic inputs</li>
+                                <li><span class="dot">▸</span>Effect of ζ and ω_n on speed vs overshoot trade-off</li>
+                                <li><span class="dot">▸</span>Identifying damping type from pole locations</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card mc-amb">
+                            <div class="mc-t">🟡 Medium Probability</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>First-order system time constant and rise time</li>
+                                <li><span class="dot">▸</span>Backward design: ζ, ω_n from a given specification</li>
+                                <li><span class="dot">▸</span>Non-unity feedback steady-state error</li>
+                                <li><span class="dot">▸</span>Number of oscillations before settling</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Overshoot depends only on damping ratio</span>
+                    <span class="pyq-year">Concept — 2020</span>
+                </div>
+                <div class="pyq-body">
+                    <p>For a standard second-order system with transfer function ω_n²/(s²+2ζω_ns+ω_n²), which of the
+                        following statements about the maximum percentage overshoot M_p is correct?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) M_p depends on both ζ and ω_n</li>
+                        <li class="correct">(B) M_p depends only on ζ, and is independent of ω_n</li>
+                        <li>(C) M_p depends only on ω_n, and is independent of ζ</li>
+                        <li>(D) M_p is independent of both ζ and ω_n</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> %M_p = e^(−ζπ/√(1−ζ²)) × 100 — algebraically, ω_n cancels out
+                        completely. ω_n scales the time axis (affects t_p, t_s, t_r) but never the shape/amplitude
+                        of the overshoot.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Type 1 system tracking a ramp input</span>
+                    <span class="pyq-year">Concept — 2022</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A unity feedback system has open-loop transfer function G(s) = K/[s(s+4)]. For the
+                        steady-state error to a unit ramp input to equal 0.1, the value of K should be:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 2.5</li>
+                        <li class="correct">(B) 40</li>
+                        <li>(C) 10</li>
+                        <li>(D) 0.4</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> K_v = lim(s→0) sG(s) = lim(s→0) sK/[s(s+4)] = K/4.
+                        e_ss = 1/K_v = 4/K = 0.1 → K = 40.
+                    </p>
+                </div>
+            </div>
+
+            <!-- IES PYQ -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Ranking damping cases by speed of response</span>
+                    <span class="pyq-year">IES 2019</span>
+                </div>
+                <div class="pyq-body">
+                    <p>For a second-order system with fixed ω_n, which damping case gives the fastest response that
+                        still has zero overshoot?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Overdamped (ζ &gt; 1)</li>
+                        <li>(B) Underdamped (0 &lt; ζ &lt; 1)</li>
+                        <li class="correct">(C) Critically damped (ζ = 1)</li>
+                        <li>(D) Undamped (ζ = 0)</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);">
+                        <strong>Explanation:</strong> Critically damped is the boundary case — for ζ &lt; 1 you get
+                        overshoot; for ζ &gt; 1 the response slows down further as the second (slower) real pole
+                        dominates. ζ = 1 is the fastest response with no overshoot at all.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PYQ 3 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Steady-state error for a Type 0 system with a ramp input</span>
+                    <span class="pyq-year">Concept — 2021</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A Type 0 unity feedback system is subjected to a unit ramp input. The steady-state error
+                        will be:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Zero</li>
+                        <li>(B) A finite non-zero value</li>
+                        <li class="correct">(C) Infinite</li>
+                        <li>(D) Cannot be determined without more information</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> For Type 0, K_v = lim(s→0) sG(s)H(s) = 0 (no pole at origin to
+                        cancel the extra s). Since e_ss(ramp) = 1/K_v = 1/0 → ∞, a Type 0 system can never track a
+                        ramp — the error grows without bound.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Quick Revision — Memory Tricks</h3>
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic: "π for Peak, (π−θ) for Rise"</div>
+                    <p>Both t_p and t_r divide by ω_d, but the numerator differs: t_p = π/ω_d uses the full half
+                        period; t_r = (π−θ)/ω_d is shortened by the starting phase angle θ = cos⁻¹ζ. Sketch the sine
+                        wave mentally — the peak is always at the half-period mark, rise happens slightly earlier.</p>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The "PVA" Ladder for Error Constants</div>
+                    <p><strong>P</strong>osition (K_p) pairs with <strong>step</strong>, <strong>V</strong>elocity
+                        (K_v) pairs with <strong>ramp</strong>, <strong>A</strong>cceleration (K_a) pairs with
+                        <strong>parabolic</strong> — and each constant needs exactly N poles at the origin (N = 0,
+                        1, 2 respectively) to be finite and non-zero.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ AI WIDGET ═══ -->
+        <div class="ai-prompt">
+            <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+            <p>Have a question on first/second-order response, damping ratio, overshoot, settling time, or
+                steady-state error? Type below or pick a suggestion.</p>
+            <div class="ai-input-row">
+                <input class="ai-input" id="userQ" type="text"
+                    placeholder="e.g. A system has ζ = 0.4 and ω_n = 10 rad/s. Find t_r, t_p, %Mp and ts…">
+                <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+            </div>
+            <div class="ai-suggest">
+                <span class="ai-chip"
+                    onclick="setQ('Derive the peak time formula tp = pi/wd starting from the underdamped step response c(t), showing every step of the differentiation.')">Derive
+                    t_p from c(t)</span>
+                <span class="ai-chip"
+                    onclick="setQ('A system has closed loop transfer function 36/(s^2+4.8s+36). Find zeta, wn, tp, percent overshoot and 2% settling time.')">Find
+                    ζ, ω_n, t_p, %Mp, ts</span>
+                <span class="ai-chip"
+                    onclick="setQ('Explain physically why maximum overshoot depends only on the damping ratio zeta and not on the natural frequency wn.')">Why
+                    M_p depends only on ζ?</span>
+                <span class="ai-chip"
+                    onclick="setQ('A unity feedback system has G(s) = K / [s^2 (s+5)]. Find the system type, Kp, Kv, Ka, and steady state error for a unit ramp input.')">System
+                    type &amp; error constants</span>
+                <span class="ai-chip"
+                    onclick="setQ('Compare the step responses of overdamped, critically damped and underdamped second order systems with the same wn, explaining which settles fastest and why.')">Compare
+                    the 4 damping cases</span>
+            </div>
+            <div class="ai-response" id="aiResp"></div>
+        </div>
+
+        <!-- ═══ SUMMARY GRID ═══ -->
+        <h3 class="sub">Chapter Summary</h3>
+        <div class="sum-grid">
+            <div class="sum-card sc-o">
+                <div class="sum-lbl">Test Signals</div>
+                <p>Impulse \(\delta(t)\to 1\), Step \(u(t)\to 1/s\), Ramp \(t\cdot u(t)\to 1/s^2\), Parabolic \((t^2/2)u(t)\to 1/s^3\). Step used for
+                    transient specs; ramp/parabolic for steady-state error.</p>
+            </div>
+            <div class="sum-card sc-g">
+                <div class="sum-lbl">First-Order System</div>
+                <p>\(C(s)/R(s)=1/(Ts+1)\). \(c(t)=1-e^{-t/T}\). \(63.2\%\) at \(t=T\). Settles (\(98\%\)) at \(\approx 4T\). \(t_r=2.2T\). Never
+                    overshoots.</p>
+            </div>
+            <div class="sum-card sc-t">
+                <div class="sum-lbl">Second-Order Standard Form</div>
+                <p>\(C(s)/R(s)=\omega_n^2/(s^2+2\zeta\omega_ns+\omega_n^2)\). \(\zeta=0\) undamped, \(0<\zeta<1\) underdamped, \(\zeta=1\) critically damped,
+                    \(\zeta>1\) overdamped. Pole angle \(\theta=\cos^{-1}\zeta\).</p>
+            </div>
+            <div class="sum-card sc-a">
+                <div class="sum-lbl">Speed Specifications</div>
+                <p>\(t_d\approx(1+0.7\zeta)/\omega_n\). \(t_r=(\pi-\theta)/\omega_d\). \(t_p=\pi/\omega_d=\pi/(\omega_n\sqrt{1-\zeta^2})\). Larger \(\omega_d\) → faster response.</p>
+            </div>
+            <div class="sum-card sc-r">
+                <div class="sum-lbl">Overshoot &amp; Settling</div>
+                <p>\(\%M_p=e^{-\zeta\pi/\sqrt{1-\zeta^2}}\times 100\) — depends ONLY on \(\zeta\). \(t_s(2\%)=4/(\zeta\omega_n)\). \(t_s(5\%)=3/(\zeta\omega_n)\). Depends on
+                    \(\zeta\omega_n\), not \(\zeta\) alone.</p>
+            </div>
+            <div class="sum-card sc-g">
+                <div class="sum-lbl">Steady-State Error &amp; System Type</div>
+                <p>\(e_{ss}=\lim_{s\to 0} sR(s)/[1+G(s)H(s)]\). Type \(N\) system: \(N\) poles at origin. \(K_p\), \(K_v\), \(K_a\) finite only at
+                    matching type; \(e_{ss}=1/(1+K_p)\), \(1/K_v\), \(1/K_a\).</p>
+            </div>
+        </div>
+
+
+
+        <!-- ═══ CITATIONS ═══ -->
+        <div class="citations" id="citations">
+            <div class="cite-h">References &amp; Citations</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is
+                derived from the following standard textbooks and learning resources. All explanations,
+                derivations, diagrams and examples are original to Aarova AI.</p>
+            <ul class="cite-list">
+                <li><span class="cite-num">[1]</span><span>Nise, Norman S. <em>Control Systems
+                            Engineering</em>, 7th ed. Wiley, 2015. Chapter 4 — Time response: standard test
+                        signals, first and second-order system response, time-domain specifications.</span></li>
+                <li><span class="cite-num">[2]</span><span>Ogata, Katsuhiko. <em>Modern Control
+                            Engineering</em>, 5th ed. Prentice Hall, 2010. Chapter 5 — Transient and steady-state
+                        response analysis.</span></li>
+                <li><span class="cite-num">[3]</span><span>Nagrath, I.J. and Gopal, M. <em>Control Systems
+                            Engineering</em>, 5th ed. New Age International, 2007. Chapter 5 — Time response of
+                        feedback control systems, steady-state error and error constants.</span></li>
+
+                <li><span class="cite-num">[4]</span><span>IIT Madras NPTEL. <em>Control Systems — Lectures
+                            8–14: Time Domain Analysis</em>. National Programme on Technology Enhanced Learning.
+                        nptel.ac.in. Time-domain specifications derivations.</span></li>
+            </ul>
+        </div>
+
+        <hr>
+        <footer>
+            <strong>Aarova AI</strong> &nbsp;·&nbsp; Control Systems Series &nbsp;·&nbsp; Chapter 4 of
+            10<br>
+            <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+            <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All
+                explanations and diagrams are original to Aarova AI. Derived from standard textbooks
+                [1–5].</span>
+        </footer>
+    </div>
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Control Systems. Topic: Time Response Analysis (Chapter 4). Cover standard test signals, first and second-order system response, time-domain specifications (delay/rise/peak time, overshoot, settling time), steady-state error, and static error constants. Answer with step-by-step working for numericals. Base answers on Nise, Ogata, Nagrath & Gopal. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

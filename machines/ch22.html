@@ -1,0 +1,2831 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Synchronous Machines Ch.1 Generator Equivalent Circuit &amp; Voltage Regulation</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- KaTeX for LaTeX math rendering -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 25%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TABLE OF CONTENTS ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH (KaTeX) display ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg, .svg-wrap img {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COLUMN CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── ASK AAROVA AI WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg, .svg-wrap img {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg, .svg-wrap img {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* ════ LARGE DESKTOP 1024+ ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg, .svg-wrap img {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Synchronous Machines Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 01 &nbsp;·&nbsp; Synchronous Machines</div>
+            <h1 class="hero-title">Synchronous Generator — <em>Equivalent Circuit &amp; Voltage Regulation</em></h1>
+            <p class="hero-desc">Cylindrical rotor phasor diagram, armature reaction, equivalent circuit, OC &amp; SC
+                tests, short circuit ratio, voltage regulation by EMF / MMF / ZPF (Potier) / ASA methods, power-angle
+                relations, reactive power exchange, and V-curves — complete GATE, IES and PSU exam coverage with full
+                derivations and solved numericals.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Prerequisite — Basic AC Machine Theory</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf" style="width:16.6%"></div>
+            </div><span class="pp">Chapter 1 of 6</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">1.1</span>Why the Cylindrical Rotor Model</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">1.7</span>Voltage Regulation — MMF Method</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">1.2</span>Phasor Diagram &amp; Armature Reaction</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">1.8</span>ZPF (Potier) &amp; ASA Method</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">1.3</span>Equivalent Circuit &amp; Synchronous
+                    Reactance</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">1.9</span>Power–Angle Relations</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">1.4</span>OC &amp; SC Tests</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">1.10</span>Reactive Power &amp; Excitation</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">1.5</span>Short Circuit Ratio (SCR)</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">1.11</span>V-Curves &amp; Compounding Curves</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">1.6</span>Voltage Regulation — EMF Method</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">1.12</span>Solved Numericals</a>
+                <a href="#s13" class="toc-item"><span class="toc-n">1.13</span>GATE &amp; IES Questions</a>
+                <a href="#s14" class="toc-item"><span class="toc-n">1.14</span>Quick Revision Sheet</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: WHY CYLINDRICAL ROTOR MODEL ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">1.1</span>
+                <h2 class="sec-t">Why the Cylindrical Rotor Model — The Big Picture</h2>
+            </div>
+
+            <p>Almost every unit of electrical energy that reaches a socket in India — or anywhere in the world —
+                begins its life inside a <strong>synchronous generator</strong> (alternator). A steam, gas, hydro, or
+                nuclear turbine spins the rotor at synchronous speed, a DC field current on the rotor creates a
+                rotating magnetic field, and this field sweeps past stationary armature conductors to induce a
+                three-phase EMF. Every large thermal and nuclear plant in the country uses a
+                <strong>cylindrical (non-salient / round) rotor</strong> machine, because at 3000 rpm (2-pole, 50 Hz)
+                or 1500 rpm (4-pole) the rotor must be mechanically robust against enormous centrifugal stress — a
+                shape only a smooth cylindrical forging can survive.
+            </p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>A salient-pole rotor (used in low-speed hydro generators) has "poles sticking out" and would
+                        fly apart under the centrifugal force of a 3000 rpm turbo-generator. The cylindrical rotor
+                        solves this by embedding field windings in slots machined into a solid steel forging — the
+                        surface stays smooth, and the air-gap is uniform all around. A uniform air-gap is exactly what
+                        makes the mathematics of this chapter possible: a single reactance describes the entire
+                        machine.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Where This Fits in the Power System</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Typical Cylindrical Rotor Applications</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Thermal power stations (coal, gas) — 2 or 4 pole, 3000/1500 rpm
+                        </li>
+                        <li><span class="dot">▸</span>Nuclear power stations — large 2-pole turbo-alternators</li>
+                        <li><span class="dot">▸</span>Combined-cycle gas turbine plants</li>
+                        <li><span class="dot">▸</span>Small high-speed diesel gensets</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Contrast — Salient Pole Machines</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Hydro generators — low speed (60–500 rpm), many poles</li>
+                        <li><span class="dot">▸</span>Non-uniform air-gap → two-reactance theory (X_d, X_q) needed</li>
+                        <li><span class="dot">▸</span>This chapter's single-reactance theory does <em>not</em> apply
+                            directly</li>
+                        <li><span class="dot">▸</span>Covered separately under two-reaction theory</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p>The entire goal of this chapter is to build one clean electrical model of the cylindrical-rotor
+                generator — an EMF source in series with a single <strong>synchronous impedance</strong> — and then
+                use that model to answer the three questions every exam (and every plant engineer) actually cares
+                about: <em>(1)</em> how much does the terminal voltage sag from no-load to full-load (voltage
+                regulation), <em>(2)</em> how much real and reactive power can the machine deliver before it loses
+                synchronism (power-angle relation), and <em>(3)</em> how does changing the field current change the
+                power factor at which the machine operates (V-curves).</p>
+        </div>
+
+        <!-- ═══ S2: PHASOR DIAGRAM & ARMATURE REACTION ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">1.2</span>
+                <h2 class="sec-t">Phasor Diagram &amp; Armature Reaction</h2>
+            </div>
+
+            <p>When the armature carries load current <strong>I<sub>a</sub></strong>, that current sets up its own
+                rotating magnetic field — the <strong>armature reaction</strong> field — which interacts with the
+                main rotor field. In a cylindrical rotor machine the air-gap is uniform, so this interaction can be
+                represented purely as a voltage drop, <strong>jI<sub>a</sub>X<sub>ar</sub></strong>, in series with
+                the winding. Add the ordinary leakage-reactance drop jI<sub>a</sub>X<sub>l</sub> and the resistive
+                drop I<sub>a</sub>R<sub>a</sub>, and the whole machine reduces to a single equivalent circuit.</p>
+
+            <h3 class="sub">Building the Voltage Equation Step by Step</h3>
+            <div class="fblock"><span class="flbl">Step-by-step voltage build-up (generator, phasor form)</span>
+<span class="fh">Start from terminal voltage and add drops against current flow:</span>
+\[ \vec{E_r} = \vec{V} + I_a R_a + j I_a X_l \text{ (air-gap / resultant EMF)} \]
+\[ \vec{E_f} = \vec{E_r} + j I_a X_{ar} \text{ (excitation / no-load EMF)} \]
+
+<span class="fh">Combine the two reactance drops:</span>
+\[ \vec{E_f} = \vec{V} + I_a R_a + j I_a (X_l + X_{ar}) = \vec{V} + I_a R_a + j I_a X_s \]
+
+<span class="fh">Define:</span> Synchronous reactance \( X_s \triangleq X_l + X_{ar} \)
+Synchronous impedance \( Z_s = R_a + jX_s \)
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The One Equation That Runs This Entire Chapter</div>
+                    <p>\( \vec{E_f} = \vec{V} + \vec{I_a}\,Z_s \), where \( Z_s = R_a + jX_s \). Every voltage
+                        regulation method, every power-angle formula, and every V-curve in this chapter is derived
+                        from this single phasor equation applied at different operating conditions.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Phasor Diagram — Lagging Power Factor Load</h3>
+            <div class="svg-wrap">
+                <img src="images/ch22.22/fig22.1.png" alt="figure 22.1">
+                <div class="svg-cap">Fig 1.1 — Cylindrical-rotor generator phasor diagram at lagging power factor.
+                    Starting from V, add I_aR_a (in phase with I_a) then jI_aX_s (leading I_a by 90°) to reach E_f.
+                    The angle δ between V and E_f is the load angle / power angle.</div>
+            </div>
+
+            <h3 class="sub">Nomenclature Used in the Detailed (Two-Reactance) Model</h3>
+            <p>Some textbooks split \(X_s\) into its two physical components explicitly — useful for understanding
+                <em>why</em> \(X_s\) exists, even though exam problems almost always use the combined \(X_s\) directly.
+            </p>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Name</th>
+                            <th>Physical Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>\(E_f\)</td>
+                            <td>Excitation / no-load EMF</td>
+                            <td>EMF induced by the DC field flux alone (OC voltage at that field current)</td>
+                        </tr>
+                        <tr>
+                            <td>\(E_r\)</td>
+                            <td>Resultant air-gap EMF</td>
+                            <td>EMF due to the net air-gap flux (main flux + armature-reaction flux)</td>
+                        </tr>
+                        <tr>
+                            <td>\(X_l\)</td>
+                            <td>Armature leakage reactance</td>
+                            <td>Accounts for flux that links the armature winding but not the air-gap / field</td>
+                        </tr>
+                        <tr>
+                            <td>\(X_{ar}\)</td>
+                            <td>Armature-reaction reactance</td>
+                            <td>Fictitious reactance representing the demagnetising / magnetising effect of \(I_a\) on
+                                the main field, expressed as a voltage drop</td>
+                        </tr>
+                        <tr>
+                            <td class="t-org">\(X_s = X_l + X_{ar}\)</td>
+                            <td>Synchronous reactance</td>
+                            <td>Single reactance combining both effects — used in nearly all problem-solving</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Misconception</div>
+                    <p>Armature reaction is <em>not</em> a real physical winding drop like I_aR_a — it is a
+                        mathematical device to represent the demagnetising/cross-magnetising effect of the armature
+                        MMF as an equivalent reactance drop, valid only because the cylindrical air-gap is uniform.
+                        In salient-pole machines the same trick fails, and a two-axis (X_d, X_q) model is required
+                        instead.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: EQUIVALENT CIRCUIT ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">1.3</span>
+                <h2 class="sec-t">Equivalent Circuit &amp; Synchronous Reactance</h2>
+            </div>
+
+            <p>The per-phase equivalent circuit of a cylindrical-rotor synchronous generator is simply the phasor
+                equation of Section 1.2 drawn as a circuit: an ideal AC source E_f (representing the rotating field
+                flux) feeding the terminal through the synchronous impedance Z_s = R_a + jX_s.</p>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch22.22/fig22.2.png" alt="figure 22.2">
+                <div class="svg-cap">Fig 1.2 — Per-phase equivalent circuit: E_f drives current I_a through Z_s =
+                    R_a + jX_s to the terminal voltage V. For a balanced 3-phase machine this single-phase circuit is
+                    repeated for each phase, 120° apart.</div>
+            </div>
+
+            <h3 class="sub">Torque Angle vs Power (Load) Angle — A Frequently Confused Pair</h3>
+            <div class="two-col">
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Torque Angle</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Angle between rotor MMF F_f (or flux φ_f) and the resultant
+                            MMF F_r (or flux φ_r)</li>
+                        <li><span class="dot">▸</span>Directly linked to the mechanical torque developed</li>
+                        <li><span class="dot">▸</span>A magnetic-circuit quantity</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Power Angle (Load Angle δ)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Angle between E_f and V phasors</li>
+                        <li><span class="dot">▸</span>The angle actually used in the P–δ and Q–δ power formulas of
+                            Section 1.9</li>
+                        <li><span class="dot">▸</span>An electrical-circuit quantity</li>
+                    </ul>
+                </div>
+            </div>
+            <p>The two angles are numerically close and often used loosely as synonyms in problem-solving, but
+                conceptually the torque angle belongs to the magnetic circuit (flux/MMF) picture while the power
+                angle belongs to the electrical (phasor) picture used for power calculations.</p>
+        </div>
+
+        <!-- ═══ S4: OC & SC TESTS ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">1.4</span>
+                <h2 class="sec-t">Open-Circuit &amp; Short-Circuit Tests</h2>
+            </div>
+
+            <p>Directly measuring R_a is easy (a simple resistance test), but X_s cannot be measured directly because
+                it depends on the degree of magnetic saturation, which itself depends on the field current. Two
+                simple no-load tests solve this problem completely.</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Open-Circuit Test (OC Test)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Armature terminals left open; machine run at rated speed</li>
+                        <li><span class="dot">▸</span>Field current \(I_f\) is increased in steps; open-circuit voltage
+                            \(V_{oc}\) is recorded at each step</li>
+                        <li><span class="dot">▸</span>Plot of \(V_{oc}\) vs \(I_f\) is the <strong>Open Circuit Characteristic
+                                (OCC)</strong> — it bends over due to magnetic saturation</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Short-Circuit Test (SC Test)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Armature terminals short-circuited through ammeters; field
+                            current increased gradually (allow only 1.2–2 × full-load current)</li>
+                        <li><span class="dot">▸</span>Short-circuit current \(I_{sc}\) recorded at each \(I_f\)</li>
+                        <li><span class="dot">▸</span>Plot of \(I_{sc}\) vs \(I_f\) is the <strong>Short Circuit Characteristic
+                                (SCC)</strong> — nearly a straight line because the iron stays unsaturated (terminal
+                            voltage is almost zero throughout)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch22.22/fig22.3.png" alt="figure 22.3">
+                <div class="svg-cap">Fig 1.3 — OCC and SCC on a common field-current axis. Point A is the field
+                    current giving rated voltage on the air-gap line (OA); point B is the field current giving rated
+                    armature current on SCC (OB). These two points define the short-circuit ratio.</div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">Why the Air-Gap Line, Not the OCC, for X_s(sat)</div>
+                    <p>The <strong>modified air-gap line</strong> is the OCC of an equivalent unsaturated machine that
+                        gives rated voltage at the same field current as the real (saturated) machine. Using this
+                        line — rather than the curved OCC — to read off V_rated keeps the saturated synchronous
+                        reactance calculation consistent and is the standard convention.</p>
+                </div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Saturated Synchronous Reactance (per phase, unsaturated-value convention)</span>
+<span class="fh">Definition:</span>
+\[ X_{s(sat)} \triangleq \dfrac{V_{rated}}{I_{sc}} \]
+where \(I_{sc}\) is read off the SCC at the field current that gives \(V_{rated}\) on the air-gap line (point A → point B in Fig 1.3)
+
+<span class="fh">Note:</span> This is called the "adjusted" or "saturated" synchronous reactance — the practically useful value, distinct from the unsaturated \(X_s\) obtained purely from the initial straight-line part of the OCC.
+            </div>
+        </div>
+
+        <!-- ═══ S5: SHORT CIRCUIT RATIO ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">1.5</span>
+                <h2 class="sec-t">Short-Circuit Ratio (SCR)</h2>
+            </div>
+
+            <p>The <strong>Short-Circuit Ratio</strong> is a single number, derivable straight from Fig 1.3, that
+                tells a designer or examiner a great deal about a machine's stability, size, and cost — without
+                needing any other data.</p>
+
+            <div class="fblock"><span class="flbl">Short-Circuit Ratio — Definition &amp; Derivation</span>
+<span class="fh">Definition:</span>
+\[ SCR \triangleq \dfrac{OA}{OB} = \dfrac{\text{field current for rated V on air-gap line}}{\text{field current for rated } I_a \text{ on SCC}} \]
+
+<span class="fh">Equivalent forms (since field current ∝ voltage / current on their respective linear curves):</span>
+\[ SCR = \dfrac{I_{sc}}{I_{rated}} \Big|_{\text{same } I_f} = \dfrac{V_{rated}/X_{s(sat)}}{I_{rated}} = \dfrac{Z_{base}}{X_{s(sat)}} \]
+
+<span class="fh">Most-used compact form:</span>
+\[ \boxed{SCR = \dfrac{1}{X_{s(sat)\,(pu)}}} \]
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>SCR Value</th>
+                            <th>Machine Type</th>
+                            <th>Practical Implication</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Low SCR (≈ 0.35–0.6)</td>
+                            <td>Turbo-alternator (cylindrical rotor)</td>
+                            <td>Small air-gap, high X_s(pu), cheaper &amp; lighter, but lower steady-state stability
+                                limit and larger voltage change on load</td>
+                        </tr>
+                        <tr>
+                            <td>High SCR (≈ 1.0–1.5)</td>
+                            <td>Salient-pole (hydro) generator</td>
+                            <td>Large air-gap, low X_s(pu), bulkier &amp; costlier, but better stability and voltage
+                                regulation</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">Standard Design Limits (frequently tested)</div>
+                    <p>For a turbo-generator: SCR ≥ 0.58 is generally used, and per IEEE guidance it should not fall
+                        below about 0.35. For a salient-pole generator, the client typically specifies SCR not less
+                        than 0.8. A <em>low</em> SCR means a machine is more sensitive to load changes — voltage
+                        regulation worsens and stability margin shrinks — because SCR is the reciprocal of per-unit
+                        synchronous reactance.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: VOLTAGE REGULATION — EMF METHOD ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">1.6</span>
+                <h2 class="sec-t">Voltage Regulation — Definition &amp; EMF Method</h2>
+            </div>
+
+            <p><strong>Voltage regulation (VR)</strong> answers a very practical question: if a generator is
+                delivering rated voltage V at a specified load and power factor, and that load is suddenly thrown off
+                — keeping the field current (excitation) fixed — how much does the terminal voltage rise?</p>
+
+            <div class="fblock"><span class="flbl">Voltage Regulation — Definition</span>
+<span class="fh">Per-unit definition:</span>
+\[ VR = \dfrac{E_f - V}{V} \text{ (pu)} \]
+where \(V = V_{rated}\) and \(E_f\) is the internal EMF at that load &amp; pf
+
+<span class="fh">Physical meaning:</span> the rise in output terminal voltage, expressed as a fraction of rated voltage, when full load at a specified power factor is thrown off while holding excitation constant.
+            </div>
+
+            <p>Three classical methods exist to estimate E_f — and hence VR — from OC and SC test data alone (i.e.
+                without ever loading the machine at rated current, which is often impractical for large
+                generators): the <strong>EMF method</strong>, the <strong>MMF (ampere-turn) method</strong>, and the
+                <strong>ZPF (Potier) method</strong>. They differ only in exactly where the saturation correction is
+                applied, and consequently give three different answers for the same machine.
+            </p>
+
+            <h3 class="sub">EMF Method — Procedure</h3>
+            <p>The EMF method (also called the synchronous impedance method) uses the single lumped X_s(sat) found in
+                Section 1.4 and simply computes E_f from the phasor equation of Section 1.2.</p>
+
+            <div class="fblock"><span class="flbl">EMF Method — Working Formula</span>
+\[ \vec{E_f} = \vec{V} + \vec{I_a}\,R_a + j\vec{I_a}\,X_{s(sat)} \]
+
+<span class="fh">Voltage regulation:</span>
+\[ VR = \dfrac{|E_f| - V_{rated}}{V_{rated}} \text{ (pu or }\times 100\text{ for \%)} \]
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch22.22/fig22.4.png" alt="figure 22.4">
+                <div class="svg-cap">Fig 1.4 — EMF method construction: locate P (rated voltage on the air-gap line),
+                    then find |E_f| as OQ where OQ corresponds to I_f = OA + (field current equivalent of
+                    I_ratedX_s(sat) added vectorially) read off the OCC. VR = (OQ − OP)/OP.</div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">EMF Method is "Pessimistic"</div>
+                    <p>Because the single X_s(sat) used here is derived assuming the machine behaves consistently
+                        saturated at the SC-test operating point, the EMF method tends to <strong>over-estimate</strong>
+                        the actual voltage regulation compared to a real loaded test. For this reason it is called the
+                        <em>pessimistic</em> method — it always gives a value on the higher (safer, but less accurate)
+                        side.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: VOLTAGE REGULATION — MMF METHOD ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">1.7</span>
+                <h2 class="sec-t">Voltage Regulation — MMF (Ampere-Turn) Method</h2>
+            </div>
+
+            <p>The MMF method works entirely in the <em>field-current (MMF) domain</em> instead of the voltage
+                domain. Rather than converting the reactance drop into an equivalent field current, it adds field
+                currents directly — the field current needed to overcome armature-reaction demagnetisation is added
+                to the field current needed to balance leakage-reactance drop and R_a, then this <em>total</em> field
+                current is read directly off the OCC (not the air-gap line) to obtain E_f.</p>
+
+            <div class="fblock"><span class="flbl">MMF Method — Procedure</span>
+<span class="fh">Step 1:</span> From the air-gap line, find \(F_{r(final)}\) — the field current that would give the phasor sum \(V + I_aR_a + jI_aX_l\) (i.e. rated V plus the small leakage drop) on the unsaturated line.
+
+<span class="fh">Step 2:</span> From the SC test, find \(F_{ar(total)}\) — the field current that circulates rated \(I_a\) on short circuit (this represents the total armature-reaction + leakage demagnetising MMF).
+
+<span class="fh">Step 3:</span> Add the two field currents phasorially (\(F_r\) leads \(F_{ar}\) by \(90^\circ + \phi\), mirroring the \(jI_aX_s\) construction) to get \(F_f\) — the total field MMF required.
+
+<span class="fh">Step 4:</span> Read \(|E_f|\) directly off the actual (saturated) OCC at field current \(F_f\).
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch22.22/fig22.5.png" alt="figure 22.5">
+                <div class="svg-cap">Fig 1.5 — MMF method: OA = F_r(final) from the air-gap line; AC = OB =
+                    F_ar(total) from the SC test, added at the appropriate angle; OC = F_f is read on the actual OCC
+                    to get |E_f| directly (no further reactance correction needed).</div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✓</div>
+                <div class="cb">
+                    <div class="ct">MMF Method is "Optimistic"</div>
+                    <p>Because E_f is read directly off the real, saturated OCC (rather than combined via an
+                        idealised reactance), the MMF method tends to <strong>under-estimate</strong> voltage
+                        regulation compared to reality. It is therefore called the <em>optimistic</em> method — the
+                        mirror image of the EMF method's pessimism.</p>
+                </div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Domain</th>
+                            <th>Tendency</th>
+                            <th>Accuracy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>EMF Method</td>
+                            <td>Voltage (reactance drop)</td>
+                            <td class="t-red">Pessimistic (VR too high)</td>
+                            <td>Low</td>
+                        </tr>
+                        <tr>
+                            <td>MMF Method</td>
+                            <td>Field current (MMF)</td>
+                            <td class="t-grn">Optimistic (VR too low)</td>
+                            <td>Low</td>
+                        </tr>
+                        <tr>
+                            <td class="t-org">ZPF (Potier) Method</td>
+                            <td>Mixed — treats quantities as they exist on load</td>
+                            <td class="t-org">Most realistic</td>
+                            <td>High</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S8: ZPF (POTIER) & ASA METHOD ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">1.8</span>
+                <h2 class="sec-t">ZPF (Potier) Method &amp; the ASA Method</h2>
+            </div>
+
+            <p>The <strong>zero power factor (ZPF) test</strong>, also called the <strong>Potier test</strong>,
+                directly measures how terminal voltage varies with field current while the armature carries
+                <em>rated current at zero (lagging) power factor</em> — obtained practically by loading the machine
+                with a synchronous motor running heavily under-excited, or a reactor bank. Because this test
+                reproduces the actual demagnetising condition the machine experiences on load, it is the most
+                physically realistic of the three methods.
+            </p>
+
+            <div class="fblock"><span class="flbl">ZPF / Potier Characteristic</span>
+The ZPF characteristic (ZPFC) is essentially the OCC shifted right and down by a constant amount — it is congruent to the OCC, just displaced by the leakage-reactance drop (horizontally by \(F_{ar}\), vertically by \(I_aX_l\)). This constant-shift property is the basis of the Potier triangle construction.
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch22.22/fig22.6.png" alt="figure 22.6">
+                <div class="svg-cap">Fig 1.6 — Potier triangle construction: locate B on the ZPFC at V_rated; draw BC
+                    = OA (field current for rated V on the air-gap line) horizontally; from C draw CD parallel to the
+                    air-gap line to meet the OCC at D. Triangle BCD is the Potier triangle — BC = F_ar (armature
+                    reaction MMF), CD = I_aX_l (leakage reactance drop).</div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Steps to Extract X_l and Voltage Regulation from the Potier Triangle</span>
+1. Plot OCC and ZPFC on a common \(I_f\) axis (both at rated speed, rated \(I_a\) for ZPFC).
+2. Fix the size of the Potier triangle using rated-load points A and B (as in Fig 1.6).
+3. Slide the triangle, keeping D always on the OCC and BC always horizontal, to read off the leakage reactance drop \(I_aX_l\) and the demagnetising MMF \(F_{ar}\) for ANY load point.
+4. Add \(F_{ar}\) to the armature MMF \(F_a \propto I_a\) phasorially, along with \(jI_aX_l\) added to \(V\), to reconstruct the actual resultant field MMF and hence \(|E_f| \rightarrow VR\) by ZPF method.
+            </div>
+
+            <h3 class="sub">The ASA (American Standards Association) Method</h3>
+            <p>The Potier / ZPF method was, for decades, the standard recommended procedure — but it requires a
+                dedicated ZPF load test which is not always convenient. The <strong>ASA method</strong> modifies the
+                simpler MMF method by determining F_r(final) from the <em>air-gap line</em> (as before) but adding an
+                extra correction: the additional field MMF needed to overcome saturation, found as the horizontal gap
+                between the air-gap line and the OCC at the E_r voltage level (using the Potier triangle's I_aX_l to
+                fix E_r). This additional saturation MMF is added to the unsaturated F_f to get the actual field MMF
+                of the loaded machine.</p>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">One P.U. Field Current — A Precise Definition</div>
+                    <p>1 pu field current in a synchronous machine is defined as the field current that gives rated
+                        voltage on the <em>air-gap line</em> (not the OCC). This precise definition is exactly what
+                        makes the ASA correction procedure well-defined and repeatable.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🏆</div>
+                <div class="cb">
+                    <div class="ct">Ranking of the Three Methods (Exam Favourite)</div>
+                    <p>EMF method → <strong>pessimistic</strong> (VR too high). MMF method → <strong>optimistic</strong>
+                        (VR too low). ZPF / Potier method → treats quantities as they actually exist under load, so
+                        it is the <strong>most realistic</strong>. The ASA method — the modern refinement of the MMF
+                        method — is the officially recommended method for both cylindrical-rotor and salient-pole
+                        machines today.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S9: POWER-ANGLE RELATIONS ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">1.9</span>
+                <h2 class="sec-t">Power-Angle Relations</h2>
+            </div>
+
+            <p>The single phasor equation E_f = V + I_aZ_s also determines how much real power the machine can
+                transfer between the shaft and the electrical bus, as a function of the load angle δ between E_f and
+                V. This is arguably the single most important relation in synchronous machine theory — it underlies
+                everything from steady-state stability limits to transient stability studies to power system dynamic
+                simulations.</p>
+
+            <div class="fblock"><span class="flbl">General Derivation (generator action, \(Z_s = R_a + jX_s = Z_s\angle\theta_s\))</span>
+\[ \vec{I_a} = \dfrac{\vec{E_f} - \vec{V}}{Z_s} = \dfrac{E_f\angle\delta - V\angle 0^\circ}{Z_s\angle\theta_s} \]
+
+<span class="fh">Complex power delivered to the bus:</span>
+\[ S_{out} = V\vec{I_a}^{\,*} = \dfrac{VE_f}{Z_s}\angle(\theta_s-\delta) - \dfrac{V^2}{Z_s}\angle\theta_s \]
+
+<span class="fh">Real power:</span>
+\[ P_{out} = \dfrac{VE_f}{Z_s}\cos(\theta_s-\delta) - \dfrac{V^2}{Z_s}\cos\theta_s \]
+
+<span class="fh">Maximum power</span> occurs when \(\delta = \theta_s\) (the only variable term is maximised):
+\[ P_{out(max)} = \dfrac{VE_f}{Z_s} - \dfrac{V^2}{Z_s}\cos\theta_s \]
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">🎯</div>
+                <div class="cb">
+                    <div class="ct">Neglecting Armature Resistance (\(R_a = 0\)) — The Formula Everyone Remembers</div>
+                    <p>Since \(R_a \ll X_s\) in large machines, setting \(R_a = 0\) gives \(Z_s = X_s\) and \(\theta_s = 90^\circ\), collapsing
+                        the power-angle relation to the clean, universally quoted form used in stability studies.</p>
+                </div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Standard Power-Angle Formula (\(R_a\) neglected)</span>
+<span class="fh">Generator (delivering power):</span> \( P = \dfrac{VE_f}{X_s}\sin\delta \)
+<span class="fh">Motor (absorbing power):</span> \( P = \dfrac{VE_f}{X_s}\sin\delta \) (same form, \(\delta\) measured oppositely)
+
+<span class="fh">Maximum power</span> (steady-state stability limit) at \(\delta = 90^\circ\):
+\[ P_{max} = \dfrac{VE_f}{X_s} \implies P = P_{max}\sin\delta \]
+            </div>
+
+            <div class="svg-wrap">
+                <img src="images/ch22.22/fig22.7.png" alt="figure 22.7">
+                <div class="svg-cap">Fig 1.7 — Power-angle curve \(P = P_{max} \sin \delta\). Operation is stable only for \(0 &lt; \delta &lt; 90^\circ\) (\(dP/d\delta &gt; 0\)); beyond \(90^\circ\) the machine loses synchronism. Increasing field excitation \(E_f\) raises the entire curve (higher \(P_{max}\)), allowing more power transfer at the same \(\delta\).</div>
+            </div>
+
+            <h3 class="sub">Reactive Power (\(R_a\) neglected)</h3>
+            <div class="fblock"><span class="flbl">Reactive Power — Generator &amp; Motor</span>
+<span class="fh">Generator:</span> \( Q_{out} = \dfrac{V}{X_s}\big(E_f\cos\delta - V\big) \)
+<span class="fh">Motor:</span> \( Q_{in} = \dfrac{V}{X_s}\big(V - E_f\cos\delta\big) \)
+            </div>
+
+            <p>When armature resistance is neglected the steady-state stability limit (δ = 90°) coincides for both
+                generator and motor action; in a real machine with finite R_a the maximum-power angle shifts slightly
+                to δ = θ_s, and for the motor case the corresponding condition works out to δ = θ_s as well, derived
+                from the same phasor algebra applied with reversed power flow.</p>
+        </div>
+
+        <!-- ═══ S10: REACTIVE POWER & EXCITATION ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">1.10</span>
+                <h2 class="sec-t">Reactive Power &amp; the Effect of Excitation</h2>
+            </div>
+
+            <p>At <em>constant real power output</em> (constant shaft torque for a generator, or constant kW load for
+                a motor), changing the field current I_f changes only the power factor at which the machine operates
+                — it does not change P. This is because P = (VE_f/X_s) sin δ = constant forces E_f sin δ to stay
+                constant, so E_f and δ must move together while E_f cos δ (which sets Q) is free to vary.</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Machine</th>
+                            <th>Excitation Condition</th>
+                            <th>Reactive Power</th>
+                            <th>Operating PF</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="3">Generator</td>
+                            <td>Normally excited — \(E_f \cos \delta = V\)</td>
+                            <td>\(Q_{out} = 0\)</td>
+                            <td class="t-org">Unity PF</td>
+                        </tr>
+                        <tr>
+                            <td>Over-excited — \(E_f \cos \delta &gt; V\)</td>
+                            <td class="t-grn">\(Q_{out} = \text{+ve}\) (supplies lagging VARs)</td>
+                            <td class="t-grn">Lagging PF</td>
+                        </tr>
+                        <tr>
+                            <td>Under-excited — \(E_f \cos \delta &lt; V\)</td>
+                            <td class="t-tel">\(Q_{out} = \text{−ve}\) (supplies leading VARs)</td>
+                            <td class="t-tel">Leading PF</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">Motor</td>
+                            <td>Normally excited — \(E_f \cos \delta = V\)</td>
+                            <td>\(Q_{in} = 0\)</td>
+                            <td class="t-org">Unity PF</td>
+                        </tr>
+                        <tr>
+                            <td>Over-excited — \(E_f \cos \delta &gt; V\)</td>
+                            <td class="t-tel">\(Q_{in} = \text{−ve}\) (draws leading VARs)</td>
+                            <td class="t-tel">Leading PF</td>
+                        </tr>
+                        <tr>
+                            <td>Under-excited — \(E_f \cos \delta &lt; V\)</td>
+                            <td class="t-grn">\(Q_{in} = \text{+ve}\) (draws lagging VARs)</td>
+                            <td class="t-grn">Lagging PF</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">The Golden Rule of Excitation (Never Forget This)</div>
+                    <p>An <strong>over-excited synchronous generator supplies lagging VARs</strong> to the system —
+                        exactly the same behaviour as an over-excited synchronous <strong>motor</strong>, which
+                        instead <em>draws leading VARs</em>. This dual behaviour is why over-excited synchronous
+                        motors (running as "synchronous condensers") are deliberately installed on power systems for
+                        reactive power compensation and power-factor correction.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S11: V-CURVES & COMPOUNDING CURVES ═══ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr"><span class="sec-num">1.11</span>
+                <h2 class="sec-t">V-Curves &amp; Compounding Curves</h2>
+            </div>
+
+            <p>Plotting armature current I_a against field current I_f, at several fixed levels of real power (kW
+                output), produces a family of curves shaped like the letter V — hence the name. Each curve has a
+                minimum at unity power factor (where I_a is purely real, hence minimum in magnitude for that P), with
+                lagging PF operation to the left (under-excited) and leading PF to the right (over-excited) for a
+                generator — with the labelling <em>reversed</em> for a motor.</p>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch22.22/fig22.8.png" alt="figure 22.8">
+                <div class="svg-cap">Fig 1.8 — Synchronous machine V-curves: I_a vs I_f at three levels of constant
+                    kW loading. Each curve's minimum lies on the unity-PF locus; left of minimum is lagging PF (for a
+                    generator), right of minimum is leading PF.</div>
+            </div>
+
+            <p>A closely related plot — the <strong>compounding curve</strong> — instead holds power factor constant
+                and plots the field current I_f needed to hold terminal voltage constant as I_a (the load) is varied.
+                At lagging PF, I_f must rise noticeably with load (demagnetising armature reaction must be overcome);
+                at leading PF, I_f can actually fall with increasing load (magnetising armature reaction assists the
+                field).</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">V-Curves — Key Takeaways</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Minimum \(I_a\) on each curve occurs at unity PF</li>
+                        <li><span class="dot">▸</span>Higher kW loading → curve shifts up and right</li>
+                        <li><span class="dot">▸</span>Inverted V-curves plot PF (not \(I_a\)) vs \(I_f\) — peak at unity PF</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Compounding Curves — Key Takeaways</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Lagging PF load → \(I_f\) rises steeply with \(I_a\)</li>
+                        <li><span class="dot">▸</span>Unity PF load → \(I_f\) rises modestly</li>
+                        <li><span class="dot">▸</span>Leading PF load → \(I_f\) can fall as \(I_a\) increases</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S12: SOLVED NUMERICALS ═══ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr"><span class="sec-num">1.12</span>
+                <h2 class="sec-t">Solved Numericals</h2>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 1.1</span>
+                    <span class="ex-title">Synchronous reactance &amp; voltage regulation by EMF method</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 3-phase, star-connected alternator is rated 5 MVA, 6.6 kV (line), with
+                        armature resistance \(R_a = 0.4 \;\Omega\)/phase. OC and SC tests at the same field current of 20 A give
+                        an open-circuit line voltage of 6.6 kV and a short-circuit current of 437 A (rated current).
+                        Find the synchronous reactance and the voltage regulation at full load, 0.8 pf lagging, by
+                        the EMF method.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Given:</strong> \(V_L = 6.6 \text{ kV} \rightarrow V_{phase} = 6600/\sqrt{3} = 3810.5 \text{ V}\); \(I_{a(rated)} = 437 \text{ A}\);
+                        \(I_{sc} = 437 \text{ A}\) at the same \(I_f\); \(R_a = 0.4 \;\Omega\)/phase</p>
+                    <p><strong>Step 1 — Synchronous impedance and reactance:</strong></p>
+                    <div class="math-block">
+                        $$Z_{s(sat)} = \frac{V_{phase}}{I_{sc}} = \frac{3810.5}{437} = 8.72 \; \Omega/\text{phase}$$
+                        $$X_{s(sat)} = \sqrt{Z_{s(sat)}^2 - R_a^2} = \sqrt{8.72^2 - 0.4^2} \approx 8.71 \;
+                        \Omega/\text{phase}$$
+                    </div>
+                    <p><strong>Step 2 — Phasor addition at 0.8 pf lagging</strong> (I_a = 437∠−36.87°, V = 3810.5∠0°):
+                    </p>
+                    <div class="math-block">
+                        $$\vec{I_a}Z_s = 437 \times 8.72\,\angle(87.4° - 36.87°) = 3810.6\angle 50.5°\text{ V}$$
+                        $$= 2426 + j2944 \text{ V}$$
+                    </div>
+                    <div class="math-block">
+                        $$\vec{E_f} = 3810.5 + 2426 + j2944 = 6237 + j2944$$
+                        $$|E_f| = \sqrt{6237^2 + 2944^2} \approx 6896 \text{ V}$$
+                    </div>
+                    <p><strong>Step 3 — Voltage regulation:</strong></p>
+                    <div class="math-block">
+                        $$VR = \frac{6896 - 3810.5}{3810.5} \approx 0.81 \;\text{ pu} = 81\%$$
+                    </div>
+                    <div class="callout c-warn">
+                        <div class="ci">⚠️</div>
+                        <div class="cb">
+                            <div class="ct">Why VR Looks So Large</div>
+                            <p>This machine has X_s(pu) = X_s(sat)/Z_base = 8.71/8.72 ≈ 1.0 pu — a typical unsaturated
+                                synchronous reactance for a turbo-alternator. Combined with lagging pf, the EMF
+                                method's pessimistic bias produces a large VR. Real on-load VR (via ZPF method) would
+                                be noticeably lower.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 1.2</span>
+                    <span class="ex-title">Short-circuit ratio and per-unit synchronous reactance</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 10 MVA, 11 kV, star-connected alternator requires a field current of 20 A to
+                        produce rated voltage on the air-gap line, and a field current of 32 A to circulate rated
+                        armature current on short circuit. Find the SCR and the saturated per-unit synchronous
+                        reactance. Comment on whether this machine is more likely a turbo-alternator or a hydro
+                        generator.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Step 1 — SCR:</strong></p>
+                    <div class="math-block">
+                        $$SCR = \frac{OA}{OB} = \frac{20}{32} = 0.625$$
+                    </div>
+                    <p><strong>Step 2 — Per-unit synchronous reactance:</strong></p>
+                    <div class="math-block">
+                        $$X_{s(sat)\,(pu)} = \frac{1}{SCR} = \frac{1}{0.625} = 1.6 \;\text{pu}$$
+                    </div>
+                    <p><strong>Step 3 — Actual ohmic value</strong> (rated current = 10×10⁶/(√3×11000) = 524.9 A,
+                        Z_base = V_phase/I_rated = 6350.6/524.9 = 12.1 Ω):</p>
+                    <div class="math-block">
+                        $$X_{s(sat)} = 1.6 \times 12.1 = 19.36 \; \Omega/\text{phase}$$
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Interpretation</div>
+                            <p>SCR = 0.625 is above the turbo-alternator minimum of 0.58 but well below the ≥ 0.8
+                                typically specified for salient-pole (hydro) machines — so this machine is almost
+                                certainly a <strong>turbo-alternator</strong> (cylindrical rotor), consistent with a
+                                relatively high X_s(pu) = 1.6.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 1.3</span>
+                    <span class="ex-title">Power-angle relation — power transfer and stability limit</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 3-phase, star-connected turbo-alternator has V_phase = 3300 V, E_f (phase) =
+                        4200 V, and X_s = 10 Ω/phase (R_a neglected). Find (a) the total three-phase power delivered
+                        at a load angle δ = 20°, and (b) the maximum power the machine can deliver before losing
+                        synchronism.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>(a) Power at δ = 20°</strong> — per-phase, then × 3:</p>
+                    <div class="math-block">
+                        $$P_{ph} = \frac{VE_f}{X_s}\sin\delta = \frac{3300 \times 4200}{10}\sin 20° = 1{,}386{,}000
+                        \times 0.342 = 474{,}012 \text{ W}$$
+                        $$P_{3\phi} = 3 \times 474{,}012 \approx 1.42 \text{ MW}$$
+                    </div>
+                    <p><strong>(b) Maximum power</strong> — occurs at δ = 90°:</p>
+                    <div class="math-block">
+                        $$P_{max(3\phi)} = 3 \times \frac{VE_f}{X_s} = 3 \times 1{,}386{,}000 \approx 4.16 \text{ MW}$$
+                    </div>
+                    <p>Since the machine is delivering only 1.42 MW at δ = 20° against a maximum capability of 4.16 MW
+                        (at δ = 90°), it has a healthy stability margin.</p>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 1.4</span>
+                    <span class="ex-title">Reactive power &amp; excitation state (continuing EX 1.3)</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">For the same machine as EX 1.3 operating at δ = 20°, determine whether the
+                        generator is over-excited or under-excited, and find the reactive power it exchanges with the
+                        bus.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="math-block">
+                        $$E_f\cos\delta = 4200 \times \cos 20° = 4200 \times 0.9397 = 3946.7 \text{ V}$$
+                    </div>
+                    <p>Since E_f cos δ = 3946.7 V &gt; V = 3300 V, the machine is <strong>over-excited</strong> and
+                        supplies lagging VARs (Section 1.10, case ii).</p>
+                    <div class="math-block">
+                        $$Q_{out,ph} = \frac{V}{X_s}(E_f\cos\delta - V) = \frac{3300}{10}(3946.7 - 3300) = 330 \times
+                        646.7 \approx 213{,}411 \text{ VAR}$$
+                        $$Q_{out,3\phi} = 3 \times 213{,}411 \approx 0.64 \text{ MVAR (lagging)}$$
+                    </div>
+                    <p><strong>Answer:</strong> Over-excited, delivering ≈ 0.64 MVAR lagging in addition to the 1.42
+                        MW real power found in EX 1.3.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S13: GATE & IES QUESTIONS ═══ -->
+        <div class="section" id="s13">
+            <div class="sec-hdr"><span class="sec-num">1.13</span>
+                <h2 class="sec-t">GATE &amp; IES Previous-Year Concepts</h2>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">High-Yield Topics in Synchronous Generator Theory
+                        <span class="prob prob-h">🟢 HIGH</span></span>
+                </div>
+                <div class="gate-body">
+                    <p>These sub-topics recur almost every year across GATE EE and IES E&amp;T:</p>
+                    <div class="two-col">
+                        <div class="mini-card mc-grn">
+                            <div class="mc-t">🟢 High Probability (GATE)</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>Voltage regulation by EMF method (direct numericals)</li>
+                                <li><span class="dot">▸</span>Power-angle relation, P_max, stability limit</li>
+                                <li><span class="dot">▸</span>Over/under-excited generator — reactive power direction
+                                </li>
+                                <li><span class="dot">▸</span>SCR — definition and design implications</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card mc-amb">
+                            <div class="mc-t">🟡 Medium Probability</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>MMF vs EMF method — optimistic/pessimistic labelling</li>
+                                <li><span class="dot">▸</span>Potier triangle construction (conceptual)</li>
+                                <li><span class="dot">▸</span>V-curves — minimum point and PF interpretation</li>
+                                <li><span class="dot">▸</span>Torque angle vs power (load) angle distinction</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">EMF vs MMF method — which over-estimates VR?</span>
+                    <span class="pyq-year">Concept</span>
+                </div>
+                <div class="pyq-body">
+                    <p>For a cylindrical-rotor synchronous generator, the voltage regulation calculated by the EMF
+                        (synchronous impedance) method, compared to the value obtained by the MMF (ampere-turn)
+                        method, is generally:</p>
+                    <ul class="pyq-opts">
+                        <li class="correct">(A) Higher than the MMF method value</li>
+                        <li>(B) Lower than the MMF method value</li>
+                        <li>(C) Exactly equal to the MMF method value</li>
+                        <li>(D) Unrelated — depends only on load pf</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);">
+                        <strong>Explanation:</strong> The EMF method is pessimistic (VR too high) because it applies
+                        a single saturated reactance uniformly; the MMF method is optimistic (VR too low) because it
+                        reads E_f straight off the actual saturated OCC. Hence EMF-method VR &gt; MMF-method VR for
+                        the same machine and load.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Short-circuit ratio — physical meaning</span>
+                    <span class="pyq-year">Concept</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A synchronous generator with a low short-circuit ratio (SCR) will, compared to a similarly
+                        rated machine with high SCR, exhibit which of the following?</p>
+                    <p>1. Larger air-gap &nbsp;|&nbsp; 2. Higher per-unit synchronous reactance &nbsp;|&nbsp; 3.
+                        Poorer inherent voltage regulation &nbsp;|&nbsp; 4. Lower steady-state stability limit</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 1, 2 and 3 only</li>
+                        <li class="correct">(B) 2, 3 and 4 only</li>
+                        <li>(C) 1, 3 and 4 only</li>
+                        <li>(D) 1, 2, 3 and 4</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);">
+                        <strong>Explanation:</strong> Low SCR corresponds to a <em>smaller</em> air-gap (statement 1
+                        false), which gives higher X_s(pu) = 1/SCR (statement 2 true), which worsens voltage
+                        regulation (statement 3 true) and lowers the steady-state stability power limit P_max =
+                        VE_f/X_s (statement 4 true, since larger X_s reduces P_max).
+                    </p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Excitation and reactive power direction</span>
+                    <span class="pyq-year">Concept</span>
+                </div>
+                <div class="pyq-body">
+                    <p>An over-excited synchronous generator connected to an infinite bus, operating at constant real
+                        power output, will:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Draw leading reactive power from the bus</li>
+                        <li class="correct">(B) Supply lagging reactive power to the bus</li>
+                        <li>(C) Supply leading reactive power to the bus</li>
+                        <li>(D) Neither supply nor draw reactive power</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                        <strong>Explanation:</strong> Over-excitation means E_f cos δ &gt; V, giving Q_out =
+                        (V/X_s)(E_f cos δ − V) &gt; 0 — the generator supplies (positive/lagging) reactive power to
+                        the bus. This is the same principle exploited by synchronous condensers for reactive power
+                        support.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Memory Tricks</h3>
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic — "EMF is Extra-pessimistic, MMF is Mild"</div>
+                    <p><strong>E</strong>MF method → <strong>E</strong>xaggerates VR (pessimistic, too high).
+                        <strong>M</strong>MF method → <strong>M</strong>inimises VR (optimistic, too low). The truth
+                        (ZPF/Potier) sits between the two, closer to real on-load behaviour.
+                    </p>
+                </div>
+            </div>
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic — "OVER excites, OVER delivers (lagging)"</div>
+                    <p>An <strong>OVER</strong>-excited generator delivers <strong>lagging</strong> VARs (both start
+                        differently but pair together in memory as the "generous" state — giving out reactive
+                        support). An under-excited generator does the opposite — it absorbs VARs from the system.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S14: QUICK REVISION SHEET ═══ -->
+        <div class="section" id="s14">
+            <div class="sec-hdr"><span class="sec-num">1.14</span>
+                <h2 class="sec-t">Quick Revision Sheet</h2>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Core Phasor Equation</div>
+                    <p>\(E_f = V + I_a(R_a + jX_s)\). Everything else in this chapter is this one equation applied at
+                        different loads and interpreted in different ways.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">OC / SC Tests &amp; SCR</div>
+                    <p>\(X_{s(sat)} = V_{rated}/I_{sc}\) at the field current giving \(V_{rated}\) on the air-gap line. \(SCR = OA/OB =
+                        1/X_{s(sat,pu)}\). Low SCR → turbo-alternator; high SCR → salient-pole.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Three VR Methods</div>
+                    <p>EMF method — pessimistic (VR too high). MMF method — optimistic (VR too low). ZPF/Potier
+                        method — realistic. ASA method — modern refinement of MMF, officially recommended.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Power-Angle Relation</div>
+                    <p>\(P = (VE_f/X_s) \sin \delta\) (\(R_a\) neglected). \(P_{max}\) at \(\delta = 90^\circ\) — the steady-state stability limit.
+                        Increasing \(E_f\) raises \(P_{max}\).</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Reactive Power &amp; Excitation</div>
+                    <p>Over-excited generator (\(E_f \cos \delta &gt; V\)) → supplies lagging VARs. Under-excited → supplies
+                        leading VARs. Motor behaviour is the mirror image.</p>
+                </div>
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">V-Curves</div>
+                    <p>\(I_a\) vs \(I_f\) at constant kW — minimum \(I_a\) at unity PF. Lagging PF left of minimum (generator),
+                        leading PF right. Compounding curves plot \(I_f\) vs \(I_a\) at constant PF instead.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 2</div>
+                    <p>Parallel Operation of Synchronous Generators — synchronizing conditions, synchronizing power
+                        and torque coefficients, load sharing between machines on infinite bus, effect of governor
+                        and excitation control, and hunting / damper windings.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ AI WIDGET ═══ -->
+        <div class="ai-prompt">
+            <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+            <p>Have a question on synchronous reactance, voltage regulation methods, power-angle curves, or
+                V-curves? Type below or pick a suggestion.</p>
+            <div class="ai-input-row">
+                <input class="ai-input" id="userQ" type="text"
+                    placeholder="e.g. Derive the maximum power transfer condition including armature resistance…">
+                <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+            </div>
+            <div class="ai-suggest">
+                <span class="ai-chip"
+                    onclick="setQ('Derive the voltage regulation formula for a synchronous generator including armature resistance, and show why R_a is usually neglected in large machines.')">Why
+                    R_a is neglected</span>
+                <span class="ai-chip"
+                    onclick="setQ('Explain step by step how to construct the Potier triangle from OCC and ZPFC data, with a worked numerical example.')">Potier
+                    triangle walkthrough</span>
+                <span class="ai-chip"
+                    onclick="setQ('A synchronous generator operates at constant kW output while field current is increased from under-excited through unity PF to over-excited. Explain how I_a, PF, and Q change throughout, referencing the V-curve.')">Explain
+                    the V-curve physically</span>
+            </div>
+            <div class="ai-response" id="aiResp"></div>
+        </div>
+
+        <!-- ═══ CITATIONS ═══ -->
+        <div class="citations" id="citations">
+            <div class="cite-h">References &amp; Citations</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                the following standard textbooks and learning resources. All explanations, derivations, diagrams and
+                worked examples are original to Aarova AI.</p>
+            <ul class="cite-list">
+                <li><span class="cite-num">[1]</span><span>Bimbhra, P.S. <em>Generalized Theory of Electrical
+                            Machines</em>, 6th ed. Khanna Publishers, 2011. Chapters on synchronous machine phasor
+                        diagrams, armature reaction, and voltage regulation methods.</span></li>
+                <li><span class="cite-num">[2]</span><span>Fitzgerald, A.E., Kingsley, C. and Umans, S.D.
+                        <em>Electric Machinery</em>, 6th ed. McGraw-Hill, 2003. Chapter 5 — Synchronous machines:
+                        equivalent circuit, OC/SC tests, power-angle characteristics.</span></li>
+                <li><span class="cite-num">[3]</span><span>Nagrath, I.J. and Kothari, D.P. <em>Electric
+                            Machines</em>, 4th ed. Tata McGraw-Hill, 2010. Chapter on synchronous generators —
+                        voltage regulation, ASA method, V-curves.</span></li>
+                <li><span class="cite-num">[4]</span><span>Chapman, Stephen J. <em>Electric Machinery
+                            Fundamentals</em>, 5th ed. McGraw-Hill, 2012. Chapter 4 — Synchronous generators: power
+                        and torque, steady-state characteristics.</span></li>
+                <li><span class="cite-num">[5]</span><span>J.B. Gupta. <em>Theory and Performance of Electrical
+                            Machines</em>. S.K. Kataria &amp; Sons. Sections on Potier triangle, SCR, and compounding
+                        curves. Used for problem-solving approach only.</span></li>
+            </ul>
+        </div>
+
+        <hr>
+        <footer>
+            <strong>Aarova AI</strong> &nbsp;·&nbsp; Synchronous Machines Series &nbsp;·&nbsp; Chapter 1 of 6<br>
+            <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+            <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+        </footer>
+    </div>
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Synchronous Machines. Topic: Synchronous Generator — Equivalent Circuit and Voltage Regulation (Chapter 1). Cover phasor diagrams, armature reaction, OC/SC tests, SCR, EMF/MMF/ZPF/ASA regulation methods, power-angle relations, V-curves. Answer with step-by-step working for numericals. Base answers on Bimbhra, Fitzgerald-Kingsley-Umans, Nagrath-Kothari, Chapman. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Aarova AI'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

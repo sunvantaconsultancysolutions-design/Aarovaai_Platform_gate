@@ -1,0 +1,2945 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Control Systems Ch.9 Compensation &amp; Controller Design</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- KaTeX for LaTeX math rendering -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 25%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TABLE OF CONTENTS ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH (KaTeX) display ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COLUMN CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 20px;
+            border-bottom: 1px solid var(--bg3);
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            position: absolute;
+            left: 0;
+            top: 6px;
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── ASK CLAUDE WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* ════ LARGE DESKTOP 1024+ ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Control Systems Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 09 &nbsp;·&nbsp; Control Systems</div>
+            <h1 class="hero-title">Compensation &amp; <em>Controller Design</em></h1>
+            <p class="hero-desc">Need for compensation, lead compensator, lag compensator, lag-lead compensator, and
+                the PID controller — frequency-response design procedures, pole-zero interpretation, and their
+                effect on transient response, steady-state accuracy and stability margins, with complete GATE, IES
+                and PSU exam coverage.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Follows Ch.8 — Frequency Response Analysis</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf" style="width:75%"></div>
+            </div><span class="pp">Chapter 9 of 12</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">9.1</span>Need for Compensation</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">9.7</span>Frequency-Response Design Procedure</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">9.2</span>Series vs Feedback Compensation</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">9.8</span>Pole-Zero &amp; Root Locus View</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">9.3</span>Lead Compensation</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">9.9</span>Comparison of Compensators</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">9.4</span>Lag Compensation</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">9.10</span>Chapter Summary Table</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">9.5</span>Lag-Lead Compensation</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">9.11</span>Solved Numericals</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">9.6</span>PID Controller &amp; Its Effects</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">9.12</span>GATE &amp; IES Questions</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: NEED FOR COMPENSATION ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">9.1</span>
+                <h2 class="sec-t">Why Compensation Is Needed — The Big Picture</h2>
+            </div>
+
+            <p>Every control system design begins with a plant transfer function G(s) that engineers cannot change —
+                it is fixed by the physics of the motor, process, or aircraft being controlled. Yet the plant alone,
+                placed inside a simple unity-feedback loop, almost never satisfies every specification simultaneously:
+                a fast response often comes with excessive overshoot, a high loop gain that kills steady-state error
+                often destroys the phase margin, and a system that is stable on paper may ring badly in practice.
+                <strong>Compensation</strong> is the deliberate insertion of an additional transfer function
+                G<sub>c</sub>(s) into the loop so that the overall open-loop response reshapes itself to meet
+                transient, steady-state, and stability requirements together.
+            </p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>Raising gain K alone improves steady-state accuracy but pushes the gain-crossover frequency
+                        outward, usually reducing phase margin and increasing overshoot. Compensation resolves this
+                        conflict by reshaping the Bode plot — adding phase where it is needed, or attenuating gain
+                        where it is not — rather than simply scaling the whole curve up or down.</p>
+                </div>
+            </div>
+
+            <!-- Compensated block diagram -->
+            <div class="svg-wrap">
+                <img src="images/ch9/fig9.1.png" alt="Figure 9.1">
+                <div class="svg-cap">Fig 9.1 — Series (cascade) compensation: G<sub>c</sub>(s) is inserted in the
+                    forward path ahead of the plant G(s), reshaping the open-loop transfer function
+                    G<sub>c</sub>(s)G(s)H(s).</div>
+            </div>
+
+            <h3 class="sub">What Compensation Must Reconcile</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Competing Requirements</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Low steady-state error \(\to\) needs high \(K_v\), \(K_p\),
+                            \(K_a\)</li>
+                        <li><span class="dot">▸</span>Low overshoot &amp; fast settling \(\to\) needs adequate phase
+                            margin</li>
+                        <li><span class="dot">▸</span>Good disturbance rejection \(\to\) needs high loop gain at low
+                            \(\omega\)</li>
+                        <li><span class="dot">▸</span>Noise immunity \(\to\) needs low gain at high \(\omega\)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">What a Compensator Changes</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Slope of the Bode magnitude plot near crossover</li>
+                        <li><span class="dot">▸</span>Phase angle contributed near gain-crossover frequency</li>
+                        <li><span class="dot">▸</span>Location of gain-crossover &amp; phase-crossover frequencies</li>
+                        <li><span class="dot">▸</span>Closed-loop bandwidth and hence speed of response</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Design Philosophy</div>
+                    <p>A compensator is chosen so that it adds phase lead near crossover (to raise phase margin and
+                        speed the response), or reduces gain at high frequency while leaving low-frequency gain
+                        intact (to preserve accuracy while restoring margin) — or does a bit of both. Everything in
+                        this chapter is one of these two ideas applied with a different transfer function shape.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: SERIES vs FEEDBACK COMPENSATION ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">9.2</span>
+                <h2 class="sec-t">Series and Feedback Compensation</h2>
+            </div>
+
+            <p>Compensating networks can be introduced at two structural locations in the loop. <strong>Series
+                    (cascade) compensation</strong> places G<sub>c</sub>(s) in the forward path, usually right after the
+                error detector, and is the most common form taught at the GATE/IES level because it can be analysed
+                directly using Bode and root-locus techniques already familiar from earlier chapters.
+                <strong>Feedback (parallel) compensation</strong> places a compensating element H<sub>c</sub>(s) in an
+                inner feedback path around part of the plant — common in systems such as tachogenerator velocity
+                feedback around a position servo.
+            </p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Series Compensation</th>
+                            <th>Feedback Compensation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Location</td>
+                            <td>Forward path, low-power point</td>
+                            <td>Minor loop around plant / sub-system</td>
+                        </tr>
+                        <tr>
+                            <td>Component power level</td>
+                            <td>Low — economical, uses R-C networks or op-amps</td>
+                            <td>Often higher — tachometer, rate sensors</td>
+                        </tr>
+                        <tr>
+                            <td>Loading effect</td>
+                            <td>Needs buffering to avoid loading next stage</td>
+                            <td>Naturally isolates plant parameter drift</td>
+                        </tr>
+                        <tr>
+                            <td>Sensitivity to plant variation</td>
+                            <td>More sensitive</td>
+                            <td>Reduces sensitivity to plant parameter change</td>
+                        </tr>
+                        <tr>
+                            <td>Typical use</td>
+                            <td>Lead / Lag / Lag-Lead / PID networks</td>
+                            <td>Rate feedback, tachometer feedback</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Realisation of Compensating Networks</h3>
+            <p>Lead, lag and lag-lead compensators are most often realised as simple passive R-C networks (with a
+                buffering amplifier to prevent loading) or as active op-amp networks when gain must also be supplied.
+                Because a passive lead network always attenuates as well as advances phase, an amplifier of gain
+                1/α is typically cascaded with it to restore the DC gain lost in the network — this detail is a
+                favourite conceptual trap in GATE and IES papers.</p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Misconception</div>
+                    <p>Students often assume a compensator can be designed purely from time-domain specifications
+                        directly on G<sub>c</sub>(s)G(s). In practice, compensation is designed most conveniently in
+                        the <em>frequency domain</em> (Bode plot) because phase margin, gain crossover, and bandwidth
+                        map directly and additively onto asymptotic log-magnitude and phase curves — this is why
+                        Chapter 8 (frequency response) is a direct prerequisite for this chapter.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: LEAD COMPENSATION ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">9.3</span>
+                <h2 class="sec-t">Lead Compensation</h2>
+            </div>
+
+            <p>A <strong>lead compensator</strong> adds positive phase (phase lead) in a band of frequencies around
+                its corner frequencies, which is used to increase the phase margin of the system and hence reduce
+                overshoot and speed up the transient response. Its standard transfer function is:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Lead Compensator Transfer Function</div>
+                $$G_c(s) = K_c\,\frac{1 + sT}{1 + \alpha sT} = K_c\,\alpha\,\frac{s + \dfrac{1}{T}}{s + \dfrac{1}{\alpha
+                T}},
+                \qquad 0 < \alpha < 1$$ </div>
+
+                    <p>Here the zero at s = −1/T lies closer to the origin than the pole at s = −1/(αT), since α &lt; 1.
+                        A
+                        zero placed before a pole (as ω increases) always contributes net positive (leading) phase
+                        between
+                        the two corner frequencies — this is the entire mechanism of a lead network.</p>
+
+                    <div class="svg-wrap svg-simple">
+                        <img src="images/ch9/fig9.2.png" alt="Figure 9.2">
+                        <div class="svg-cap">Fig 9.2 — Phase-versus-frequency plot of a lead network. Maximum phase lead
+                            φ<sub>m</sub> occurs geometrically midway (on the log scale) between the zero 1/T and the
+                            pole
+                            1/(αT).</div>
+                    </div>
+
+                    <h3 class="sub">Maximum Phase Lead and Its Frequency</h3>
+                    <p>Differentiating the phase expression φ(ω) = tan⁻¹(ωT) − tan⁻¹(αωT) with respect to ω and setting
+                        it
+                        to zero gives the frequency of maximum phase lead and the maximum phase itself:</p>
+
+                    <div class="math-block">
+                        $$\omega_m = \frac{1}{T\sqrt{\alpha}} \qquad \text{(geometric mean of the two corner
+                        frequencies)}$$
+                        $$\sin\phi_m = \frac{1-\alpha}{1+\alpha} \quad\Longleftrightarrow\quad
+                        \alpha = \frac{1-\sin\phi_m}{1+\sin\phi_m}$$
+                    </div>
+
+                    <p>At ω = ω<sub>m</sub>, the magnitude gain contributed by the network is 10 log(1/α) dB — this is
+                        the
+                        "cost" in gain that a lead network always adds at the frequency of maximum phase, and it is
+                        exactly
+                        what pushes the gain-crossover frequency further out, increasing closed-loop bandwidth.</p>
+
+                    <div class="two-col">
+                        <div class="mini-card mc-grn">
+                            <div class="mc-t">Effects of Lead Compensation</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>Increases phase margin \(\to\) reduces peak overshoot</li>
+                                <li><span class="dot">▸</span>Increases gain-crossover frequency \(\to\) faster response
+                                </li>
+                                <li><span class="dot">▸</span>Increases closed-loop bandwidth \(\to\) shorter
+                                    rise/settling time</li>
+                                <li><span class="dot">▸</span>Improves relative stability</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card mc-red">
+                            <div class="mc-t">Limitations</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>Increases high-frequency gain \(\to\) more sensitive to
+                                    noise</li>
+                                <li><span class="dot">▸</span>Does not directly improve steady-state error (\(K\)
+                                    essentially unchanged, only \(\alpha K_c\))</li>
+                                <li><span class="dot">▸</span>A single lead stage rarely supplies more than \(\approx
+                                    60^\circ\) of phase lead reliably</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Exam Angle</div>
+                            <p>If φ<sub>m</sub> required exceeds about 60°, GATE/IES questions expect you to say "use
+                                two
+                                cascaded lead networks" rather than trying to force a single network — a single-stage
+                                lead
+                                network becomes impractical (α too small, excessive noise gain) beyond this limit.</p>
+                        </div>
+                    </div>
+            </div>
+
+            <!-- ═══ S4: LAG COMPENSATION ═══ -->
+            <div class="section" id="s4">
+                <div class="sec-hdr"><span class="sec-num">9.4</span>
+                    <h2 class="sec-t">Lag Compensation</h2>
+                </div>
+
+                <p>A <strong>lag compensator</strong> is the mirror image of the lead network — the pole is now closer
+                    to the origin than the zero (β &gt; 1), so the network contributes net negative (lagging) phase.
+                    Lag compensation is not used for its phase; it is used to attenuate gain at higher frequencies while
+                    leaving low-frequency gain (and hence steady-state accuracy) essentially unchanged.</p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Lag Compensator Transfer Function</div>
+                    $$G_c(s) = K_c\,\frac{1+sT}{1+\beta sT} =
+                    K_c\,\frac{1}{\beta}\,\frac{s+\dfrac{1}{T}}{s+\dfrac{1}{\beta T}},
+                    \qquad \beta > 1$$
+                </div>
+
+                <div class="svg-wrap svg-simple">
+                    <img src="images/ch9/fig9.3.png" alt="Figure 9.3">
+                    <div class="svg-cap">Fig 9.3 — Magnitude plot of a lag network: constant gain up to 1/(βT), then a
+                        −20 dB/decade roll-off down to a flat attenuated level of −20 log β beyond 1/T.</div>
+                </div>
+
+                <h3 class="sub">Why the Zero Is Placed Away from Crossover</h3>
+                <p>The zero 1/T and pole 1/(βT) are both chosen to lie well below the new gain-crossover frequency
+                    (typically the zero is placed a decade or so below crossover). This means the phase lag they
+                    introduce — which could otherwise reduce phase margin — is largely finished contributing by the
+                    time the frequency reaches crossover. What remains at crossover is mainly the attenuation, which
+                    lowers the gain-crossover frequency itself and thereby increases phase margin indirectly (since the
+                    uncompensated phase curve is less negative at a lower frequency).</p>
+
+                <div class="two-col">
+                    <div class="mini-card mc-grn">
+                        <div class="mc-t">Effects of Lag Compensation</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">▸</span>Allows \(K_v\), \(K_p\) to be raised \(\to\) better
+                                steady-state accuracy</li>
+                            <li><span class="dot">▸</span>Reduces gain-crossover frequency \(\to\) improves phase margin
+                            </li>
+                            <li><span class="dot">▸</span>Attenuates high-frequency noise (low-pass character)</li>
+                        </ul>
+                    </div>
+                    <div class="mini-card mc-red">
+                        <div class="mc-t">Limitations</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">▸</span>Reduces bandwidth \(\to\) slower transient response</li>
+                            <li><span class="dot">▸</span>Increases rise time and settling time</li>
+                            <li><span class="dot">▸</span>Large time constant \(T \to\) physically large components</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="callout c-key">
+                    <div class="ci">🔑</div>
+                    <div class="cb">
+                        <div class="ct">Lead vs Lag — the One-Line Distinction</div>
+                        <p><strong>Lead compensation trades noise immunity for speed</strong> (adds phase, raises
+                            bandwidth). <strong>Lag compensation trades speed for accuracy and noise immunity</strong>
+                            (adds attenuation, lowers bandwidth). Every GATE conceptual question on this topic reduces
+                            to
+                            this trade-off.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ S5: LAG-LEAD COMPENSATION ═══ -->
+            <div class="section" id="s5">
+                <div class="sec-hdr"><span class="sec-num">9.5</span>
+                    <h2 class="sec-t">Lag-Lead Compensation</h2>
+                </div>
+
+                <p>When a system needs both improved steady-state accuracy <em>and</em> improved transient response
+                    (adequate phase margin plus a fast response), a single lead or lag network cannot deliver both. A
+                    <strong>lag-lead compensator</strong> cascades a lag section (operating at low frequency, to boost
+                    accuracy) with a lead section (operating near crossover, to boost phase margin and speed).
+                </p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Lag-Lead Compensator Transfer Function</div>
+                    $$G_c(s) = \underbrace{\left(\frac{1+sT_1}{1+\beta sT_1}\right)}_{\text{lag section},\ \beta>1}
+                    \cdot \underbrace{\left(\frac{1+sT_2}{1+\alpha sT_2}\right)}_{\text{lead section},\ \alpha<1}$$
+                        </div>
+
+                        <p>In the classical single-op-amp realisation, the same physical network often provides both
+                            actions
+                            simultaneously with the constraint αβ = 1, so that the network has unity gain at very low
+                            and very
+                            high frequency and only reshapes the mid-band region — the region that matters for stability
+                            margin.</p>
+
+                        <div class="two-col">
+                            <div class="mini-card mc-tel">
+                                <div class="mc-t">Lag Section Role</div>
+                                <ul class="mc-list">
+                                    <li><span class="dot">▸</span>Placed at low frequency, well below crossover</li>
+                                    <li><span class="dot">▸</span>Increases low-frequency gain \(\to\) improves \(K_v\),
+                                        \(e_{ss}\)</li>
+                                    <li><span class="dot">▸</span>Contributes negligible phase lag at crossover</li>
+                                </ul>
+                            </div>
+                            <div class="mini-card mc-org">
+                                <div class="mc-t">Lead Section Role</div>
+                                <ul class="mc-list">
+                                    <li><span class="dot">▸</span>Placed near the desired gain-crossover frequency</li>
+                                    <li><span class="dot">▸</span>Supplies phase lead \(\to\) improves phase margin</li>
+                                    <li><span class="dot">▸</span>Sets the final bandwidth / speed of response</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="callout c-info">
+                            <div class="ci">⚡</div>
+                            <div class="cb">
+                                <div class="ct">Engineering Insight</div>
+                                <p>Lag-lead compensation is functionally similar to a PID controller — the lag part
+                                    behaves like
+                                    the integral action (boosting low-frequency gain) and the lead part behaves like the
+                                    derivative action (boosting phase near crossover). This parallel is a favourite GATE
+                                    conceptual link between the frequency-domain and classical-controller viewpoints.
+                                </p>
+                            </div>
+                        </div>
+                </div>
+
+                <!-- ═══ S6: PID CONTROLLER ═══ -->
+                <div class="section" id="s6">
+                    <div class="sec-hdr"><span class="sec-num">9.6</span>
+                        <h2 class="sec-t">PID Controller — Overview &amp; Effects</h2>
+                    </div>
+
+                    <p>The <strong>Proportional-Integral-Derivative (PID) controller</strong> is the most widely
+                        deployed
+                        controller in industrial practice. It computes the control signal as a weighted sum of the
+                        error,
+                        its integral, and its derivative:</p>
+
+                    <div class="math-block">
+                        <div class="math-lbl">PID Control Law</div>
+                        $$u(t) = K_p\,e(t) + K_i\int_0^t e(\tau)\,d\tau + K_d\,\frac{de(t)}{dt}
+                        \quad\Longrightarrow\quad G_c(s) = K_p + \frac{K_i}{s} + K_d s$$
+                    </div>
+
+                    <div class="svg-wrap">
+                        <img src="images/ch9/fig9.4.png" alt="Figure 9.4">
+                        <div class="svg-cap">Fig 9.4 — PID controller structure: proportional, integral and derivative
+                            paths
+                            act on the same error signal and are summed to form the control signal u(s).</div>
+                    </div>
+
+                    <h3 class="sub">Effect of Each Term — First-Principles Reasoning</h3>
+                    <p>Each of the three gains changes a distinct aspect of the closed-loop response, and understanding
+                        <em>why</em> is more valuable at GATE level than memorising the table below.
+                    </p>
+
+                    <div class="tw">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Term</th>
+                                    <th>Rise Time</th>
+                                    <th>Overshoot</th>
+                                    <th>Settling Time</th>
+                                    <th>Steady-State Error</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>\(K_p \uparrow\)</td>
+                                    <td class="t-grn">Decreases</td>
+                                    <td class="t-red">Increases</td>
+                                    <td>Small change</td>
+                                    <td class="t-grn">Decreases</td>
+                                </tr>
+                                <tr>
+                                    <td>\(K_i \uparrow\)</td>
+                                    <td class="t-grn">Decreases</td>
+                                    <td class="t-red">Increases</td>
+                                    <td class="t-red">Increases</td>
+                                    <td class="t-grn">Eliminates (for step)</td>
+                                </tr>
+                                <tr>
+                                    <td>\(K_d \uparrow\)</td>
+                                    <td>Minor change</td>
+                                    <td class="t-grn">Decreases</td>
+                                    <td class="t-grn">Decreases</td>
+                                    <td>No direct effect</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Why Integral Action Eliminates Steady-State Error</div>
+                            <p>An integral term adds a free pole at the origin, raising the system Type by one. For a
+                                Type-1
+                                loop under a step input, e<sub>ss</sub> = 1/(1+K<sub>p</sub>) with K<sub>p</sub>→∞ under
+                                integral action, so e<sub>ss</sub> → 0. This is identical in spirit to the low-frequency
+                                gain
+                                boost of a lag compensator — both raise the effective system type/gain at ω → 0.</p>
+                        </div>
+                    </div>
+
+                    <div class="callout c-danger">
+                        <div class="ci">✗</div>
+                        <div class="cb">
+                            <div class="ct">Common GATE Trap</div>
+                            <p>Derivative action is often (wrongly) said to "eliminate overshoot." It <em>reduces</em>
+                                overshoot and improves damping by anticipating the rate of change of error (adding phase
+                                lead, exactly like a lead compensator), but it never affects steady-state error for a
+                                constant input, since d(constant)/dt = 0.</p>
+                        </div>
+                    </div>
+
+                    <h3 class="sub">PID Family — Reduced Forms</h3>
+                    <div class="two-col">
+                        <div class="mini-card mc-org">
+                            <div class="mc-t">P Controller</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>\(G_c(s) = K_p\)</li>
+                                <li><span class="dot">▸</span>Simple, but finite steady-state error persists</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card mc-grn">
+                            <div class="mc-t">PI Controller</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>\(G_c(s) = K_p + K_i/s\) — behaves like a lag compensator
+                                </li>
+                                <li><span class="dot">▸</span>Removes steady-state error; slows the response</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card mc-tel">
+                            <div class="mc-t">PD Controller</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>\(G_c(s) = K_p + K_ds\) — behaves like a lead compensator
+                                </li>
+                                <li><span class="dot">▸</span>Improves damping and speed; no effect on \(e_{ss}\)</li>
+                            </ul>
+                        </div>
+                        <div class="mini-card mc-amb">
+                            <div class="mc-t">PID Controller</div>
+                            <ul class="mc-list">
+                                <li><span class="dot">▸</span>Combines all three — behaves like a lag-lead compensator
+                                </li>
+                                <li><span class="dot">▸</span>Zero \(e_{ss}\), good damping, reasonable speed — needs
+                                    careful tuning</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ S7: FREQUENCY-RESPONSE DESIGN PROCEDURE ═══ -->
+                <div class="section" id="s7">
+                    <div class="sec-hdr"><span class="sec-num">9.7</span>
+                        <h2 class="sec-t">Frequency-Response Design Procedure</h2>
+                    </div>
+
+                    <p>The Bode-plot method is the standard GATE/IES approach for designing lead and lag compensators.
+                        The
+                        steps below apply to a lead compensator; the lag procedure is identical except the objective is
+                        attenuation, not phase, at the new crossover.</p>
+
+                    <div class="fblock"><span class="flbl">Lead Compensator Design Steps</span>
+
+                        1. Fix gain \(K\) from the steady-state error (\(K_v\), \(K_p\), or \(K_a\)) specification.
+                        2. Plot the Bode diagram of \(K \cdot G(s)H(s)\); read gain-crossover frequency \(\omega_{gc}\)
+                        and phase margin \(PM\).
+                        3. Compute required extra phase: \(\phi_m = PM_{\text{required}} - PM_{\text{existing}} +
+                        \varepsilon\) (\(\varepsilon \approx 5^\circ\text{–}12^\circ\) compensates for the shift of
+                        crossover frequency itself).
+                        4. \(\alpha = (1 - \sin\phi_m) / (1 + \sin\phi_m)\).
+                        5. Compute \(10\log(1/\alpha)\text{ dB}\); find the frequency \(\omega_m\) on the uncompensated
+                        magnitude plot where the gain equals \(-10\log(1/\alpha)\text{ dB}\) — this becomes the new
+                        gain-crossover frequency.
+                        6. \(T = 1 / (\omega_m\sqrt{\alpha})\); zero at \(1/T\), pole at \(1/(\alpha T)\).
+                        7. Verify the new phase margin from the compensated Bode plot; iterate \(\varepsilon\) if \(PM\)
+                        falls short.</div>
+
+                    <div class="callout c-warn">
+                        <div class="ci">⚠️</div>
+                        <div class="cb">
+                            <div class="ct">Why Step 3 Adds a Correction ε</div>
+                            <p>Adding gain via the lead network (10 log(1/α) dB) shifts the gain-crossover frequency to
+                                the
+                                right, into a region where the <em>uncompensated</em> phase curve is usually more
+                                negative.
+                                Without the correction margin ε, the achieved phase margin would fall short of the
+                                target —
+                                this subtlety is a frequent higher-difficulty GATE numerical.</p>
+                        </div>
+                    </div>
+
+                    <div class="fblock"><span class="flbl">Lag Compensator Design Steps</span>
+
+                        1. Fix gain \(K\) from the steady-state error specification (this is usually why lag is chosen —
+                        \(K\) can be set as large as required without altering the network's phase near crossover).
+                        2. Plot Bode diagram of \(K \cdot G(s)H(s)\); find the frequency \(\omega_{gc}'\) where phase
+                        \(= -180^\circ + PM_{\text{required}} + \varepsilon\). This becomes the new gain-crossover
+                        frequency.
+                        3. Read the gain in dB at \(\omega_{gc}'\) on the uncompensated plot — call it "\(a\text{
+                        dB}\)". Set \(20\log \beta = a\), so \(\beta = 10^{a/20}\).
+                        4. Place the zero \(1/T\) about one decade (or more) below \(\omega_{gc}'\) : \(1/T \approx
+                        \omega_{gc}' / 10\).
+                        5. Pole at \(1/(\beta T)\).
+                        6. Verify phase margin on the compensated plot.</div>
+
+                    <div class="callout c-tip">
+                        <div class="ci">✓</div>
+                        <div class="cb">
+                            <div class="ct">Exam Angle</div>
+                            <p>For lag-lead design, the lag part is designed first for the steady-state/gain requirement
+                                using the lag procedure, then the lead part is designed on the already-modified Bode
+                                plot
+                                to fix the phase margin — the two stages are never designed independently of each
+                                other's
+                                effect on the composite curve.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ S8: POLE-ZERO / ROOT LOCUS VIEW ═══ -->
+                <div class="section" id="s8">
+                    <div class="sec-hdr"><span class="sec-num">9.8</span>
+                        <h2 class="sec-t">Pole-Zero Placement &amp; Root Locus Interpretation</h2>
+                    </div>
+
+                    <p>Compensation can equally be understood — and is sometimes asked about — purely in the s-plane. A
+                        lead
+                        compensator's zero-pole pair (zero nearer the origin) bends the root locus to the left, toward
+                        greater relative stability, while a lag compensator's pole-zero pair (pole nearer the origin) is
+                        placed close together near the origin so it barely perturbs the locus shape but adds an extra
+                        open-loop pole that raises the effective gain available at a given point on the locus.</p>
+
+                    <div class="svg-wrap svg-simple">
+                        <img src="images/ch9/fig9.5.png" alt="Figure 9.5">
+                        <div class="svg-cap">Fig 9.5 — Lead-compensator zero placed to the right of its pole (both on
+                            the
+                            negative real axis) bends the dominant branch of the root locus further into the left
+                            half-plane, increasing damping ratio for the same gain.</div>
+                    </div>
+
+                    <div class="callout c-key">
+                        <div class="ci">🔑</div>
+                        <div class="cb">
+                            <div class="ct">s-Domain vs Frequency-Domain — Same Compensator, Two Views</div>
+                            <p>Root-locus (time-domain) design of a lead compensator places the zero to cancel a slow
+                                undesirable pole and adds the compensator pole further left to satisfy the angle
+                                condition at
+                                a desired closed-loop pole location. Bode-plot (frequency-domain) design instead targets
+                                a
+                                phase margin directly. Both procedures use the <em>same</em> transfer function form —
+                                they
+                                are two different design entry points to the identical network.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ S9: COMPARISON ═══ -->
+                <div class="section" id="s9">
+                    <div class="sec-hdr"><span class="sec-num">9.9</span>
+                        <h2 class="sec-t">Comparison of Compensators &amp; Controllers</h2>
+                    </div>
+
+                    <div class="tw">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Property</th>
+                                    <th>Lead</th>
+                                    <th>Lag</th>
+                                    <th>Lag-Lead</th>
+                                    <th>PID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Phase</td>
+                                    <td class="t-grn">Adds lead</td>
+                                    <td class="t-amb">Adds lag</td>
+                                    <td>Lag then lead</td>
+                                    <td>Depends on term</td>
+                                </tr>
+                                <tr>
+                                    <td>Bandwidth</td>
+                                    <td class="t-grn">Increases</td>
+                                    <td class="t-red">Decreases</td>
+                                    <td>Restored / adjustable</td>
+                                    <td>Adjustable</td>
+                                </tr>
+                                <tr>
+                                    <td>Steady-state error</td>
+                                    <td>~Unchanged</td>
+                                    <td class="t-grn">Improves</td>
+                                    <td class="t-grn">Improves</td>
+                                    <td class="t-grn">Eliminated with I-term</td>
+                                </tr>
+                                <tr>
+                                    <td>Speed of response</td>
+                                    <td class="t-grn">Faster</td>
+                                    <td class="t-red">Slower</td>
+                                    <td>Balanced</td>
+                                    <td>Tunable</td>
+                                </tr>
+                                <tr>
+                                    <td>Noise sensitivity</td>
+                                    <td class="t-red">Higher</td>
+                                    <td class="t-grn">Lower</td>
+                                    <td>Moderate</td>
+                                    <td class="t-red">High (D-term)</td>
+                                </tr>
+                                <tr>
+                                    <td>Analogous PID term</td>
+                                    <td>PD action</td>
+                                    <td>PI action</td>
+                                    <td>PID action</td>
+                                    <td>—</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout c-info">
+                        <div class="ci">⚡</div>
+                        <div class="cb">
+                            <div class="ct">Engineering Insight</div>
+                            <p>No single compensator is universally "best" — the choice is dictated entirely by which
+                                specification is currently violated. If phase margin is inadequate but K<sub>v</sub> is
+                                fine,
+                                use lead. If K<sub>v</sub> is inadequate but phase margin is fine, use lag. If both are
+                                inadequate, only lag-lead (or PID) can satisfy both simultaneously.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ S10: CHAPTER SUMMARY TABLE ═══ -->
+                <div class="section" id="s10">
+                    <div class="sec-hdr"><span class="sec-num">9.10</span>
+                        <h2 class="sec-t">Formula &amp; Concept Summary Table</h2>
+                    </div>
+
+                    <div class="tw">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Quantity</th>
+                                    <th>Lead</th>
+                                    <th>Lag</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Transfer function</td>
+                                    <td>\(K_c\alpha(s+1/T)/(s+1/(\alpha T))\)</td>
+                                    <td>\((K_c/\beta)(s+1/T)/(s+1/(\beta T))\)</td>
+                                </tr>
+                                <tr>
+                                    <td>Parameter range</td>
+                                    <td>\(0 < \alpha < 1\)</td>
+                                    <td>\(\beta > 1\)</td>
+                                </tr>
+                                <tr>
+                                    <td>\(\omega\) of extremum</td>
+                                    <td>\(\omega_m = 1/(T\sqrt{\alpha})\)</td>
+                                    <td>\(\omega_m = 1/(T\sqrt{\beta})\)</td>
+                                </tr>
+                                <tr>
+                                    <td>Extremum phase</td>
+                                    <td>\(\sin\phi_m = (1-\alpha)/(1+\alpha)\)</td>
+                                    <td>\(\sin\phi_m = (1-\beta)/(1+\beta)\) (negative)</td>
+                                </tr>
+                                <tr>
+                                    <td>Gain at \(\omega_m\)</td>
+                                    <td>\(+10\log(1/\alpha)\text{ dB}\)</td>
+                                    <td>\(-10\log \beta\text{ dB}\)</td>
+                                </tr>
+                                <tr>
+                                    <td>Primary purpose</td>
+                                    <td>Raise phase margin, speed up response</td>
+                                    <td>Raise low-\(\omega\) gain, preserve phase margin</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub">Effect of Compensation on Performance — At a Glance</h3>
+                    <div class="fblock"><span class="flbl">Quick Cross-Reference</span>
+
+                        Phase margin \(\uparrow \to\) Overshoot \(\downarrow\), damping ratio \(\zeta \uparrow\)
+                        Gain crossover \(\omega_{gc} \uparrow \to\) Bandwidth \(\uparrow \to\) Rise time \(\downarrow\),
+                        settling time \(\downarrow\)
+                        Low-frequency gain \(\uparrow\) (\(K_v\), \(K_p\), \(K_a\)) \(\to\) Steady-state error
+                        \(\downarrow\)
+                        High-frequency gain \(\downarrow \to\) Noise rejection \(\uparrow\), but bandwidth
+                        \(\downarrow\) (opposing lead's effect)</div>
+                </div>
+
+                <!-- ═══ S11: SOLVED NUMERICALS ═══ -->
+                <div class="section" id="s11">
+                    <div class="sec-hdr"><span class="sec-num">9.11</span>
+                        <h2 class="sec-t">Solved Numericals</h2>
+                    </div>
+
+                    <!-- Example 1 -->
+                    <div class="example">
+                        <div class="ex-hdr">
+                            <span class="ex-num">EX 9.1</span>
+                            <span class="ex-title">Maximum phase lead and gain contributed by a given lead
+                                network</span>
+                        </div>
+                        <div class="ex-body">
+                            <div class="ex-q">A lead compensator has the transfer function G<sub>c</sub>(s) = (1 +
+                                0.5s)/(1 + 0.05s).
+                                Find (i) α and T, (ii) the frequency of maximum phase lead, (iii) the maximum phase
+                                lead, and
+                                (iv) the gain (in dB) at that frequency.</div>
+                            <div class="sol-lbl">Solution</div>
+                            <p><strong>Given:</strong> comparing with (1+sT)/(1+αsT): T = 0.5 s, αT = 0.05 → α = 0.1</p>
+                            <p><strong>(ii) Frequency of maximum phase lead:</strong></p>
+                            <div class="math-block">
+                                $$\omega_m = \frac{1}{T\sqrt{\alpha}} = \frac{1}{0.5\sqrt{0.1}} = \frac{1}{0.5 \times
+                                0.3162}
+                                = 6.32 \text{ rad/s}$$
+                            </div>
+                            <p><strong>(iii) Maximum phase lead:</strong></p>
+                            <div class="math-block">
+                                $$\sin\phi_m = \frac{1-\alpha}{1+\alpha} = \frac{1-0.1}{1+0.1} = \frac{0.9}{1.1} =
+                                0.818$$
+                                $$\phi_m = \sin^{-1}(0.818) = 54.9^\circ$$
+                            </div>
+                            <p><strong>(iv) Gain at ω<sub>m</sub>:</strong></p>
+                            <div class="math-block">
+                                $$10\log\!\left(\frac{1}{\alpha}\right) = 10\log(10) = 10 \text{ dB}$$
+                            </div>
+                            <div class="callout c-tip">
+                                <div class="ci">✓</div>
+                                <div class="cb">
+                                    <div class="ct">Key Observation</div>
+                                    <p>A small α (large pole-zero separation) buys a large φ<sub>m</sub> but at the cost
+                                        of a
+                                        large gain bump (here 10 dB) — always report both numbers together in a design
+                                        answer, since GATE frequently asks for the gain penalty as a follow-up.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Example 2 -->
+                    <div class="example">
+                        <div class="ex-hdr">
+                            <span class="ex-num">EX 9.2</span>
+                            <span class="ex-title">Design α for a specified phase-margin improvement</span>
+                        </div>
+                        <div class="ex-body">
+                            <div class="ex-q">A unity-feedback system has phase margin 25° at its gain-crossover
+                                frequency
+                                with K fixed by the error specification. A phase margin of 45° is required. Using a
+                                correction margin ε = 5°, find the value of α needed for the lead compensator.</div>
+                            <div class="sol-lbl">Solution</div>
+                            <p><strong>Required additional phase:</strong></p>
+                            <div class="math-block">
+                                $$\phi_m = PM_{req} - PM_{existing} + \varepsilon = 45^\circ - 25^\circ + 5^\circ =
+                                25^\circ$$
+                            </div>
+                            <p><strong>Find α:</strong></p>
+                            <div class="math-block">
+                                $$\alpha = \frac{1-\sin\phi_m}{1+\sin\phi_m} = \frac{1-\sin 25^\circ}{1+\sin 25^\circ}
+                                = \frac{1-0.4226}{1+0.4226} = \frac{0.5774}{1.4226} = 0.406$$
+                            </div>
+                            <p><strong>Answer:</strong> α ≈ 0.406. The next step (not required here) would be to find
+                                the
+                                frequency where the uncompensated gain equals −10log(1/α) = −3.92 dB, which fixes
+                                ω<sub>m</sub>
+                                and hence T.</p>
+                        </div>
+                    </div>
+
+                    <!-- Example 3 -->
+                    <div class="example">
+                        <div class="ex-hdr">
+                            <span class="ex-num">EX 9.3</span>
+                            <span class="ex-title">Lag compensator — finding β from required attenuation</span>
+                        </div>
+                        <div class="ex-body">
+                            <div class="ex-q">For a lag-compensated system, the gain of the uncompensated open-loop
+                                transfer
+                                function at the new (desired) gain-crossover frequency ω<sub>gc</sub>′ is found to be
+                                +14 dB.
+                                Find β and the ratio of pole to zero location.</div>
+                            <div class="sol-lbl">Solution</div>
+                            <p>The lag network must attenuate the gain at ω<sub>gc</sub>′ from +14 dB down to 0 dB so
+                                that
+                                this frequency becomes the new crossover:</p>
+                            <div class="math-block">
+                                $$20\log\beta = 14 \;\Rightarrow\; \log\beta = 0.7 \;\Rightarrow\; \beta = 10^{0.7} =
+                                5.01$$
+                            </div>
+                            <p><strong>Answer:</strong> β ≈ 5.01. The pole 1/(βT) is therefore about 5 times closer to
+                                the
+                                origin than the zero 1/T — i.e. the pole-to-zero distance ratio (zero location ÷ pole
+                                location) equals β ≈ 5.</p>
+                        </div>
+                    </div>
+
+                    <!-- Example 4 -->
+                    <div class="example">
+                        <div class="ex-hdr">
+                            <span class="ex-num">EX 9.4</span>
+                            <span class="ex-title">PID controller — steady-state error for ramp input</span>
+                        </div>
+                        <div class="ex-body">
+                            <div class="ex-q">A Type-0 plant G(s) = 5/[(s+1)(s+2)] is controlled by a PI controller
+                                G<sub>c</sub>(s) = 2 + 3/s in a unity feedback loop. Find the steady-state error for a
+                                unit
+                                ramp input.</div>
+                            <div class="sol-lbl">Solution</div>
+                            <p><strong>Open-loop transfer function:</strong></p>
+                            <div class="math-block">
+                                $$G_c(s)G(s) = \left(2+\frac{3}{s}\right)\frac{5}{(s+1)(s+2)}
+                                = \frac{5(2s+3)}{s(s+1)(s+2)}$$
+                            </div>
+                            <p>The PI controller has introduced a pole at the origin, raising the loop from Type-0 to
+                                <strong>Type-1</strong>. For a Type-1 system, the ramp-error constant is:
+                            </p>
+                            <div class="math-block">
+                                $$K_v = \lim_{s\to0} sG_c(s)G(s) = \lim_{s\to0}\frac{5(2s+3)}{(s+1)(s+2)} =
+                                \frac{5\times3}{1\times2}
+                                = 7.5$$
+                                $$e_{ss} = \frac{1}{K_v} = \frac{1}{7.5} = 0.133$$
+                            </div>
+                            <div class="callout c-tip">
+                                <div class="ci">✓</div>
+                                <div class="cb">
+                                    <div class="ct">Note</div>
+                                    <p>Without the integral term (P-only, K<sub>p</sub> = 2), this Type-0 plant would
+                                        give
+                                        e<sub>ss</sub> = ∞ for a ramp. The integral action is what makes a finite,
+                                        non-zero
+                                        e<sub>ss</sub> possible at all for this input — a P or PD controller alone
+                                        cannot
+                                        track a ramp with finite error on a Type-0 plant.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Example 5 -->
+                    <div class="example">
+                        <div class="ex-hdr">
+                            <span class="ex-num">EX 9.5</span>
+                            <span class="ex-title">Identifying compensator type from pole-zero data</span>
+                        </div>
+                        <div class="ex-body">
+                            <div class="ex-q">A compensator has a zero at s = −2 and a pole at s = −20. State whether it
+                                is a
+                                lead or lag compensator, and find α or β as applicable.</div>
+                            <div class="sol-lbl">Solution</div>
+                            <p>Zero at −2 → 1/T = 2 → T = 0.5 s. Pole at −20 → 1/(αT) = 20 → αT = 0.05 → α = 0.05/0.5 =
+                                0.1.</p>
+                            <p>Since the pole (−20) is farther from the origin than the zero (−2), and α = 0.1 &lt; 1,
+                                this is
+                                a <strong>lead compensator</strong>.</p>
+                            <div class="math-block">
+                                $$\omega_m = \frac{1}{T\sqrt{\alpha}} = \frac{1}{0.5\sqrt{0.1}} = 6.32\text{ rad/s},
+                                \qquad \sin\phi_m = \frac{0.9}{1.1}\Rightarrow \phi_m \approx 54.9^\circ$$
+                            </div>
+                            <p><strong>Answer:</strong> Lead compensator, α = 0.1, φ<sub>m</sub> ≈ 54.9° at ω = 6.32
+                                rad/s.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ S12: GATE & IES QUESTIONS ═══ -->
+                <div class="section" id="s12">
+                    <div class="sec-hdr"><span class="sec-num">9.12</span>
+                        <h2 class="sec-t">GATE &amp; IES Previous Year Concepts</h2>
+                    </div>
+
+                    <div class="gate-card">
+                        <div class="gate-hdr">
+                            <span class="gate-tag">GATE INSIGHT</span>
+                            <span class="gate-title">High Probability Topics in Compensation &amp; Controller Design
+                                <span class="prob prob-h">🟢 HIGH</span></span>
+                        </div>
+                        <div class="gate-body">
+                            <p>These sub-topics consistently appear across GATE EE and IES E&amp;T control systems
+                                papers:</p>
+                            <div class="two-col">
+                                <div class="mini-card mc-grn">
+                                    <div class="mc-t">🟢 High Probability (GATE)</div>
+                                    <ul class="mc-list">
+                                        <li><span class="dot">▸</span>Identifying lead / lag from pole-zero location
+                                        </li>
+                                        <li><span class="dot">▸</span>Computing \(\phi_m\), \(\omega_m\), \(\alpha\), or
+                                            \(\beta\)</li>
+                                        <li><span class="dot">▸</span>Effect of P, I, D terms on transient/steady-state
+                                            response</li>
+                                        <li><span class="dot">▸</span>Type-number change due to integral action</li>
+                                        <li><span class="dot">▸</span>Lead \(\leftrightarrow\) PD, Lag
+                                            \(\leftrightarrow\) PI, Lag-Lead \(\leftrightarrow\) PID analogies</li>
+                                    </ul>
+                                </div>
+                                <div class="mini-card mc-amb">
+                                    <div class="mc-t">🟡 Medium Probability</div>
+                                    <ul class="mc-list">
+                                        <li><span class="dot">▸</span>Full Bode design procedure numericals</li>
+                                        <li><span class="dot">▸</span>Root-locus interpretation of compensator placement
+                                        </li>
+                                        <li><span class="dot">▸</span>Series vs feedback compensation conceptual
+                                            questions</li>
+                                        <li><span class="dot">▸</span>Noise sensitivity trade-offs</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PYQ 1 -->
+                    <div class="pyq-card">
+                        <div class="pyq-hdr">
+                            <span class="pyq-tag pyq-gate">GATE EE</span>
+                            <span class="pyq-title">Identifying compensator type from its pole-zero pair</span>
+                            <span class="pyq-year">Concept — 2020</span>
+                        </div>
+                        <div class="pyq-body">
+                            <p>A compensating network has transfer function G<sub>c</sub>(s) = (s+2)/(s+10). This
+                                network is
+                                best described as:</p>
+                            <ul class="pyq-opts">
+                                <li>(A) A lag compensator that improves steady-state accuracy</li>
+                                <li class="correct">(B) A lead compensator that improves phase margin and speed of
+                                    response</li>
+                                <li>(C) A notch filter that rejects a narrow band of frequencies</li>
+                                <li>(D) An all-pass network with no effect on stability</li>
+                            </ul>
+                            <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                                <strong>Explanation:</strong> The zero (−2) lies closer to the origin than the pole
+                                (−10),
+                                which is the defining signature of a lead network (α = 2/10 = 0.2 &lt; 1). It
+                                contributes net
+                                positive phase between 2 rad/s and 10 rad/s, raising phase margin and bandwidth.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- PYQ 2 -->
+                    <div class="pyq-card">
+                        <div class="pyq-hdr">
+                            <span class="pyq-tag pyq-gate">GATE EE</span>
+                            <span class="pyq-title">Effect of adding a lag compensator on bandwidth</span>
+                            <span class="pyq-year">Concept — 2021</span>
+                        </div>
+                        <div class="pyq-body">
+                            <p>Introducing a properly designed lag compensator into a unity-feedback loop, while keeping
+                                the
+                                steady-state error requirement satisfied, typically causes:</p>
+                            <ul class="pyq-opts">
+                                <li>(A) Bandwidth to increase and settling time to decrease</li>
+                                <li class="correct">(B) Bandwidth to decrease and settling time to increase</li>
+                                <li>(C) No change in bandwidth, only phase margin changes</li>
+                                <li>(D) System type to decrease by one</li>
+                            </ul>
+                            <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                                <strong>Explanation:</strong> A lag compensator works by reducing the gain-crossover
+                                frequency, which necessarily reduces closed-loop bandwidth and therefore slows the
+                                transient
+                                response (settling time increases), even though phase margin and steady-state accuracy
+                                both
+                                improve.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- IES PYQ -->
+                    <div class="pyq-card ies-card">
+                        <div class="pyq-hdr ies-hdr">
+                            <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                            <span class="pyq-title pyq-title-ies">Derivative action and its limitations</span>
+                            <span class="pyq-year">IES 2019</span>
+                        </div>
+                        <div class="pyq-body">
+                            <p>Consider the following statements about derivative (D) control action: 1. It improves
+                                system
+                                damping. &nbsp;|&nbsp; 2. It reduces peak overshoot. &nbsp;|&nbsp; 3. It amplifies
+                                high-frequency measurement noise. &nbsp;|&nbsp; 4. It eliminates steady-state error for
+                                a
+                                step input.</p>
+                            <p>Which of these statements are correct?</p>
+                            <ul class="pyq-opts">
+                                <li>(A) 1, 2 and 4 only</li>
+                                <li class="correct">(B) 1, 2 and 3 only</li>
+                                <li>(C) 2, 3 and 4 only</li>
+                                <li>(D) 1, 2, 3 and 4</li>
+                            </ul>
+                            <p style="margin-top:10px;font-size:13.5px;color:var(--green);">
+                                <strong>Explanation:</strong> D-action anticipates error trends, improving damping and
+                                reducing overshoot (statements 1, 2 ✓), but being a differentiator it amplifies
+                                high-frequency
+                                noise (statement 3 ✓). It never affects steady-state error for a constant/step input
+                                since
+                                its output is proportional to de/dt, which is zero once error settles (statement 4 ✗).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- PYQ 3 -->
+                    <div class="pyq-card">
+                        <div class="pyq-hdr">
+                            <span class="pyq-tag pyq-gate">GATE EE</span>
+                            <span class="pyq-title">Numerical — frequency of maximum phase lead</span>
+                            <span class="pyq-year">Concept — 2023</span>
+                        </div>
+                        <div class="pyq-body">
+                            <p>A lead compensator has zero at s = −1 and pole at s = −4. The frequency (rad/s) at which
+                                the
+                                phase lead is maximum is closest to:</p>
+                            <ul class="pyq-opts">
+                                <li>(A) 1</li>
+                                <li class="correct">(B) 2</li>
+                                <li>(C) 2.5</li>
+                                <li>(D) 4</li>
+                            </ul>
+                            <p style="margin-top:10px;font-size:13.5px;color:var(--teal);">
+                                <strong>Explanation:</strong> ω<sub>m</sub> is the geometric mean of the two corner
+                                frequencies: ω<sub>m</sub> = √(1×4) = 2 rad/s. This shortcut — geometric mean of zero
+                                and pole
+                                locations — avoids the full α, T calculation whenever only ω<sub>m</sub> is asked.
+                            </p>
+                        </div>
+                    </div>
+
+                    <h3 class="sub">Quick Revision — Memory Tricks</h3>
+                    <div class="callout c-tip">
+                        <div class="ci">🧠</div>
+                        <div class="cb">
+                            <div class="ct">Mnemonic: "LEAD Leaps, LAG Lags Behind"</div>
+                            <p><strong>LE</strong>ad → zero <strong>closer</strong> to origin, adds phase, speeds things
+                                up
+                                (leaps forward in time). <strong>LA</strong>g → pole closer to origin, adds attenuation,
+                                slows things down (lags behind) but improves accuracy. Say the word out loud and the
+                                pole/zero
+                                order follows automatically.</p>
+                        </div>
+                    </div>
+
+                    <div class="callout c-key">
+                        <div class="ci">🔑</div>
+                        <div class="cb">
+                            <div class="ct">The PID-Compensator Bridge</div>
+                            <p><strong>P</strong>roportional ↔ plain gain K. <strong>I</strong>ntegral ↔ lag action
+                                (raises
+                                type, improves accuracy, slows response). <strong>D</strong>erivative ↔ lead action
+                                (adds
+                                phase, speeds response, amplifies noise). Remembering this bridge answers most
+                                conceptual
+                                "which is analogous to which" questions instantly.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ AI WIDGET ═══ -->
+                <div class="ai-prompt">
+                    <div class="ai-prompt-title">🤖 Ask Aarova AI — Deepen Your Understanding</div>
+                    <p>Have a question on lead/lag design, PID tuning, or phase-margin calculations? Type below or pick
+                        a
+                        suggestion.</p>
+                    <div class="ai-input-row">
+                        <input class="ai-input" id="userQ" type="text"
+                            placeholder="e.g. Design a lead compensator to raise phase margin from 30° to 50°…">
+                        <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                    </div>
+                    <div class="ai-suggest">
+                        <span class="ai-chip"
+                            onclick="setQ('Design a lead compensator for a unity feedback system with G(s) = K/[s(s+1)(s+4)] to achieve a phase margin of 45 degrees, given K is fixed by Kv = 20.')">Lead
+                            design — full worked steps</span>
+                        <span class="ai-chip"
+                            onclick="setQ('Explain why a lag compensator zero and pole are placed far below the gain-crossover frequency, with a phasor/Bode argument.')">Why
+                            place lag pole/zero low?</span>
+                        <span class="ai-chip"
+                            onclick="setQ('Derive the formula sin(phi_m) = (1-alpha)/(1+alpha) for a lead compensator from first principles using the phase expression.')">Derive
+                            sinφ_m formula</span>
+                        <span class="ai-chip"
+                            onclick="setQ('Compare PID controller tuning using Ziegler-Nichols method with frequency-domain lag-lead compensator design — which is preferred in industry and why?')">PID
+                            tuning vs Bode design</span>
+                        <span class="ai-chip"
+                            onclick="setQ('A Type-1 system needs Kv doubled without reducing phase margin below 40 degrees. Should I use lag, lead, or lag-lead compensation? Justify.')">Choosing
+                            the right compensator</span>
+                    </div>
+                    <div class="ai-response" id="aiResp"></div>
+                </div>
+
+                <!-- ═══ SUMMARY GRID ═══ -->
+                <h3 class="sub">Chapter Summary</h3>
+                <div class="sum-grid">
+                    <div class="sum-card sc-o">
+                        <div class="sum-lbl">Need for Compensation</div>
+                        <p>Plant \(G(s)\) is fixed; \(G_c(s)\) reshapes the open-loop response to meet transient,
+                            steady-state and stability specs together — gain alone cannot satisfy all three.</p>
+                    </div>
+                    <div class="sum-card sc-t">
+                        <div class="sum-lbl">Lead Compensator</div>
+                        <p>Zero closer to origin than pole (\(\alpha<1\)). Adds phase, raises \(\omega_{gc}\) and
+                                bandwidth. \(\omega_m=1/(T\sqrt{\alpha})\); \(\sin\phi_m=(1-\alpha)/(1+\alpha)\); gain
+                                penalty \(+10\log(1/\alpha)\text{ dB}\).</p>
+                    </div>
+                    <div class="sum-card sc-a">
+                        <div class="sum-lbl">Lag Compensator</div>
+                        <p>Pole closer to origin than zero (\(\beta>1\)). Attenuates high-\(\omega\) gain, raises
+                            \(K_v\), lowers \(\omega_{gc}\) and bandwidth. Zero placed \(\approx 1\) decade below new
+                            crossover.</p>
+                    </div>
+                    <div class="sum-card sc-g">
+                        <div class="sum-lbl">Lag-Lead Compensator</div>
+                        <p>Lag section (low \(\omega\)) fixes accuracy; lead section (near crossover) fixes phase
+                            margin. Functions like a PID controller in the frequency domain.</p>
+                    </div>
+                    <div class="sum-card sc-r">
+                        <div class="sum-lbl">PID Controller</div>
+                        <p>\(K_p\) speeds response, \(K_i\) eliminates \(e_{ss}\) but slows/overshoots, \(K_d\) damps
+                            overshoot but amplifies noise. P\(\leftrightarrow\)gain, I\(\leftrightarrow\)lag,
+                            D\(\leftrightarrow\)lead.</p>
+                    </div>
+                    <div class="sum-card sc-g">
+                        <div class="sum-lbl">Design Method</div>
+                        <p>Bode-plot procedure: fix \(K \to\) find existing PM \(\to\) compute required \(\phi_m\) (with
+                            \(\varepsilon\) correction) \(\to\) get \(\alpha\) or \(\beta \to\) locate \(T \to\) verify
+                            compensated phase margin.</p>
+                    </div>
+                </div>
+
+
+                <!-- ═══ CITATIONS ═══ -->
+                <div class="citations" id="citations">
+                    <div class="cite-h">References &amp; Citations</div>
+                    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is
+                        derived from the following standard textbooks and learning resources. All explanations,
+                        derivations, diagrams and examples are original to Aarova AI.</p>
+                    <ul class="cite-list">
+                        <li><span class="cite-num">[1]</span><span>Nagrath, I.J. and Gopal, M. <em>Control Systems
+                                    Engineering</em>, 5th ed. New Age International, 2007. Chapter 9 — Design of control
+                                systems: lead, lag and lag-lead compensation using frequency response.</span></li>
+                        <li><span class="cite-num">[2]</span><span>Ogata, Katsuhiko. <em>Modern Control
+                                    Engineering</em>,
+                                5th ed. Prentice Hall, 2010. Chapter 9 — Basic control actions and PID controllers;
+                                Chapter
+                                10 — frequency-response approach to controller design.</span></li>
+                        <li><span class="cite-num">[3]</span><span>Nise, Norman S. <em>Control Systems Engineering</em>,
+                                7th ed. Wiley, 2015. Chapter 9 — Design via root locus: lead and lag compensator
+                                design.</span></li>
+                        <li><span class="cite-num">[4]</span><span>IIT Kharagpur / IIT Madras NPTEL. <em>Control Systems
+                                    —
+                                    Lectures on Compensator Design and PID Control</em>. National Programme on
+                                Technology
+                                Enhanced Learning. nptel.ac.in.</span></li>
+                    </ul>
+                </div>
+
+                <hr>
+                <footer>
+                    <strong>Aarova AI</strong> &nbsp;·&nbsp; Control Systems Series &nbsp;·&nbsp; Chapter 9 of
+                    12<br>
+                    <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                        &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                    <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All
+                        explanations and diagrams are original to Aarova AI. Derived from standard textbooks
+                        [1–5].</span>
+                </footer>
+            </div>
+
+            <script>
+                function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+                async function askClaude() {
+                    const q = document.getElementById('userQ').value.trim(); if (!q) return;
+                    const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+                    btn.textContent = 'Thinking…'; btn.disabled = true;
+                    resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+                    const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Control Systems. Topic: Compensation and Controller Design (Chapter 9) — lead, lag, lag-lead compensators and PID controllers. Cover Bode-plot design procedure, pole-zero interpretation, and performance trade-offs. Answer with step-by-step working for numericals. Base answers on Nagrath & Gopal, Ogata, Nise. All content is original.`;
+                    try {
+                        const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                        const data = await res.json();
+                        resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+                    } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+                    btn.textContent = 'Ask Claude'; btn.disabled = false;
+                }
+                document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+                /* Responsive SVG scroll hints on mobile */
+                (function () {
+                    if (window.innerWidth > 600) return;
+                    document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                        const hint = document.createElement('div');
+                        hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                        hint.textContent = '← scroll to see full diagram →';
+                        wrap.appendChild(hint);
+                        wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+                    });
+                })();
+            </script>
+</body>
+
+</html>
