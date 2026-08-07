@@ -1,7 +1,7 @@
 const AarovaData = {
   subjects: [
     {
-      id: "contolsystems",
+      id: "controlsystems",
       title: "Control Systems",
       icon: "🎛️",
       description: "Comprehensive coverage of time response, root locus, and frequency domains.",
@@ -10,14 +10,14 @@ const AarovaData = {
       available: true,
       total_chapters: 8,
       chapters: [
-        { num: 1, title: "Chapter 1", description: "Basics of Control Systems", file: "contolsystems/chapter1.html", available: true },
-        { num: 2, title: "Chapter 2", description: "Signal Flow Graph &Block Diagram", file: "contolsystems/chapter2.html", available: true },
-        { num: 3, title: "Chapter 3", description: "Time Response Analysis", file: "contolsystems/chapter3.html", available: true },
-        { num: 4, title: "Chapter 4", description: "Stability Analysis", file: "contolsystems/chapter4.html", available: true },
-        { num: 5, title: "Chapter 5", description: "Root Locus Technique", file: "contolsystems/chapter5.html", available: true },
-        { num: 6, title: "Chapter 6", description: "Frequency Response Analysis", file: "contolsystems/chapter6.html", available: true },
-        { num: 7, title: "Chapter 7", description: "Compensators & Controllers", file: "contolsystems/chapter7.html", available: true },
-        { num: 8, title: "Chapter 8", description: "State Space Analysis", file: "contolsystems/chapter8.html", available: true }
+        { num: 1, title: "Chapter 1", description: "Basics of Control Systems", file: "controlsystems/ch1.html", available: true },
+        { num: 2, title: "Chapter 2", description: "Signal Flow Graph &Block Diagram", file: "controlsystems/ch2.html", available: true },
+        { num: 3, title: "Chapter 3", description: "Time Response Analysis", file: "controlsystems/ch3.html", available: true },
+        { num: 4, title: "Chapter 4", description: "Stability Analysis", file: "controlsystems/ch4.html", available: true },
+        { num: 5, title: "Chapter 5", description: "Root Locus Technique", file: "controlsystems/ch5.html", available: true },
+        { num: 6, title: "Chapter 6", description: "Frequency Response Analysis", file: "controlsystems/ch6.html", available: true },
+        { num: 7, title: "Chapter 7", description: "Compensators & Controllers", file: "controlsystems/ch7.html", available: true },
+        { num: 8, title: "Chapter 8", description: "State Space Analysis", file: "controlsystems/ch8.html", available: true }
       ]
     },
     {
@@ -58,28 +58,28 @@ const AarovaData = {
       available: true,
       total_chapters: 22,
       chapters: [
-        { num: 1, title: "Chapter 1", description: "Armature Winding", file: "machines/chapter1.html", available: true },
-        { num: 2, title: "Chapter 2", description: "Armature Reaction in DC Machines", file: "machines/chapter2.html", available: true },
-        { num: 3, title: "Chapter 3", description: "DC Motors", file: "machines/chapter3.html", available: true },
-        { num: 4, title: "Chapter 4", description: "Induction Machine", file: "machines/chapter4.html", available: true },
-        { num: 5, title: "Chapter 5", description: "DC Generators", file: "machines/chapter5.html", available: true },
-        { num: 6, title: "Chapter 6", description: "Armature Reaction & Commutation", file: "machines/chapter6.html", available: true },
-        { num: 7, title: "Chapter 7", description: "Speed Control of DC Motors", file: "machines/chapter7.html", available: true },
-        { num: 8, title: "Chapter 8", description: "DC Motor Starters,Speed Control & Braking", file: "machines/chapter8.html", available: true },
-        { num: 9, title: "Chapter 9", description: "Transformers", file: "machines/chapter9.html", available: true },
-        { num: 10, title: "Chapter 10", description: "Open Circuit & Short Circuit Tests", file: "machines/chapter10.html", available: true },
-        { num: 11, title: "Chapter 11", description: "Voltage Regulation & Efficiency of Transformers", file: "machines/chapter11.html", available: true },
-        { num: 12, title: "Chapter 12", description: "Auto Transformer & Special Windings", file: "machines/chapter12.html", available: true },
-        { num: 13, title: "Chapter 13", description: "Three-Phase Transformers", file: "machines/chapter13.html", available: true },
-        { num: 14, title: "Chapter 14", description: "Parallel Operation of Transformers", file: "machines/chapter14.html", available: true },
-        { num: 15, title: "Chapter 15", description: "Synchronous Machines", file: "machines/chapter15.html", available: true },
-        { num: 16, title: "Chapter 16", description: "Synchronous Machines", file: "machines/chapter16.html", available: true },
-        { num: 17, title: "Chapter 17", description: "Synchronous Motor", file: "machines/chapter17.html", available: true },
-        { num: 18, title: "Chapter 18", description: "Induction Motor — Equivalent Circuit", file: "machines/chapter18.html", available: true },
-        { num: 19, title: "Chapter 19", description: "Starting, Speed Control & Braking", file: "machines/chapter19.html", available: true },
-        { num: 20, title: "Chapter 20", description: "Induction Machine Special Topics", file: "machines/chapter20.html", available: true },
-        { num: 21, title: "Chapter 21", description: "Single Phase Induction Motors", file: "machines/chapter21.html", available: true },
-        { num: 22, title: "Chapter 22", description: "Special Motors", file: "machines/chapter22.html", available: true }
+        { num: 1, title: "Chapter 1", description: "Armature Winding", file: "machines/ch1.html", available: true },
+        { num: 2, title: "Chapter 2", description: "Armature Reaction in DC Machines", file: "machines/ch2.html", available: true },
+        { num: 3, title: "Chapter 3", description: "DC Motors", file: "machines/ch3.html", available: true },
+        { num: 4, title: "Chapter 4", description: "Induction Machine", file: "machines/ch4.html", available: true },
+        { num: 5, title: "Chapter 5", description: "DC Generators", file: "machines/ch5.html", available: true },
+        { num: 6, title: "Chapter 6", description: "Armature Reaction & Commutation", file: "machines/ch6.html", available: true },
+        { num: 7, title: "Chapter 7", description: "Speed Control of DC Motors", file: "machines/ch7.html", available: true },
+        { num: 8, title: "Chapter 8", description: "DC Motor Starters,Speed Control & Braking", file: "machines/ch8.html", available: true },
+        { num: 9, title: "Chapter 9", description: "Transformers", file: "machines/ch9.html", available: true },
+        { num: 10, title: "Chapter 10", description: "Open Circuit & Short Circuit Tests", file: "machines/ch10.html", available: true },
+        { num: 11, title: "Chapter 11", description: "Voltage Regulation & Efficiency of Transformers", file: "machines/ch11.html", available: true },
+        { num: 12, title: "Chapter 12", description: "Auto Transformer & Special Windings", file: "machines/ch12.html", available: true },
+        { num: 13, title: "Chapter 13", description: "Three-Phase Transformers", file: "machines/ch13.html", available: true },
+        { num: 14, title: "Chapter 14", description: "Parallel Operation of Transformers", file: "machines/ch14.html", available: true },
+        { num: 15, title: "Chapter 15", description: "Synchronous Machines", file: "machines/ch15.html", available: true },
+        { num: 16, title: "Chapter 16", description: "Synchronous Machines", file: "machines/ch16.html", available: true },
+        { num: 17, title: "Chapter 17", description: "Synchronous Motor", file: "machines/ch17.html", available: true },
+        { num: 18, title: "Chapter 18", description: "Induction Motor — Equivalent Circuit", file: "machines/ch18.html", available: true },
+        { num: 19, title: "Chapter 19", description: "Starting, Speed Control & Braking", file: "machines/ch19.html", available: true },
+        { num: 20, title: "Chapter 20", description: "Induction Machine Special Topics", file: "machines/ch20.html", available: true },
+        { num: 21, title: "Chapter 21", description: "Single Phase Induction Motors", file: "machines/ch21.html", available: true },
+        { num: 22, title: "Chapter 22", description: "Special Motors", file: "machines/ch22.html", available: true }
       ]
     },
     {
@@ -117,12 +117,12 @@ const AarovaData = {
       available: true,
       total_chapters: 6,
       chapters: [
-        { num: 1, title: "Chapter 1", description: "Basics & Power Semiconductor Devices", file: "powerelectronics/chapter1.html", available: true },
-        { num: 2, title: "Chapter 2", description: "AC – DC ConvertersControlled Rectifiers", file: "powerelectronics/chapter2.html", available: true },
-        { num: 3, title: "Chapter 3", description: "DC – DC Converters& Choppers", file: "powerelectronics/chapter3.html", available: true },
-        { num: 4, title: "Chapter 4", description: "DC–AC ConvertersInverters", file: "powerelectronics/chapter4.html", available: true },
-        { num: 5, title: "Chapter 5", description: "Commutation Circuits", file: "powerelectronics/chapter5.html", available: true },
-        { num: 6, title: "Chapter 6", description: "Fundamentals of Drives", file: "powerelectronics/chapter6.html", available: true }
+        { num: 1, title: "Chapter 1", description: "Basics & Power Semiconductor Devices", file: "powerelectronics/powerelec5-32.html", available: true },
+        { num: 2, title: "Chapter 2", description: "AC – DC ConvertersControlled Rectifiers", file: "powerelectronics/powerelec33-55.html", available: true },
+        { num: 3, title: "Chapter 3", description: "DC – DC Converters& Choppers", file: "powerelectronics/powerelec63-72.html", available: true },
+        { num: 4, title: "Chapter 4", description: "DC–AC ConvertersInverters", file: "powerelectronics/powerelec78-89.html", available: true },
+        { num: 5, title: "Chapter 5", description: "Commutation Circuits", file: "powerelectronics/powerelec96-101.html", available: true },
+        { num: 6, title: "Chapter 6", description: "Fundamentals of Drives", file: "powerelectronics/powerelec102-110.html", available: true }
       ]
     }
   ]
