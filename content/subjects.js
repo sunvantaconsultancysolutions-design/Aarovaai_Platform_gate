@@ -8,7 +8,7 @@ const AarovaData = {
       exam_tags: ["GATE EE", "GATE EC", "IES"],
       accent: "teal",
       available: true,
-      total_chapters: 8,
+      total_chapters: 10,
       chapters: [
         { num: 1, title: "Chapter 1", description: "Basics of Control Systems", file: "controlsystems/ch1.html", available: true },
         { num: 2, title: "Chapter 2", description: "Signal Flow Graph &Block Diagram", file: "controlsystems/ch2.html", available: true },
@@ -17,7 +17,9 @@ const AarovaData = {
         { num: 5, title: "Chapter 5", description: "Root Locus Technique", file: "controlsystems/ch5.html", available: true },
         { num: 6, title: "Chapter 6", description: "Frequency Response Analysis", file: "controlsystems/ch6.html", available: true },
         { num: 7, title: "Chapter 7", description: "Compensators & Controllers", file: "controlsystems/ch7.html", available: true },
-        { num: 8, title: "Chapter 8", description: "State Space Analysis", file: "controlsystems/ch8.html", available: true }
+        { num: 8, title: "Chapter 8", description: "State Space Analysis", file: "controlsystems/ch8.html", available: true },
+        { num: 9, title: "Chapter 9", description: "Compensation & Controller Design", file: "controlsystems/ch9.html", available: true },
+        { num: 10, title: "Chapter 10", description: "State Variable Analysis", file: "controlsystems/ch10.html", available: true }
       ]
     },
     {
@@ -56,7 +58,7 @@ const AarovaData = {
       exam_tags: ["GATE EE", "IES"],
       accent: "amber",
       available: true,
-      total_chapters: 22,
+      total_chapters: 25,
       chapters: [
         { num: 1, title: "Chapter 1", description: "Armature Winding", file: "machines/ch1.html", available: true },
         { num: 2, title: "Chapter 2", description: "Armature Reaction in DC Machines", file: "machines/ch2.html", available: true },
@@ -79,7 +81,10 @@ const AarovaData = {
         { num: 19, title: "Chapter 19", description: "Starting, Speed Control & Braking", file: "machines/ch19.html", available: true },
         { num: 20, title: "Chapter 20", description: "Induction Machine Special Topics", file: "machines/ch20.html", available: true },
         { num: 21, title: "Chapter 21", description: "Single Phase Induction Motors", file: "machines/ch21.html", available: true },
-        { num: 22, title: "Chapter 22", description: "Special Motors", file: "machines/ch22.html", available: true }
+        { num: 22, title: "Chapter 22", description: "Special Motors", file: "machines/ch22.html", available: true },
+        { num: 23, title: "Chapter 23", description: "Synchronous Condenser & Parallel Operation of Alternators", file: "machines/ch23.html", available: true },
+        { num: 24, title: "Chapter 24", description: "Synchronous Motor — Starting Methods & Applications", file: "machines/ch24.html", available: true },
+        { num: 25, title: "Chapter 25", description: "Stepper, AC Series & Servo Motors", file: "machines/ch25.html", available: true }
       ]
     },
     {
