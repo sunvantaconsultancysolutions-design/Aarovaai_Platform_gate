@@ -1,0 +1,3031 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Signals &amp; Systems Ch.10 Z-Transform</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+       AAROVA AI — RESPONSIVE DESIGN SYSTEM
+       Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+    ═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 88%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TOC ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 32px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .section:nth-child(13) {
+            animation-delay: .53s
+        }
+
+        .section:nth-child(14) {
+            animation-delay: .57s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-family: 'JetBrains Mono', monospace;
+            margin-left: 2px;
+        }
+
+        /* ── CALLOUT ── */
+        .callout {
+            display: flex;
+            gap: 12px;
+            border-radius: 10px;
+            padding: clamp(13px, 2.5vw, 20px);
+            margin: 16px 0;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 18px;
+            flex-shrink: 0;
+            line-height: 1.4;
+        }
+
+        .ct {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH (KaTeX) ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COLUMN / MINI CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── ASK CLAUDE WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* ════ LARGE DESKTOP 1024+ ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Signals &amp; Systems Series</span></div>
+        <div class="hbadges">
+            <span class="hbadge">GATE EC/EE/IN</span>
+            <span class="hbadge">IES E&amp;T</span>
+            <span class="hbadge">PSU</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 10 &nbsp;·&nbsp; Signals &amp; Systems</div>
+            <h1 class="hero-title">The <em>Z-Transform</em></h1>
+            <p class="hero-desc">Bilateral and unilateral Z-transform, Region of Convergence (ROC), inverse Z-transform
+                by partial fractions and power series, pole-zero plots, system stability and causality — complete GATE,
+                IES &amp; PSU coverage with full derivations, visualisations, and solved examples from standard
+                textbooks.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EC / EE / IN</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Follows Ch.9 — DTFT</span>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Chapter 10 of 11</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">10.1</span>Why the Z-Transform?</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">10.2</span>Bilateral Z-Transform</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">10.3</span>Region of Convergence</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">10.4</span>Unilateral Z-Transform</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">10.5</span>Properties of Z-Transform</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">10.6</span>Common Z-Transform Pairs</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">10.7</span>Inverse Z-Transform</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">10.8</span>Pole-Zero Plot</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">10.9</span>Stability &amp; Causality</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">10.10</span>GATE PYQ &amp; Insights</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">10.11</span>Solved Numericals</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">10.12</span>Common Mistakes</a>
+                <a href="#s13" class="toc-item"><span class="toc-n">10.13</span>Memory Tricks</a>
+                <a href="#s14" class="toc-item"><span class="toc-n">10.14</span>Quick Revision Sheet</a>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 1 — WHY ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">10.1</span>
+                <h2 class="sec-t">Why Does the Z-Transform Exist?</h2>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">The Big Picture</div>
+                    <p>The Z-transform is to discrete-time systems what the Laplace transform is to continuous-time
+                        systems. It converts a difference equation into an algebraic equation — making analysis, design,
+                        and stability testing tractable.</p>
+                </div>
+            </div>
+
+            <p>Consider an engineer designing a digital filter for a smartphone. The filter processes audio samples at
+                44 100 samples per second. Writing the behaviour as a difference equation is straightforward, but
+                solving it in closed form — especially for complicated recursive structures — is extremely difficult.
+                The Z-transform converts that difference equation into a polynomial equation in the complex variable
+                \(z\), which can be solved with ordinary algebra.<sup class="cite">[1]</sup></p>
+
+            <p>The DTFT (Chapter 9) already connects the time domain to the frequency domain for discrete signals. But
+                the DTFT only exists when the sequence is absolutely summable — it fails for signals like \(u[n]\) (unit
+                step) or growing exponentials. The Z-transform generalises the DTFT by introducing a complex variable
+                \(z = re^{j\omega}\), where the radius \(r\) provides a convergence factor that tames divergent
+                sums.<sup class="cite">[2]</sup></p>
+
+            <h3 class="sub">Engineering Problems Solved by the Z-Transform</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Digital Filter Design</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>IIR and FIR filter analysis</li>
+                        <li><span class="dot">▸</span>Stability of recursive filters</li>
+                        <li><span class="dot">▸</span>Frequency response from poles/zeros</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Control Systems</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Discrete-time PID controllers</li>
+                        <li><span class="dot">▸</span>Pulse-transfer function (H(z))</li>
+                        <li><span class="dot">▸</span>Closed-loop stability via Jury test</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Communications DSP</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Equaliser design in modems</li>
+                        <li><span class="dot">▸</span>Noise-cancellation algorithms</li>
+                        <li><span class="dot">▸</span>OFDM pilot filtering</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Power Electronics &amp; Smart Grids</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Discrete-time PWM controllers</li>
+                        <li><span class="dot">▸</span>AMI meter data processing</li>
+                        <li><span class="dot">▸</span>Harmonic detection algorithms</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔗</div>
+                <div class="cb">
+                    <div class="ct">Connection to Other Subjects</div>
+                    <p>Z-transform links to: Laplace transform (replace \(s \to \ln z / T\)), DTFT (set \(z =
+                        e^{j\omega}\)), difference equations (convert to algebraic), and digital control (pulse-transfer
+                        functions). Mastering Z-transform unifies all of DSP.</p>
+                </div>
+            </div>
+        </div><!-- /s1 -->
+
+        <!-- ═══ SECTION 2 — BILATERAL ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">10.2</span>
+                <h2 class="sec-t">Bilateral Z-Transform — Definition &amp; Intuition</h2>
+            </div>
+
+            <h3 class="sub">Intuitive Derivation</h3>
+            <p>Start with the Discrete-Time Fourier Transform (DTFT):</p>
+            <div class="math-block">
+                <div class="math-lbl">DTFT Definition</div>
+                $$X(e^{j\omega}) = \sum_{n=-\infty}^{\infty} x[n]\, e^{-j\omega n}$$
+            </div>
+
+            <p>This converges only if \(\sum|x[n]| < \infty\). To handle broader classes of signals, multiply \(x[n]\)
+                    by a real convergence factor \(r^{-n}\) where \(r> 0\):</p>
+            <div class="math-block">
+                <div class="math-lbl">Generalised DTFT with convergence factor</div>
+                $$X(r, e^{j\omega}) = \sum_{n=-\infty}^{\infty} x[n]\, r^{-n} e^{-j\omega n} = \sum_{n=-\infty}^{\infty}
+                x[n]\, (r e^{j\omega})^{-n}$$
+            </div>
+
+            <p>Define the complex variable \(\boxed{z \triangleq r\,e^{j\omega}}\). Then the sum becomes the
+                <strong>Bilateral (Two-Sided) Z-Transform</strong>:<sup class="cite">[1]</sup>
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">🟢 Core Definition — Bilateral Z-Transform</div>
+                $$\boxed{X(z) = \mathcal{Z}\{x[n]\} = \sum_{n=-\infty}^{\infty} x[n]\, z^{-n}}, \quad z \in \mathbb{C}$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Physical Meaning of z</div>
+                    <p><strong>\(|z| = r\)</strong> is the radial coordinate in the complex plane — it controls
+                        convergence. <strong>\(\angle z = \omega\)</strong> is the normalised angular frequency. When
+                        \(|z|=1\) (the unit circle), \(X(z)\big|_{z=e^{j\omega}} = X(e^{j\omega})\), recovering the
+                        DTFT.</p>
+                </div>
+            </div>
+
+            <!-- SVG: z-plane diagram -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch10/fig10.1.png" alt="Z-plane diagram showing unit circle, poles and zeros" />
+                <div class="svg-cap">Fig 10.1 — The complex z-plane. The unit circle (dashed teal, |z|=1) is where
+                    Z-transform reduces to DTFT. Poles (×) and zeros (○) characterise the system. The shaded region is a
+                    typical ROC (annular ring).</div>
+                <div class="svg-cite">Original diagram — Aarova AI. Concept from Oppenheim &amp; Schafer [1].</div>
+            </div>
+
+            <h3 class="sub">Notation and Inverse Transform</h3>
+            <p>The bilateral Z-transform pair is written as:</p>
+            <div class="math-block">
+                <div class="math-lbl">Z-Transform Pair Notation</div>
+                $$x[n] \xleftrightarrow{\mathcal{Z}} X(z) \quad \text{with ROC: } R_1 < |z| < R_2$$ </div>
+                    <p>The inverse Z-transform uses the contour integral (Bromwich integral) in the complex z-plane:</p>
+                    <div class="math-block">
+                        <div class="math-lbl">Inverse Z-Transform (Contour Integral)</div>
+                        $$x[n] = \frac{1}{2\pi j} \oint_{\mathcal{C}} X(z)\, z^{n-1}\, dz$$
+                    </div>
+                    <p>where \(\mathcal{C}\) is a counter-clockwise closed contour lying within the ROC. In practice,
+                        this is evaluated using partial fractions or the power series method (Section 10.7).</p>
+            </div><!-- /s2 -->
+
+            <!-- ═══ SECTION 3 — ROC ═══ -->
+            <div class="section" id="s3">
+                <div class="sec-hdr">
+                    <span class="sec-num">10.3</span>
+                    <h2 class="sec-t">Region of Convergence (ROC)</h2>
+                </div>
+
+                <div class="callout c-warn">
+                    <div class="ci">⚠️</div>
+                    <div class="cb">
+                        <div class="ct">Critical GATE Concept</div>
+                        <p>The ROC is <strong>not optional</strong>. Two different sequences can have the same algebraic
+                            expression for \(X(z)\) but different ROCs — and represent completely different signals. The
+                            Z-transform is only fully specified when both \(X(z)\) and its ROC are stated together.</p>
+                    </div>
+                </div>
+
+                <h3 class="sub">Definition</h3>
+                <p>The ROC is the set of all values of \(z\) in the complex plane for which the Z-transform sum
+                    converges absolutely:</p>
+                <div class="math-block">
+                    <div class="math-lbl">Convergence Condition</div>
+                    $$\text{ROC} = \left\{ z \in \mathbb{C} : \sum_{n=-\infty}^{\infty} |x[n]|\, |z|^{-n} < \infty
+                        \right\}$$ </div>
+
+                        <p>Since convergence depends only on \(|z|\), the ROC is always a <strong>ring (annular
+                                region)</strong> in the z-plane: \(R_1 < |z| < R_2\).<sup class="cite">[1]</sup></p>
+
+                        <h3 class="sub">ROC Properties — The Seven Rules</h3>
+                        <div class="tw">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Property</th>
+                                        <th>Explanation</th>
+                                        <th>GATE Weight</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>R1</td>
+                                        <td>ROC is an annular ring \(R_1 &lt; |z| &lt; R_2\)</td>
+                                        <td>May include \(|z|=0\) or \(|z|=\infty\) as limiting cases</td>
+                                        <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>R2</td>
+                                        <td>ROC contains no poles</td>
+                                        <td>At a pole, \(X(z) \to \infty\), so sum diverges</td>
+                                        <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>R3</td>
+                                        <td>Finite-duration sequence: ROC is entire z-plane</td>
+                                        <td>Except possibly \(z=0\) or \(z=\infty\) depending on sequence extent</td>
+                                        <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>R4</td>
+                                        <td>Right-sided sequence: ROC is \(|z| &gt; R_1\) (exterior of a circle)</td>
+                                        <td>Includes \(z=\infty\) if sequence starts at \(n \geq 0\)</td>
+                                        <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>R5</td>
+                                        <td>Left-sided sequence: ROC is \(|z| &lt; R_2\) (interior of a circle)</td>
+                                        <td>Includes \(z=0\) if sequence ends at \(n \leq 0\)</td>
+                                        <td><span class="prob prob-m">🟡 MED</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>R6</td>
+                                        <td>Two-sided sequence: ROC is an open annular ring</td>
+                                        <td>Inner radius set by left-sided part, outer by right-sided part</td>
+                                        <td><span class="prob prob-m">🟡 MED</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>R7</td>
+                                        <td>If ROC includes unit circle → DTFT exists</td>
+                                        <td>Necessary &amp; sufficient condition for DTFT convergence</td>
+                                        <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- SVG: 4 ROC types -->
+                        <div class="svg-wrap">
+                            <div class="svg-scroll">
+                                <img src="images/ch10/fig10.2.png" alt="Four types of ROC in the z-plane" />
+                            </div>
+                            <div class="svg-cap">Fig 10.2 — Four canonical ROC shapes. Orange shading = convergent
+                                region. Teal dashed circle = unit circle (|z|=1). A causal system's ROC is always an
+                                exterior disk.</div>
+                            <div class="svg-cite">Original diagram — Aarova AI. Based on Oppenheim &amp; Schafer [1],
+                                Proakis &amp; Manolakis [2].</div>
+                        </div>
+
+                        <div class="callout c-tip">
+                            <div class="ci">🎯</div>
+                            <div class="cb">
+                                <div class="ct">GATE Trick — ROC and Signal Type</div>
+                                <p>If you know the signal is <strong>causal</strong> (right-sided, starts at \(n=0\)),
+                                    choose the ROC \(|z| > |a|\) for the term \(a^n u[n]\). If the signal is
+                                    <strong>anti-causal</strong> (left-sided), choose \(|z| < |a|\) for the term \(-a^n
+                                        u[-n-1]\). Both give the same \(X(z)\) algebraically — but different ROCs mean
+                                        different signals!</p>
+                            </div>
+                        </div>
+                </div><!-- /s3 -->
+
+                <!-- ═══ SECTION 4 — UNILATERAL ═══ -->
+                <div class="section" id="s4">
+                    <div class="sec-hdr">
+                        <span class="sec-num">10.4</span>
+                        <h2 class="sec-t">Unilateral (One-Sided) Z-Transform</h2>
+                    </div>
+
+                    <p>The <strong>unilateral Z-transform</strong> sums only from \(n=0\) to \(+\infty\), making it the
+                        discrete-time analogue of the one-sided Laplace transform:<sup class="cite">[3]</sup></p>
+
+                    <div class="math-block">
+                        <div class="math-lbl">🟢 Unilateral Z-Transform Definition</div>
+                        $$\mathcal{Z}_u\{x[n]\} = X^+(z) = \sum_{n=0}^{\infty} x[n]\, z^{-n}$$
+                    </div>
+
+                    <div class="tw">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Bilateral</th>
+                                    <th>Unilateral</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Summation limits</td>
+                                    <td>\(-\infty\) to \(+\infty\)</td>
+                                    <td>\(0\) to \(+\infty\)</td>
+                                </tr>
+                                <tr>
+                                    <td>Handles non-causal signals?</td>
+                                    <td class="t-grn">Yes</td>
+                                    <td class="t-red">No</td>
+                                </tr>
+                                <tr>
+                                    <td>Initial conditions</td>
+                                    <td class="t-red">Cannot handle directly</td>
+                                    <td class="t-grn">Naturally included</td>
+                                </tr>
+                                <tr>
+                                    <td>Solving difference equations with ICs</td>
+                                    <td class="t-amb">Indirect</td>
+                                    <td class="t-grn">Direct</td>
+                                </tr>
+                                <tr>
+                                    <td>System analysis</td>
+                                    <td class="t-grn">General</td>
+                                    <td>Causal systems only</td>
+                                </tr>
+                                <tr>
+                                    <td>ROC</td>
+                                    <td>Annular ring (general)</td>
+                                    <td>Always exterior disk \(|z|>R\)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="sub">Unilateral Time-Shift Property (Key for Difference Equations)</h3>
+                    <p>This is the most important property of the unilateral Z-transform for solving difference
+                        equations with initial conditions:</p>
+                    <div class="math-block">
+                        <div class="math-lbl">Time Advance (left shift)</div>
+                        $$\mathcal{Z}_u\{x[n+1]\} = z\,X^+(z) - z\,x[0]$$
+                    </div>
+                    <div class="math-block">
+                        <div class="math-lbl">Time Delay (right shift)</div>
+                        $$\mathcal{Z}_u\{x[n-1]\} = z^{-1} X^+(z) + x[-1]$$
+                    </div>
+                    <p>Here \(x[0], x[-1]\) are the initial conditions. These are automatically embedded — no extra work
+                        needed.</p>
+
+                    <div class="callout c-info">
+                        <div class="ci">📝</div>
+                        <div class="cb">
+                            <div class="ct">When to Use Which?</div>
+                            <p>Use the <strong>bilateral</strong> Z-transform for general signal and system analysis,
+                                ROC questions, and stability. Use the <strong>unilateral</strong> Z-transform when
+                                solving recursive difference equations with given initial conditions — it is the
+                                discrete analogue of the Laplace transform method for ODEs.</p>
+                        </div>
+                    </div>
+                </div><!-- /s4 -->
+
+                <!-- ═══ SECTION 5 — PROPERTIES ═══ -->
+                <div class="section" id="s5">
+                    <div class="sec-hdr">
+                        <span class="sec-num">10.5</span>
+                        <h2 class="sec-t">Properties of the Z-Transform</h2>
+                    </div>
+
+                    <div class="tw">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Property</th>
+                                    <th>Time Domain</th>
+                                    <th>Z-Domain</th>
+                                    <th>ROC</th>
+                                    <th>GATE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Linearity</td>
+                                    <td>\(ax[n]+by[n]\)</td>
+                                    <td>\(aX(z)+bY(z)\)</td>
+                                    <td>\(\supseteq R_x \cap R_y\)</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Time shifting</td>
+                                    <td>\(x[n-k]\)</td>
+                                    <td>\(z^{-k} X(z)\)</td>
+                                    <td>Same (excl. \(z=0,\infty\))</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Scaling in z (exponential)</td>
+                                    <td>\(a^n x[n]\)</td>
+                                    <td>\(X(z/a)\)</td>
+                                    <td>\(|a| R_1 &lt; |z| &lt; |a| R_2\)</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Time reversal</td>
+                                    <td>\(x[-n]\)</td>
+                                    <td>\(X(1/z)\)</td>
+                                    <td>\(1/R_2 &lt; |z| &lt; 1/R_1\)</td>
+                                    <td><span class="prob prob-m">🟡</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Differentiation in z</td>
+                                    <td>\(n\,x[n]\)</td>
+                                    <td>\(-z\,\dfrac{dX(z)}{dz}\)</td>
+                                    <td>Same as \(R_x\)</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Convolution</td>
+                                    <td>\(x[n]*y[n]\)</td>
+                                    <td>\(X(z)\cdot Y(z)\)</td>
+                                    <td>\(\supseteq R_x \cap R_y\)</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Correlation</td>
+                                    <td>\(R_{xy}[n]\)</td>
+                                    <td>\(X(z)\cdot Y(1/z^*)\big|_{z^*}\)</td>
+                                    <td>—</td>
+                                    <td><span class="prob prob-l">🔴</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Initial value theorem</td>
+                                    <td>\(x[0]\)</td>
+                                    <td>\(\lim_{z\to\infty} X(z)\)</td>
+                                    <td>—</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Final value theorem</td>
+                                    <td>\(\lim_{n\to\infty} x[n]\)</td>
+                                    <td>\(\lim_{z\to 1}(z-1)X(z)\)</td>
+                                    <td>Poles inside unit circle</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout c-warn">
+                        <div class="ci">⚠️</div>
+                        <div class="cb">
+                            <div class="ct">Final Value Theorem — Condition</div>
+                            <p>The final value theorem \(x[\infty] = \lim_{z\to1}(z-1)X(z)\) is valid <em>only if</em>
+                                all poles of \((z-1)X(z)\) lie strictly inside the unit circle. If there is a pole on or
+                                outside the unit circle, the sequence diverges and the theorem does not apply.</p>
+                        </div>
+                    </div>
+                </div><!-- /s5 -->
+
+                <!-- ═══ SECTION 6 — Z-TRANSFORM TABLE ═══ -->
+                <div class="section" id="s6">
+                    <div class="sec-hdr">
+                        <span class="sec-num">10.6</span>
+                        <h2 class="sec-t">Common Z-Transform Pairs</h2>
+                    </div>
+
+                    <div class="tw">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Sequence \(x[n]\)</th>
+                                    <th>Z-Transform \(X(z)\)</th>
+                                    <th>ROC</th>
+                                    <th>GATE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>\(\delta[n]\)</td>
+                                    <td>\(1\)</td>
+                                    <td>All \(z\)</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>\(\delta[n-k]\)</td>
+                                    <td>\(z^{-k}\)</td>
+                                    <td>\(z \neq 0\) (\(k>0\))</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>\(u[n]\)</td>
+                                    <td>\(\dfrac{z}{z-1} = \dfrac{1}{1-z^{-1}}\)</td>
+                                    <td>\(|z|>1\)</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>\(a^n u[n]\)</td>
+                                    <td>\(\dfrac{z}{z-a} = \dfrac{1}{1-az^{-1}}\)</td>
+                                    <td>\(|z|>|a|\)</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>\(-a^n u[-n-1]\)</td>
+                                    <td>\(\dfrac{z}{z-a}\)</td>
+                                    <td>\(|z|&lt;|a|\)</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>\(n\,a^n u[n]\)</td>
+                                    <td>\(\dfrac{az}{(z-a)^2}\)</td>
+                                    <td>\(|z|>|a|\)</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td>\(n\,u[n]\)</td>
+                                    <td>\(\dfrac{z}{(z-1)^2}\)</td>
+                                    <td>\(|z|>1\)</td>
+                                    <td><span class="prob prob-h">🟢</span></td>
+                                </tr>
+                                <tr>
+                                    <td>8</td>
+                                    <td>\(\cos(\omega_0 n)\,u[n]\)</td>
+                                    <td>\(\dfrac{z(z-\cos\omega_0)}{z^2 - 2z\cos\omega_0 + 1}\)</td>
+                                    <td>\(|z|>1\)</td>
+                                    <td><span class="prob prob-m">🟡</span></td>
+                                </tr>
+                                <tr>
+                                    <td>9</td>
+                                    <td>\(\sin(\omega_0 n)\,u[n]\)</td>
+                                    <td>\(\dfrac{z\sin\omega_0}{z^2 - 2z\cos\omega_0 + 1}\)</td>
+                                    <td>\(|z|>1\)</td>
+                                    <td><span class="prob prob-m">🟡</span></td>
+                                </tr>
+                                <tr>
+                                    <td>10</td>
+                                    <td>\(r^n\cos(\omega_0 n)\,u[n]\)</td>
+                                    <td>\(\dfrac{z^2 - rz\cos\omega_0}{z^2 - 2rz\cos\omega_0 + r^2}\)</td>
+                                    <td>\(|z|>r\)</td>
+                                    <td><span class="prob prob-l">🔴</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="callout c-tip">
+                        <div class="ci">🧠</div>
+                        <div class="cb">
+                            <div class="ct">Memory Tip — Pair 4 vs Pair 5</div>
+                            <p>Both \(a^n u[n]\) and \(-a^n u[-n-1]\) have the same \(X(z) = \tfrac{z}{z-a}\). The ROC
+                                tells them apart: <strong>causal → outside</strong> (\(|z|>|a|\)), <strong>anti-causal →
+                                    inside</strong> (\(|z|&lt;|a|\)). GATE frequently exploits this ambiguity.</p>
+                        </div>
+                    </div>
+                </div><!-- /s6 -->
+
+                <!-- ═══ SECTION 7 — INVERSE Z-TRANSFORM ═══ -->
+                <div class="section" id="s7">
+                    <div class="sec-hdr">
+                        <span class="sec-num">10.7</span>
+                        <h2 class="sec-t">Inverse Z-Transform</h2>
+                    </div>
+
+                    <p>Three practical methods are used in GATE and engineering practice:<sup class="cite">[1,2]</sup>
+                    </p>
+
+                    <h3 class="sub">Method 1 — Partial Fraction Expansion (PFE)</h3>
+                    <p>This is the most frequently examined method. The key is to expand \(X(z)/z\) (not \(X(z)\)) into
+                        partial fractions, then multiply back by \(z\) to match known Z-transform pairs.</p>
+
+                    <div class="callout c-key">
+                        <div class="ci">🔑</div>
+                        <div class="cb">
+                            <div class="ct">Why X(z)/z and not X(z)?</div>
+                            <p>Most Z-transform pairs have the form \(\tfrac{z}{z-a}\). Dividing by \(z\) gives
+                                \(\tfrac{1}{z-a}\), which has simple partial fractions. After expansion, multiply both
+                                sides by \(z\) to get terms like \(\tfrac{Az}{z-a} \leftrightarrow A\,a^n u[n]\).</p>
+                        </div>
+                    </div>
+
+                    <p><strong>Procedure:</strong></p>
+                    <div class="fblock"><span class="flbl">Partial Fraction Method — Steps</span>
+                        <div style="margin-top: 10px; width: 100%;">
+                            <div style="margin-bottom: 8px;"><span class="fh">Step 1:</span> Write \( \frac{X(z)}{z} \)
+                                = sum of partial fractions</div>
+                            <div style="margin-bottom: 8px;"><span class="fh">Step 2:</span> Find residues \( A_k \)
+                                using cover-up method or limit<br>
+                                <span class="feq">\( A_k = (z - p_k) \left[ \frac{X(z)}{z} \right]_{z=p_k} \)</span>
+                            </div>
+                            <div style="margin-bottom: 8px;"><span class="fh">Step 3:</span> Multiply both sides by \( z
+                                \)<br>
+                                <span class="feq">\( X(z) = \sum A_k \frac{z}{z - p_k} \)</span>
+                            </div>
+                            <div style="margin-bottom: 8px;"><span class="fh">Step 4:</span> Use ROC to decide causal or
+                                anti-causal for each term<br>
+                                ROC: \( |z| > |p_k| \rightarrow p_k^n u[n] \)<br>
+                                ROC: \( |z| < |p_k| \rightarrow -p_k^n u[-n-1] \) </div>
+                                    <div><span class="fh">Step 5:</span> Combine using linearity</div>
+                            </div>
+                        </div>
+
+                        <h3 class="sub">Method 2 — Power Series (Long Division)</h3>
+                        <p>Express \(X(z)\) as a power series in \(z^{-1}\) by polynomial long division. The coefficient
+                            of
+                            \(z^{-n}\) is \(x[n]\).</p>
+                        <div class="math-block">
+                            <div class="math-lbl">Power Series Expansion</div>
+                            $$X(z) = \sum_{n=0}^{\infty} x[n]\,z^{-n} = x[0] + x[1]z^{-1} + x[2]z^{-2} + \cdots$$
+                        </div>
+                        <p>This method gives \(x[n]\) sample by sample — useful when a closed-form expression is not
+                            needed,
+                            or when GATE asks for the first few terms.</p>
+
+                        <h3 class="sub">Method 3 — Inspection (Table Lookup)</h3>
+                        <p>Simply match \(X(z)\) to a known pair in the Z-transform table. Combined with the scaling
+                            property \(a^n x[n] \leftrightarrow X(z/a)\), this handles the majority of GATE inverse
+                            Z-transform questions in under 30 seconds.</p>
+                    </div><!-- /s7 -->
+
+                    <!-- ═══ SECTION 8 — POLE-ZERO ═══ -->
+                    <div class="section" id="s8">
+                        <div class="sec-hdr">
+                            <span class="sec-num">10.8</span>
+                            <h2 class="sec-t">Pole-Zero Plot</h2>
+                        </div>
+
+                        <p>For a rational Z-transform \(X(z) = \tfrac{N(z)}{D(z)}\), the <strong>zeros</strong> are the
+                            roots of \(N(z)=0\) and the <strong>poles</strong> are the roots of \(D(z)=0\). The
+                            pole-zero
+                            plot is a graphical representation in the z-plane.<sup class="cite">[1]</sup></p>
+
+                        <div class="math-block">
+                            <div class="math-lbl">Rational Z-Transform — Factored Form</div>
+                            $$X(z) = K \cdot \frac{(z - z_1)(z - z_2)\cdots(z - z_M)}{(z - p_1)(z - p_2)\cdots(z -
+                            p_N)}$$
+                        </div>
+                        <p>Where \(z_k\) are zeros (marked ○) and \(p_k\) are poles (marked ×) in the z-plane.</p>
+
+                        <!-- SVG: Pole-zero plot example for H(z) = z/(z-0.5) -->
+                        <div class="svg-wrap svg-simple">
+                            <img src="images/ch10/fig10.3.png" alt="Pole-zero plot example for H(z) = z/(z-0.5)" />
+                            <div class="svg-cap">Fig 10.3 — Pole-zero plot for \(H(z) = z/(z-0.5)\). Pole at \(z=0.5\)
+                                (inside unit circle → stable). Zero at \(z=0\). ROC: \(|z|>0.5\) (causal system). Since
+                                the
+                                unit circle is inside the ROC, the DTFT exists.</div>
+                            <div class="svg-cite">Original diagram — Aarova AI.</div>
+                        </div>
+
+                        <h3 class="sub">Reading Frequency Response from Pole-Zero Plot</h3>
+                        <p>The frequency response \(H(e^{j\omega})\) is obtained by evaluating \(H(z)\) on the unit
+                            circle
+                            \(z = e^{j\omega}\). Geometrically:</p>
+                        <div class="callout c-key">
+                            <div class="ci">📐</div>
+                            <div class="cb">
+                                <div class="ct">Geometric Frequency Response</div>
+                                <p>\(|H(e^{j\omega})| = K \cdot \dfrac{\text{product of distances from } e^{j\omega}
+                                    \text{
+                                    to all zeros}}{\text{product of distances from } e^{j\omega} \text{ to all
+                                    poles}}\).
+                                    When \(e^{j\omega}\) sweeps the unit circle, the frequency response rises near zeros
+                                    of
+                                    the denominator (poles) and dips near zeros of the numerator.</p>
+                            </div>
+                        </div>
+                    </div><!-- /s8 -->
+
+                    <!-- ═══ SECTION 9 — STABILITY & CAUSALITY ═══ -->
+                    <div class="section" id="s9">
+                        <div class="sec-hdr">
+                            <span class="sec-num">10.9</span>
+                            <h2 class="sec-t">Stability and Causality via Z-Transform</h2>
+                        </div>
+
+                        <h3 class="sub">Stability (BIBO)</h3>
+                        <p>A discrete-time LTI system with impulse response \(h[n]\) is <strong>BIBO stable</strong> if
+                            and
+                            only if \(\sum_{n=-\infty}^{\infty}|h[n]| < \infty\), which is precisely the condition that
+                                the DTFT of \(h[n]\) exists — i.e., the unit circle lies inside the ROC of \(H(z)\).<sup
+                                class="cite">[1]</sup></p>
+
+                        <div class="math-block">
+                            <div class="math-lbl">BIBO Stability Condition (Z-domain)</div>
+                            $$\text{System is BIBO stable} \iff \text{unit circle } (|z|=1) \subset \text{ROC of }
+                            H(z)$$
+                        </div>
+
+                        <p>For a causal system (ROC: \(|z| > R\)), this simplifies to: the system is stable if and only
+                            if
+                            all poles lie strictly inside the unit circle (\(|p_k| < 1\) for all poles \(p_k\)).</p>
+
+                                <h3 class="sub">Causality</h3>
+                                <p>An LTI system is <strong>causal</strong> if \(h[n]=0\) for \(n<0\). In the
+                                        Z-domain:</p>
+                                        <div class="math-block">
+                                            <div class="math-lbl">Causality Condition</div>
+                                            $$\text{Causal} \iff \text{ROC of } H(z) \text{ is an exterior region: } |z|
+                                            >
+                                            R$$
+                                        </div>
+
+                                        <div class="tw">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Pole Location</th>
+                                                        <th>Causal System</th>
+                                                        <th>Non-Causal (Two-sided)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>All poles inside unit circle</td>
+                                                        <td class="t-grn">Stable ✓</td>
+                                                        <td class="t-grn">Stable ✓</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Any pole outside unit circle</td>
+                                                        <td class="t-red">Unstable ✗</td>
+                                                        <td>May be stable (if outside ROC)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Pole on unit circle (simple)</td>
+                                                        <td class="t-amb">Marginally stable</td>
+                                                        <td class="t-amb">Marginally stable</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Repeated pole on unit circle</td>
+                                                        <td class="t-red">Unstable ✗</td>
+                                                        <td class="t-red">Unstable ✗</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <!-- SVG: Stability regions in z-plane -->
+                                        <div class="svg-wrap svg-simple">
+                                            <img src="images/ch10/fig10.4.png" alt="Stability regions in z-plane" />
+                                            <div class="svg-cap">Fig 10.4 — Stability regions in the z-plane. Green
+                                                interior
+                                                (|z|&lt;1): stable poles. Red exterior (|z|&gt;1): unstable poles. Teal
+                                                unit
+                                                circle: marginally stable for simple poles only.</div>
+                                        </div>
+
+                                        <div class="callout c-danger">
+                                            <div class="ci">🚫</div>
+                                            <div class="cb">
+                                                <div class="ct">Common GATE Trap</div>
+                                                <p>For a <strong>non-causal</strong> system, a pole <em>outside</em> the
+                                                    unit circle does not necessarily mean instability — if the ROC is
+                                                    \(|z|&lt;|p|\) (left-sided), the unit circle could still be in the
+                                                    ROC.
+                                                    Always check whether the unit circle is inside the ROC, not just the
+                                                    pole positions.</p>
+                                            </div>
+                                        </div>
+                    </div><!-- /s9 -->
+
+                    <!-- ═══ SECTION 10 — GATE PYQ ═══ -->
+                    <div class="section" id="s10">
+                        <div class="sec-hdr">
+                            <span class="sec-num">10.10</span>
+                            <h2 class="sec-t">GATE &amp; IES Insights — Previous Year Questions</h2>
+                        </div>
+
+                        <div class="gate-card">
+                            <div class="gate-hdr">
+                                <span class="gate-tag">GATE INSIGHT</span>
+                                <span class="gate-title">ROC &amp; Causality — Most Tested Topic</span>
+                                <span class="prob prob-h">🟢 HIGH</span>
+                            </div>
+                            <div class="gate-body">
+                                <p>GATE consistently tests the relationship between ROC and signal type. A typical
+                                    question
+                                    gives \(X(z) = \tfrac{z}{(z-\frac{1}{2})(z-2)}\) and asks for the causal, stable, or
+                                    two-sided inverse. The algebraic expression is the same — only the ROC changes the
+                                    answer. Memorise: causal → exterior ROC; stable → unit circle inside ROC.</p>
+                            </div>
+                        </div>
+
+                        <!-- PYQ 1 -->
+                        <div class="pyq-card">
+                            <div class="pyq-hdr">
+                                <span class="pyq-tag pyq-gate">GATE EC</span>
+                                <span class="pyq-title">Inverse Z-transform with ROC choice</span>
+                                <span class="pyq-year">GATE EC 2014</span>
+                            </div>
+                            <div class="pyq-body">
+                                <p>The Z-transform of a sequence \(x[n]\) is \(X(z) = \dfrac{1}{1 -
+                                    \frac{1}{4}z^{-1}}\). If
+                                    \(x[n]\) is a causal sequence, then \(x[1] =\)</p>
+                                <ul class="pyq-opts">
+                                    <li>(A) &nbsp; \(0\)</li>
+                                    <li class="correct">(B) &nbsp; \(\dfrac{1}{4}\) ✓</li>
+                                    <li>(C) &nbsp; \(\dfrac{1}{16}\)</li>
+                                    <li>(D) &nbsp; \(1\)</li>
+                                </ul>
+                                <p><strong>Solution:</strong> For causal sequence, ROC: \(|z| > 1/4\). \(X(z) =
+                                    \tfrac{z}{z
+                                    - 1/4} = \tfrac{1}{1-(1/4)z^{-1}}\). Using pair 4: \(x[n] = (1/4)^n u[n]\). So
+                                    \(x[1] =
+                                    1/4\). Alternatively use initial value theorem: \(x[0] = \lim_{z\to\infty} X(z) =
+                                    1\),
+                                    then power series: \(X(z) = 1 + \tfrac{1}{4}z^{-1} + \cdots\) gives \(x[1] = 1/4\).
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- PYQ 2 -->
+                        <div class="pyq-card">
+                            <div class="pyq-hdr">
+                                <span class="pyq-tag pyq-gate">GATE EE</span>
+                                <span class="pyq-title">Stability via poles in z-plane</span>
+                                <span class="pyq-year">GATE EE 2016</span>
+                            </div>
+                            <div class="pyq-body">
+                                <p>A causal LTI system has the transfer function \(H(z) = \dfrac{z}{z^2 - 0.5z +
+                                    0.0625}\).
+                                    The system is:</p>
+                                <ul class="pyq-opts">
+                                    <li>(A) Stable and causal</li>
+                                    <li class="correct">(B) Stable and causal ✓</li>
+                                    <li>(C) Unstable and causal</li>
+                                    <li>(D) Marginally stable</li>
+                                </ul>
+                                <p><strong>Solution:</strong> Denominator: \(z^2 - 0.5z + 0.0625 = (z-0.25)^2\). Poles
+                                    at
+                                    \(z = 0.25\) (repeated). Since \(|0.25| = 0.25 < 1\), both poles are inside the unit
+                                        circle. Causal system → ROC: \(|z|>0.25\). Unit circle is inside ROC. Therefore:
+                                        <strong>stable and causal</strong>.</p>
+                            </div>
+                        </div>
+
+                        <!-- PYQ 3 IES -->
+                        <div class="pyq-card ies-card">
+                            <div class="pyq-hdr ies-hdr">
+                                <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                                <span class="pyq-title pyq-title-ies">Final Value Theorem Application</span>
+                                <span class="pyq-year">IES 2018</span>
+                            </div>
+                            <div class="pyq-body">
+                                <p>A discrete-time system has \(Y(z) = \dfrac{z}{(z-1)(z-0.5)}\). The steady-state
+                                    output
+                                    \(y[\infty]\) is:</p>
+                                <ul class="pyq-opts">
+                                    <li>(A) 0</li>
+                                    <li class="correct">(B) 2 ✓</li>
+                                    <li>(C) 1</li>
+                                    <li>(D) Does not exist</li>
+                                </ul>
+                                <p><strong>Solution:</strong> Apply final value theorem: \(y[\infty] =
+                                    \lim_{z\to1}(z-1)Y(z)
+                                    = \lim_{z\to1} \tfrac{z}{z-0.5} = \tfrac{1}{0.5} = 2\). Condition check: \((z-1)Y(z)
+                                    =
+                                    \tfrac{z}{z-0.5}\) has a pole at \(z=0.5\) which is inside the unit circle ✓. FVT is
+                                    valid.</p>
+                            </div>
+                        </div>
+
+                        <!-- PYQ 4 -->
+                        <div class="pyq-card">
+                            <div class="pyq-hdr">
+                                <span class="pyq-tag pyq-gate">GATE EC</span>
+                                <span class="pyq-title">Differentiation Property</span>
+                                <span class="pyq-year">GATE EC 2019</span>
+                            </div>
+                            <div class="pyq-body">
+                                <p>If \(\mathcal{Z}\{x[n]\} = X(z)\) with ROC \(R\), then \(\mathcal{Z}\{n\cdot x[n]\)\)
+                                    equals:</p>
+                                <ul class="pyq-opts">
+                                    <li class="correct">(A) &nbsp; \(-z\,\dfrac{dX(z)}{dz}\) ✓</li>
+                                    <li>(B) &nbsp; \(z\,\dfrac{dX(z)}{dz}\)</li>
+                                    <li>(C) &nbsp; \(-\dfrac{1}{z}\dfrac{dX(z)}{dz}\)</li>
+                                    <li>(D) &nbsp; \(\dfrac{dX(z)}{dz}\)</li>
+                                </ul>
+                                <p><strong>Solution:</strong> Differentiate \(X(z) = \sum x[n]z^{-n}\) with respect to
+                                    \(z\): \(\tfrac{dX}{dz} = \sum x[n](-n)z^{-n-1} = -\tfrac{1}{z}\sum n\,x[n]z^{-n}\).
+                                    Multiply both sides by \(-z\): \(-z\tfrac{dX}{dz} = \sum n\,x[n]z^{-n} =
+                                    \mathcal{Z}\{n\cdot x[n]\}\). Answer: <strong>(A)</strong>.</p>
+                            </div>
+                        </div>
+                    </div><!-- /s10 -->
+
+                    <!-- ═══ SECTION 11 — SOLVED NUMERICALS ═══ -->
+                    <div class="section" id="s11">
+                        <div class="sec-hdr">
+                            <span class="sec-num">10.11</span>
+                            <h2 class="sec-t">Solved Numerical Examples</h2>
+                        </div>
+
+                        <!-- Example 1 -->
+                        <div class="example">
+                            <div class="ex-hdr">
+                                <span class="ex-num">EXAMPLE 10.1</span>
+                                <span class="ex-title">Inverse Z-Transform by Partial Fractions — GATE Level</span>
+                            </div>
+                            <div class="ex-body">
+                                <div class="ex-q">Find \(x[n]\) if \(X(z) = \dfrac{z^2}{(z-1)(z-2)}\) with ROC: \(1 <
+                                        |z| < 2\).</div>
+                                        <div class="sol-lbl">Solution</div>
+                                        <p><strong>Step 1: Divide by z</strong></p>
+                                        <div class="math-block">$$\frac{X(z)}{z} = \frac{z}{(z-1)(z-2)} = \frac{A}{z-1}
+                                            +
+                                            \frac{B}{z-2}$$</div>
+                                        <p><strong>Step 2: Find residues</strong></p>
+                                        <div class="math-block">$$A = \frac{z}{z-2}\bigg|_{z=1} = \frac{1}{1-2} = -1
+                                            \qquad
+                                            B = \frac{z}{z-1}\bigg|_{z=2} = \frac{2}{2-1} = 2$$</div>
+                                        <p><strong>Step 3: Multiply by z</strong></p>
+                                        <div class="math-block">$$X(z) = \frac{-z}{z-1} + \frac{2z}{z-2}$$</div>
+                                        <p><strong>Step 4: Apply ROC \(1 &lt; |z| &lt; 2\)</strong></p>
+                                        <p>This is a two-sided ROC (annular ring). The pole at \(z=1\) is inside the ROC
+                                            boundary, so the corresponding term \(\tfrac{-z}{z-1}\) corresponds to a
+                                            <em>right-sided (causal)</em> component. The pole at \(z=2\) is outside the
+                                            ROC,
+                                            so \(\tfrac{2z}{z-2}\) corresponds to a <em>left-sided (anti-causal)</em>
+                                            component.
+                                        </p>
+                                        <div class="math-block">$$\frac{-z}{z-1}, \; |z|>1 \;\longrightarrow\; -1^n u[n]
+                                            =
+                                            -u[n]$$</div>
+                                        <div class="math-block">$$\frac{2z}{z-2}, \; |z|<2 \;\longrightarrow\; -2 \cdot
+                                                2^n u[-n-1]$$</div>
+                                                <p><strong>Final Answer:</strong></p>
+                                                <div class="math-block">$$\boxed{x[n] = -u[n] - 2^{n+1}\,u[-n-1]}$$
+                                                </div>
+                                                <p>This is a two-sided (non-causal) signal. Note that the same \(X(z)\)
+                                                    with
+                                                    ROC \(|z|&gt;2\) would give a completely different causal signal!
+                                                </p>
+                                        </div>
+                                </div>
+
+                                <!-- Example 2 -->
+                                <div class="example">
+                                    <div class="ex-hdr">
+                                        <span class="ex-num">EXAMPLE 10.2</span>
+                                        <span class="ex-title">Power Series Method — First 3 Samples</span>
+                                    </div>
+                                    <div class="ex-body">
+                                        <div class="ex-q">Find the first three samples of \(x[n]\) for \(X(z) =
+                                            \dfrac{1+2z^{-1}}{1-\frac{1}{2}z^{-1}}\), causal sequence.</div>
+                                        <div class="sol-lbl">Solution — Long Division</div>
+                                        <p>Divide \((1+2z^{-1})\) by \((1-\tfrac{1}{2}z^{-1})\):</p>
+                                        <div class="fblock"><span class="flbl">Long Division</span>
+                                            <div style="margin-top: 10px; width: 100%;">
+                                                <div style="margin-bottom: 8px;">\( 1 + 2z^{-1} \div (1 -
+                                                    \frac{1}{2}z^{-1}) \)</div>
+                                                <div style="margin-bottom: 8px;">Step 1: \( 1 \times (1 -
+                                                    \frac{1}{2}z^{-1}) = 1 - \frac{1}{2}z^{-1} \)<br>
+                                                    Remainder: \( (1+2z^{-1}) - (1-\frac{1}{2}z^{-1}) = \frac{5}{2}
+                                                    z^{-1} \)
+                                                </div>
+                                                <div style="margin-bottom: 8px;">Step 2: \( \frac{5}{2}z^{-1} \times
+                                                    \frac{1}{1-\frac{1}{2}z^{-1}} \): next quotient term = \(
+                                                    \frac{5}{2}z^{-1} \)<br>
+                                                    \( \frac{5}{2}z^{-1} \times (1-\frac{1}{2}z^{-1}) =
+                                                    \frac{5}{2}z^{-1} - \frac{5}{4}z^{-2} \)<br>
+                                                    Remainder: \( \frac{5}{4} z^{-2} \)
+                                                </div>
+                                                <div style="margin-bottom: 8px;">Step 3: quotient term = \(
+                                                    \frac{5}{4}z^{-2} \)</div>
+                                                <div>\( \therefore X(z) = 1 + \frac{5}{2}z^{-1} + \frac{5}{4}z^{-2} +
+                                                    \dots \)</div>
+                                            </div>
+                                        </div>
+                                        <p>Reading off coefficients:</p>
+                                        <div class="math-block">$$x[0]=1, \quad x[1]=\frac{5}{2}, \quad
+                                            x[2]=\frac{5}{4}$$
+                                        </div>
+                                        <p><strong>Verify using closed form:</strong> \(X(z) =
+                                            \tfrac{1+2z^{-1}}{1-\frac{1}{2}z^{-1}}\). Using unilateral Z-transform
+                                            properties one can show \(x[n] = (1/2)^n u[n] + 2\cdot(1/2)^{n-1}u[n-1]\).
+                                            At
+                                            \(n=0\): \(x[0]=1\). At \(n=1\): \(x[1] = 1/2 + 2 = 5/2\). ✓</p>
+                                    </div>
+                                </div>
+
+                                <!-- Example 3 -->
+                                <div class="example">
+                                    <div class="ex-hdr">
+                                        <span class="ex-num">EXAMPLE 10.3</span>
+                                        <span class="ex-title">Solving a Difference Equation — Unilateral
+                                            Z-Transform</span>
+                                    </div>
+                                    <div class="ex-body">
+                                        <div class="ex-q">Solve \(y[n] - \tfrac{1}{2}y[n-1] = u[n]\) with initial
+                                            condition
+                                            \(y[-1]=2\).</div>
+                                        <div class="sol-lbl">Solution</div>
+                                        <p><strong>Step 1: Take unilateral Z-transform of both sides</strong></p>
+                                        <div class="math-block">$$Y(z) - \frac{1}{2}\left[z^{-1}Y(z) + y[-1]\right] =
+                                            \frac{z}{z-1}$$</div>
+                                        <p><strong>Step 2: Substitute \(y[-1]=2\)</strong></p>
+                                        <div class="math-block">$$Y(z) - \frac{1}{2}z^{-1}Y(z) - 1 = \frac{z}{z-1}$$
+                                        </div>
+                                        <div class="math-block">$$Y(z)\left(1 - \frac{1}{2}z^{-1}\right) = \frac{z}{z-1}
+                                            + 1
+                                            = \frac{z}{z-1} + \frac{z-1}{z-1} = \frac{2z-1}{z-1}$$</div>
+                                        <p><strong>Step 3: Solve for Y(z)</strong></p>
+                                        <div class="math-block">$$Y(z) = \frac{(2z-1)}{(z-1)} \cdot
+                                            \frac{z}{z-\frac{1}{2}}
+                                            = \frac{z(2z-1)}{(z-1)(z-\frac{1}{2})}$$</div>
+                                        <p><strong>Step 4: Partial fractions</strong> → \(Y(z)/z = \dfrac{A}{z-1} +
+                                            \dfrac{B}{z-1/2}\)</p>
+                                        <div class="math-block">$$A = \frac{2z-1}{z-1/2}\bigg|_{z=1} = \frac{1}{1/2} =
+                                            2,
+                                            \quad B = \frac{2z-1}{z-1}\bigg|_{z=1/2} = \frac{0}{-1/2} = 0$$</div>
+                                        <div class="math-block">$$Y(z) = \frac{2z}{z-1} + \frac{0 \cdot z}{z-1/2}$$
+                                        </div>
+                                        <p><strong>Final Answer:</strong></p>
+                                        <div class="math-block">$$\boxed{y[n] = 2\,u[n]}$$</div>
+                                        <p>The initial condition's effect and the forced response combine to give a
+                                            clean
+                                            step response of amplitude 2.</p>
+                                    </div>
+                                </div>
+                            </div><!-- /s11 -->
+
+                            <!-- ═══ SECTION 12 — COMMON MISTAKES ═══ -->
+                            <div class="section" id="s12">
+                                <div class="sec-hdr">
+                                    <span class="sec-num">10.12</span>
+                                    <h2 class="sec-t">Common Student Mistakes &amp; GATE Traps</h2>
+                                </div>
+
+                                <div class="callout c-danger">
+                                    <div class="ci">❌</div>
+                                    <div class="cb">
+                                        <div class="ct">Mistake 1 — Ignoring the ROC</div>
+                                        <p>Writing \(\mathcal{Z}\{a^n u[n]\} = \tfrac{z}{z-a}\) without specifying ROC:
+                                            \(|z|&gt;|a|\). The same \(X(z)\) with ROC \(|z|&lt;|a|\) gives \(-a^n
+                                            u[-n-1]\). In GATE, not specifying ROC can mean choosing the wrong inverse.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="callout c-danger">
+                                    <div class="ci">❌</div>
+                                    <div class="cb">
+                                        <div class="ct">Mistake 2 — Forgetting to divide by z in PFE</div>
+                                        <p>Students often do partial fractions on \(X(z)\) directly instead of
+                                            \(X(z)/z\).
+                                            This leads to incorrect residues because the standard pairs are of the form
+                                            \(z/(z-a)\), not \(1/(z-a)\). Always compute PFE of \(X(z)/z\) first, then
+                                            multiply through by \(z\).</p>
+                                    </div>
+                                </div>
+
+                                <div class="callout c-danger">
+                                    <div class="ci">❌</div>
+                                    <div class="cb">
+                                        <div class="ct">Mistake 3 — Applying FVT When Poles Exist on Unit Circle</div>
+                                        <p>The Final Value Theorem requires ALL poles of \((z-1)X(z)\) to be strictly
+                                            inside
+                                            the unit circle. If \(X(z)\) has poles at \(z=1\) (other than the one
+                                            cancelled
+                                            by \((z-1)\)), FVT is invalid. Applying it anyway gives a wrong numerical
+                                            answer
+                                            — a classic GATE 1-mark trap.</p>
+                                    </div>
+                                </div>
+
+                                <div class="callout c-danger">
+                                    <div class="ci">❌</div>
+                                    <div class="cb">
+                                        <div class="ct">Mistake 4 — Confusing n·u[n] and n·aⁿu[n] pairs</div>
+                                        <p>\(\mathcal{Z}\{n\,u[n]\} = \tfrac{z}{(z-1)^2}\) but \(\mathcal{Z}\{n\,a^n
+                                            u[n]\}
+                                            = \tfrac{az}{(z-a)^2}\) (not \(\tfrac{z}{(z-a)^2}\)). The extra factor of
+                                            \(a\)
+                                            in the numerator is commonly missed, leading to incorrect partial fraction
+                                            results.</p>
+                                    </div>
+                                </div>
+
+                                <div class="callout c-warn">
+                                    <div class="ci">⚠️</div>
+                                    <div class="cb">
+                                        <div class="ct">Mistake 5 — Stability for Non-Causal Systems</div>
+                                        <p>For a non-causal system, a pole outside the unit circle does NOT
+                                            automatically
+                                            mean instability. If the ROC is the interior region \(|z|&lt;|p|\) and the
+                                            unit
+                                            circle lies inside this ROC, the system is stable. Always map the ROC first,
+                                            then check if the unit circle lies within it.</p>
+                                    </div>
+                                </div>
+                            </div><!-- /s12 -->
+
+                            <!-- ═══ SECTION 13 — MEMORY TRICKS ═══ -->
+                            <div class="section" id="s13">
+                                <div class="sec-hdr">
+                                    <span class="sec-num">10.13</span>
+                                    <h2 class="sec-t">Memory Techniques &amp; Mnemonics</h2>
+                                </div>
+
+                                <div class="callout c-tip">
+                                    <div class="ci">🧠</div>
+                                    <div class="cb">
+                                        <div class="ct">Mnemonic 1 — "CORE" for ROC Rules</div>
+                                        <p><strong>C</strong>ausal → exterior circle. <strong>O</strong>verall
+                                            convergence =
+                                            no poles inside. <strong>R</strong>ight-sided → outside disk.
+                                            <strong>E</strong>ntire plane → finite-duration. Say it: <em>"CORE of the
+                                                z-plane"</em>.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="callout c-tip">
+                                    <div class="ci">🧠</div>
+                                    <div class="cb">
+                                        <div class="ct">Mnemonic 2 — "PFE = Partial Fractions via z/z"</div>
+                                        <p>In partial fractions, always divide X(z) by z first. Visualise: you are
+                                            "lending
+                                            a z" to the denominator so it matches the standard table pair z/(z−a). After
+                                            finding residues A, B,…, give back the z: multiply both sides by z again.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="callout c-tip">
+                                    <div class="ci">🧠</div>
+                                    <div class="cb">
+                                        <div class="ct">Mnemonic 3 — "Inside = Stable" (for Causal Systems)</div>
+                                        <p>For <strong>causal</strong> systems, think of the unit circle as a "city
+                                            wall".
+                                            Poles <em>inside the wall</em> are stable citizens. Poles <em>outside the
+                                                wall</em> are rebels — unstable! This works perfectly for causal
+                                            discrete-time control systems.</p>
+                                    </div>
+                                </div>
+
+                                <div class="callout c-tip">
+                                    <div class="ci">🧠</div>
+                                    <div class="cb">
+                                        <div class="ct">Mnemonic 4 — "Bilateral Ambiguity": Same Face, Different Story
+                                        </div>
+                                        <p>Imagine two people with the same face (same \(X(z)\)) but living in different
+                                            cities (different ROC). \(a^n u[n]\) lives <em>outside</em> \(|z|=|a|\).
+                                            \(-a^n
+                                            u[-n-1]\) lives <em>inside</em> \(|z|=|a|\). The address (ROC) is what makes
+                                            them different people.</p>
+                                    </div>
+                                </div>
+                            </div><!-- /s13 -->
+
+                            <!-- ═══ SECTION 14 — QUICK REVISION ═══ -->
+                            <div class="section" id="s14">
+                                <div class="sec-hdr">
+                                    <span class="sec-num">10.14</span>
+                                    <h2 class="sec-t">Quick Revision Sheet</h2>
+                                </div>
+
+                                <!-- Ask Claude Widget -->
+                                <div class="ai-prompt">
+                                    <div class="ai-prompt-title">🤖 Ask Aarova AI — Z-Transform Tutor</div>
+                                    <p>Ask any question about Z-transforms, ROC, inverse methods, stability, or past
+                                        GATE
+                                        questions.</p>
+                                    <div class="ai-input-row">
+                                        <input class="ai-input" id="userQ" type="text"
+                                            placeholder="e.g. Explain the ROC for a two-sided signal…"
+                                            autocomplete="off" />
+                                        <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                                    </div>
+                                    <div class="ai-suggest">
+                                        <span class="ai-chip"
+                                            onclick="setQ('What is the difference between bilateral and unilateral Z-transform? When should I use each?')">Bilateral
+                                            vs Unilateral</span>
+                                        <span class="ai-chip"
+                                            onclick="setQ('For X(z) = z/((z-1)(z-0.5)), find x[n] for causal, anti-causal, and two-sided cases with all ROCs.')">ROC
+                                            ambiguity example</span>
+                                        <span class="ai-chip"
+                                            onclick="setQ('Derive the Z-transform of n·a^n·u[n] using the differentiation property step by step.')">Derive
+                                            n·aⁿu[n]</span>
+                                        <span class="ai-chip"
+                                            onclick="setQ('Explain geometric interpretation of frequency response from the pole-zero plot with an example.')">Geometric
+                                            frequency response</span>
+                                        <span class="ai-chip"
+                                            onclick="setQ('When does the final value theorem fail in Z-transform? Give a tricky GATE-style example.')">FVT
+                                            failure cases</span>
+                                    </div>
+                                    <div class="ai-response" id="aiResp"></div>
+                                </div>
+
+                                <h3 class="sub">Chapter Summary</h3>
+                                <div class="sum-grid">
+                                    <div class="sum-card sc-o">
+                                        <div class="sum-lbl">Core Formula</div>
+                                        <p>\(X(z)=\sum x[n]z^{-n}\). Inverse via PFE of \(X(z)/z\), then multiply by
+                                            \(z\).
+                                            Power series reads off samples directly.</p>
+                                    </div>
+                                    <div class="sum-card sc-t">
+                                        <div class="sum-lbl">ROC Rules</div>
+                                        <p>Annular ring, no poles inside. Right-sided → exterior. Left-sided → interior.
+                                            Finite duration → entire plane. Unit circle in ROC → DTFT exists.</p>
+                                    </div>
+                                    <div class="sum-card sc-g">
+                                        <div class="sum-lbl">Key Pairs</div>
+                                        <p>\(a^n u[n] \leftrightarrow \tfrac{z}{z-a}\) (\(|z|>|a|\)).
+                                            \(-a^nu[-n-1]\leftrightarrow\tfrac{z}{z-a}\) (\(|z|&lt;|a|\)).
+                                            \(nu[n]\leftrightarrow\tfrac{z}{(z-1)^2}\).</p>
+                                    </div>
+                                    <div class="sum-card sc-a">
+                                        <div class="sum-lbl">Stability (Causal)</div>
+                                        <p>All poles strictly inside unit circle (\(|p_k|&lt;1\)) → BIBO stable. Pole on
+                                            unit circle → marginal. Outside → unstable.</p>
+                                    </div>
+                                    <div class="sum-card sc-r">
+                                        <div class="sum-lbl">Initial &amp; Final Value</div>
+                                        <p>\(x[0]=\lim_{z\to\infty}X(z)\). \(x[\infty]=\lim_{z\to1}(z-1)X(z)\) — only if
+                                            poles of \((z-1)X(z)\) are inside unit circle.</p>
+                                    </div>
+                                    <div class="sum-card sc-g">
+                                        <div class="sum-lbl">Unilateral Use</div>
+                                        <p>Solve difference equations with initial conditions. Time shift:
+                                            \(\mathcal{Z}\{x[n-1]\}=z^{-1}X+x[-1]\). ROC always exterior.</p>
+                                    </div>
+                                </div>
+
+                                <div class="callout c-tip" style="margin-top:22px">
+                                    <div class="ci">➡️</div>
+                                    <div class="cb">
+                                        <div class="ct">Coming Next — Chapter 11</div>
+                                        <p>State-Space Representation — discrete and continuous-time state equations,
+                                            observability, controllability, transfer function from state space, and
+                                            GATE-focused analysis of MIMO systems and stability via eigenvalues.</p>
+                                    </div>
+                                </div>
+
+                                <!-- ═══ CITATIONS ═══ -->
+                                <div class="citations" id="citations">
+                                    <div class="cite-h">References &amp; Citations</div>
+                                    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical
+                                        content
+                                        derives from the following standard textbooks. All explanations, derivations,
+                                        diagrams, and worked examples are original to Aarova AI.</p>
+                                    <ul class="cite-list">
+                                        <li>
+                                            <span class="cite-num">[1]</span>
+                                            <span>Oppenheim, A.V. and Schafer, R.W. <em>Discrete-Time Signal
+                                                    Processing</em>, 3rd ed. Pearson Prentice Hall, 2010. Chapters 3
+                                                &amp; 4
+                                                — Z-transform, inverse Z-transform, system analysis, pole-zero
+                                                representation, ROC properties.</span>
+                                        </li>
+                                        <li>
+                                            <span class="cite-num">[2]</span>
+                                            <span>Proakis, J.G. and Manolakis, D.G. <em>Digital Signal Processing:
+                                                    Principles, Algorithms, and Applications</em>, 4th ed. Pearson,
+                                                2007.
+                                                Chapter 3 — The Z-transform and its application to LTI systems,
+                                                stability,
+                                                and causality.</span>
+                                        </li>
+                                        <li>
+                                            <span class="cite-num">[3]</span>
+                                            <span>Haykin, S. and Van Veen, B. <em>Signals and Systems</em>, 2nd ed.
+                                                Wiley,
+                                                2003. Chapter 9 — Unilateral Z-transform, difference equations with
+                                                initial
+                                                conditions, comparison with Laplace transform.</span>
+                                        </li>
+                                        <li>
+                                            <span class="cite-num">[4]</span>
+                                            <span>Lathi, B.P. and Ding, Z. <em>Modern Digital and Analog Communication
+                                                    Systems</em>, 4th ed. Oxford University Press, 2009. Application of
+                                                Z-transform in digital communications and filter design.</span>
+                                        </li>
+                                        <li>
+                                            <span class="cite-num">[5]</span>
+                                            <span>IIT Bombay NPTEL. <em>Signals and Systems — Lectures 30–38:
+                                                    Z-Transform</em>. National Programme on Technology Enhanced
+                                                Learning.
+                                                nptel.ac.in. ROC rules, inverse Z-transform, GATE solved
+                                                problems.</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <hr>
+                                <footer>
+                                    <strong>Aarova AI</strong> &nbsp;·&nbsp; Signals &amp; Systems Series &nbsp;·&nbsp;
+                                    Chapter 10 of 11<br>
+                                    <span style="font-size:12px;margin-top:5px;display:block;">GATE EC / EE / IN
+                                        &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                                    <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All
+                                        explanations and diagrams are original to Aarova AI. Derived from standard
+                                        textbooks
+                                        [1–5].</span>
+                                </footer>
+                            </div><!-- /s14 -->
+
+                        </div><!-- /page -->
+
+                        <script>
+                            function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+                            async function askClaude() {
+                                const q = document.getElementById('userQ').value.trim(); if (!q) return;
+                                const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+                                btn.textContent = 'Thinking…'; btn.disabled = true;
+                                resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+                                const sys = `You are Aarova AI, an expert GATE EC/EE/IN and IES tutor specialising in Signals & Systems. Topic: Z-Transform (Chapter 10) — bilateral and unilateral Z-transform, ROC, inverse Z-transform by partial fractions and power series, pole-zero plots, stability, causality, initial and final value theorems. Answer with step-by-step working for numericals. Base answers on Oppenheim & Schafer, Proakis & Manolakis. All explanations are original.`;
+                                try {
+                                    const res = await fetch('https://api.anthropic.com/v1/messages', {
+                                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] })
+                                    });
+                                    const data = await res.json();
+                                    resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+                                } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+                                btn.textContent = 'Ask Claude'; btn.disabled = false;
+                            }
+                            document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+                            /* Responsive SVG scroll hints on mobile */
+                            (function () {
+                                if (window.innerWidth > 600) return;
+                                document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                                    const hint = document.createElement('div');
+                                    hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                                    hint.textContent = '← scroll to see full diagram →';
+                                    wrap.appendChild(hint);
+                                    wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+                                });
+                            })();
+                        </script>
+</body>
+
+</html>

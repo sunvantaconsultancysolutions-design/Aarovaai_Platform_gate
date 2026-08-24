@@ -129,6 +129,77 @@ const AarovaData = {
         { num: 5, title: "Chapter 5", description: "Commutation Circuits", file: "powerelectronics/powerelec96-101.html", available: true },
         { num: 6, title: "Chapter 6", description: "Fundamentals of Drives", file: "powerelectronics/powerelec102-110.html", available: true }
       ]
+    },
+    {
+      id: "analog_and_digital",
+      title: "Analog and Digital Electronics",
+      icon: "💻",
+      description: "Comprehensive study of analog circuits, op-amps, and digital logic design.",
+      exam_tags: ["GATE EE", "GATE EC", "IES"],
+      accent: "teal",
+      available: true,
+      total_chapters: 12,
+      chapters: [
+        { num: 1, title: "Chapter 1", description: "Semiconductor Diodes & Applications", file: "analog_and_digital/chapter1.html", available: true },
+        { num: 2, title: "Chapter 2", description: "Transistor Biasing & Small Signal Models", file: "analog_and_digital/chapter2.html", available: true },
+        { num: 3, title: "Chapter 3", description: "Single Stage Amplifiers", file: "analog_and_digital/chapter3.html", available: true },
+        { num: 4, title: "Chapter 4", description: "Feedback Amplifiers", file: "analog_and_digital/chapter4.html", available: true },
+        { num: 5, title: "Chapter 5", description: "Oscillators", file: "analog_and_digital/chapter5.html", available: true },
+        { num: 6, title: "Chapter 6", description: "Operational Amplifiers", file: "analog_and_digital/chapter6.html", available: true },
+        { num: 7, title: "Chapter 7", description: "Op-Amp Applications", file: "analog_and_digital/chapter7.html", available: true },
+        { num: 8, title: "Chapter 8", description: "Active Filters & Waveform Generators", file: "analog_and_digital/chapter8.html", available: true },
+        { num: 9, title: "Chapter 9", description: "Combinational Logic Circuits", file: "analog_and_digital/chapter9.html", available: true },
+        { num: 10, title: "Chapter 10", description: "Sequential Logic Circuits", file: "analog_and_digital/chapter10.html", available: true },
+        { num: 11, title: "Chapter 11", description: "Schmitt Trigger & Multivibrators", file: "analog_and_digital/chapter11.html", available: true },
+        { num: 12, title: "Chapter 12", description: "Data Converters (ADC & DAC)", file: "analog_and_digital/chapter12.html", available: true }
+      ]
+    },
+    {
+      id: "signalsandsystems",
+      title: "Signals and Systems",
+      icon: "📡",
+      description: "Continuous and discrete-time signals, LTI systems, and Fourier analysis.",
+      exam_tags: ["GATE EE", "GATE EC", "IES"],
+      accent: "green",
+      available: true,
+      total_chapters: 12,
+      chapters: [
+        { num: 1, title: "Chapter 1", description: "Fundamentals", file: "signalsandsystems/chapter1.html", available: true },
+        { num: 2, title: "Chapter 2", description: "Continuous-Time LTI Systems", file: "signalsandsystems/chapter2.html", available: true },
+        { num: 3, title: "Chapter 3", description: "Fourier Series", file: "signalsandsystems/chapter3.html", available: true },
+        { num: 4, title: "Chapter 4", description: "Continuous-Time Fourier Transform", file: "signalsandsystems/chapter4.html", available: true },
+        { num: 5, title: "Chapter 5", description: "Sampling Theorem & Reconstruction", file: "signalsandsystems/chapter5.html", available: true },
+        { num: 6, title: "Chapter 6", description: "Laplace Transform", file: "signalsandsystems/chapter6.html", available: true },
+        { num: 7, title: "Chapter 7", description: "Discrete-Time Signals & Systems", file: "signalsandsystems/chapter7.html", available: true },
+        { num: 8, title: "Chapter 8", description: "Discrete-Time Fourier Transform", file: "signalsandsystems/chapter8.html", available: true },
+        { num: 9, title: "Chapter 9", description: "Discrete Fourier Transform (DFT) & FFT", file: "signalsandsystems/chapter9.html", available: true },
+        { num: 10, title: "Chapter 10", description: "Z-Transform", file: "signalsandsystems/chapter10.html", available: true },
+        { num: 11, title: "Chapter 11", description: "Frequency Response of LTI Systems", file: "signalsandsystems/chapter11.html", available: true },
+        { num: 12, title: "Chapter 12", description: "Discrete-Time Processing of CT Signals", file: "signalsandsystems/chapter12.html", available: true }
+      ]
+    },
+    {
+      id: "SemiConductors",
+      title: "Semiconductors",
+      icon: "🧩",
+      description: "Energy bands, carrier transport, p-n junctions, and transistors.",
+      exam_tags: ["GATE EC", "IES"],
+      accent: "orange",
+      available: true,
+      total_chapters: 11,
+      chapters: [
+        { num: 1, title: "Chapter 1", description: "Fundamentals", file: "SemiConductors/chapter1.html", available: true },
+        { num: 2, title: "Chapter 2", description: "Intrinsic & Extrinsic Semiconductors", file: "SemiConductors/chapter2.html", available: true },
+        { num: 3, title: "Chapter 3", description: "Direct & Indirect Band Gap Semiconductors", file: "SemiConductors/chapter3.html", available: true },
+        { num: 4, title: "Chapter 4", description: "Carrier Drift & Diffusion", file: "SemiConductors/chapter4.html", available: true },
+        { num: 5, title: "Chapter 5", description: "Carrier Generation & Recombination", file: "SemiConductors/chapter5.html", available: true },
+        { num: 6, title: "Chapter 6", description: "P-N Junction Diode", file: "SemiConductors/chapter6.html", available: true },
+        { num: 7, title: "Chapter 7", description: "Special Diodes: Zener Diode", file: "SemiConductors/chapter7.html", available: true },
+        { num: 8, title: "Chapter 8", description: "Bipolar Junction Transistor (BJT)", file: "SemiConductors/chapter8.html", available: true },
+        { num: 9, title: "Chapter 9", description: "MOS Capacitor Fundamentals", file: "SemiConductors/chapter9.html", available: true },
+        { num: 10, title: "Chapter 10", description: "MOS Capacitor Fundamentals", file: "SemiConductors/chapter10.html", available: true },
+        { num: 11, title: "Chapter 11", description: "LED, Photodiode & Solar Cell", file: "SemiConductors/chapter11.html", available: true }
+      ]
     }
   ]
 };

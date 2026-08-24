@@ -1,0 +1,2675 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Analog Circuits Ch.9 Operational Amplifiers</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* PROGRESS */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 56%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px
+        }
+
+        /* CALLOUTS */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* FORMULA */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: normal
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* MATH */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* SVG */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* EXAMPLES */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px)
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px
+        }
+
+        /* GATE/PYQ */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* TWO COL */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 18px;
+            border-bottom: 1px solid var(--bg3);
+            position: relative;
+            line-height: 1.5
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .mc-list li .dot {
+            color: var(--muted);
+            position: absolute;
+            left: 0;
+            top: 6px
+        }
+
+        /* SUMMARY */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* PROBABILITY */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* AI WIDGET */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12)
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none
+        }
+
+        .ai-btn:hover {
+            background: #155250
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg)
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto
+        }
+
+        /* MISC */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border)
+        }
+
+        footer strong {
+            color: var(--orange)
+        }
+
+        /* TABLET */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .svg-wrap {
+                padding: 12px 10px
+            }
+
+            .svg-wrap svg {
+                min-width: 480px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px
+            }
+
+            .fblock {
+                white-space: normal;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px
+            }
+
+            .pyq-year {
+                margin-left: 0
+            }
+        }
+
+        /* MOBILE */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .hbadges {
+                display: none
+            }
+
+            .site-header {
+                padding: 10px 14px
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px)
+            }
+
+            .hero-desc {
+                font-size: 14px
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px
+            }
+
+            .pl {
+                font-size: 11px
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0
+            }
+
+            .toc {
+                padding: 14px 16px
+            }
+
+            .sec-hdr {
+                gap: 9px
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px)
+            }
+
+            .h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px)
+            }
+
+            p {
+                font-size: 15px
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%
+            }
+
+            .svg-cap {
+                font-size: 11px
+            }
+
+            .fblock {
+                white-space: normal;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px;
+                border-radius: 8px
+            }
+
+            .tw {
+                border-radius: 8px
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px
+            }
+
+            .mini-card {
+                padding: 13px 14px
+            }
+
+            .sum-card {
+                padding: 14px 16px
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px
+            }
+
+            .ci {
+                font-size: 16px
+            }
+
+            .cb p {
+                font-size: 13.5px
+            }
+
+            .ex-hdr {
+                padding: 8px 13px
+            }
+
+            .ex-body {
+                padding: 12px 13px
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px
+            }
+
+            .pyq-year {
+                display: none
+            }
+
+            .ai-prompt {
+                padding: 14px
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-input {
+                font-size: 15px
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px
+            }
+
+            .ai-chip {
+                font-size: 11px
+            }
+
+            .ai-suggest {
+                gap: 5px
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px
+            }
+
+            .citations {
+                padding: 14px
+            }
+
+            .math-block {
+                padding: 10px 12px
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px
+            }
+        }
+
+        /* LARGE DESKTOP */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow)
+            }
+
+            .ai-btn:hover {
+                background: var(--teal)
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none
+            }
+
+            .svg-wrap {
+                break-inside: avoid
+            }
+
+            body {
+                font-size: 12pt
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Analog Circuits Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 9.6 &nbsp;·&nbsp; Analog Circuits</div>
+            <h1 class="hero-title">Operational <em>Amplifiers</em></h1>
+            <p class="hero-desc">Ideal and practical op-amp characteristics, \(CMRR\), \(PSRR\), slew rate, offset voltage,
+                inverting and non-inverting amplifier configurations, voltage follower — comprehensive GATE, IES, and
+                PSU exam coverage with full derivations, SVG diagrams, and solved examples.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE ⭐⭐⭐⭐⭐</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">ECE / EE Analog</span>
+            </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-bar">
+            <span class="pl">Chapter Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">9.6 / 10</span>
+        </div>
+
+        <!-- TOC -->
+        <div class="toc">
+            <div class="toc-h">Contents — Chapter 9.6</div>
+            <div class="toc-grid">
+                <a class="toc-item" href="#s1"><span class="toc-n">9.6.1</span>Why Op-Amps Exist</a>
+                <a class="toc-item" href="#s2"><span class="toc-n">9.6.2</span>Ideal Op-Amp</a>
+                <a class="toc-item" href="#s3"><span class="toc-n">9.6.3</span>Practical Parameters</a>
+                <a class="toc-item" href="#s4"><span class="toc-n">9.6.4</span>Op-Amp Configurations</a>
+                <a class="toc-item" href="#s5"><span class="toc-n">9.6.5</span>Inverting Amplifier</a>
+                <a class="toc-item" href="#s6"><span class="toc-n">9.6.6</span>Non-Inverting Amplifier</a>
+                <a class="toc-item" href="#s7"><span class="toc-n">9.6.7</span>Voltage Follower</a>
+                <a class="toc-item" href="#s8"><span class="toc-n">9.6.8</span>GATE PYQs</a>
+                <a class="toc-item" href="#s9"><span class="toc-n">9.6.9</span>Numericals</a>
+                <a class="toc-item" href="#s10"><span class="toc-n">9.6.10</span>Revision Sheet</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: WHY OP-AMPS EXIST ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">9.6.1</span>
+                <h2 class="sec-t">Why Operational Amplifiers Exist</h2>
+            </div>
+
+            <p>Before the op-amp existed, engineers had to build amplifiers, adders, integrators, and differentiators
+                from discrete transistors — a slow, expensive, and temperature-sensitive process. The
+                <strong>Operational Amplifier</strong> (op-amp) was born in the 1940s in analog computers to perform
+                mathematical <em>operations</em>: addition, subtraction, integration, and differentiation on voltages.
+                That is where the name "operational" comes from.<sup class="cite">[1]</sup>
+            </p>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Professor's Insight</div>
+                    <p>Think of the op-amp as a <strong>voltage-controlled voltage amplifier</strong> with two inputs
+                        and one output. Its magic is that when you add external resistors and capacitors, you can make
+                        it do almost any linear signal processing task. The op-amp itself is just a very high-gain
+                        differential amplifier packaged into a tiny chip (e.g., the ubiquitous μA741).</p>
+                </div>
+            </div>
+
+            <!-- Block diagram of op-amp symbol -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.1.png" alt="Figure 6.1">
+                <div class="svg-cap">Fig 9.6.1 — Standard op-amp triangle symbol. Output = \(A_{OL}(V_+ - V_-)\). For
+                    an ideal op-amp, open-loop gain \(A_{OL} \to \infty\), so \(V_+ \approx V_-\) in any stable feedback circuit.</div>
+            </div>
+
+            <h3 class="sub">Real-World Applications</h3>
+            <div class="two-col">
+                <div class="min\(i_-\)card mc-grn">
+                    <div class="mc-t">Industrial &amp; Power</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Error amplifier in SMPS voltage regulators</li>
+                        <li><span class="dot">▸</span>Current sensing in motor drives (shunt amplifier)</li>
+                        <li><span class="dot">▸</span>Active filters in power quality meters</li>
+                        <li><span class="dot">▸</span>PID controller analog implementation in PLCs</li>
+                    </ul>
+                </div>
+                <div class="min\(i_-\)card mc-tel">
+                    <div class="mc-t">Instrumentation &amp; Sensing</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Thermocouple signal conditioning (instrumentation amp)</li>
+                        <li><span class="dot">▸</span>ECG / EEG bio-signal amplification</li>
+                        <li><span class="dot">▸</span>Strain gauge bridge amplifier</li>
+                        <li><span class="dot">▸</span>ADC input buffer (voltage follower)</li>
+                    </ul>
+                </div>
+                <div class="min\(i_-\)card mc-org">
+                    <div class="mc-t">Communication &amp; Audio</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Active band-pass filters in audio equalizers</li>
+                        <li><span class="dot">▸</span>Phase-locked loop (PLL) error amplifier</li>
+                        <li><span class="dot">▸</span>Summing amplifier in audio mixing consoles</li>
+                        <li><span class="dot">▸</span>Comparator in zero-crossing detector circuits</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Smart Grid &amp; EVs</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Battery cell voltage monitoring ICs (op-amp array)</li>
+                        <li><span class="dot">▸</span>Current loop (4–20 mA) transmitters in SCADA</li>
+                        <li><span class="dot">▸</span>Solar MPPT analog error amplifier</li>
+                        <li><span class="dot">▸</span>Grid frequency detection using integrator circuit</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: IDEAL OP-AMP ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">9.6.2</span>
+                <h2 class="sec-t">Ideal Op-Amp Characteristics</h2>
+            </div>
+
+            <p>The <strong>ideal op-amp</strong> is a mathematical model used for simplified circuit analysis. It
+                defines four key properties that real op-amps approximate but never perfectly achieve. Understanding the
+                ideal model first makes it easy to identify where and why real op-amps deviate.<sup
+                    class="cite">[1][2]</sup></p>
+
+            <div class="callout c-key">
+                <div class="ci">🎯</div>
+                <div class="cb">
+                    <div class="ct">Golden Rules of the Ideal Op-Amp (Sedra &amp; Smith)</div>
+                    <p><strong>Rule 1 — Virtual Short:</strong> \(V_+ = V_-\) (the two input terminals are at the same
+                        potential). <strong>Rule 2 — No Input Current:</strong> \(i_+ = i_- = 0\) (infinite input resistance
+                        means no current enters either terminal). These two rules are sufficient to analyse any op-amp
+                        circuit in the negative-feedback configuration.</p>
+                </div>
+            </div>
+
+            <!-- Internal model diagram -->
+            <div class="svg-wrap">
+                <img src="images/ch6/fig6.2.png" alt="Figure 6.2">
+                <div class="svg-cap">Fig 9.6.2 — Equivalent circuit of ideal op-amp: infinite \(R_{in}\) (no input current),
+                    VCVS with \(A_{OL} \to \infty\), zero \(R_{out}\) (ideal voltage source at output).</div>
+            </div>
+
+            <h3 class="sub">The Three Pillars of the Ideal Op-Amp</h3>
+
+            <div class="callout c-info">
+                <div class="ci">∞</div>
+                <div class="cb">
+                    <div class="ct">Pillar 1 — Infinite Open-Loop Voltage Gain (\(A_{OL} \to \infty\))</div>
+                    <p>The differential input voltage \(V_d = V_+ - V_-\) is amplified by \(A_{OL}\). Since \(A_{OL} \to
+                        \infty\) and the output must remain finite (supply-limited), the only possibility in any stable
+                        negative-feedback circuit is \(V_d \to 0\), i.e., \(V_+ \approx V_-\). This is the
+                        <strong>virtual short circuit</strong> condition — the cornerstone of all op-amp analysis.
+                    </p>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Open-Loop Output Expression</div>
+                $$V_{out} = A_{OL}(V_+ - V_-)$$
+                <div style="font-size:12px;color:var(--muted);margin-top:8px;text-align:left;">Since \(A_{OL} \to
+                    \infty\) and \(V_{out}\) is bounded by supply rails, in negative feedback: \(V_+ - V_- \to 0\),
+                    giving the virtual short condition \(V_+ = V_-\).</div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">Ω</div>
+                <div class="cb">
+                    <div class="ct">Pillar 2 — Infinite Input Resistance (\(R_{in} \to \infty\))</div>
+                    <p>No current flows into either the inverting (\(V_-\)) or non-inverting (\(V_+\)) terminal. Mathematically:
+                        \(i_+ = i_- = 0\). This means the op-amp does not load the source connected to its inputs. In
+                        circuit analysis, you can treat both input terminals as open circuits for current — yet they are
+                        still at the same voltage (virtual short).</p>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">0</div>
+                <div class="cb">
+                    <div class="ct">Pillar 3 — Zero Output Resistance (\(R_{out} = 0\))</div>
+                    <p>The output terminal behaves as a perfect voltage source: \(V_{out}\) is independent of the load
+                        current drawn. No matter how much current the load demands, the output voltage does not sag.
+                        This means the op-amp has perfect <strong>voltage driving capability</strong> — you can connect
+                        any load without gain error. In reality, the output has a finite current limit (±25 mA for
+                        μA741).</p>
+                </div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Ideal Value</th>
+                            <th>Physical Meaning</th>
+                            <th>μA741 Typical</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Open-loop gain \(A_{OL}\)</td>
+                            <td class="t-org">\(\infty\)</td>
+                            <td>Output/differential input ratio in open loop</td>
+                            <td>~\(10^5\) (100 dB)</td>
+                        </tr>
+                        <tr>
+                            <td>Input resistance \(R_{in}\)</td>
+                            <td class="t-org">\(\infty\)</td>
+                            <td>Impedance seen between \(V_+\) and \(V_-\)</td>
+                            <td>~2 M\(\Omega\)</td>
+                        </tr>
+                        <tr>
+                            <td>Output resistance \(R_{out}\)</td>
+                            <td class="t-grn">0</td>
+                            <td>Source impedance at \(V_{out}\) terminal</td>
+                            <td>~75 \(\Omega\)</td>
+                        </tr>
+                        <tr>
+                            <td>Bandwidth \(BW\)</td>
+                            <td class="t-org">\(\infty\)</td>
+                            <td>Frequency range of amplification</td>
+                            <td>~1 MHz GBP</td>
+                        </tr>
+                        <tr>
+                            <td>\(CMRR\)</td>
+                            <td class="t-org">\(\infty\)</td>
+                            <td>Rejection of common-mode signals</td>
+                            <td>~90 dB</td>
+                        </tr>
+                        <tr>
+                            <td>Slew Rate</td>
+                            <td class="t-org">\(\infty\)</td>
+                            <td>Max output voltage rate of change (V/\(\mu\)s)</td>
+                            <td>~0.5 V/\(\mu\)s</td>
+                        </tr>
+                        <tr>
+                            <td>Offset Voltage \(V_{OS}\)</td>
+                            <td class="t-grn">0</td>
+                            <td>Input voltage for zero output</td>
+                            <td>~\(2\text{ mV}\)</td>
+                        </tr>
+                        <tr>
+                            <td>Supply voltage rejection</td>
+                            <td class="t-org">\(\infty\)</td>
+                            <td>Output insensitivity to supply variation</td>
+                            <td>~90 dB \(PSRR\)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Student Mistake</div>
+                    <p>Many students confuse "virtual short" with "actual short". In a virtual short, \(V_+ = V_-\) but
+                        <strong>no current flows</strong> between them (\(R_{in} = \infty\)). An actual short would allow
+                        current to flow freely. Never connect \(V_+\) to \(V_-\) directly — that eliminates the differential
+                        input. The virtual short is a <em>consequence</em> of negative feedback + infinite gain, not a
+                        physical connection.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: PRACTICAL PARAMETERS ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">9.6.3</span>
+                <h2 class="sec-t">Practical Op-Amp Characteristics</h2>
+            </div>
+
+            <p>Real op-amps deviate from the ideal in several important ways. GATE and IES frequently test these
+                non-ideal parameters because they determine the practical performance limits of analog circuits. The
+                four most tested are: <strong>\(CMRR\), \(PSRR\), Slew Rate,</strong> and <strong>Input Offset
+                    Voltage</strong>.<sup class="cite">[1][3]</sup></p>
+
+            <!-- ── \(CMRR\) ── -->
+            <h3 class="sub">Common Mode Rejection Ratio (\(CMRR\)) <span class="prob prob-h">🟢 HIGH</span></h3>
+
+            <p>When the same signal is applied to <em>both</em> inputs (a <strong>common-mode signal</strong>), an ideal
+                op-amp outputs zero — it should only amplify the <em>difference</em>. But a real op-amp slightly
+                amplifies the common-mode signal too. \(CMRR\) measures how well the op-amp rejects this unwanted
+                common-mode component.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">\(CMRR\) Definition</div>
+                $$\text{CMRR} = \frac{A_d}{A_{cm}} = 20 \log_{10}\left(\frac{A_d}{A_{cm}}\right) \text{ dB}$$
+                <div style="font-size:12px;color:var(--muted);margin-top:8px;text-align:left;">where \(A_d\) =
+                    differential-mode gain, \(A_{cm}\) = common-mode gain. Higher \(CMRR\) is better. Ideal: \(CMRR\) = \(\infty\) (since
+                    \(A_{cm}\) = 0).</div>
+            </div>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.3.png" alt="Figure 6.3">
+                <div class="svg-cap">Fig 9.6.3 — Differential signals are amplified; common-mode signals (noise on both
+                    inputs simultaneously) are rejected. Higher \(CMRR\) = better noise immunity.</div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🔌</div>
+                <div class="cb">
+                    <div class="ct">Why \(CMRR\) Matters in Practice</div>
+                    <p>In an ECG amplifier, the tiny heart signal (millivolts) rides on a large 50 Hz mains noise
+                        (volts) common to both electrodes. A high \(CMRR\) (say 120 dB) means the noise is rejected by a
+                        factor of 10⁶ — the ECG trace remains clean. This is why medical instrumentation amplifiers
+                        specify \(CMRR\) as a primary parameter.</p>
+                </div>
+            </div>
+
+            <!-- ── \(PSRR\) ── -->
+            <h3 class="sub">Power Supply Rejection Ratio (\(PSRR\)) <span class="prob prob-m">🟡 MEDIUM</span></h3>
+
+            <p>\(PSRR\) measures how much the op-amp output changes when the supply voltage (\(V_{CC}\) or
+                \(V_{EE}\)) changes, while inputs are held constant. It is the ratio of differential gain to the
+                gain seen from power supply to output.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">\(PSRR\) Definition</div>
+                $$\text{PSRR} = \frac{\Delta V_{supply}}{\Delta V_{out}} \quad \text{(expressed in dB)}$$
+                $$\text{PSRR (dB)} = 20\log_{10}\left(\frac{A_d}{A_{supply}}\right)$$
+                <div style="font-size:12px;color:var(--muted);margin-top:8px;text-align:left;">Ideal: \(PSRR\) = \(\infty\). Typical
+                    μA741: ~90 dB. High \(PSRR\) means supply ripple does not appear at output.</div>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">\(PSRR\) in SMPS Design</div>
+                    <p>In a switching power supply, the op-amp used as error amplifier must have high \(PSRR\) because its
+                        own supply rail has switching noise (100 kHz + harmonics). If \(PSRR\) is low, the noise couples to
+                        the output, degrading the regulation quality. Modern op-amps achieve \(PSRR\) &gt; 100 dB at DC, but
+                        \(PSRR\) falls at higher frequencies — this must be checked in the datasheet Bode plot.</p>
+                </div>
+            </div>
+
+            <!-- ── SLEW RATE ── -->
+            <h3 class="sub">Slew Rate (\(SR\)) <span class="prob prob-h">🟢 HIGH</span></h3>
+
+            <p>Slew Rate is the maximum rate at which the op-amp output voltage can change, regardless of the input. It
+                is an internal limit caused by the charging rate of the internal compensation capacitor. Even if you
+                apply an instantaneous step input, the output cannot follow instantaneously — it slews at the maximum
+                \(SR\).</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Slew Rate Definition</div>
+                $$SR = \left.\frac{dV_{out}}{dt}\right|_{max} \quad \text{V/}\mu\text{s}$$
+                $$\text{For μA741:} \quad SR \approx 0.5 \text{ V/}\mu\text{s}$$
+            </div>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.4.png" alt="Figure 6.4">
+                <div class="svg-cap">Fig 9.6.4 — Slew rate limits how fast the output voltage can rise. A steep input
+                    step produces a linear ramp at the output with slope = \(SR\). This causes distortion of high-frequency
+                    sine waves.</div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">GATE Trap — Full-Power Bandwidth</div>
+                    <p>Slew rate limits the maximum frequency at which a full-swing sinusoidal output can be produced
+                        without distortion. The <strong>full-power bandwidth</strong> is: \(f_{max} = \frac{SR}{2\pi
+                        V_{peak}}\). For μA741 with \(SR\) = \(0.5\text{ V/}\mu\text{s}\) and \(V_{peak}\) = 10 V: \(f_{max} = \frac{0.5 \times
+                        10^6}{2\pi \times 10} \approx 8 \text{ kHz}\). At frequencies above this, the output sine wave
+                        becomes a triangle wave!</p>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Full-Power Bandwidth</div>
+                $$f_{max} = \frac{SR}{2\pi \cdot V_{peak}} \quad \text{Hz}$$
+            </div>
+
+            <!-- ── OFFSET VOLTAGE ── -->
+            <h3 class="sub">Input Offset Voltage (\(V_{OS}\)) <span class="prob prob-h">🟢 HIGH</span></h3>
+
+            <p>Due to mismatches in the differential pair transistors inside the op-amp, a small DC voltage exists
+                between \(V_+\) and \(V_-\) even when both inputs are grounded. This is the <strong>input offset voltage
+                    \(V_{OS}\)</strong>. When amplified by the closed-loop gain, it creates a DC error at the output
+                that shifts the operating point.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Output Offset Error</div>
+                $$V_{out,error} = V_{OS} \times A_{CL}$$
+                <div style="font-size:12px;color:var(--muted);margin-top:8px;text-align:left;">where \(A_{CL}\) is
+                    closed-loop gain. For \(V_{OS}\) = \(2\text{ mV}\) and \(A_{CL}\) = 100: error = 200 mV at output. This
+                    is significant in precision DC amplifiers.</div>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Sources of \(V_{OS}\)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Transistor \(V_{BE}\) mismatch in differential pair</li>
+                        <li><span class="dot">▸</span>Resistor mismatch in input stage</li>
+                        <li><span class="dot">▸</span>Temperature gradient across die (thermal EMF)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Nulling \(V_{OS}\)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Use offset null pins (pins 1 &amp; 5 on μA741) with trim pot</li>
+                        <li><span class="dot">▸</span>Auto-zero op-amps (chopper-stabilised)</li>
+                        <li><span class="dot">▸</span>AC coupling eliminates DC offset effect</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bias current mention -->
+            <h3 class="sub">Input Bias Current &amp; Offset Current <span class="prob prob-m">🟡 MEDIUM</span></h3>
+            <p>Real op-amps draw small base currents into both input terminals (BJT input stages). The <strong>input
+                    bias current</strong> \(I_B = \frac{I_{B+} + I_{B-}}{2}\) causes a voltage drop across source
+                resistance, creating another DC error. The <strong>input offset current</strong> \(I_{OS} = |I_{B+} -
+                I_{B-}|\) measures their mismatch. For μA741: \(I_B \approx 80\text{ nA}\), \(I_{OS} \approx 20\text{ nA}\). JFET input op-amps (TL071) have
+                \(I_B\) in pA range.</p>
+        </div>
+
+        <!-- ═══ S4: CONFIGURATIONS OVERVIEW ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">9.6.4</span>
+                <h2 class="sec-t">Op-Amp Feedback Configurations — Overview</h2>
+            </div>
+
+            <p>Op-amps are rarely used open-loop (too much gain — output saturates). Almost all practical circuits use
+                <strong>negative feedback</strong>: a fraction of the output is fed back to the inverting input (\(V_-\)),
+                which reduces gain but dramatically improves bandwidth, linearity, and stability. The specific feedback
+                network determines the circuit function.<sup class="cite">[2]</sup>
+            </p>
+
+            <div class="svg-wrap">
+                <img src="images/ch6/fig6.5.png" alt="Figure 6.5">
+                <div class="svg-cap">Fig 9.6.5 — The three most important op-amp configurations. Inverting: signal
+                    applied to \(V_-\) via \(R_1\), feedback via \(R_f\). Non-inverting: signal at \(V_+\). Voltage follower: special case
+                    of non-inverting with \(R_f\)=0, \(R_1\)=\(\infty\).</div>
+            </div>
+        </div>
+
+        <!-- ═══ S5: INVERTING AMPLIFIER ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">9.6.5</span>
+                <h2 class="sec-t">Inverting Amplifier — Full Derivation</h2>
+            </div>
+
+            <p>The inverting amplifier is the most commonly used op-amp circuit. The signal is applied to the
+                <strong>inverting (−) terminal</strong> through resistor \(R_1\). Feedback resistor \(R_f\) connects the output
+                back to the inverting terminal. The non-inverting (+) terminal is grounded.<sup
+                    class="cite">[1][2]</sup>
+            </p>
+
+            <!-- Circuit diagram: Inverting Amplifier -->
+            <div class="svg-wrap">
+                <img src="images/ch6/fig6.6.png" alt="Figure 6.6">
+                <div class="svg-cap">Fig 9.6.6 — Inverting amplifier circuit. Node A is at virtual ground (\(V_-\) = \(V_+\) = 0
+                    V). Current through \(R_1\) equals current through \(R_f\) (no current into op-amp input).</div>
+            </div>
+
+            <h3 class="sub">Step-by-Step Derivation of Closed-Loop Gain</h3>
+
+            <p><strong>Step 1 — Apply ideal op-amp rules.</strong> Since \(V_+\) = 0 V (grounded) and virtual short gives \(V_-\)
+                = \(V_+\), the inverting terminal is also at 0 V. Node A is called a <strong>virtual earth</strong> (or
+                virtual ground): it is at 0 V potential but draws no current from the circuit.</p>
+
+            <p><strong>Step 2 — KCL at node A.</strong> By Kirchhoff's Current Law at the virtual earth node (no current
+                enters the op-amp terminal):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">KCL at Node A (Virtual Ground)</div>
+                $$i_1 = i_f$$
+                $$\frac{V_{in} - 0}{R_1} = \frac{0 - V_{out}}{R_f}$$
+                $$\frac{V_{in}}{R_1} = -\frac{V_{out}}{R_f}$$
+            </div>
+
+            <p><strong>Step 3 — Solve for closed-loop gain A<sub>v</sub>:</strong></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Closed-Loop Voltage Gain — Inverting Configuration</div>
+                $$\boxed{A_v = \frac{V_{out}}{V_{in}} = -\frac{R_f}{R_1}}$$
+                <div style="font-size:12px;color:var(--muted);margin-top:8px;text-align:left;">The negative sign
+                    indicates 180° phase inversion. The magnitude of gain is |\(R_f\)/\(R_1\)|. This is independent of \(A_{OL}\),
+                    provided \(A_{OL}\) ≫ \(R_f\)/\(R_1\).</div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Key Properties — Inverting Amplifier</span><br>
+                <span class="fv">Closed-loop gain </span><span class="feq">\(A_v = -R_f/R_1\)</span> (negative =
+                inverting)<br>
+                <span class="fv">Input resistance </span><span class="feq">\(R_{\text{in}} = R_1\)</span> (signal source
+                sees \(R_1\) to virtual gnd)<br>
+                <span class="fv">Output resistance </span><span class="feq">\(R_{\text{out}} \approx 0\)</span> (ideal:
+                zero; practical: very small)<br>
+                <span class="fv">Bandwidth (GBP) </span><span class="feq">\(BW = GBP / |A_v|\)</span> (gain-bandwidth
+                product trade-off)<br>
+                <span class="fv">Phase shift </span><span class="feq">\(180^\circ\)</span> (output inverted relative to
+                input)
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">GATE Trap — Input Resistance</div>
+                    <p>In the inverting amplifier, the input resistance as seen by the source is simply
+                        <strong>\(R_1\)</strong>, not infinity. This is because the inverting terminal is a virtual ground —
+                        \(V_-\) = 0 V always — so the full \(V_{in}\) appears across \(R_1\). This is a key difference from the
+                        non-inverting configuration where \(R_{in}\) is very large.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Summing Amplifier (Extension of Inverting)</h3>
+            <p>By adding multiple input resistors to the virtual ground node, the inverting amplifier becomes a
+                <strong>summing amplifier</strong>:
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">Summing Amplifier Output</div>
+                $$V_{out} = -R_f\left(\frac{V_1}{R_1} + \frac{V_2}{R_2} + \frac{V_3}{R_3}\right)$$
+                <div style="font-size:12px;color:var(--muted);margin-top:8px;text-align:left;">If R₁ = R₂ = R₃ = R:
+                    \(V_{out} = -\frac{R_f}{R}(V_1 + V_2 + V_3)\). Used in analog audio mixers and DAC circuits.</div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: NON-INVERTING AMPLIFIER ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">9.6.6</span>
+                <h2 class="sec-t">Non-Inverting Amplifier — Full Derivation</h2>
+            </div>
+
+            <p>In the non-inverting configuration, the signal is applied directly to the <strong>non-inverting (+)
+                    terminal</strong>. This means the input impedance seen by the source is extremely high (essentially
+                the op-amp's differential input resistance, typically megaohms). The feedback divider (\(R_1\) and \(R_f\))
+                connects between output and the inverting terminal.<sup class="cite">[1][2]</sup></p>
+
+            <!-- Circuit diagram: Non-Inverting Amplifier -->
+            <div class="svg-wrap">
+                <img src="images/ch6/fig6.7.png" alt="Figure 6.7">
+                <div class="svg-cap">Fig 9.6.7 — Non-inverting amplifier. \(V_{in}\) is applied to \(V_+\). Feedback from output
+                    via \(R_f\) to \(V_-\). Voltage divider (\(R_1\) to GND) sets the feedback fraction \(\beta = R_1/(R_1+R_f)\).</div>
+            </div>
+
+            <h3 class="sub">Derivation of Closed-Loop Gain</h3>
+
+            <p><strong>Step 1 — Virtual short.</strong> By the ideal op-amp rule, \(V_- = V_+ = V_{in}\). The voltage at the
+                inverting terminal equals the input.</p>
+
+            <p><strong>Step 2 — Voltage divider.</strong> The feedback network (\(R_1\) and \(R_f\)) forms a voltage divider
+                between \(V_{out}\) and ground:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Feedback Fraction at Node B</div>
+                $$V_- = V_{out} \cdot \frac{R_1}{R_1 + R_f} = V_{in}$$
+            </div>
+
+            <p><strong>Step 3 — Solve for gain:</strong></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Closed-Loop Gain — Non-Inverting Configuration</div>
+                $$\boxed{A_v = \frac{V_{out}}{V_{in}} = 1 + \frac{R_f}{R_1}}$$
+                <div style="font-size:12px;color:var(--muted);margin-top:8px;text-align:left;">The gain is always ≥ 1
+                    (positive). Output is in phase with input (0° phase shift). Minimum gain = 1 when \(R_f\) = 0.</div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Key Properties — Non-Inverting Amplifier</span><br>
+                <span class="fv">Closed-loop gain </span><span class="feq">\(A_v = 1 + \frac{R_f}{R_1}\)</span> (always ≥ 1, no
+                inversion)<br>
+                <span class="fv">Input resistance </span><span class="feq">\(R_{in} \approx \infty\)</span> (essentially the op-amp \(R_{in}\),
+                very high)<br>
+                <span class="fv">Output resistance </span><span class="feq">\(R_{out} \approx 0\)</span> (ideal: zero; practical:
+                very small)<br>
+                <span class="fv">Phase shift </span><span class="feq">\(0^\circ\)</span> (output in phase with input)<br>
+                <span class="fv">Feedback fraction </span><span class="feq">\(\beta = R_1/(R_1+R_f)\)</span> (fraction of output
+                fed back to \(V_-\))
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">Feedback Analysis Using \(\beta\)</div>
+                    <p>The closed-loop gain can also be derived from feedback theory: \(A_{CL} = \frac{A_{OL}}{1 +
+                        A_{OL}\beta}\). As \(A_{OL} \to \infty\): \(A_{CL} \to \frac{1}{\beta} = \frac{R_1 + R_f}{R_1} =
+                        1 + \frac{R_f}{R_1}\). This confirms the formula. The gain depends only on the <em>resistor
+                            ratio</em>, not on \(A_{OL}\) — making it very stable and temperature-insensitive.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: VOLTAGE FOLLOWER ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">9.6.7</span>
+                <h2 class="sec-t">Voltage Follower (Unity-Gain Buffer)</h2>
+            </div>
+
+            <p>The voltage follower is a special case of the non-inverting amplifier with <strong>\(R_f\) = 0</strong> (short
+                circuit) and <strong>\(R_1\) = \(\infty\)</strong> (open circuit). The output is directly fed back to the inverting
+                input, creating 100% negative feedback (\(\beta\) = 1).<sup class="cite">[2]</sup></p>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.8.png" alt="Figure 6.8">
+                <div class="svg-cap">Fig 9.6.8 — Voltage follower: output is directly connected to \(V_-\) (100% feedback).
+                    \(V_{out} = V_{in}\), gain = 1. Key function: impedance transformation (high \(R_{in}\), low \(R_{out}\)).</div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Voltage Follower — Derivation</div>
+                $$\text{Using: } A_v = 1 + \frac{R_f}{R_1} \text{ with } R_f = 0, R_1 = \infty$$
+                $$A_v = 1 + \frac{0}{\infty} = 1 + 0 = \boxed{1}$$
+                $$V_{out} = V_{in}$$
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Why Use Gain = 1?</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Impedance isolation: high R source drives low R load without
+                            loading effect</li>
+                        <li><span class="dot">▸</span>ADC buffer: prevents DAC/ADC input capacitance from loading sensor
+                        </li>
+                        <li><span class="dot">▸</span>Cable driver: op-amp output can source more current than
+                            high-impedance sensor</li>
+                        <li><span class="dot">▸</span>Sample-and-hold: holds sampled voltage without droop</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Characteristics</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Gain = 1 (unity) — no voltage amplification</li>
+                        <li><span class="dot">▸</span>Input resistance → \(\infty\) (no loading of source)</li>
+                        <li><span class="dot">▸</span>Output resistance → 0 (can drive any load)</li>
+                        <li><span class="dot">▸</span>0° phase shift — in phase with input</li>
+                        <li><span class="dot">▸</span>Widest bandwidth of all three configurations</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Memory Trick — The Three Configurations</div>
+                    <p><strong>INN</strong>: <strong>I</strong>nverting → signal to <strong>I</strong>nverting input,
+                        gain is <strong>N</strong>egative; <strong>N</strong>on-inverting → signal to Non-inv input,
+                        gain = 1+\(R_f\)/\(R_1\); <strong>N</strong>ull resistors → unity (voltage follower). Remember: "Inverting
+                        Nullifies, Non-Inverting Nails 1+R".</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S8: GATE PYQs ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">9.6.8</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Inverting Amplifier Gain Calculation</span>
+                    <span class="pyq-year">GATE EE 2019</span>
+                </div>
+                <div class="pyq-body">
+                    <p>An op-amp circuit has \(R_1\) = \(10\text{ k}\Omega\) and \(R_f\) = \(100\text{ k}\Omega\) in inverting configuration. The closed-loop
+                        voltage gain \(A_v\) is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) +10</li>
+                        <li>(B) −10</li>
+                        <li class="correct">(C) −10 ✓</li>
+                        <li>(D) +11</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);">✔ <strong>Solution:</strong> \(A_v =
+                        -\frac{R_f}{R_1} = -\frac{100\,k\Omega}{10\,k\Omega} = -10\). The negative sign confirms 180°
+                        phase inversion. Never forget the sign in GATE!</p>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">\(CMRR\) Definition &amp; Units</span>
+                    <span class="pyq-year">GATE EE 2017</span>
+                </div>
+                <div class="pyq-body">
+                    <p>For an op-amp with differential gain \(A_d\) = 10⁵ and common-mode gain \(A_{cm}\) =
+                        0.1, the \(CMRR\) in dB is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 100 dB</li>
+                        <li class="correct">(B) 120 dB ✓</li>
+                        <li>(C) 60 dB</li>
+                        <li>(D) 106 dB</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);">✔ <strong>Solution:</strong>
+                        \(\text{CMRR} = 20\log\left(\frac{10^5}{0.1}\right) = 20\log(10^6) = 120\text{ dB}\)</p>
+                </div>
+            </div>
+
+            <!-- PYQ 3 Slew Rate -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Slew Rate &amp; Full-Power Bandwidth</span>
+                    <span class="pyq-year">GATE EE 2021</span>
+                </div>
+                <div class="pyq-body">
+                    <p>An op-amp has a slew rate of 1 V/µs. The maximum frequency at which a 5 V peak sinusoidal output
+                        can be produced without distortion is approximately:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 100 kHz</li>
+                        <li class="correct">(B) 31.8 kHz ✓</li>
+                        <li>(C) 159 kHz</li>
+                        <li>(D) 50 kHz</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);">✔ <strong>Solution:</strong>
+                        \(f_{max} = \frac{SR}{2\pi V_{peak}} = \frac{1\times10^6}{2\pi\times5} = \frac{10^6}{31.4}
+                        \approx 31.8\text{ kHz}\)</p>
+                </div>
+            </div>
+
+            <!-- IES PYQ -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Non-Inverting Amplifier Gain</span>
+                    <span class="pyq-year">IES 2020</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In a non-inverting op-amp circuit, \(R_1\) = 5 kΩ and \(R_f\) = 45 kΩ. Find the output voltage if \(V_{in}\) =
+                        0.2 V.</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 0.2 V</li>
+                        <li>(B) 1.8 V</li>
+                        <li class="correct">(C) 2.0 V ✓</li>
+                        <li>(D) 9.2 V</li>
+                    </ul>
+                    <p style="margin-top:10px;font-size:13.5px;color:var(--green);">✔ <strong>Solution:</strong> \(A_v =
+                        1+\frac{45k}{5k} = 1+9 = 10\). \(V_{out} = 10\times0.2 = 2.0\text{ V}\)</p>
+                </div>
+            </div>
+
+            <!-- GATE Insights -->
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">High-Probability GATE Topics in Op-Amps</span>
+                </div>
+                <div class="gate-body">
+                    <p><strong>🟢 Very High:</strong> Inverting and non-inverting gain formulas, virtual ground concept,
+                        \(CMRR\) calculation, slew rate and full-power bandwidth, voltage follower properties.</p>
+                    <p><strong>🟡 Medium:</strong> Effect of finite \(A_{OL}\) on gain, gain-bandwidth product,
+                        offset voltage output error, summing amplifier, input bias current compensation.</p>
+                    <p><strong>🔴 Lower (but asked):</strong> \(PSRR\), instrumentation amplifier, difference amplifier
+                        derivation, integrator, differentiator frequency response.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S9: NUMERICALS ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">9.6.9</span>
+                <h2 class="sec-t">Solved Numerical Examples</h2>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.6.1</span>
+                    <span class="ex-title">Inverting Amplifier — Find \(R_1\) for Given Gain</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">Design an inverting amplifier with a gain of −25. The feedback resistor \(R_f\) = \(250\text{ k}\Omega\). Find \(R_1\). Also calculate the output if \(V_{in}\) = \(80\text{ mV}\).</div>
+                    <div class="sol-lbl">▶ Solution</div>
+                    <p><strong>Step 1 — Apply gain formula:</strong> \(A_v = -\frac{R_f}{R_1}\)</p>
+                    <div class="math-block">
+                        $$-25 = -\frac{250\,k\Omega}{R_1} \implies R_1 = \frac{250\,k\Omega}{25} = 10\,k\Omega$$
+                    </div>
+                    <p><strong>Step 2 — Output voltage:</strong></p>
+                    <div class="math-block">
+                        $$V_{out} = A_v \times V_{in} = -25 \times 80\,mV = -2000\,mV = \boxed{-2\text{ V}}$$
+                    </div>
+                    <p>The negative sign means the output is 180° out of phase. The magnitude is 2 V.</p>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.6.2</span>
+                    <span class="ex-title">Slew Rate — Will Distortion Occur?</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An op-amp (\(SR\) = \(0.5\text{ V/}\mu\text{s}\)) is used as a non-inverting amplifier with \(A_v = 10\).
+                        Input: 2 V peak sine wave at 20 kHz. Will the output be distorted?</div>
+                    <div class="sol-lbl">▶ Solution</div>
+                    <p><strong>Step 1 — Calculate required rate of change of output:</strong><br>
+                        \(V_{out, peak} = A_v \times V_{in, peak} = 10 \times 2 = 20\text{ V peak}\).</p>
+                    <div class="math-block">
+                        $$\left.\frac{dV_{out}}{dt}\right|_{max} = 2\pi f V_{peak} = 2\pi \times 20\times10^3 \times 20
+                        = 2.51 \text{ V/}\mu\text{s}$$
+                    </div>
+                    <p><strong>Step 2 — Compare with \(SR\):</strong><br>
+                        Required rate = 2.51 V/µs &gt; \(SR\) = \(0.5\text{ V/}\mu\text{s}\).</p>
+                    <p><strong>Conclusion:</strong> <span style="color:var(--red);font-weight:600;">Yes, the output will
+                            be distorted</span>. The op-amp cannot follow the fast output swing — the sine wave becomes
+                        a triangle wave (slew-rate limited).</p>
+                    <p><strong>Step 3 — Maximum undistorted frequency:</strong></p>
+                    <div class="math-block">
+                        $$f_{max} = \frac{SR}{2\pi V_{peak}} = \frac{0.5\times10^6}{2\pi\times20} \approx 3.98\text{
+                        kHz}$$
+                    </div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.6.3</span>
+                    <span class="ex-title">\(CMRR\) — Effect of Common-Mode Signal</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An op-amp has \(CMRR\) = 80 dB and differential gain \(A_d\) = 1000. A
+                        differential signal of 5 mV and a common-mode noise of 2 V appear simultaneously. Find the
+                        output error due to noise.</div>
+                    <div class="sol-lbl">▶ Solution</div>
+                    <p><strong>Step 1 — Find \(A_{cm}\) from \(CMRR\):</strong></p>
+                    <div class="math-block">
+                        $$\text{CMRR (dB)} = 80 = 20\log\left(\frac{A_d}{A_{cm}}\right) \implies \frac{A_d}{A_{cm}} =
+                        10^4$$
+                        $$A_{cm} = \frac{1000}{10^4} = 0.1$$
+                    </div>
+                    <p><strong>Step 2 — Output components:</strong></p>
+                    <div class="math-block">
+                        $$V_{out,signal} = A_d \times V_d = 1000 \times 5\text{ mV} = 5\text{ V}$$
+                        $$V_{out,noise} = A_{cm} \times V_{cm} = 0.1 \times 2\text{ V} = \boxed{0.2\text{ V error}}$$
+                    </div>
+                    <p>The noise error is 0.2 V on a 5 V signal — a 4% error. This illustrates why high \(CMRR\) is critical
+                        in precision measurement systems.</p>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.6.4</span>
+                    <span class="ex-title">Voltage Follower — Impedance Transformation</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A sensor has output resistance \(R_s\) = \(100\text{ k}\Omega\) and \(V_{sensor}\) = 3 V. It drives a load
+                        \(R_L\) = 1 kΩ. Calculate: (a) \(V_{load}\) without buffer, (b) \(V_{load}\) with voltage follower op-amp
+                        buffer.</div>
+                    <div class="sol-lbl">▶ Solution</div>
+                    <p><strong>(a) Without buffer — voltage divider loading:</strong></p>
+                    <div class="math-block">
+                        $$V_{load} = V_{sensor} \times \frac{R_L}{R_L + R_s} = 3 \times \frac{1k}{1k+100k} = 3 \times
+                        0.0099 \approx 29.7\text{ mV}$$
+                    </div>
+                    <p>The load only sees 29.7 mV instead of 3 V — a 99% signal loss due to loading!</p>
+                    <p><strong>(b) With voltage follower:</strong><br>
+                        The buffer presents \(R_{in}\) → ∞ to the sensor. No voltage divider loading occurs.</p>
+                    <div class="math-block">
+                        $$V_{load} = V_{sensor} \times A_v = 3 \times 1 = \boxed{3\text{ V}}$$
+                    </div>
+                    <p>The op-amp buffer eliminates the loading effect entirely — this is the fundamental purpose of the
+                        voltage follower.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S10: REVISION SHEET ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">9.6.10</span>
+                <h2 class="sec-t">Quick Revision Sheet</h2>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Ideal Op-Amp</div>
+                    <p>\(A_{OL} = \infty\), \(R_{in} = \infty\), \(R_{out} = 0\), \(BW = \infty\), \(CMRR = \infty\), \(V_{OS} = 0\). Golden rules: \(V_+ = V_-\) (virtual short);
+                        \(i_+ = i_- = 0\) (no input current).</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Inverting Amplifier</div>
+                    <p>\(A_v = -R_f/R_1\). Phase: 180°. \(R_{in} = R_1\) (virtual ground at \(V_-\)). Signal at \(V_-\) via \(R_1\). Feedback via \(R_f\).
+                    </p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Non-Inverting Amplifier</div>
+                    <p>\(A_v = 1 + \frac{R_f}{R_1}\). Phase: 0°. \(R_{in} \approx \infty\). Signal at \(V_+\). Feedback divider (\(R_f\), \(R_1\)) from output to \(V_-\).
+                        \(A_v \geq 1\) always.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Voltage Follower</div>
+                    <p>\(A_v = 1\). Phase: 0°. \(R_{in} = \infty\), \(R_{out} = 0\). Special case: \(R_f\)=0, \(R_1\)=∞. Use for impedance buffering
+                        (ADC, sensor isolation).</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">\(CMRR\) &amp; \(PSRR\)</div>
+                    <p>\(CMRR = 20\log\left(\frac{A_d}{A_{cm}}\right)\text{ dB}\). High \(CMRR\) → good noise rejection. \(PSRR\): supply ripple → output. Both → ∞
+                        in ideal op-amp.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Slew Rate</div>
+                    <p>\(SR = \left.\frac{dV}{dt}\right|_{max}\text{ (V/\mu s)}\). μA741: \(0.5\text{ V/}\mu\text{s}\). Full-power \(BW\): \(f = \frac{SR}{2\pi V_{peak}}\). Below \(SR\) → linear; above
+                        → distorted (triangle wave).</p>
+                </div>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">🚫</div>
+                <div class="cb">
+                    <div class="ct">Common Student Mistakes — Op-Amps</div>
+                    <p>1) Forgetting the negative sign in inverting amplifier gain — GATE specifically traps this. 2)
+                        Confusing "virtual short" (\(V_+ = V_-\), no current) with "actual short" (wire). 3) Applying slew rate
+                        formula without checking if output is actually slew-limited. 4) Thinking voltage follower has no
+                        use because gain=1 — it is an impedance transformer. 5) Using \(CMRR\) formula in linear scale
+                        instead of dB (factor of 20, not 10).</p>
+                </div>
+            </div>
+
+            <!-- AI Ask Claude Widget -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI — Op-Amp Tutor</div>
+                <p>Ask any question about operational amplifiers. Try: derivations, GATE numericals, concept doubts, or
+                    circuit analysis.</p>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="userQ" type="text"
+                        placeholder="e.g. Derive the gain of summing amplifier with 3 inputs…" autocomplete="off">
+                    <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('Explain virtual ground in inverting amplifier with intuitive analogy.')">Virtual
+                        ground intuition</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Why is input resistance of inverting amplifier \(R_1\), not infinity?')">Why \(R_{in}\) =
+                        \(R_1\)?</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Derive closed-loop gain of non-inverting amplifier using feedback theory (β formula).')">Feedback
+                        theory derivation</span>
+                    <span class="ai-chip"
+                        onclick="setQ('What happens to op-amp output if slew rate is exceeded? Explain with waveforms.')">Slew
+                        rate waveforms</span>
+                    <span class="ai-chip"
+                        onclick="setQ('When should I use voltage follower vs non-inverting amplifier with \(R_f=0\), \(R_1=\infty\) — are they the same?')">Follower
+                        vs non-inv</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <!-- CITATIONS -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                    the following standard textbooks. All explanations, derivations, diagrams and examples are original
+                    to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Sedra, Adel S. and Smith, Kenneth C. <em>Microelectronic
+                                Circuits</em>, 7th ed. Oxford University Press, 2015. Chapter 2 — Operational
+                            Amplifiers: ideal model, inverting amplifier, non-inverting amplifier, voltage follower,
+                            slew rate, \(CMRR\).</span></li>
+                    <li><span class="cite-num">[2]</span><span>Boylestad, Robert L. and Nashelsky, Louis. <em>Electronic
+                                Devices and Circuit Theory</em>, 12th ed. Pearson, 2018. Chapter 14 — Operational
+                            Amplifiers: practical op-amp parameters, feedback configurations, gain derivations.</span>
+                    </li>
+                    <li><span class="cite-num">[3]</span><span>Razavi, Behzad. <em>Design of Analog CMOS Integrated
+                                Circuits</em>, 2nd ed. McGraw-Hill, 2017. Chapter 8 — Operational Amplifier as a Black
+                            Box: \(CMRR\), \(PSRR\), slew rate, offset voltage derivations.</span></li>
+                    <li><span class="cite-num">[4]</span><span>IIT Bombay NPTEL. <em>Analog ICs: Op-Amp Fundamentals —
+                                Lectures 1–8</em>. nptel.ac.in. Virtual ground derivation, feedback analysis, practical
+                            parameters.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Analog Circuits Series &nbsp;·&nbsp; Chapter 9.6 of 10<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                    diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+        </div>
+
+    </div><!-- end .page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Analog Circuits and Operational Amplifiers. Topic: Chapter 9.6 — Operational Amplifiers. Cover ideal op-amp characteristics (\(A_{OL}=\infty\), \(R_{in}=\infty\), \(R_{out}=0\)), virtual ground/virtual short concept, inverting amplifier (\(A_v=-R_f/R_1\)), non-inverting amplifier (\(A_v=1+R_f/R_1\)), voltage follower (\(A_v=1\)), \(CMRR\), \(PSRR\), slew rate, full-power bandwidth, input offset voltage. Answer with step-by-step working for numericals. Base answers on Sedra & Smith, Boylestad. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+                if (window.renderMathInElement) renderMathInElement(resp, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '\\(', right: '\\)', display: false }] });
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Aarova AI'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Mobile SVG scroll hints */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                var hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

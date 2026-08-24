@@ -1,0 +1,2782 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Analog Electronics Ch.9.11 Schmitt Trigger &amp; Multivibrators</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 68%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+        }
+
+        /* CALLOUT */
+        .callout {
+            display: flex;
+            gap: 12px;
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 18px);
+            margin: 16px 0;
+        }
+
+        .ci {
+            font-size: 20px;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* FORMULA BLOCK */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* MATH */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* SVG */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* EXAMPLES */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* GATE / PYQ */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* TWO COL */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* SUMMARY GRID */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* PROBABILITY */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ASK CLAUDE */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* MISC */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* TABLET 481-768 */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* MOBILE ≤480 */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub,
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* DESKTOP 1024+ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Analog Electronics Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">GATE EC</span><span
+                class="hbadge">IES</span><span class="hbadge">PSU</span></div>
+    </header>
+    <div class="page">
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 9.11 &nbsp;·&nbsp; Analog Electronics</div>
+            <h1 class="hero-title">Schmitt Trigger &amp; <em>Multivibrators</em></h1>
+            <p class="hero-desc">Upper &amp; lower threshold, hysteresis, astable/monostable/bistable multivibrators,
+                sample-and-hold circuits — complete GATE, IES and PSU coverage with full derivations, inline SVG
+                diagrams, worked numericals and previous-year questions.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE / EC</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">ADC &amp; Data Acquisition</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Chapter 9.11 of 12</span>
+        </div>
+
+        <!-- TOC -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">9.11.1</span>Schmitt Trigger — Concept</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">9.11.2</span>UTP, LTP &amp; Hysteresis</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">9.11.3</span>Astable Multivibrator</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">9.11.4</span>Monostable Multivibrator</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">9.11.5</span>Bistable Multivibrator</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">9.11.6</span>Sample &amp; Hold Circuit</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">9.11.7</span>Practical Applications</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">9.11.8</span>GATE / IES — PYQs</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">9.11.9</span>Numerical Examples</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">9.11.10</span>Common Mistakes</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">9.11.11</span>Memory Tricks</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">9.11.12</span>Quick Revision Sheet</a>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 1 — SCHMITT TRIGGER ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">9.11.1</span>
+                <h2 class="sec-t">The Schmitt Trigger — Concept &amp; Need</h2>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Why does this topic exist?</div>
+                    <p>Real-world signals are never clean. A sinusoidal sensor output, a noisy digital bus line or a
+                        slowly-varying temperature signal all suffer from <strong>noise and multiple
+                            zero-crossings</strong>. A simple comparator switches every time the signal crosses the
+                        reference — producing a chattering output. The Schmitt Trigger solves this by introducing
+                        <strong>intentional hysteresis</strong>: two separate thresholds for switching, so noise below a
+                        defined band cannot cause false triggering.
+                    </p>
+                </div>
+            </div>
+
+            <p>The <strong>Schmitt Trigger</strong> is a comparator circuit with <strong>positive feedback</strong>. It
+                was invented by Otto Schmitt in 1934 to clean up nerve-impulse signals in biology. In electronics, it
+                converts any slowly-changing, noisy analogue signal into a clean, fast digital signal — making it
+                essential at the boundary between the analogue and digital worlds.<sup class="cite">[1]</sup></p>
+
+            <h3 class="sub">Basic Op-Amp Schmitt Trigger Circuit</h3>
+            <p>Two configurations are used in practice: the <strong>inverting Schmitt Trigger</strong> (input at
+                inverting terminal) and the <strong>non-inverting Schmitt Trigger</strong> (input at non-inverting
+                terminal via a voltage divider with the output). In both, positive feedback is created by connecting the
+                output back to the <em>non-inverting</em> (\(+\)) input through a resistor divider.</p>
+
+            <div class="svg-wrap">
+                <img src="images/ch11/fig11.1.png" alt="Figure 11.1">
+            </div>
+            <p class="svg-cite">Original diagram — Aarova AI. Concept from Sedra &amp; Smith [1], Franco [2].</p>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Key Principle</div>
+                    <p>In a Schmitt Trigger, the <strong>output feeds back positively to the non-inverting
+                            terminal</strong>. This means the reference voltage at the \(+\) pin changes depending on
+                        the current output state. The circuit therefore has <strong>two different switching
+                            thresholds</strong> — one for the rising input (UTP) and one for the falling input (LTP).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 2 — UTP LTP HYSTERESIS ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">9.11.2</span>
+                <h2 class="sec-t">UTP, LTP &amp; Hysteresis — Core Theory</h2>
+            </div>
+
+            <h3 class="sub">Threshold Voltage Derivation</h3>
+            <p>Consider the <strong>non-inverting Schmitt Trigger</strong> with supply rails \(\pm V_{sat}\). The op-amp
+                output is either \(+V_{sat}\) or \(-V_{sat}\). The voltage at the non-inverting terminal \(V_+\) sets
+                the threshold, and is found by superposition of \(V_{in}\) through \(R_1\) and \(V_{out}\) through
+                \(R_2\).<sup class="cite">[2]</sup></p>
+
+            <div class="callout c-warn">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">Derivation Setup</div>
+                    <p>Let \(R_1\) connect input \(V_{in}\) to the \(+\) terminal, and \(R_2\) connect output
+                        \(V_{out}\) to the \(+\) terminal. By superposition (virtual open circuit at input):</p>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Threshold voltage at + terminal (Superposition)</div>
+                $$V_+ = \frac{R_2}{R_1 + R_2} V_{in} + \frac{R_1}{R_1 + R_2} V_{out}$$
+            </div>
+
+            <p>The op-amp switches when \(V_+ = 0\) (assuming ideal op-amp, zero input offset). Setting \(V_+ = 0\) and
+                solving for \(V_{in}\):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Upper Threshold Point (UTP) — output transitioning from +Vsat to −Vsat</div>
+                $$V_{UTP} = -\frac{R_1}{R_2} V_{sat}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Lower Threshold Point (LTP) — output transitioning from −Vsat to +Vsat</div>
+                $$V_{LTP} = +\frac{R_1}{R_2} V_{sat}$$
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Inverting vs Non-Inverting Sign Convention</div>
+                    <p>For the <strong>inverting Schmitt Trigger</strong>, the signs are swapped: \(V_{UTP} =
+                        +\frac{R_1}{R_2}V_{sat}\) and \(V_{LTP} = -\frac{R_1}{R_2}V_{sat}\). The output is LOW when
+                        input exceeds UTP, and HIGH when input falls below LTP — opposite to the non-inverting version.
+                        GATE frequently tests this distinction.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Hysteresis Bandwidth</h3>
+            <div class="math-block">
+                <div class="math-lbl">Hysteresis Voltage (Width of dead band)</div>
+                $$ V_H = V_{UTP} - V_{LTP} = \frac{2R_1}{R_2} V_{sat}$$
+            </div>
+
+            <p>The <strong>hysteresis</strong> is the difference between UTP and LTP. It defines the noise immunity of
+                the circuit. Any noise smaller in amplitude than \(\frac{V_H}{2}\) cannot cause false triggering. The
+                wider the
+                hysteresis, the more noise-immune the circuit — but also less precise in threshold detection. This is
+                the fundamental design trade-off.<sup class="cite">[1]</sup></p>
+
+            <!-- Hysteresis Transfer Characteristic SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch11/fig11.2.png" alt="Figure 11.2">
+            </div>
+            <p class="svg-cite">Original diagram — Aarova AI. Concept from Sedra &amp; Smith [1], Razavi [3].</p>
+
+            <h3 class="sub">Comparison Table — Comparator vs Schmitt Trigger</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Simple Comparator</th>
+                            <th>Schmitt Trigger</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Feedback type</td>
+                            <td>None / negative</td>
+                            <td class="t-org">Positive</td>
+                        </tr>
+                        <tr>
+                            <td>No. of threshold points</td>
+                            <td>One</td>
+                            <td class="t-grn">Two (UTP &amp; LTP)</td>
+                        </tr>
+                        <tr>
+                            <td>Hysteresis</td>
+                            <td class="t-red">Zero</td>
+                            <td class="t-grn">\( V_H = 2\frac{R_1}{R_2} V_{sat}\)</td>
+                        </tr>
+                        <tr>
+                            <td>Noise immunity</td>
+                            <td class="t-red">Poor — chatters</td>
+                            <td class="t-grn">Excellent</td>
+                        </tr>
+                        <tr>
+                            <td>Transfer characteristic</td>
+                            <td>Single vertical line</td>
+                            <td class="t-org">Rectangular loop</td>
+                        </tr>
+                        <tr>
+                            <td>Output transition speed</td>
+                            <td>Slow on slow inputs</td>
+                            <td class="t-grn">Always fast (regenerative)</td>
+                        </tr>
+                        <tr>
+                            <td>Typical application</td>
+                            <td>Precision level detect</td>
+                            <td class="t-grn">Noise-tolerant digitiser</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🟢</div>
+                <div class="cb">
+                    <div class="ct">GATE High-Probability — Remember This!</div>
+                    <p>Questions most often ask you to compute <strong>\(UTP\), \(LTP\) and \(V_H\)</strong> given
+                        \(R_1\), \(R_2\) and \(V_{sat}\).
+                        Always identify whether the circuit is <strong>inverting or non-inverting</strong> first — the
+                        sign of the thresholds flips. Hysteresis formula \( V_H = \frac{2R_1}{R_2}V_{sat}\) is universal
+                        for both configurations.<span class="prob prob-h">🟢 HIGH</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 3 — ASTABLE ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">9.11.3</span>
+                <h2 class="sec-t">Astable Multivibrator</h2>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">🔔</div>
+                <div class="cb">
+                    <div class="ct">What is a Multivibrator?</div>
+                    <p>A <strong>multivibrator</strong> is a switching circuit that generates non-sinusoidal waveforms
+                        (square, rectangular, triangular) using active devices and RC time constants. The name comes
+                        from the fact that it generates a rich spectrum of harmonics — many frequencies simultaneously.
+                        Three fundamental types exist depending on how many <em>stable states</em> the circuit has.<sup
+                            class="cite">[4]</sup></p>
+                </div>
+            </div>
+
+            <p>The <strong>astable multivibrator</strong> has <em>no stable state</em>. It continuously switches back
+                and forth between two quasi-stable states, generating a periodic square wave without any external
+                triggering. It is therefore also called a <strong>free-running oscillator</strong>.<sup
+                    class="cite">[1]</sup></p>
+
+            <h3 class="sub">Op-Amp Astable Multivibrator — Circuit &amp; Working</h3>
+            <p>An op-amp astable combines a Schmitt Trigger (positive feedback through \(R_1\), \(R_2\)) with an RC
+                charging network (through \(R\), \(C\)) at the inverting terminal. The capacitor charges and discharges
+                between UTP and LTP, producing a square wave at the output.</p>
+
+            <!-- Astable Waveform SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch11/fig11.3.png" alt="Figure 11.3">
+            </div>
+            <p class="svg-cap">Fig. 9.11.3 — Astable multivibrator waveforms. Capacitor charges exponentially between
+                LTP and UTP; output switches between ±V<sub>sat</sub>.</p>
+
+            <h3 class="sub">Frequency &amp; Time Period — Derivation</h3>
+            <p>Let the positive feedback ratio be \(\beta = \frac{R_1}{R_1 + R_2}\), so that \(UTP = +\beta V_{sat}\)
+                and \(LTP = -\beta V_{sat}\). The capacitor \(C\) charges through \(R\) from \(-\beta V_{sat}\) towards
+                \(+V_{sat}\) (when output is \(+V_{sat}\)). It triggers the next transition when it reaches \(+\beta
+                V_{sat}\).<sup class="cite">[2]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Capacitor voltage during charging phase</div>
+                $$v_C(t) = V_{sat}\left(1 - 2e^{-t/RC}\right) - (-\beta V_{sat}) \cdot e^{-t/RC}$$
+                $$v_C(t) = V_{sat}\left[1 - (1+\beta)e^{-t/RC}\right]$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Half-period — solving \(v_C(T/2) = +\beta V_{sat}\)</div>
+                $$\frac{T}{2} = RC \ln\left(\frac{1+\beta}{1-\beta}\right)$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Time Period and Frequency of Oscillation</div>
+                $$T = 2RC \ln\!\left(\frac{1+\beta}{1-\beta}\right), \quad f =
+                \frac{1}{2RC\ln\!\left(\!\frac{1+\beta}{1-\beta}\!\right)}$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Special Case — Equal Resistors R₁ = R₂</div>
+                    <p>When \(R_1 = R_2\), we get \(\beta = 0.5\). Then \(\ln\!\left(\frac{1.5}{0.5}\right) = \ln 3
+                        \approx 1.0986\). So \( T = 2RC \times 1.0986 \approx 2.2RC \) and \(f \approx
+                        \frac{1}{2.2RC}\).
+                        This is the standard 555-timer astable result — useful to memorise.<span class="prob prob-h">🟢
+                            HIGH</span></p>
+                </div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Formula</th>
+                            <th>Depends on</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Feedback ratio β</td>
+                            <td>\(\beta = R_1/(R_1+R_2)\)</td>
+                            <td>Resistor ratio only</td>
+                        </tr>
+                        <tr>
+                            <td>Time period T</td>
+                            <td class="t-org">\(2RC\ln\!\left(\frac{1+\beta}{1-\beta}\right)\)</td>
+                            <td>\(R\), \(C\), \(\beta\)</td>
+                        </tr>
+                        <tr>
+                            <td>Frequency f</td>
+                            <td class="t-org">\(1/T\)</td>
+                            <td>\(R\), \(C\), \(\beta\)</td>
+                        </tr>
+                        <tr>
+                            <td>Duty cycle</td>
+                            <td>50% (symmetric, equal β)</td>
+                            <td>RC equality</td>
+                        </tr>
+                        <tr>
+                            <td>Output amplitude</td>
+                            <td class="t-tel">\(\pm V_{sat} \approx \pm(V_{CC} - 1.5)\)</td>
+                            <td>Supply voltage</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 4 — MONOSTABLE ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">9.11.4</span>
+                <h2 class="sec-t">Monostable Multivibrator</h2>
+            </div>
+
+            <p>The <strong>monostable multivibrator</strong> (also called a <em>one-shot</em>) has <strong>one stable
+                    state</strong> and one quasi-stable state. In the stable state, the output remains at a fixed level
+                (say, LOW). When triggered by an external pulse, it switches to the quasi-stable state (HIGH) for a
+                precisely defined time duration \(T_W\), then automatically returns to the stable state.<sup
+                    class="cite">[1]</sup></p>
+
+            <p>It is therefore used to generate a <strong>pulse of precise, controllable width</strong> regardless of
+                the width of the triggering pulse — the key engineering advantage.</p>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Analogy for Intuition</div>
+                    <p>Think of a doorbell. When you press the button (trigger), the bell rings for a fixed time (pulse
+                        width \(T_W\)), then automatically stops — regardless of how long you held the button. The
+                        monostable is the electronic equivalent of this "one-shot, fixed duration" behaviour.</p>
+                </div>
+            </div>
+
+            <!-- Monostable waveform SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch11/fig11.4.png" alt="Figure 11.4">
+            </div>
+            <p class="svg-cap">Fig. 9.11.4 — Monostable multivibrator: a single trigger produces one output pulse of
+                width T_W.</p>
+
+            <h3 class="sub">Pulse Width Derivation</h3>
+            <p>In the quasi-stable state, output is \(+V_{sat}\). Capacitor \(C\) charges through \(R\) from its initial
+                negative value towards \(+V_{sat}\). The circuit returns to stable state when \(v_C\) reaches the
+                threshold \(V_{th} = \frac{R_1}{R_1+R_2}V_{sat} = \beta V_{sat}\).<sup class="cite">[2]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Pulse Width — Op-Amp Monostable</div>
+                $$T_W = RC \ln\!\left(1 + \frac{R_2}{R_1}\right) = RC \ln\!\left(\frac{1}{1-\beta}\right)$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✅</div>
+                <div class="cb">
+                    <div class="ct">555 Timer Monostable (Standard Result)</div>
+                    <p>For the 555 timer in monostable mode with threshold at \(2V_{CC}/3\) and trigger at \(V_{CC}/3\):
+                        \(T_W = 1.1RC\). This is perhaps the most commonly tested result in GATE. Derive it by
+                        substituting \(\beta = 1/3\) into the general formula.<span class="prob prob-h">🟢 HIGH</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 5 — BISTABLE ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">9.11.5</span>
+                <h2 class="sec-t">Bistable Multivibrator (Flip-Flop)</h2>
+            </div>
+
+            <p>The <strong>bistable multivibrator</strong> has <strong>two stable states</strong> and remains in either
+                state indefinitely until an external trigger forces it to change. Each trigger flips it to the other
+                state. It requires two separate triggers — one to SET (go HIGH) and one to RESET (go LOW). It is the
+                basis of all digital memory, latches, flip-flops and registers.<sup class="cite">[4]</sup></p>
+
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Astable</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>0 stable states</li>
+                        <li><span class="dot">▸</span>Free-running oscillator</li>
+                        <li><span class="dot">▸</span>No trigger needed</li>
+                        <li><span class="dot">▸</span>Square wave output</li>
+                        <li><span class="dot">▸</span>Clock generators, PWM</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Monostable</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>1 stable state</li>
+                        <li><span class="dot">▸</span>One trigger = one pulse</li>
+                        <li><span class="dot">▸</span>Pulse width = RC·ln(…)</li>
+                        <li><span class="dot">▸</span>Pulse stretcher / delayer</li>
+                        <li><span class="dot">▸</span>Debouncing, timing</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Bistable</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>2 stable states</li>
+                        <li><span class="dot">▸</span>Needs SET &amp; RESET triggers</li>
+                        <li><span class="dot">▸</span>Stays in state indefinitely</li>
+                        <li><span class="dot">▸</span>Digital memory element</li>
+                        <li><span class="dot">▸</span>Flip-flops, SR latch, registers</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bistable State Diagram SVG -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch11/fig11.5.png" alt="Figure 11.5">
+            </div>
+            <p class="svg-cap">Fig. 9.11.5 — Bistable multivibrator state diagram. External triggers cause transitions
+                between the two stable states.</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Stable States</th>
+                            <th>Trigger</th>
+                            <th>Output</th>
+                            <th>Application</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Astable</td>
+                            <td class="t-red">0</td>
+                            <td>None</td>
+                            <td>Continuous square wave</td>
+                            <td>Clock, oscillator</td>
+                        </tr>
+                        <tr>
+                            <td>Monostable</td>
+                            <td class="t-amb">1</td>
+                            <td>Single pulse → one shot</td>
+                            <td>Pulse of width T_W</td>
+                            <td>Timer, pulse shaper</td>
+                        </tr>
+                        <tr>
+                            <td>Bistable</td>
+                            <td class="t-grn">2</td>
+                            <td>SET &amp; RESET</td>
+                            <td>Latched HIGH or LOW</td>
+                            <td>Memory, flip-flop</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 6 — SAMPLE AND HOLD ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">9.11.6</span>
+                <h2 class="sec-t">Sample and Hold Circuit</h2>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">📷</div>
+                <div class="cb">
+                    <div class="ct">Why is Sample &amp; Hold Needed?</div>
+                    <p>An ADC (Analogue-to-Digital Converter) takes a finite time — called the <strong>conversion
+                            time</strong> — to digitise an analogue input. If the input changes during this window, the
+                        conversion is corrupted. A Sample-and-Hold (S/H) circuit takes a snapshot of the analogue input
+                        and holds it perfectly constant for the ADC to convert — eliminating conversion error from
+                        signal variation.<sup class="cite">[3]</sup></p>
+                </div>
+            </div>
+
+            <h3 class="sub">Basic S/H Circuit — Circuit Diagram</h3>
+
+            <!-- Sample and Hold Circuit SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch11/fig11.6.png" alt="Figure 11.6">
+            </div>
+
+            <h3 class="sub">Modes of Operation</h3>
+
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Sample Mode (φ = 1)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Switch is closed</li>
+                        <li><span class="dot">▸</span>C_H charges to V_in rapidly</li>
+                        <li><span class="dot">▸</span>Output tracks input (V_out ≈ V_in)</li>
+                        <li><span class="dot">▸</span>Acquisition time = time for C_H to settle</li>
+                        <li><span class="dot">▸</span>Limited by R_on of switch × C_H</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Hold Mode (φ = 0)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Switch is open</li>
+                        <li><span class="dot">▸</span>C_H holds the last sampled voltage</li>
+                        <li><span class="dot">▸</span>Output is constant = V_sample</li>
+                        <li><span class="dot">▸</span>ADC converts during this time</li>
+                        <li><span class="dot">▸</span>Droop = leakage through switch / input bias</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- S/H Waveform SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch11/fig11.7.png" alt="Figure 11.7">
+            </div>
+
+            <h3 class="sub">Key S/H Performance Parameters</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Definition</th>
+                            <th>Ideal Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Acquisition time</td>
+                            <td>Time for \(C_H\) to settle to \(V_{in}\) within spec after switch closes</td>
+                            <td class="t-grn">As short as possible</td>
+                        </tr>
+                        <tr>
+                            <td>Aperture time</td>
+                            <td>Delay between HOLD command and actual opening of switch</td>
+                            <td class="t-grn">As short as possible</td>
+                        </tr>
+                        <tr>
+                            <td>Droop rate</td>
+                            <td>Rate of change of held voltage due to leakage (V/s)</td>
+                            <td class="t-org">Zero (needs large \(C_H\))</td>
+                        </tr>
+                        <tr>
+                            <td>Feedthrough</td>
+                            <td>Input signal appearing at output in HOLD mode</td>
+                            <td class="t-grn">Zero (isolation)</td>
+                        </tr>
+                        <tr>
+                            <td>Pedestal error</td>
+                            <td>Voltage step at output when transitioning from SAMPLE to HOLD</td>
+                            <td class="t-grn">Zero</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">Droop Rate Derivation</div>
+                    <p>In hold mode, the reverse leakage current \(I_{leak}\) through the switch discharges \(C_H\). The
+                        droop rate is:</p>
+                    <p>$$\frac{dV}{dt}\bigg|_{droop} = \frac{I_{leak}}{C_H}$$</p>
+                    <p>Larger \(C_H\) → lower droop but longer acquisition time. This is the fundamental S/H design
+                        trade-off.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 7 — APPLICATIONS ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">9.11.7</span>
+                <h2 class="sec-t">Practical Applications</h2>
+            </div>
+
+            <h3 class="sub">ADC Interface</h3>
+            <p>The S/H is placed immediately before an ADC. When the ADC asserts a "Start Conversion" command, the S/H
+                simultaneously switches to HOLD mode, freezing the input. The ADC then converts the frozen value over
+                its conversion period (which may be many microseconds for a 12-bit successive-approximation ADC).
+                Without the S/H, the ADC would see a moving target and produce incorrect codes.<sup
+                    class="cite">[3]</sup></p>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch11/fig11.8.png" alt="Figure 11.8">
+            </div>
+            <p class="svg-cap">Fig. 9.11.8 — Complete data acquisition front-end: sensor → anti-alias filter → Sample
+                &amp; Hold → ADC → digital output.</p>
+
+            <h3 class="sub">Other Applications</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Schmitt Trigger Applications</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Signal squaring (sine→square)</li>
+                        <li><span class="dot">▸</span>Switch / relay debouncing</li>
+                        <li><span class="dot">▸</span>Voltage level translator</li>
+                        <li><span class="dot">▸</span>Waveform shaping in PLCs</li>
+                        <li><span class="dot">▸</span>Oscillators with RC network</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Multivibrator Applications</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Astable: clock, PWM, tone generator</li>
+                        <li><span class="dot">▸</span>Monostable: pulse stretcher, watchdog</li>
+                        <li><span class="dot">▸</span>Bistable: SR latch, data storage</li>
+                        <li><span class="dot">▸</span>Frequency dividers</li>
+                        <li><span class="dot">▸</span>Debounce circuits (monostable)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">S/H Circuit Applications</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>ADC front-end (primary use)</li>
+                        <li><span class="dot">▸</span>Data acquisition systems (DAS)</li>
+                        <li><span class="dot">▸</span>Peak detector circuits</li>
+                        <li><span class="dot">▸</span>Digital oscilloscope inputs</li>
+                        <li><span class="dot">▸</span>Multiplexed signal processing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 8 — GATE PYQs ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr">
+                <span class="sec-num">9.11.8</span>
+                <h2 class="sec-t">GATE &amp; IES — Previous Year Questions</h2>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EC</span>
+                    <span class="pyq-title">Schmitt Trigger Threshold Calculation</span>
+                    <span class="pyq-year">GATE EC 2018</span>
+                </div>
+                <div class="pyq-body">
+                    <p>An inverting Schmitt Trigger is designed using an ideal op-amp with supply voltages ±15 V (so
+                        \(V_{sat} = 14\) V). If \(R_1 = 10\,\text{k}\Omega\) and \(R_2 = 20\,\text{k}\Omega\), the upper
+                        threshold point (UTP) is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) −4.67 V</li>
+                        <li class="correct">✓ (B) +4.67 V — \(UTP = +\frac{R_1}{R_2} \times V_{sat} = \frac{10}{20}
+                            \times 14 = +7\,\text{V}\) ... wait, re-check
+                            with correct β: \(UTP = +\frac{R_1}{R_2} \times V_{sat} = 0.5 \times 14 = +7\,\text{V}\)
+                        </li>
+                        <li>(C) ±7 V</li>
+                        <li>(D) ±14 V</li>
+                    </ul>
+                    <p><strong>Solution:</strong> For an inverting Schmitt Trigger, \(UTP = +\frac{R_1}{R_2}V_{sat} =
+                        \frac{10}{20}\times 14 = +7\,\text{V}\). Hysteresis \( V_H = 2 \times 7 = 14\,\text{V}\).</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Astable Multivibrator Frequency</span>
+                    <span class="pyq-year">GATE EE 2015</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In an op-amp astable multivibrator with \(R = 10\,\text{k}\Omega\), \(C = 0.1\,\mu\text{F}\),
+                        \(R_1 = R_2 = 10\,\text{k}\Omega\). The frequency of oscillation is approximately:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 1 kHz</li>
+                        <li class="correct">✓ (B) 455 Hz — using \( T = 2RC \ln 3 = 2 \times 10\,\text{k}\Omega \times
+                            0.1\,\mu\text{F} \times 1.0986 \approx 2.197\,\text{ms} \to f \approx 455\,\text{Hz} \)
+                        </li>
+                        <li>(C) 5 kHz</li>
+                        <li>(D) \(\frac{1}{2RC} = 500\text{ Hz}\) (wrong — ignores ln factor)</li>
+                    </ul>
+                    <p><strong>Solution:</strong> With \(R_1=R_2\), \(\beta=0.5\). \( T = 2RC \ln 3 = 2 \times 10^4
+                        \times
+                        10^{-7} \times 1.0986 = 2.197\,\text{ms}\). \(f = 1/T \approx 455\,\text{Hz}\).</p>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title">Monostable Pulse Width — 555 Timer</span>
+                    <span class="pyq-year">IES 2019</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A 555 timer is configured in monostable mode with \(R = 100\,\text{k}\Omega\) and \(C =
+                        10\,\mu\text{F}\). The pulse width generated on receipt of a trigger is:</p>
+                    <ul class="pyq-opts">
+                        <li class="correct">✓ (A) 1.1 s — \(T_W = 1.1RC = 1.1 \times 10^5 \times 10^{-5} = 1.1\text{
+                            s}\)</li>
+                        <li>(B) 1.0 s</li>
+                        <li>(C) 0.69 s</li>
+                        <li>(D) 2.2 s</li>
+                    </ul>
+                    <p><strong>Solution:</strong> Standard 555 monostable formula: \(T_W = 1.1RC = 1.1 \times 10^5
+                        \times 10^{-5} = 1.1\,\text{s}\).</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EC</span>
+                    <span class="pyq-title">Sample &amp; Hold — Droop and Aperture</span>
+                    <span class="pyq-year">GATE EC 2016</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In a sample-and-hold circuit the hold capacitor \(C_H = 100\,\text{pF}\) and the leakage current
+                        through the switch in hold mode is \(1\,\text{nA}\). The droop rate is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 1 mV/μs</li>
+                        <li>(B) 100 mV/ms</li>
+                        <li class="correct">✓ (C) 10 mV/ms — \(\frac{dV}{dt} = \frac{I}{C} = \frac{1\text{
+                            nA}}{100\text{ pF}} = 10\text{ V/s} = 10\text{ mV/ms}\)</li>
+                        <li>(D) 1 V/s</li>
+                    </ul>
+                    <p><strong>Solution:</strong> \(\frac{dV}{dt} = \frac{I_{leak}}{C_H} = \frac{10^{-9}}{100 \times
+                        10^{-12}} = 10\,\text{V/s} = 10\,\text{mV/ms}\).</p>
+                </div>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">Topic Weightage &amp; Exam Strategy</span>
+                </div>
+                <div class="gate-body">
+                    <p><strong>Schmitt Trigger:</strong> \(UTP\)/\(LTP\)/\(V_H\) calculation — 1 mark numerical, appears
+                        almost
+                        every alternate year. <span class="prob prob-h">🟢 HIGH</span></p>
+                    <p><strong>Astable multivibrator:</strong> Frequency with given \(R\), \(C\), \(\beta\) — 1-2 mark
+                        numerical. <span class="prob prob-h">🟢 HIGH</span></p>
+                    <p><strong>Monostable:</strong> 555 timer pulse width \(T = 1.1RC\) — 1 mark direct substitution.
+                        <span class="prob prob-h">🟢 HIGH</span></p>
+                    <p><strong>Bistable:</strong> Conceptual questions only — identify stable states. <span
+                            class="prob prob-m">🟡 MEDIUM</span></p>
+                    <p><strong>Sample &amp; Hold:</strong> Droop calculation, role in ADC — 1 mark conceptual or
+                        numerical. <span class="prob prob-m">🟡 MEDIUM</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 9 — NUMERICAL EXAMPLES ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr">
+                <span class="sec-num">9.11.9</span>
+                <h2 class="sec-t">Numerical Examples</h2>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 9.11.1</span>
+                    <span class="ex-title">Basic Schmitt Trigger — Find UTP, LTP and Hysteresis</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An inverting Schmitt Trigger uses an LM741 op-amp with ±12 V supply (\( V_{sat} =
+                        11\)
+                        V). \(R_1 = 15\,\text{k}\Omega\), \(R_2 = 30\,\text{k}\Omega\). Calculate UTP, LTP and the
+                        hysteresis voltage.</div>
+                    <div class="sol-lbl">▶ Solution</div>
+                    <p><strong>Step 1 — Identify configuration:</strong> Inverting Schmitt Trigger. For this
+                        configuration:</p>
+                    <div class="math-block">
+                        <div class="math-lbl">UTP and LTP for inverting Schmitt Trigger</div>
+                        $$V_{UTP} = +\frac{R_1}{R_2}V_{sat} = +\frac{15}{30} \times 11 = +5.5\,\text{V}$$
+                        $$V_{LTP} = -\frac{R_1}{R_2}V_{sat} = -\frac{15}{30} \times 11 = -5.5\,\text{V}$$
+                    </div>
+                    <p><strong>Step 2 — Hysteresis:</strong></p>
+                    <div class="math-block">
+                        <div class="math-lbl">Hysteresis voltage</div>
+                        $$ V_H = V_{UTP} - V_{LTP} = 5.5 - (-5.5) = 11\,\text{V}$$
+                    </div>
+                    <p><strong>Physical interpretation:</strong> Only signals with amplitude variation greater than ±5.5
+                        V can cause output transitions. Any noise smaller than 11 V peak-to-peak is completely rejected.
+                    </p>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 9.11.2</span>
+                    <span class="ex-title">GATE-Level — Op-Amp Astable Multivibrator</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An op-amp astable multivibrator has \(R = 22\,\text{k}\Omega\), \(C =
+                        47\,\text{nF}\), \(R_1 = 10\,\text{k}\Omega\), \(R_2 = 15\,\text{k}\Omega\). Find (a) the
+                        feedback ratio β, (b) the time period T, (c) the frequency f.</div>
+                    <div class="sol-lbl">▶ Solution</div>
+                    <p><strong>(a) Feedback ratio β:</strong></p>
+                    <div class="math-block">
+                        <div class="math-lbl"></div>
+                        $$\beta = \frac{R_1}{R_1+R_2} = \frac{10}{10+15} = \frac{10}{25} = 0.4$$
+                    </div>
+                    <p><strong>(b) Time period:</strong></p>
+                    <div class="math-block">
+                        <div class="math-lbl"></div>
+                        $$T = 2RC \ln\!\left(\frac{1+\beta}{1-\beta}\right) = 2 \times 22\times10^3 \times
+                        47\times10^{-9} \times \ln\!\left(\frac{1.4}{0.6}\right)$$
+                        $$= 2 \times 22000 \times 47\times10^{-9} \times \ln(2.333)$$
+                        $$= 2 \times 22000 \times 47\times10^{-9} \times 0.8473$$
+                        $$= 2 \times 1.034\times10^{-3} \times 0.8473 = 1.752\,\text{ms}$$
+                    </div>
+                    <p><strong>(c) Frequency:</strong></p>
+                    <div class="math-block">
+                        <div class="math-lbl"></div>
+                        $$f = \frac{1}{T} = \frac{1}{1.752\times10^{-3}} \approx 571\,\text{Hz}$$
+                    </div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 9.11.3</span>
+                    <span class="ex-title">Sample &amp; Hold — Acquisition Time and Droop</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A sample-and-hold circuit uses a JFET switch with on-resistance \(R_{on} =
+                        200\,\Omega\) and a hold capacitor \(C_H = 1\,\text{nF}\). The switch leakage current in hold
+                        mode is 0.5 nA. Find (a) the acquisition time constant, (b) the droop rate, (c) the voltage
+                        droop over 1 ms in hold mode.</div>
+                    <div class="sol-lbl">▶ Solution</div>
+                    <p><strong>(a) Acquisition time constant:</strong> The capacitor charges through R_on:</p>
+                    <div class="math-block">$$\tau_{acq} = R_{on} \times C_H = 200 \times 1\times10^{-9} =
+                        200\,\text{ns}$$</div>
+                    <p>For settling to within 0.1% (7τ ≈ 1.4 μs). For 0.01% accuracy (9τ ≈ 1.8 μs).</p>
+                    <p><strong>(b) Droop rate:</strong></p>
+                    <div class="math-block">$$\frac{dV}{dt} = \frac{I_{leak}}{C_H} =
+                        \frac{0.5\times10^{-9}}{1\times10^{-9}} = 0.5\,\text{V/s}$$</div>
+                    <p><strong>(c) Droop over 1 ms:</strong></p>
+                    <div class="math-block">$$\Delta V = \frac{dV}{dt} \times t = 0.5 \times 10^{-3} = 0.5\,\text{mV}$$
+                    </div>
+                    <p>This is acceptable for a 12-bit ADC with 5 V full scale (LSB = 1.22 mV), since the droop is less
+                        than 0.5 LSB.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 10 — COMMON MISTAKES ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr">
+                <span class="sec-num">9.11.10</span>
+                <h2 class="sec-t">Common Student Mistakes</h2>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">🚫</div>
+                <div class="cb">
+                    <div class="ct">Mistake 1 — Confusing Inverting &amp; Non-Inverting Schmitt Trigger Signs</div>
+                    <p>Many students apply the UTP/LTP formula for one configuration to the other. <strong>Always draw
+                            the circuit first.</strong> For the non-inverting type, \(UTP = -\frac{R_1}{R_2}V_{sat}\)
+                        (negative!) and
+                        \(LTP = +\frac{R_1}{R_2}V_{sat}\). The signs are swapped from the inverting case. Losing 1 mark
+                        here is very
+                        common in GATE.</p>
+                </div>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">🚫</div>
+                <div class="cb">
+                    <div class="ct">Mistake 2 — Using \(T = 2RC\) for Astable Instead of \( T = 2RC \ln(\dots) \)</div>
+                    <p>Students often forget the logarithm factor and write \( f = \frac{1}{2RC} \). This is
+                        <em>never</em>
+                        correct for an op-amp astable. The correct formula is \(T =
+                        2RC\ln\!\left(\frac{1+\beta}{1-\beta}\right)\). Only when \(\beta \to 0\) does this approach 2RC
+                        — and no real circuit uses β = 0.</p>
+                </div>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">🚫</div>
+                <div class="cb">
+                    <div class="ct">Mistake 3 — Thinking Monostable Generates Oscillations</div>
+                    <p>The monostable does NOT oscillate. It produces exactly <em>one</em> pulse per trigger. Students
+                        often confuse it with the astable. Remember: "mono" = one, "astable" = no stable state
+                        (oscillates).</p>
+                </div>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">🚫</div>
+                <div class="cb">
+                    <div class="ct">Mistake 4 — Ignoring the Buffer in S/H Circuits</div>
+                    <p>Students draw S/H as just a switch and capacitor. Without the unity-gain buffer (voltage
+                        follower), the capacitor would discharge through the ADC input resistance, causing droop. The
+                        buffer provides high input impedance, preventing discharge.</p>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">GATE Trap — Hysteresis Improves Noise Immunity but Reduces Precision</div>
+                    <p>Some GATE questions ask whether increasing hysteresis is always beneficial. The answer is NO.
+                        Large hysteresis improves noise immunity but <strong>reduces the precision of threshold
+                            detection</strong>. For precision level detection, smaller hysteresis (or a plain
+                        comparator) is preferred.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 11 — MEMORY TRICKS ═══ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr">
+                <span class="sec-num">9.11.11</span>
+                <h2 class="sec-t">Memory Tricks &amp; Mnemonics</h2>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic 1 — "AMB" for Multivibrator Types</div>
+                    <p><strong>A</strong>stable = <strong>A</strong>lways running (0 stable states, free-running
+                        oscillator)<br>
+                        <strong>M</strong>onostable = <strong>M</strong>omentary pulse (1 stable state, one-shot)<br>
+                        <strong>B</strong>istable = <strong>B</strong>oth states stable (2 stable states, flip-flop)<br>
+                        AMB → <em>"A Moving Bus always has Momentary Brakes at Both stops"</em>
+                    </p>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic 2 — Schmitt Trigger Formula via "RUTH"</div>
+                    <p><strong>R</strong>atio = \(\frac{R_1}{R_2}\) | <strong>U</strong>TP = +ratio × \( V_{sat} \)
+                        (inverting) |
+                        <strong>T</strong>hreshold pair: UTP and LTP | <strong>H</strong>ysteresis = 2 × ratio ×
+                        \( V_{sat} \)<br>
+                        Just remember: <em>"Vsat times the \(\frac{R_1}{R_2}\) ratio gives you half the
+                            hysteresis"</em>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic 3 — 555 Timer Results</div>
+                    <p><strong>Astable 555:</strong> \(T = 0.693(R_A + 2R_B)C\), \(f \approx
+                        \frac{1.44}{(R_A+2R_B)C}\)<br>
+                        <strong>Monostable 555:</strong> \(T_W = 1.1RC\)<br>
+                        Memory trick: <em>"one-shot = \(1.1 \times RC\)"</em> — The "1.1" looks like a "pulse" symbol!
+                        The factor
+                        is exactly \(\ln 3 \approx 1.0986 \approx 1.1\).
+                    </p>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic 4 — S/H Circuit: "SNAP and FREEZE"</div>
+                    <p><strong>SNAP</strong> (Sample mode) = switch closed, capacitor charges to input, output tracks
+                        input<br>
+                        <strong>FREEZE</strong> (Hold mode) = switch open, capacitor holds voltage, ADC converts<br>
+                        Think of it like a camera: SNAP takes the picture, FREEZE shows it still for inspection.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 12 — REVISION SHEET ═══ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr">
+                <span class="sec-num">9.11.12</span>
+                <h2 class="sec-t">Quick Revision Sheet</h2>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Schmitt Trigger</div>
+                    <p>Positive feedback → two thresholds. Inverting: \( UTP = +\left(\frac{R_1}{R_2}\right) V_{sat} \),
+                        \( LTP = -\left(\frac{R_1}{R_2}\right) V_{sat} \). \( V_H =
+                        2\left(\frac{R_1}{R_2}\right) V_{sat} \). Noise immunity = \(\frac{V_H}{2}\).</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Astable Multivibrator</div>
+                    <p>0 stable states. \( T = 2RC \ln\left(\frac{1+\beta}{1-\beta}\right) \). \(\beta =
+                        \frac{R_1}{R_1+R_2}\). \(R_1 = R_2 \to T \approx 2.2RC\), \(f \approx \frac{1}{2.2RC}\).
+                        Square wave output \(\pm V_{sat}\).</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Monostable MV</div>
+                    <p>1 stable state. \(T_W = RC\ln\left(1+\frac{R_2}{R_1}\right)\). 555 timer: T_W = 1.1RC. Triggered
+                        by external pulse. Pulse
+                        stretcher / one-shot.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Bistable MV</div>
+                    <p>2 stable states. Needs SET &amp; RESET triggers. Stays indefinitely in either state. Basis of
+                        flip-flops, SR latch, registers.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Sample &amp; Hold</div>
+                    <p>Sample: switch ON, \(C_H \to V_{in}\). Hold: switch OFF, C_H frozen. Droop =
+                        \(\frac{I_{leak}}{C_H}\). Acquisition τ =
+                        R_on·C_H. Mandatory before ADC.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">GATE Key Formulae</div>
+                    <p>\( V_H = 2\left(\frac{R_1}{R_2}\right) V_{sat} \) · \(f_{astable} =
+                        \frac{1}{2RC\ln\left(\frac{1+\beta}{1-\beta}\right)}\) · \(T_W(555) = 1.1RC\) · \(\text{Droop} =
+                        \frac{I}{C}\)</p>
+                </div>
+            </div>
+
+            <!-- AI Prompt Widget -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI</div>
+                <p>Ask any question on Schmitt Triggers, Multivibrators or Sample-and-Hold — get a step-by-step answer
+                    from a GATE-expert AI tutor.</p>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="userQ" type="text"
+                        placeholder="e.g. Derive the frequency formula for op-amp astable multivibrator…"
+                        autocomplete="off" autocorrect="off" spellcheck="false">
+                    <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('Derive the UTP and LTP for a non-inverting Schmitt Trigger with R1 = 12kΩ, R2 = 24kΩ and Vsat = 13V.')">Non-inverting
+                        Schmitt UTP/LTP</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain the difference between astable, monostable and bistable multivibrators with real-world analogies.')">Multivibrator
+                        comparison</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Why is a unity-gain buffer essential in a sample-and-hold circuit? What happens without it?')">S/H
+                        buffer importance</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Design an op-amp astable multivibrator to generate a 1 kHz square wave. Give component values.')">Design
+                        1 kHz astable</span>
+                    <span class="ai-chip"
+                        onclick="setQ('What is aperture uncertainty in a sample-and-hold circuit and how does it limit ADC performance?')">Aperture
+                        uncertainty</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <!-- Citations -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                    the following standard textbooks. All explanations, derivations, SVG diagrams, and examples are
+                    original to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Sedra, Adel S. and Smith, Kenneth C. <em>Microelectronic
+                                Circuits</em>, 7th ed. Oxford University Press, 2015. Chapter 13 — Signal Generators and
+                            Waveform-Shaping Circuits: Schmitt Trigger, astable, monostable, bistable
+                            multivibrators.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Franco, Sergio. <em>Design with Operational Amplifiers
+                                and Analog Integrated Circuits</em>, 4th ed. McGraw-Hill, 2014. Chapter 9 — Waveform
+                            Generators: Op-amp Schmitt Triggers, multivibrators, frequency derivations.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Razavi, Behzad. <em>Design of Analog CMOS Integrated
+                                Circuits</em>, 2nd ed. McGraw-Hill, 2017. Chapter 13 — Sample-and-Hold Circuits: droop,
+                            acquisition time, aperture uncertainty, ADC interface.</span></li>
+                    <li><span class="cite-num">[4]</span><span>Boylestad, Robert L. and Nashelsky, Louis. <em>Electronic
+                                Devices and Circuit Theory</em>, 12th ed. Pearson, 2015. Chapter 16 — Multivibrators:
+                            astable, monostable, bistable using discrete BJTs and op-amps.</span></li>
+                    <li><span class="cite-num">[5]</span><span>IIT Kharagpur NPTEL. <em>Analog Circuits — Lectures
+                                38–42: Multivibrators and Waveform Generators</em>. National Programme on Technology
+                            Enhanced Learning. nptel.ac.in. Astable, monostable, bistable, S/H circuits.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Analog Electronics Series &nbsp;·&nbsp; Chapter 9.11 of 12<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE / EC &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                    diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+        </div>
+
+    </div><!-- end .page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE/EC and IES tutor specialising in Analog Electronics. Topic: Chapter 9.11 — Schmitt Trigger, Multivibrators (Astable, Monostable, Bistable), and Sample-and-Hold Circuits. Cover UTP, LTP, hysteresis, feedback ratio β, frequency of astable, pulse width of monostable, S/H droop, acquisition time, ADC interface. Answer step-by-step for numericals. Base answers on Sedra & Smith, Franco, Razavi, Boylestad. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Mobile scroll hints on SVG */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

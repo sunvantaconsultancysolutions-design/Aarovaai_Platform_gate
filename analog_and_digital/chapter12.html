@@ -1,0 +1,2799 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Electronics Ch.9.12 Data Converters (ADC &amp; DAC)</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 75%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .section:nth-child(13) {
+            animation-delay: .53s
+        }
+
+        .section:nth-child(14) {
+            animation-delay: .57s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px
+        }
+
+        /* CALLOUTS */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* FORMULA BLOCK */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* MATH */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* SVG DIAGRAMS */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* EXAMPLES */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px)
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px
+        }
+
+        /* GATE / PYQ CARDS */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* TWO-COL CARDS */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        /* SUMMARY GRID */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* PROBABILITY */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* ASK AI */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12)
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none
+        }
+
+        .ai-btn:hover {
+            background: #155250
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg)
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto
+        }
+
+        /* MISC */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border)
+        }
+
+        footer strong {
+            color: var(--orange)
+        }
+
+        /* TABLET */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .svg-wrap svg {
+                min-width: 480px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px
+            }
+
+            .pyq-year {
+                margin-left: 0
+            }
+        }
+
+        /* MOBILE */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .hbadges {
+                display: none
+            }
+
+            .site-header {
+                padding: 10px 14px
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px)
+            }
+
+            .hero-desc {
+                font-size: 14px
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px
+            }
+
+            .pl {
+                font-size: 11px
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0
+            }
+
+            .toc {
+                padding: 14px 16px
+            }
+
+            .sec-hdr {
+                gap: 9px
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px)
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px)
+            }
+
+            p {
+                font-size: 15px
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%
+            }
+
+            .svg-cap {
+                font-size: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px
+            }
+
+            .tw {
+                border-radius: 8px
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px
+            }
+
+            .mini-card {
+                padding: 13px 14px
+            }
+
+            .sum-card {
+                padding: 14px 16px
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px
+            }
+
+            .ci {
+                font-size: 16px
+            }
+
+            .cb p {
+                font-size: 13.5px
+            }
+
+            .ex-hdr {
+                padding: 8px 13px
+            }
+
+            .ex-body {
+                padding: 12px 13px
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px
+            }
+
+            .pyq-year {
+                display: none
+            }
+
+            .ai-prompt {
+                padding: 14px 14px
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-input {
+                font-size: 15px
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px
+            }
+
+            .ai-chip {
+                font-size: 11px
+            }
+
+            .ai-suggest {
+                gap: 5px
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px
+            }
+
+            .citations {
+                padding: 14px 14px
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px
+            }
+
+            .math-block {
+                padding: 10px 12px
+            }
+        }
+
+        /* LARGE DESKTOP */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow)
+            }
+
+            .ai-btn:hover {
+                background: var(--teal)
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none
+            }
+
+            .svg-wrap {
+                break-inside: avoid
+            }
+
+            body {
+                font-size: 12pt
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Electronics &amp; Circuits Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EC/EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 9.12 &nbsp;·&nbsp; Analog &amp; Digital Electronics</div>
+            <h1 class="hero-title">Data Converters — <em>ADC &amp; DAC</em></h1>
+            <p class="hero-desc">Digital-to-Analog and Analog-to-Digital conversion circuits — weighted resistor DAC,
+                R-2R ladder, Flash ADC, counter-type, tracking, successive approximation, dual-slope ADC — with complete
+                derivations, SVG circuit diagrams, GATE &amp; IES previous year questions, and exam-focused insights.
+            </p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EC / EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">⭐⭐⭐⭐⭐ Very Important</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Chapter Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Chapter 9.12</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">9.12.1</span>Big Picture — Why Data Converters?</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">9.12.6</span>Flash (Parallel) ADC</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">9.12.2</span>Weighted Resistor DAC</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">9.12.7</span>Counter-Type ADC</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">9.12.3</span>R-2R Ladder DAC</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">9.12.8</span>Tracking ADC</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">9.12.4</span>Performance Parameters</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">9.12.9</span>Successive Approximation ADC</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">9.12.5</span>ADC Overview &amp; Classification</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">9.12.10</span>Dual-Slope ADC</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">9.12.11</span>Solved Numericals</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">9.12.12</span>GATE &amp; IES Questions</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: BIG PICTURE ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">9.12.1</span>
+                <h2 class="sec-t">Why Data Converters Exist — The Big Picture</h2>
+            </div>
+
+            <p>The physical world speaks <strong>analog</strong> — temperature, pressure, sound, speed are all
+                continuous quantities. Modern microprocessors, digital communication systems, and computers speak
+                <strong>digital</strong> — they process only discrete binary numbers. Data converters are the bridge
+                between these two worlds.
+            </p>
+
+            <div class="callout c-info">
+                <div class="ci">🔌</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>A <strong>DAC</strong> (Digital-to-Analog Converter) converts a binary number into a proportional
+                        voltage or current. An <strong>ADC</strong> (Analog-to-Digital Converter) performs the reverse.
+                        Without these, a microphone could never talk to a processor, and a processor could never drive a
+                        speaker.</p>
+                </div>
+            </div>
+
+            <!-- Big picture SVG -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch12/fig12.1.png" alt="Figure 9.12.1" />
+                <div class="svg-cap">Fig 9.12.1 — Data converter system overview: ADC converts real-world analog into
+                    digital for processing; DAC reconstructs analog output from digital data.</div>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Where ADC is Used</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Medical ECG / EEG instruments</li>
+                        <li><span class="dot">▸</span>Digital oscilloscopes</li>
+                        <li><span class="dot">▸</span>RADAR / SONAR signal processing</li>
+                        <li><span class="dot">▸</span>Temperature / pressure data loggers</li>
+                        <li><span class="dot">▸</span>Smart energy meters</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Where DAC is Used</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>CD/DVD/Streaming audio playback</li>
+                        <li><span class="dot">▸</span>Function generators (arbitrary waveform)</li>
+                        <li><span class="dot">▸</span>CNC machine tool control</li>
+                        <li><span class="dot">▸</span>Digital-to-analog voltage references</li>
+                        <li><span class="dot">▸</span>Motor speed control in VFDs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: WEIGHTED RESISTOR DAC ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">9.12.2</span>
+                <h2 class="sec-t">Weighted Resistor DAC <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>The weighted resistor DAC (also called the <strong>binary-weighted DAC</strong>) is the simplest and most
+                intuitive DAC topology. Each input bit is connected through a resistor to a summing amplifier. The key
+                insight is: the most significant bit (MSB) has the lowest resistance, so it contributes the largest
+                current — exactly twice the next bit, and so on.</p>
+
+            <div class="callout c-key">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Intuitive Analogy</div>
+                    <p>Think of weighted resistors as coffee dispensers — the MSB dispenser has the widest nozzle
+                        (smallest R), dispensing twice as much as the next one. The op-amp sums all the currents,
+                        producing an output voltage proportional to the binary number you dial in.</p>
+                </div>
+            </div>
+
+            <!-- Circuit SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch12/fig12.2.png" alt="Figure 9.12.2" />
+                <div class="svg-cap">Fig 9.12.2 — 3-bit Weighted Resistor DAC. MSB has smallest resistance R; LSB has
+                    4R. Op-amp inverts and scales the weighted sum of input currents.</div>
+            </div>
+
+            <h3 class="sub">Mathematical Derivation</h3>
+            <p>For an <strong>n-bit DAC</strong> with reference voltage \(V_{ref}\) and feedback resistor \(R_f\), each
+                bit \(b_k\) (where \(b_{n-1}\) is MSB) drives a current through its weighted resistor \(2^{n-1-k} \cdot
+                R\).</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Current from each bit</div>
+                $$I_k = \frac{b_k \cdot V_{ref}}{2^{n-1-k} \cdot R}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Output voltage (inverting summing amplifier)</div>
+                $$V_o = -\frac{R_f \cdot V_{ref}}{R}\left(\frac{b_{n-1}}{1} + \frac{b_{n-2}}{2} + \frac{b_{n-3}}{4} +
+                \cdots + \frac{b_0}{2^{n-1}}\right)$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Compact form (for R_f = R)</div>
+                $$V_o = -\frac{V_{ref}}{2^n}\left(b_{n-1} \cdot 2^{n-1} + b_{n-2} \cdot 2^{n-2} + \cdots + b_0 \cdot
+                2^0\right) = -\frac{V_{ref} \cdot D}{2^n}$$
+            </div>
+
+            <p>where \(D\) is the decimal equivalent of the binary input word. When all bits are 1 (i.e., \(D = 2^n -
+                1\)), the output is maximum (full-scale − 1 LSB).</p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Practical Limitation</div>
+                    <p>The weighted resistor DAC requires a wide range of precise resistors — for an 8-bit DAC, the
+                        resistor ratio spans 1:128. Achieving 0.01% accuracy across this range is extremely difficult in
+                        IC fabrication. This makes the <strong>R-2R ladder</strong> far more practical for
+                        high-resolution DACs.</p>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Advantages</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Simple circuit, easy to understand</li>
+                        <li><span class="dot">▸</span>Fast conversion — all bits act simultaneously</li>
+                        <li><span class="dot">▸</span>Good for low bit-count (3–4 bit) applications</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Disadvantages</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Wide resistor range — hard to match precisely</li>
+                        <li><span class="dot">▸</span>Resistor tolerances cause linearity errors</li>
+                        <li><span class="dot">▸</span>Not suitable for high bit-count ICs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: R-2R LADDER DAC ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">9.12.3</span>
+                <h2 class="sec-t">R-2R Ladder DAC <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>The R-2R ladder network is the dominant practical DAC topology. The elegance lies in the fact that it
+                uses <strong>only two resistor values</strong> — R and 2R — regardless of the number of bits. This makes
+                it ideal for monolithic IC fabrication where precise ratios between two values are easy to maintain.</p>
+
+            <div class="callout c-key">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Key Intuition — Thévenin at Each Node</div>
+                    <p>At every node of the ladder, looking left you see a Thévenin resistance of exactly R. This means
+                        each 2R shunt resistor divides the voltage by exactly 2 — binary weighting emerges naturally
+                        from the network geometry, not from resistor values!</p>
+                </div>
+            </div>
+
+            <!-- R-2R Ladder SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch12/fig12.3.png" alt="Figure 9.12.3" />
+                <div class="svg-cap">Fig 9.12.3 — 3-bit R-2R Ladder DAC. Only two resistor values used. Each node
+                    presents Thévenin resistance R to the right, creating perfect binary weighting.</div>
+            </div>
+
+            <h3 class="sub">How the R-2R Ladder Works — Node Analysis</h3>
+            <p>The network is analysed using the principle of <strong>superposition</strong>. When only \(b_2\) (MSB) =
+                1 (rest = 0), node C is at \(V_{ref}\). Due to the Thévenin equivalence at each node, the contribution
+                at output is \(V_{ref}/2\). When \(b_1 = 1\) only, node B drives the ladder, and its contribution is
+                \(V_{ref}/4\), and so on.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">R-2R DAC output voltage (n-bit)</div>
+                $$V_o = V_{ref}\left(\frac{b_{n-1}}{2^1} + \frac{b_{n-2}}{2^2} + \cdots + \frac{b_0}{2^n}\right) =
+                \frac{V_{ref} \cdot D}{2^n}$$
+            </div>
+
+            <p>Notice: no negative sign here — when the bit switches feed into a <strong>non-inverting</strong> buffer
+                (or the output is taken directly across \(R_L\)), the output is positive and proportional to \(D\). If
+                an inverting op-amp is used, the sign flips.</p>
+
+            <div class="callout c-tip">
+                <div class="ci">✅</div>
+                <div class="cb">
+                    <div class="ct">Why R-2R is Better than Weighted Resistor</div>
+                    <p>For a 16-bit weighted resistor DAC, resistors span a ratio of 1:32768. For a 16-bit R-2R DAC,
+                        every resistor is either R or 2R — just two values, making IC fabrication trivially precise.
+                        This is why all modern precision DAC ICs use R-2R or delta-sigma architectures.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S4: PERFORMANCE PARAMETERS ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">9.12.4</span>
+                <h2 class="sec-t">Performance Parameters of DAC &amp; ADC <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>Understanding performance parameters is essential for both circuit design and GATE/IES examination. These
+                parameters quantify how accurately and quickly a converter performs its function.</p>
+
+            <h3 class="sub">Resolution</h3>
+            <p><strong>Resolution</strong> is the smallest change in output (for DAC) or input (for ADC) that can be
+                detected. For an n-bit converter with full-scale range \(V_{FS}\):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Resolution (1 LSB value)</div>
+                $$\text{Resolution} = \frac{V_{FS}}{2^n} = 1 \text{ LSB}$$
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">📏</div>
+                <div class="cb">
+                    <div class="ct">Example — Resolution</div>
+                    <p>For an 8-bit ADC with full-scale range 0–5 V: Resolution = 5/256 = <strong>19.53 mV per
+                            LSB</strong>. For a 12-bit ADC with the same range: Resolution = 5/4096 = <strong>1.22 mV
+                            per LSB</strong>. Every extra bit halves the step size.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Quantization Error</h3>
+            <p>When an analog signal is converted to digital, the exact value cannot always be represented — it must be
+                rounded to the nearest digital level. This rounding introduces <strong>quantization error</strong>.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Quantization error bounds</div>
+                $$-\frac{1}{2}\text{LSB} \leq \varepsilon_q \leq +\frac{1}{2}\text{LSB}$$
+            </div>
+
+            <p>The quantization error is unavoidable — it is a fundamental limitation of digitization, not a circuit
+                imperfection. The <strong>RMS quantization noise</strong> for a full-scale sinusoidal input is:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Signal-to-Quantization Noise Ratio (SQNR)</div>
+                $$\text{SQNR} = 6.02n + 1.76 \text{ dB}$$
+            </div>
+
+            <p>This famous result means each additional bit improves dynamic range by approximately <strong>6
+                    dB</strong>. A 16-bit audio DAC achieves SQNR ≈ 98 dB.</p>
+
+            <h3 class="sub">Conversion Time</h3>
+            <p>The time required by an ADC to complete one analog-to-digital conversion. This directly determines the
+                <strong>maximum sampling frequency</strong> of the ADC.
+            </p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ADC Type</th>
+                            <th>Conversion Time</th>
+                            <th>Typical Speed</th>
+                            <th>GATE Relevance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Flash ADC</td>
+                            <td class="t-grn">1 clock cycle</td>
+                            <td>Giga-samples/s</td>
+                            <td class="t-grn">Fastest</td>
+                        </tr>
+                        <tr>
+                            <td>Successive Approx. (SAR)</td>
+                            <td class="t-org">n clock cycles</td>
+                            <td>1–10 MSPS</td>
+                            <td class="t-org">Most common</td>
+                        </tr>
+                        <tr>
+                            <td>Tracking ADC</td>
+                            <td class="t-amb">1–2n cycles (avg)</td>
+                            <td>Moderate</td>
+                            <td class="t-amb">Medium</td>
+                        </tr>
+                        <tr>
+                            <td>Counter-Type ADC</td>
+                            <td class="t-red">Up to 2ⁿ cycles</td>
+                            <td>Slow</td>
+                            <td class="t-red">Slowest</td>
+                        </tr>
+                        <tr>
+                            <td>Dual-Slope ADC</td>
+                            <td class="t-tel">2×2ⁿ cycles</td>
+                            <td>Very Slow</td>
+                            <td class="t-tel">Most accurate</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Accuracy &amp; Linearity</h3>
+
+            <div class="two-col">
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Integral Non-Linearity (INL)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Maximum deviation of actual transfer curve from ideal straight
+                            line</li>
+                        <li><span class="dot">▸</span>Expressed in LSBs</li>
+                        <li><span class="dot">▸</span>Caused by component mismatches</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Differential Non-Linearity (DNL)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Deviation of step size from ideal 1 LSB</li>
+                        <li><span class="dot">▸</span>DNL &gt; 1 LSB → missing codes</li>
+                        <li><span class="dot">▸</span>DNL &lt; −1 LSB → non-monotonic</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Key Parameter Formulas</span><span class="fv">Resolution</span> <span
+                    class="feq">\( = \frac{V_{fs}}{2^n} \)</span> (= 1 LSB value)
+                <span class="fv">% Resolution</span> <span class="feq">\( = \left(\frac{1}{2^n}\right) \times 100\%
+                    \)</span>
+                <span class="fv">SQNR</span> <span class="feq">\( = 6.02n + 1.76\,\text{dB} \)</span> (sinusoidal input)
+                <span class="fv">Max input freq</span><span class="feq">\( = \frac{1}{2 \times t_{conv}} \)</span>
+                (Nyquist limit)
+                <span class="fv">Full-scale Vo</span><span class="feq">\( = V_{ref} \times \frac{2^n - 1}{2^n} \)</span>
+                (= Vref - 1 LSB)</span>
+            </div>
+        </div>
+
+        <!-- ═══ S5: ADC OVERVIEW ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">9.12.5</span>
+                <h2 class="sec-t">ADC Overview &amp; Classification</h2>
+            </div>
+
+            <p>Analog-to-Digital converters are classified based on their conversion technique. Each technique makes a
+                different trade-off between <strong>speed, resolution, power, and cost</strong>. Understanding these
+                trade-offs is central to GATE questions.</p>
+
+            <!-- ADC Classification SVG -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch12/fig12.4.png" alt="Figure 9.12.4" />
+                <div class="svg-cap">Fig 9.12.4 — ADC classification and speed vs. accuracy trade-off. Speed and
+                    accuracy are generally inversely proportional in ADC design.</div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: FLASH ADC ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">9.12.6</span>
+                <h2 class="sec-t">Flash (Parallel) ADC <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>The <strong>Flash ADC</strong> is the fastest ADC topology. It uses \(2^n - 1\) comparators in parallel,
+                each comparing the input against a reference level derived from a resistor divider. All comparisons
+                happen simultaneously in a single clock cycle.</p>
+
+            <!-- Flash ADC SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch12/fig12.5.png" alt="Figure 9.12.5" />
+                <div class="svg-cap">Fig 9.12.5 — 2-bit Flash ADC using 3 comparators and a priority encoder. For an
+                    n-bit flash ADC, (2ⁿ − 1) comparators are needed. Output is available in one clock cycle.</div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Hardware requirements for n-bit Flash ADC</div>
+                $$\text{Number of comparators} = 2^n - 1$$
+                $$\text{Reference voltages} = \frac{V_{ref}}{2^n},\ \frac{2V_{ref}}{2^n},\ \ldots,\
+                \frac{(2^n-1)V_{ref}}{2^n}$$
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Hardware Cost Problem</div>
+                    <p>An 8-bit Flash ADC needs 255 comparators. A 12-bit Flash ADC needs 4095 comparators! This
+                        exponential hardware growth limits flash ADCs to 6–8 bits in practice. <strong>Pipeline
+                            ADC</strong> and <strong>folding ADC</strong> are used to extend resolution while preserving
+                        speed.</p>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Flash ADC — Pros</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Fastest possible — 1 clock cycle</li>
+                        <li><span class="dot">▸</span>No sample-and-hold circuit needed</li>
+                        <li><span class="dot">▸</span>Deterministic latency</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Flash ADC — Cons</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Exponential hardware: 2ⁿ−1 comparators</li>
+                        <li><span class="dot">▸</span>High power consumption</li>
+                        <li><span class="dot">▸</span>Limited to low resolution (≤ 8 bits)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: COUNTER TYPE ADC ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">9.12.7</span>
+                <h2 class="sec-t">Counter-Type ADC <span class="prob prob-m">🟡 MEDIUM</span></h2>
+            </div>
+
+            <p>The counter-type ADC (also called <strong>digital ramp ADC</strong>) uses a DAC in a feedback loop with a
+                binary counter and comparator. It works like a slowly climbing staircase — the counter increments one
+                step at a time until the DAC output matches the input.</p>
+
+            <!-- Counter ADC Block Diagram -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch12/fig12.6.png" alt="Figure 9.12.6" />
+                <div class="svg-cap">Fig 9.12.6 — Counter-type ADC. Counter increments with each clock pulse; DAC output
+                    rises as a staircase. When DAC output ≥ Vin, comparator stops the clock and the counter value is the
+                    digital output.</div>
+            </div>
+
+            <h3 class="sub">Operating Principle</h3>
+            <p>At the start of conversion, the counter is reset to zero. With each clock pulse, the counter increments
+                by 1, and the DAC produces a proportionally increasing output voltage. The comparator continuously
+                checks whether the DAC output has reached (or exceeded) the analog input \(V_{in}\). The moment
+                \(V_{DAC} \geq V_{in}\), the comparator output goes low, the AND gate blocks the clock, the counter
+                freezes, and its value is the digital output.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Worst-case conversion time (input near full-scale)</div>
+                $$t_{conv,max} = 2^n \times T_{clk}$$
+            </div>
+
+            <p>For a 12-bit counter-type ADC with a 1 MHz clock: worst-case time = \(4096 \times 1\,\mu s = 4.096\,ms\)
+                — very slow! This is the fundamental weakness of the counter-type ADC.</p>
+        </div>
+
+        <!-- ═══ S8: TRACKING ADC ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">9.12.8</span>
+                <h2 class="sec-t">Tracking (Servo) ADC <span class="prob prob-m">🟡 MEDIUM</span></h2>
+            </div>
+
+            <p>The tracking ADC improves upon the counter-type by using an <strong>up/down counter</strong> instead of a
+                reset counter. Rather than restarting from zero each conversion, it continuously tracks the input
+                signal, incrementing or decrementing to follow it. This dramatically reduces conversion time for slowly
+                varying signals.</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">When Vin increases</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Comparator output = HIGH</li>
+                        <li><span class="dot">▸</span>Counter counts UP</li>
+                        <li><span class="dot">▸</span>DAC output rises to track Vin</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">When Vin decreases</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Comparator output = LOW</li>
+                        <li><span class="dot">▸</span>Counter counts DOWN</li>
+                        <li><span class="dot">▸</span>DAC output falls to follow Vin</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Slope Overload Problem</div>
+                    <p>If the input signal changes faster than the counter can track (more than 1 LSB per clock cycle),
+                        the tracking ADC cannot follow — this is called <strong>slope overload</strong>. The tracking
+                        ADC is only suitable for <em>slowly varying</em> or quasi-stationary inputs. SAR ADC is
+                        preferred for fast-changing signals.</p>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Tracking ADC conversion time</div>
+                $$t_{conv} \leq 2 \times T_{clk} \text{ (for steady-state, 1 LSB change)}$$
+                $$t_{conv,worst} = 2^n \times T_{clk} \text{ (initial acquisition from zero)}$$
+            </div>
+        </div>
+
+        <!-- ═══ S9: SAR ADC ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">9.12.9</span>
+                <h2 class="sec-t">Successive Approximation ADC (SAR) <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>The SAR ADC is the most widely used ADC in embedded systems, data acquisition, and instrumentation. It
+                uses a clever <strong>binary search</strong> algorithm — it tries each bit from MSB to LSB, deciding
+                whether to keep or reject each bit in exactly one clock cycle. An n-bit conversion takes exactly n clock
+                cycles.</p>
+
+            <div class="callout c-key">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Perfect Analogy — Weighing with a Balance Scale</div>
+                    <p>Imagine guessing a weight using a balance scale and weights of 128g, 64g, 32g…1g. You first place
+                        128g — if the unknown is heavier, keep it; otherwise remove it. Then try 64g, and so on. After 8
+                        steps, you have the exact weight to 1g precision. This is exactly how SAR ADC finds the digital
+                        code in n steps!</p>
+                </div>
+            </div>
+
+            <!-- SAR ADC Block Diagram -->
+            <div class="svg-wrap">
+                <img src="images/ch12/fig12.7.png" alt="Figure 9.12.7" />
+                <div class="svg-cap">Fig 9.12.7 — SAR ADC block diagram. The SAR register sets bits one at a time from
+                    MSB to LSB, comparing the DAC output to the held input voltage at each step.</div>
+            </div>
+
+            <h3 class="sub">Step-by-Step SAR Algorithm (Example: 4-bit, Vin = 6.8V, Vref = 10V)</h3>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">TRACE 9.12.1</span>
+                    <span class="ex-title">4-bit SAR Conversion — Vin = 6.8V, Vref = 10V</span>
+                </div>
+                <div class="ex-body">
+                    <div class="tw">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Step</th>
+                                    <th>Bit Tried</th>
+                                    <th>SAR Code</th>
+                                    <th>DAC Output</th>
+                                    <th>Vin vs DAC</th>
+                                    <th>Decision</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>MSB = b₃</td>
+                                    <td>1000</td>
+                                    <td>8.0 V</td>
+                                    <td>6.8 &lt; 8.0</td>
+                                    <td class="t-red">Reject b₃ → 0</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>b₂</td>
+                                    <td>0100</td>
+                                    <td>4.0 V</td>
+                                    <td>6.8 &gt; 4.0</td>
+                                    <td class="t-grn">Keep b₂ → 1</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>b₁</td>
+                                    <td>0110</td>
+                                    <td>6.0 V</td>
+                                    <td>6.8 &gt; 6.0</td>
+                                    <td class="t-grn">Keep b₁ → 1</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>LSB = b₀</td>
+                                    <td>0111</td>
+                                    <td>7.0 V</td>
+                                    <td>6.8 &lt; 7.0</td>
+                                    <td class="t-red">Reject b₀ → 0</td>
+                                </tr>
+                                <tr>
+                                    <td>—</td>
+                                    <td>Done</td>
+                                    <td class="t-org">0110</td>
+                                    <td>6.0 V</td>
+                                    <td>Error = 0.8V = 1.28 LSB</td>
+                                    <td class="t-org">Final output: 0110</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p style="margin-top:10px;font-size:14px;">The conversion is complete in exactly <strong>4 clock
+                            cycles</strong> for a 4-bit SAR. Note that the error is within ±1 LSB as expected.</p>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">SAR ADC key specifications</div>
+                $$\text{Conversion time} = n \times T_{clk} \quad (\text{always exactly n cycles})$$
+                $$\text{Max input frequency} \approx \frac{f_{clk}}{2n} \quad (\text{Nyquist limit})$$
+            </div>
+        </div>
+
+        <!-- ═══ S10: DUAL SLOPE ADC ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">9.12.10</span>
+                <h2 class="sec-t">Dual-Slope ADC <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>The dual-slope (or dual-ramp) ADC is the gold standard for high-accuracy, noise-immune conversion. It is
+                used in digital multimeters, panel meters, and precision instruments. Although slow, it achieves
+                excellent accuracy because it is inherently immune to variations in component values — the RC time
+                constant cancels out!</p>
+
+            <div class="callout c-key">
+                <div class="ci">⚖️</div>
+                <div class="cb">
+                    <div class="ct">Core Principle — Two-Phase Integration</div>
+                    <p><strong>Phase 1:</strong> Integrate the unknown input Vin for a fixed time \(T_1 = 2^n T_{clk}\).
+                        The capacitor charges to a voltage proportional to Vin. <strong>Phase 2:</strong> Switch to a
+                        precise negative reference \(-V_{ref}\) and count how long it takes to discharge back to zero.
+                        That count is the digital output!</p>
+                </div>
+            </div>
+
+            <!-- Dual-slope waveform SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch12/fig12.8.png" alt="Figure 9.12.8" />
+                <div class="svg-cap">Fig 9.12.8 — Dual-slope integrator output. Phase 1 (fixed time T₁) gives a peak
+                    voltage proportional to Vin. Phase 2 (variable T₂) discharges at a fixed slope. Since T₂/T₁ =
+                    Vin/Vref, the RC product cancels out completely.</div>
+            </div>
+
+            <h3 class="sub">Mathematical Analysis</h3>
+            <p>During Phase 1, the integrator ramps up for fixed time \(T_1 = 2^n T_{clk}\):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Peak integrator voltage at end of Phase 1</div>
+                $$V_{peak} = \frac{V_{in} \cdot T_1}{RC}$$
+            </div>
+
+            <p>During Phase 2, the reference \(-V_{ref}\) discharges the integrator to zero in time \(T_2\):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Discharge equation (Phase 2)</div>
+                $$V_{peak} = \frac{V_{ref} \cdot T_2}{RC} \implies T_2 = \frac{V_{in} \cdot T_1}{V_{ref}}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Digital output count N (counter counts during Phase 2)</div>
+                $$N = \frac{T_2}{T_{clk}} = \frac{V_{in}}{V_{ref}} \cdot 2^n$$
+            </div>
+
+            <p>The key result: \(N \propto V_{in}\) and the RC time constant cancels completely. This makes the
+                dual-slope ADC immune to component variations and temperature drift — as long as R and C don't change
+                during a single conversion (which they don't).</p>
+
+            <div class="callout c-tip">
+                <div class="ci">✅</div>
+                <div class="cb">
+                    <div class="ct">Why Digital Multimeters Use Dual-Slope</div>
+                    <p>A DMM must display a stable, accurate reading even as temperature changes. Since the RC product
+                        cancels in the dual-slope conversion, even a 10% drift in R or C does not affect accuracy.
+                        Additionally, the integration over a fixed period \(T_1\) acts as a low-pass filter, averaging
+                        out 50Hz/60Hz noise from the power line — perfect for measuring signals in electrically noisy
+                        environments.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S11: SOLVED NUMERICALS ═══ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr"><span class="sec-num">9.12.11</span>
+                <h2 class="sec-t">Solved Numerical Examples</h2>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.12.1</span>
+                    <span class="ex-title">Weighted Resistor DAC — Output Voltage</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 4-bit weighted resistor DAC has Vref = 10V, R = 10kΩ, and Rf = 10kΩ. Find the
+                        output voltage for binary input 1011.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>Given:</strong> n = 4, input D = 1011<sub>2</sub> = 11<sub>10</sub>, Vref = 10V</p>
+                    <p>The four bits are b₃=1 (MSB), b₂=0, b₁=1, b₀=1 (LSB). Resistors are R, 2R, 4R, 8R for b₃ to b₀.
+                    </p>
+
+                    <div class="math-block">
+                        <div class="math-lbl">Step 1 — Sum of weighted currents</div>
+                        $$I_{total} = V_{ref}\left(\frac{b_3}{R} + \frac{b_2}{2R} + \frac{b_1}{4R} +
+                        \frac{b_0}{8R}\right)$$
+                        $$= \frac{10}{10k}\left(\frac{1}{1} + \frac{0}{2} + \frac{1}{4} + \frac{1}{8}\right) =
+                        1\,\text{mA}\times\frac{11}{8} = 1.375\,\text{mA}$$
+                    </div>
+
+                    <div class="math-block">
+                        <div class="math-lbl">Step 2 — Output voltage (inverting amp)</div>
+                        $$V_o = -I_{total} \times R_f = -1.375\,\text{mA} \times 10\,\text{k}\Omega = -13.75\,\text{V}$$
+                    </div>
+
+                    <p><strong>Alternative using formula:</strong> \(V_o = -\frac{V_{ref} \cdot D}{2^n} \times
+                        \frac{R_f}{R} = -\frac{10 \times 11}{16} \times 1 = -6.875\,\text{V}\)</p>
+
+                    <div class="callout c-warn" style="margin-top:10px">
+                        <div class="ci">📝</div>
+                        <div class="cb">
+                            <div class="ct">GATE Trap</div>
+                            <p>The formula \(V_o = -V_{ref}\cdot D/2^n\) applies when \(R_f = R\). When \(R_f \neq R\),
+                                multiply by \(R_f/R\). Always check the feedback resistor value before applying the
+                                formula.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.12.2</span>
+                    <span class="ex-title">Resolution and Quantization Error</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 10-bit ADC has a full-scale range of 0 to 5V. Find: (a) Resolution in mV, (b) %
+                        resolution, (c) Quantization error, (d) SQNR.</div>
+                    <div class="sol-lbl">Solution</div>
+
+                    <div class="math-block">
+                        <div class="math-lbl">Resolution (1 LSB)</div>
+                        $$\text{Resolution} = \frac{5\,\text{V}}{2^{10}} = \frac{5}{1024} = 4.88\,\text{mV/LSB}$$
+                    </div>
+
+                    <div class="math-block">
+                        <div class="math-lbl">% Resolution</div>
+                        $$\% = \frac{1}{2^{10}} \times 100 = \frac{100}{1024} = 0.0977\% \approx 0.1\%$$
+                    </div>
+
+                    <div class="math-block">
+                        <div class="math-lbl">Maximum Quantization Error (±½ LSB)</div>
+                        $$\varepsilon_{q,max} = \pm\frac{1}{2}\,\text{LSB} = \pm 2.44\,\text{mV}$$
+                    </div>
+
+                    <div class="math-block">
+                        <div class="math-lbl">SQNR (sinusoidal input)</div>
+                        $$\text{SQNR} = 6.02 \times 10 + 1.76 = 61.96\,\text{dB} \approx 62\,\text{dB}$$
+                    </div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.12.3</span>
+                    <span class="ex-title">SAR ADC Conversion Time</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 12-bit SAR ADC operates with a clock frequency of 5 MHz. Find: (a) Conversion
+                        time per sample, (b) Maximum sampling rate, (c) Compare with a 12-bit counter-type ADC at the
+                        same clock.</div>
+                    <div class="sol-lbl">Solution</div>
+
+                    <div class="math-block">
+                        <div class="math-lbl">SAR ADC</div>
+                        $$T_{clk} = \frac{1}{5\,\text{MHz}} = 200\,\text{ns}$$
+                        $$t_{conv}^{SAR} = n \times T_{clk} = 12 \times 200\,\text{ns} = 2.4\,\mu\text{s}$$
+                        $$f_{s,max}^{SAR} = \frac{1}{t_{conv}} = \frac{1}{2.4\,\mu s} = 416.7\,\text{kSPS}$$
+                    </div>
+
+                    <div class="math-block">
+                        <div class="math-lbl">Counter-Type ADC (worst case)</div>
+                        $$t_{conv,max}^{Counter} = 2^{12} \times 200\,\text{ns} = 4096 \times 200\,\text{ns} =
+                        819.2\,\mu\text{s}$$
+                        $$f_{s,max}^{Counter} = \frac{1}{819.2\,\mu s} \approx 1221\,\text{SPS}$$
+                    </div>
+
+                    <p>The SAR ADC is <strong>4096/12 = 341 times faster</strong> than the counter-type at the same
+                        clock frequency. This demonstrates why SAR is preferred for data acquisition systems.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S12: GATE & IES QUESTIONS ═══ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr"><span class="sec-num">9.12.12</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+            </div>
+
+            <!-- Q1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EC</span>
+                    <span class="pyq-title">An n-bit ADC is used to digitize an analog signal with full-scale range 0 to
+                        V. The number of comparators required in a Flash ADC is:</span>
+                    <span class="pyq-year">GATE EC 2018</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) n</li>
+                        <li>(B) 2n</li>
+                        <li class="correct">(C) 2ⁿ − 1 ✓</li>
+                        <li>(D) 2ⁿ</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> A Flash ADC divides the full-scale range into \(2^n\) equal levels
+                        using \(2^n - 1\) comparators (one for each level boundary). For example, a 3-bit Flash ADC
+                        needs 7 comparators, not 8, because the 0V level does not need a comparator — it is the default
+                        when all outputs are 0.</p>
+                </div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">A 3-bit R-2R DAC with Vref = 8V. What is the output voltage for input code
+                        110?</span>
+                    <span class="pyq-year">GATE EE 2016</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) 4V</li>
+                        <li>(B) 5V</li>
+                        <li class="correct">(C) 6V ✓</li>
+                        <li>(D) 7V</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> \(V_o = V_{ref} \times D/2^n = 8 \times 6/8 = 6\,\text{V}\). Code
+                        110 = 6 in decimal. With a 3-bit R-2R DAC, \(V_o = 8 \times (1 \times 4 + 1 \times 2 + 0 \times
+                        1)/8 = 8 \times 6/8 = 6\,\text{V}\).</p>
+                </div>
+            </div>
+
+            <!-- Q3 IES -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&T</span>
+                    <span class="pyq-title pyq-title-ies">The dual-slope ADC is preferred in digital multimeters
+                        because:</span>
+                    <span class="pyq-year">IES 2019</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) It is the fastest type of ADC</li>
+                        <li>(B) It requires fewer comparators</li>
+                        <li class="correct">(C) RC product cancels, making it immune to component variations and noise ✓
+                        </li>
+                        <li>(D) It requires no reference voltage</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> In dual-slope conversion, the RC time constant appears in both
+                        Phase 1 (\(T_1/RC\)) and Phase 2 (\(T_2/RC\)) expressions and cancels in the ratio. This makes
+                        the result independent of R and C tolerances. Additionally, integration over exactly one
+                        power-line cycle (20ms for 50Hz) eliminates 50Hz noise — critical for DMM accuracy.</p>
+                </div>
+            </div>
+
+            <!-- Q4 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EC</span>
+                    <span class="pyq-title">Which ADC type has conversion time that depends on the magnitude of the
+                        input signal?</span>
+                    <span class="pyq-year">GATE EC 2020</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) Flash ADC</li>
+                        <li class="correct">(B) Counter-Type ADC ✓</li>
+                        <li>(C) Successive Approximation ADC</li>
+                        <li>(D) Dual-Slope ADC</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> The counter-type ADC stops counting when DAC output ≥ Vin. So for a
+                        small Vin, the counter stops early (few cycles); for a large Vin near full-scale, it takes up to
+                        \(2^n\) cycles. Flash, SAR, and dual-slope have fixed conversion times (n, n, and \(2 \times
+                        2^n\) cycles respectively, independent of the input value).</p>
+                </div>
+            </div>
+
+            <!-- Q5 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">An 8-bit DAC has a full-scale output of 2.55V. What is the output voltage
+                        for input code 10000000?</span>
+                    <span class="pyq-year">GATE EE 2015</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li class="correct">(A) 1.28V ✓</li>
+                        <li>(B) 1.275V</li>
+                        <li>(C) 2.55V</li>
+                        <li>(D) 0.01V</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> Code 10000000 = 128 in decimal. \(V_o = V_{FS} \times D/2^n = 2.55
+                        \times 128/256 = 2.55/2 = 1.275\,\text{V} \approx 1.28\,\text{V}\). Note: Resolution = 2.55/256
+                        = 9.96mV/LSB. This is a common GATE-style computation where the full-scale is given (not Vref)
+                        and the code is the MSB only.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">GATE Perspective — Important Concepts</h3>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE FOCUS</span>
+                    <span class="gate-title">Most Frequently Tested Formulas &amp; Concepts</span>
+                </div>
+                <div class="gate-body">
+                    <div class="fblock"><span class="flbl">Master Formula Sheet — ADC/DAC</span><span class="fh">DAC
+                            Output:</span>
+                        <span class="fv">Weighted-R:</span> <span class="feq">Vo = −(Rf/R)·Vref·(b_{n-1} + b_{n-2}/2 +
+                            ... + b₀/2^{n-1})</span>
+                        <span class="fv">R-2R:</span> <span class="feq">\( V_o = V_{ref} \cdot \frac{D}{2^n} \) (D =
+                            decimal value of binary input)</span>
+
+                        <span class="fh">ADC Parameters:</span>
+                        <span class="fv">Resolution:</span> <span class="feq">\( = \frac{V_{fs}}{2^n} \) [V/LSB]</span>
+                        <span class="fv">% Resolution:</span> <span class="feq">\( = \left(\frac{1}{2^n}\right) \times
+                            100\% \)</span>
+                        <span class="fv">Qn. Error:</span> <span class="feq">\( = \pm\frac{1}{2}\,\text{LSB} =
+                            \pm\frac{V_{fs}}{2^{n+1}} \)</span>
+                        <span class="fv">SQNR:</span> <span class="feq">\( = 6.02n + 1.76\,\text{dB} \)</span>
+
+                        <span class="fh">Conversion Times:</span>
+                        <span class="fv">Flash:</span> <span class="feq">\( = 1 \) clock cycle</span>
+                        <span class="fv">SAR:</span> <span class="feq">\( = n \) clock cycles (always)</span>
+                        <span class="fv">Counter:</span> <span class="feq">\( = D \times T_{clk} \) (varies with
+                            input!)</span>
+                        <span class="fv">Dual-Slope:</span> <span class="feq">\( = 2 \times 2^n \times T_{clk} \) (two
+                            fixed phases)</span>
+                        <span class="fv">Tracking:</span> <span class="feq">\( = 1-2 \) clocks (steady state)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Prompt Widget -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI</div>
+                <p>Have a doubt about ADC/DAC? Ask a specific question and get an instant GATE-focused explanation.</p>
+                <div class="ai-input-row">
+                    <input type="text" id="userQ" class="ai-input"
+                        placeholder="e.g. Why does dual-slope cancel RC time constant?" />
+                    <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('Derive the R-2R ladder DAC output formula using Thevenin equivalence at each node.')">R-2R
+                        Thévenin derivation</span>
+                    <span class="ai-chip"
+                        onclick="setQ('What is the difference between INL and DNL in an ADC? How do missing codes occur?')">INL
+                        vs DNL</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Compare SAR ADC and Flash ADC — speed, accuracy, hardware cost, and applications.')">SAR
+                        vs Flash</span>
+                    <span class="ai-chip"
+                        onclick="setQ('A 4-bit counter ADC has clock 2 MHz. Vin = 7.5V, Vref = 10V. How many clock cycles for conversion? What is the digital output?')">Counter
+                        ADC numerical</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain why SQNR increases by 6 dB per bit — derive this from quantization noise theory.')">SQNR
+                        6dB/bit proof</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <!-- SUMMARY GRID -->
+            <h3 class="sub">Chapter Summary</h3>
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Weighted-R DAC</div>
+                    <p>Uses R, 2R, 4R... resistors. \( V_o = -\left(\frac{R_f}{R}\right) \cdot V_{ref} \cdot
+                        \frac{D}{2^n} \). Simple but impractical for high n due to
+                        wide resistor range (1:2ⁿ⁻¹).</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">R-2R Ladder DAC</div>
+                    <p>Only 2 resistor values regardless of bits. \( V_o = V_{ref} \cdot \frac{D}{2^n} \). RC network
+                        provides natural binary
+                        weighting. Preferred for ICs.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Flash ADC</div>
+                    <p>2ⁿ−1 comparators. 1 clock cycle. Fastest ADC. Exponential hardware cost. Limited to ≤8 bits. No
+                        S&H needed.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Counter-Type ADC</div>
+                    <p>Simplest. Up to 2ⁿ clock cycles (input-dependent). Resets each conversion. Very slow. Only for
+                        low-speed applications.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">SAR ADC</div>
+                    <p>Binary search. Always exactly n cycles. Best speed/resolution trade-off. Most common in embedded
+                        systems. Needs S&H.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Dual-Slope ADC</div>
+                    <p>Two-phase integration. RC cancels → immune to drift. N = Vin·2ⁿ/Vref. Used in DMMs. Slowest but
+                        most accurate.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 9.13</div>
+                    <p>Operational Amplifier Applications — Precision rectifiers, log/antilog amplifiers,
+                        instrumentation amplifiers, Schmitt triggers, waveform generators, and active filters — with
+                        complete GATE and IES coverage.</p>
+                </div>
+            </div>
+
+            <!-- COMMON MISTAKES -->
+            <h3 class="sub">Common Student Mistakes — GATE Traps</h3>
+            <div class="two-col">
+                <div class="mini-card mc-red">
+                    <div class="mc-t">❌ Common Errors</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Confusing 2ⁿ with 2ⁿ−1 for Flash ADC comparators</li>
+                        <li><span class="dot">▸</span>Forgetting the negative sign in inverting weighted-R DAC</li>
+                        <li><span class="dot">▸</span>Using 2ⁿ (not 2ⁿ−1) for DAC full-scale output</li>
+                        <li><span class="dot">▸</span>Thinking tracking ADC is always faster than counter ADC</li>
+                        <li><span class="dot">▸</span>Ignoring Sample-and-Hold requirement for SAR ADC</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">✅ Correct Concepts</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Full-scale output = Vref × (2ⁿ−1)/2ⁿ (not Vref itself)</li>
+                        <li><span class="dot">▸</span>Each extra bit → SQNR improves by 6.02 dB</li>
+                        <li><span class="dot">▸</span>Dual-slope conversion time = 2·2ⁿ cycles (two phases)</li>
+                        <li><span class="dot">▸</span>R-2R output ∝ D/2ⁿ regardless of exact R value</li>
+                        <li><span class="dot">▸</span>Counter ADC time depends on Vin; SAR is always n cycles</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- CITATIONS -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                    the following standard textbooks and learning resources. All explanations, derivations, diagrams and
+                    examples are original to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Sedra, A.S. and Smith, K.C. <em>Microelectronic
+                                Circuits</em>, 7th ed. Oxford University Press, 2015. Chapter 14 — Nonlinear
+                            Waveform-Shaping Circuits and Data Converters. DAC topologies, ADC architectures.</span>
+                    </li>
+                    <li><span class="cite-num">[2]</span><span>Razavi, Behzad. <em>Design of Analog CMOS Integrated
+                                Circuits</em>, 2nd ed. McGraw-Hill, 2017. Chapter 12 — DAC and ADC design
+                            considerations, R-2R ladder analysis, SQNR derivation.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Floyd, Thomas L. <em>Digital Fundamentals</em>, 11th ed.
+                            Pearson, 2015. Chapter 12 — Data Conversion. Flash ADC, SAR ADC, DAC types with practical
+                            examples.</span></li>
+                    <li><span class="cite-num">[4]</span><span>Gaonkar, Ramesh S. <em>Microprocessor Architecture,
+                                Programming, and Applications</em>, 5th ed. Penram International, 2002. ADC/DAC
+                            interfacing with microprocessors — practical I/O chapters.</span></li>
+                    <li><span class="cite-num">[5]</span><span>IIT Kharagpur NPTEL. <em>Electronics for Analog Signal
+                                Processing — ADC and DAC Lecture Series</em>. National Programme on Technology Enhanced
+                            Learning. nptel.ac.in. Dual-slope derivation, SAR timing, quantization noise theory.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Electronics &amp; Circuits Series &nbsp;·&nbsp; Chapter
+                9.12<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EC &nbsp;·&nbsp; GATE EE &nbsp;·&nbsp;
+                    IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                    diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+        </div>
+
+    </div><!-- .page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EC/EE and IES tutor specialising in Analog & Digital Electronics. Topic: Data Converters — ADC and DAC (Chapter 9.12). Cover weighted-R DAC, R-2R ladder DAC, Flash ADC, Counter-type ADC, Tracking ADC, Successive Approximation ADC (SAR), Dual-Slope ADC, and performance parameters (resolution, quantization error, conversion time, SQNR). Answer with step-by-step working for numericals. Base answers on Sedra/Smith, Razavi, Floyd. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+
+</body>
+
+</html>

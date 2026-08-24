@@ -1,0 +1,2731 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Electronics Ch.9.2 Transistor Biasing &amp; Small Signal Models</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 55%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* CALLOUTS */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* FORMULA BLOCK */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* MATH (KaTeX) */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* SVG DIAGRAMS */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* EXAMPLES */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* GATE / PYQ CARDS */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* TWO COLUMN CARDS */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 18px;
+            border-bottom: 1px solid var(--bg3);
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .mc-list li .dot {
+            color: var(--muted);
+            position: absolute;
+            left: 0;
+            top: 6px;
+        }
+
+        /* SUMMARY GRID */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* PROBABILITY TAG */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ASK CLAUDE WIDGET */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* MISC */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* TABLET */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* MOBILE */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* LARGE DESKTOP */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Electronics Engineering Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EC/EE</span><span class="hbadge">IES E&amp;T</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 9.2 &nbsp;·&nbsp; Electronic Devices &amp; Circuits</div>
+            <h1 class="hero-title">Transistor Biasing &amp; <em>Small Signal Models</em></h1>
+            <p class="hero-desc">BJT configurations (CE, CB, CC), fixed bias, collector feedback, voltage divider
+                biasing, stability factors S, S', S'', hybrid-π model, T-model, JFET, MOSFET basics, and FET biasing —
+                complete GATE, IES, and PSU exam coverage with full derivations and solved examples.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EC / EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">⭐⭐⭐⭐ Very High Weightage</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Chapter 9.2 of 12</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">9.2.1</span>Why Transistor Biasing Matters</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">9.2.7</span>Stability Factors S, S', S''</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">9.2.2</span>BJT Configurations</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">9.2.8</span>Hybrid-π Small Signal Model</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">9.2.3</span>Fixed Bias Circuit</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">9.2.9</span>T-Model of BJT</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">9.2.4</span>Collector Feedback Bias</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">9.2.10</span>JFET Basics &amp; Biasing</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">9.2.5</span>Voltage Divider Bias</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">9.2.11</span>MOSFET Basics &amp; Biasing</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">9.2.6</span>Emitter Bias Circuit</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">9.2.12</span>GATE &amp; IES Questions</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: BIG PICTURE ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">9.2.1</span>
+                <h2 class="sec-t">Why Transistor Biasing Matters — The Big Picture</h2>
+            </div>
+
+            <p>Imagine you are designing an audio amplifier. You want the transistor to <strong>faithfully
+                    amplify</strong> a small AC music signal without distortion. But a transistor is a non-linear device
+                — it needs to be placed at a carefully chosen operating point called the <strong>Q-point (Quiescent
+                    Point)</strong> before it can behave as a linear amplifier. This process of setting the Q-point is
+                called <strong>biasing</strong>.<sup class="cite" title="Sedra &amp; Smith, Ch.6">[1]</sup></p>
+
+            <div class="callout c-info">
+                <div class="ci">🎯</div>
+                <div class="cb">
+                    <div class="ct">Core Engineering Problem</div>
+                    <p>Without proper biasing, AC signals will clip (distort), the transistor may saturate (switch fully
+                        ON) or cut off (switch fully OFF), and amplification fails. Biasing = placing the transistor in
+                        the active region at a stable, temperature-insensitive operating point.</p>
+                </div>
+            </div>
+
+            <!-- BJT Overview diagram -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch2/fig2.1.png" alt="Figure 2.1">
+                <div class="svg-cap">Fig. 9.2.1 — BJT output characteristics showing Q-point, DC load line, and three
+                    operating regions. The Q-point must lie in the active region for linear amplification.</div>
+            </div>
+
+            <p>The Q-point is defined by the values \(I_{CQ}\), \(V_{CEQ}\), and \(I_{BQ}\) under DC (no-signal)
+                conditions. When an AC signal is applied, the instantaneous operating point swings up and down the load
+                line around the Q-point. If the Q-point is poorly chosen — too close to saturation or cut-off — the
+                signal clips on one half-cycle, causing distortion.<sup class="cite"
+                    title="Boylestad &amp; Nashelsky, Ch.4">[2]</sup></p>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Real-World Application</div>
+                    <p>In mobile phone amplifiers, the bias circuit is integrated into the \(I_C\) and designed for
+                        thermal
+                        stability because the phone gets hot during use. Temperature-insensitive biasing (voltage
+                        divider bias) is mandatory in such applications. This is the same circuit you study for GATE —
+                        it's everywhere in consumer electronics.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: BJT CONFIGURATIONS ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">9.2.2</span>
+                <h2 class="sec-t">BJT Configurations — CE, CB, CC</h2>
+            </div>
+
+            <p>A BJT has three terminals: Base (B), Collector (C), and Emitter (E). In any amplifier circuit, one
+                terminal is common to both input and output. This gives three fundamental configurations, each with
+                distinct characteristics for gain, impedance, and phase.<sup class="cite"
+                    title="Sedra &amp; Smith, §6.1">[1]</sup></p>
+
+            <!-- CE CB CC comparison diagram -->
+            <div class="svg-wrap">
+                <img src="images/ch2/fig2.2.png" alt="Figure 2.2">
+                <div class="svg-cap">Fig. 9.2.2 — Three BJT amplifier configurations: CE (voltage gain + phase
+                    inversion), CB (high-frequency use), CC (unity gain buffer). Understanding these is essential for
+                    GATE EC/EE.</div>
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Common Emitter (CE)</th>
+                            <th>Common Base (CB)</th>
+                            <th>Common Collector (CC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Voltage Gain A<sub>v</sub></td>
+                            <td class="t-org">High (negative)</td>
+                            <td class="t-grn">High (positive)</td>
+                            <td class="t-tel">≈ 1 (positive)</td>
+                        </tr>
+                        <tr>
+                            <td>Current Gain A<sub>i</sub></td>
+                            <td class="t-org">High (\(\beta\))</td>
+                            <td>Less than 1 (α)</td>
+                            <td class="t-grn">High (\(\beta\)+1)</td>
+                        </tr>
+                        <tr>
+                            <td>Input Resistance R<sub>i</sub></td>
+                            <td>Medium (kΩ)</td>
+                            <td class="t-tel">Very Low (Ω)</td>
+                            <td class="t-grn">Very High (MΩ)</td>
+                        </tr>
+                        <tr>
+                            <td>Output Resistance R<sub>o</sub></td>
+                            <td>High</td>
+                            <td class="t-grn">Very High</td>
+                            <td class="t-tel">Very Low (Ω)</td>
+                        </tr>
+                        <tr>
+                            <td>Phase Shift</td>
+                            <td class="t-red">180° (inverted)</td>
+                            <td>0° (in-phase)</td>
+                            <td>0° (in-phase)</td>
+                        </tr>
+                        <tr>
+                            <td>Primary Use</td>
+                            <td>General amplifier</td>
+                            <td>RF/HF amplifier</td>
+                            <td>Buffer/Impedance match</td>
+                        </tr>
+                        <tr>
+                            <td>GATE Frequency</td>
+                            <td class="t-org">🟢 Very High</td>
+                            <td class="t-amb">🟡 Medium</td>
+                            <td class="t-amb">🟡 Medium</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Student Mistake</div>
+                    <p>Many students confuse the phase inversion. <strong>Only CE configuration inverts the signal
+                            (180°)</strong>. CB and CC do not invert. In a two-stage CE-CE amplifier, the total phase
+                        shift is 360° ≡ 0° — the output is in phase with the input. This is a frequent GATE MCQ trap.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: FIXED BIAS ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">9.2.3</span>
+                <h2 class="sec-t">Fixed Bias Circuit</h2>
+            </div>
+
+            <p>The simplest biasing method uses a single resistor R<sub>B</sub> connected from V<sub>CC</sub> to the
+                base. It is called <strong>fixed bias</strong> because the base current I<sub>B</sub> is approximately
+                fixed by the supply voltage and R<sub>B</sub>, regardless of transistor parameters.<sup class="cite"
+                    title="Boylestad &amp; Nashelsky, §4.3">[2]</sup></p>
+
+            <!-- Fixed Bias Circuit Diagram -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch2/fig2.3.png" alt="Figure 2.3">
+                <div class="svg-cap">Fig. 9.2.3 — Fixed Bias CE circuit. Simple but thermally unstable — stability
+                    factor \(S = \beta+1\), the worst possible value. Not used in modern designs.</div>
+            </div>
+
+            <h3 class="sub">DC Analysis of Fixed Bias</h3>
+
+            <p>Applying KVL to the base-emitter loop (with V<sub>BE</sub> ≈ 0.7 V for silicon):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Base Loop KVL — Fixed Bias</div>
+                $$V_{CC} = I_B R_B + V_{BE} \implies I_B = \frac{V_{CC} - V_{BE}}{R_B}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Collector Current and \(V_{CE}\)</div>
+                $$I_C = \beta \cdot I_B \qquad V_{CE} = V_{CC} - I_C R_C$$
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">🔴</div>
+                <div class="cb">
+                    <div class="ct">Why Fixed Bias Fails — Thermal Runaway</div>
+                    <p>As temperature increases, I<sub>CO</sub> (leakage) doubles every 10°C. Since I<sub>C</sub> =
+                        βI<sub>B</sub> + (\(\beta\)+1)I<sub>CO</sub>, I<sub>C</sub> increases → V<sub>CE</sub> drops
+                        (device
+                        heats more) → I<sub>CO</sub> increases further. This positive feedback loop is called
+                        <strong>thermal runaway</strong>, which can permanently destroy the transistor. The stability
+                        factor \(S = \beta+1\), which is the maximum (worst) possible value.
+                    </p>
+                </div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Fixed Bias — Quick Analysis</span><span class="fv">\(I_B\)</span>
+                <span class="feq">=</span> (\(V_{CC}\) − \(V_{BE}\)) / \(R_B\)
+                <span class="fv">\(I_C\)</span> <span class="feq">=</span> \(\beta\) × \(I_B\)
+                <span class="fv">\(V_{CE}\)</span> <span class="feq">=</span> \(V_{CC}\) − \(I_C\) × \(R_C\)
+                <span class="fh">Stability Factor S</span> <span class="feq">=</span> \(\beta\) + 1 ← maximum
+                instability
+            </div>
+        </div>
+
+        <!-- ═══ S4: COLLECTOR FEEDBACK BIAS ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">9.2.4</span>
+                <h2 class="sec-t">Collector Feedback Bias</h2>
+            </div>
+
+            <p>In collector feedback bias, R<sub>B</sub> is connected from the <strong>collector</strong> to the base,
+                rather than from V<sub>CC</sub>. This creates a <strong>negative feedback</strong> mechanism: if
+                I<sub>C</sub> increases (due to temperature), V<sub>CE</sub> decreases, which reduces V<sub>B</sub>,
+                which reduces I<sub>B</sub>, partially counteracting the original increase.<sup class="cite"
+                    title="Boylestad &amp; Nashelsky, §4.4">[2]</sup></p>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch2/fig2.4.png" alt="Figure 2.4">
+                <div class="svg-cap">Fig. 9.2.4 — Collector Feedback Bias. The resistor R<sub>B</sub> connects from
+                    collector to base, creating automatic self-correction. Better stability than fixed bias but still
+                    moderate.</div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">DC Analysis — Collector Feedback</div>
+                $$I_B = \frac{V_{CC} - V_{BE}}{R_B + \beta R_C} \qquad S = \frac{\beta + 1}{1 + \beta \frac{R_C}{R_B}}$$
+            </div>
+
+            <p>Since R<sub>C</sub>/R<sub>B</sub> &gt; 0, the denominator is greater than 1, making S &lt; \(\beta\)+1.
+                This is
+                an improvement over fixed bias. The lower the ratio R<sub>C</sub>/R<sub>B</sub>, the higher S remains
+                (worse stability); a large R<sub>C</sub>/R<sub>B</sub> ratio gives better stability.</p>
+        </div>
+
+        <!-- ═══ S5: VOLTAGE DIVIDER BIAS ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">9.2.5</span>
+                <h2 class="sec-t">Voltage Divider Bias — The Industry Standard</h2>
+            </div>
+
+            <p>The voltage divider bias (also called <strong>self-bias</strong>) is the most widely used BJT biasing
+                circuit in practical electronics. It uses two resistors R<sub>1</sub> and R<sub>2</sub> to create a
+                nearly independent base voltage, plus an emitter resistor R<sub>E</sub> for additional stability. The
+                Q-point becomes nearly independent of \(\beta\) — essential for mass production where transistor
+                \(\beta\) varies
+                widely.<sup class="cite" title="Sedra &amp; Smith, §5.5">[1]</sup></p>
+
+            <!-- Voltage Divider Bias Diagram -->
+            <div class="svg-wrap">
+                <img src="images/ch2/fig2.5.png" alt="Figure 2.5">
+                <div class="svg-cap">Fig. 9.2.5 — Voltage Divider Bias. The most practical and stable BJT biasing
+                    circuit. The Thevenin equivalent makes analysis straightforward.</div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Thevenin Analysis — Voltage Divider Bias</div>
+                $$V_{TH} = V_{CC} \cdot \frac{R_2}{R_1 + R_2}, \quad R_{TH} = R_1 \| R_2 = \frac{R_1 R_2}{R_1 + R_2}$$
+                $$I_B = \frac{V_{TH} - V_{BE}}{R_{TH} + (\beta + 1)R_E}, \quad S =
+                \frac{(\beta+1)\left(1+\frac{R_{TH}}{R_E}\right)}{\beta + 1 + \frac{R_{TH}}{R_E}}$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Key Insight — Why VDB is Stable</div>
+                    <p>When R<sub>TH</sub> ≪ (\(\beta\)+1)R<sub>E</sub>, V<sub>B</sub> ≈ V<sub>TH</sub> = constant. Then
+                        I<sub>E</sub> = (V<sub>B</sub> − V<sub>BE</sub>)/R<sub>E</sub> ≈ constant regardless of
+                        \(\beta\)
+                        variations. This is the "stiff voltage divider" condition. Stability factor \(S\) → 1 (ideal),
+                        meaning I<sub>C</sub> barely changes with temperature.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: EMITTER BIAS ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">9.2.6</span>
+                <h2 class="sec-t">Emitter Bias (Dual Supply)</h2>
+            </div>
+
+            <p>When dual power supplies (+V<sub>CC</sub> and −V<sub>EE</sub>) are available (common in op-amp based
+                systems), a simple and very stable biasing scheme uses a single resistor R<sub>B</sub> to ground and an
+                emitter resistor R<sub>E</sub> to −V<sub>EE</sub>. This provides excellent stability without a voltage
+                divider network.<sup class="cite" title="Boylestad &amp; Nashelsky, §4.6">[2]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Emitter Bias Analysis (Dual Supply)</div>
+                $$I_B = \frac{V_{EE} - V_{BE}}{R_B + (\beta+1)R_E}, \quad I_C = \beta I_B, \quad V_{CE} = V_{CC} +
+                V_{EE} - I_C(R_C + R_E)$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">GATE Insight — Emitter Bias</div>
+                    <p>In emitter bias, I<sub>B</sub> depends primarily on V<sub>EE</sub> and R<sub>E</sub>. Since
+                        V<sub>BE</sub> ≪ V<sub>EE</sub> typically, I<sub>B</sub> ≈
+                        V<sub>EE</sub>/(R<sub>E</sub>(\(\beta\)+1)),
+                        giving excellent \(\beta\)-independence. Used in \(I_C\) operational amplifier input stages.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: STABILITY FACTORS ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">9.2.7</span>
+                <h2 class="sec-t">Stability Factors S, S', S'' — The Complete Picture</h2>
+            </div>
+
+            <p>BJT parameters change with temperature. Three quantities that cause Q-point shift are:
+                <strong>I<sub>CO</sub></strong> (reverse saturation leakage, doubles every 10°C),
+                <strong>V<sub>BE</sub></strong> (decreases −2 mV/°C), and <strong>\(\beta\)</strong> (increases with
+                temperature). Each has a corresponding stability factor.<sup class="cite"
+                    title="Millman &amp; Halkias, §9.4">[3]</sup>
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">Three Stability Factors (Millman &amp; Halkias)</div>
+                $$S = \frac{\partial I_C}{\partial I_{CO}}\bigg|_{\beta,V_{BE}\text{ const}} \qquad S' = \frac{\partial
+                I_C}{\partial V_{BE}}\bigg|_{\beta,I_{CO}\text{ const}} \qquad S'' = \frac{\partial I_C}{\partial
+                \beta}\bigg|_{I_{CO},V_{BE}\text{ const}}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Total Change in Collector Current</div>
+                $$\Delta I_C = S \cdot \Delta I_{CO} + S' \cdot \Delta V_{BE} + S'' \cdot \Delta \beta$$
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bias Circuit</th>
+                            <th>Stability Factor S</th>
+                            <th>Range</th>
+                            <th>Stability</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Fixed Bias</td>
+                            <td>\(S = \beta + 1\)</td>
+                            <td>51 to 301</td>
+                            <td class="t-red">Worst</td>
+                        </tr>
+                        <tr>
+                            <td>Collector Feedback</td>
+                            <td>\(S = \dfrac{\beta+1}{1+\beta R_C/R_B}\)</td>
+                            <td>10 to 50</td>
+                            <td class="t-amb">Moderate</td>
+                        </tr>
+                        <tr>
+                            <td>Voltage Divider Bias</td>
+                            <td>\(S = \dfrac{(\beta+1)(1+R_{TH}/R_E)}{\beta+1+R_{TH}/R_E}\)</td>
+                            <td>1 to 10</td>
+                            <td class="t-grn">Best practical</td>
+                        </tr>
+                        <tr>
+                            <td>Emitter Bias (dual)</td>
+                            <td>\(S \approx 1 + R_B/R_E\)</td>
+                            <td>1 to 5</td>
+                            <td class="t-grn">Excellent</td>
+                        </tr>
+                        <tr>
+                            <td>Ideal (theoretical)</td>
+                            <td>S = 1</td>
+                            <td>—</td>
+                            <td class="t-tel">Perfect</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Mistake — Interpreting S</div>
+                    <p>Lower S means <strong>better</strong> stability — not higher. S = 1 is ideal (ΔI<sub>C</sub> =
+                        ΔI<sub>CO</sub>, minimum possible). \(S = \beta+1\) means a 1 μA change in I<sub>CO</sub> causes
+                        a \(\beta\)×1
+                        μA change in I<sub>C</sub>. Many students incorrectly think higher S = more stable.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S8: HYBRID-PI MODEL ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">9.2.8</span>
+                <h2 class="sec-t">Hybrid-π Small Signal Model</h2>
+            </div>
+
+            <p>When a small AC signal rides on the DC bias, the transistor behaves like a <strong>linear two-port
+                    network</strong>. The hybrid-π model represents this AC behaviour using physical small-signal
+                parameters. It was originally proposed by Giacoletto and is the most widely used model for \(I_C\)
+                transistor
+                analysis at low-to-medium frequencies.<sup class="cite" title="Sedra &amp; Smith, §6.3">[1]</sup></p>
+
+            <!-- Hybrid-Pi Model Diagram -->
+            <div class="svg-wrap">
+                <img src="images/ch2/fig2.6.png" alt="Figure 2.6">
+                <div class="svg-cap">Fig. 9.2.6 — Complete Hybrid-π model with parasitic capacitances C<sub>π</sub>
+                    (diffusion) and C<sub>μ</sub> (junction). At low frequency, capacitors are open circuits and only
+                    r<sub>π </sub>, g<sub>m</sub>, and r<sub>o</sub> matter.</div>
+            </div>
+
+            <h3 class="sub">Key Hybrid-π Parameters</h3>
+
+            <div class="math-block">
+                <div class="math-lbl">Transconductance and Small-Signal Resistance</div>
+                $$g_m = \frac{I_C}{V_T} = \frac{I_C}{kT/q} \approx \frac{I_C}{26\text{ mV}} \text{ at } T = 300\text{
+                K}$$
+                $$r_\pi = \frac{\beta}{g_m} = \frac{V_T}{I_B} \qquad r_o = \frac{V_A}{I_C} \qquad r_e = \frac{V_T}{I_C}
+                = \frac{1}{g_m}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Voltage Gain of CE Amplifier (Hybrid-π)</div>
+                $$A_v = -g_m (R_C \| r_o) \approx -g_m R_C \quad \text{(if } r_o \gg R_C\text{)}$$
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Symbol</th>
+                            <th>Formula</th>
+                            <th>Physical Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Transconductance</td>
+                            <td class="t-org">g<sub>m</sub></td>
+                            <td>I<sub>C</sub>/V<sub>T</sub></td>
+                            <td>AC current per unit AC voltage at B-E junction</td>
+                        </tr>
+                        <tr>
+                            <td>Base-emitter resistance</td>
+                            <td class="t-org">r<sub>π</sub></td>
+                            <td>\(\beta\)/g<sub>m</sub> = V<sub>T</sub>/I<sub>B</sub></td>
+                            <td>Resistance seen looking into base (AC)</td>
+                        </tr>
+                        <tr>
+                            <td>Output resistance</td>
+                            <td class="t-tel">r<sub>o</sub></td>
+                            <td>V<sub>A</sub>/I<sub>C</sub></td>
+                            <td>Finite slope of output characteristics (Early effect)</td>
+                        </tr>
+                        <tr>
+                            <td>Emitter resistance</td>
+                            <td class="t-grn">r<sub>e</sub></td>
+                            <td>V<sub>T</sub>/I<sub>C</sub> = 1/g<sub>m</sub></td>
+                            <td>Intrinsic emitter resistance</td>
+                        </tr>
+                        <tr>
+                            <td>Diffusion capacitance</td>
+                            <td class="t-red">C<sub>π</sub></td>
+                            <td>τ<sub>F</sub>·g<sub>m</sub></td>
+                            <td>Charge storage in base during forward operation</td>
+                        </tr>
+                        <tr>
+                            <td>Junction capacitance</td>
+                            <td class="t-red">C<sub>μ</sub></td>
+                            <td>C<sub>jc</sub></td>
+                            <td>Collector-base depletion layer capacitance</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S9: T-MODEL ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">9.2.9</span>
+                <h2 class="sec-t">T-Model of BJT</h2>
+            </div>
+
+            <p>The T-model (also called the π-to-T transformed model) is an alternative small-signal equivalent circuit
+                that directly shows the emitter resistance r<sub>e</sub> = 1/g<sub>m</sub> in series with the emitter.
+                It is particularly useful for <strong>CB and CC amplifier analysis</strong> because the circuit topology
+                matches naturally.<sup class="cite" title="Sedra &amp; Smith, §6.4">[1]</sup></p>
+
+            <!-- T-Model Diagram -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch2/fig2.7.png" alt="Figure 2.7">
+                <div class="svg-cap">Fig. 9.2.7 — T-Model of BJT. The controlled current source α·i<sub>e</sub> flows
+                    from emitter to collector. Equivalent to hybrid-π model — use whichever simplifies circuit analysis.
+                </div>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">When to Use Which Model</div>
+                    <p>For <strong>CE amplifier</strong>: use hybrid-π — v<sub>π</sub> is the controlling voltage,
+                        naturally fits the B-E input. For <strong>CB amplifier</strong>: use T-model — i<sub>e</sub> is
+                        the input current, \(r_e\) is in the input path. For <strong>CC (emitter follower)</strong>:
+                        both
+                        work; T-model shows \(r_e\) directly in the output path.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S10: JFET ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">9.2.10</span>
+                <h2 class="sec-t">JFET — Junction Field Effect Transistor</h2>
+            </div>
+
+            <p>Unlike a BJT which is a <strong>current-controlled</strong> device, a JFET (Junction Field Effect
+                Transistor) is a <strong>voltage-controlled</strong> device. The gate-source voltage V<sub>GS</sub>
+                controls the drain current I<sub>D</sub> with virtually zero gate current. This makes FETs ideal for
+                high-impedance input stages, analog switches, and low-noise amplifiers.<sup class="cite"
+                    title="Sedra &amp; Smith, §5.1">[1]</sup></p>
+
+            <!-- JFET Diagram -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch2/fig2.8.png" alt="Figure 2.8">
+                <div class="svg-cap">Fig. 9.2.8 — N-Channel JFET structure and transfer characteristic. The parabolic
+                    \(I_D\)–\(V_{GS}\) curve follows the Shockley equation. g<sub>m</sub> is the slope at the Q-point.
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Shockley Equation and JFET Transconductance</div>
+                $$I_D = I_{DSS}\left(1 - \frac{V_{GS}}{V_P}\right)^2 \qquad g_m = \frac{2I_{DSS}}{|V_P|}\left(1 -
+                \frac{V_{GS}}{V_P}\right) = g_{m0}\left(1 - \frac{V_{GS}}{V_P}\right)$$
+            </div>
+
+            <h3 class="sub">JFET Biasing Methods</h3>
+
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Self-Bias (Source Bias)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>R<sub>G</sub> connects gate to ground; R<sub>S</sub> in emitter
+                        </li>
+                        <li><span class="dot">▸</span>V<sub>GS</sub> = −I<sub>D</sub>·R<sub>S</sub> (automatic
+                            self-bias)</li>
+                        <li><span class="dot">▸</span>Gate is always negative w.r.t. source</li>
+                        <li><span class="dot">▸</span>Graphical solution: load line on transfer curve</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Voltage Divider Bias</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>R<sub>1</sub>, R<sub>2</sub> set V<sub>G</sub>; R<sub>S</sub> sets
+                            V<sub>S</sub></li>
+                        <li><span class="dot">▸</span>V<sub>GS</sub> = V<sub>G</sub> − I<sub>D</sub>R<sub>S</sub></li>
+                        <li><span class="dot">▸</span>More stable Q-point than self-bias</li>
+                        <li><span class="dot">▸</span>R<sub>G</sub> can be large (MΩ) — high input impedance maintained
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S11: MOSFET ═══ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr"><span class="sec-num">9.2.11</span>
+                <h2 class="sec-t">MOSFET Basics &amp; Biasing</h2>
+            </div>
+
+            <p>The MOSFET (Metal-Oxide-Semiconductor FET) is the dominant device in modern \(I_C\) technology. Unlike
+                JFET,
+                the gate is <strong>completely insulated</strong> from the channel by a thin SiO<sub>2</sub> layer —
+                giving virtually infinite gate-input resistance. MOSFETs come in two main types: <strong>Enhancement
+                    mode (E-MOSFET)</strong> and <strong>Depletion mode (D-MOSFET)</strong>.<sup class="cite"
+                    title="Sedra &amp; Smith, §5.2–5.4">[1]</sup></p>
+
+            <!-- MOSFET Comparison Diagram -->
+            <div class="svg-wrap">
+                <img src="images/ch2/fig2.9.png" alt="Figure 2.9">
+                <div class="svg-cap">Fig. 9.2.9 — N-channel Enhancement and Depletion MOSFET symbols and transfer
+                    characteristics. E-MOSFET requires V<sub>GS</sub> &gt; V<sub>TN</sub> to conduct; D-MOSFET conducts
+                    at V<sub>GS</sub> = 0.</div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">MOSFET Drain Current Equations</div>
+                $$\text{E-MOSFET (saturation)}: \quad I_D = K_n (V_{GS} - V_{TN})^2, \quad K_n = \frac{\mu_n C_{ox}
+                W}{2L}$$
+                $$\text{D-MOSFET}: \quad I_D = I_{DSS}\left(1 - \frac{V_{GS}}{V_P}\right)^2 \quad \text{(same as
+                JFET)}$$
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>BJT</th>
+                            <th>JFET</th>
+                            <th>E-MOSFET</th>
+                            <th>D-MOSFET</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Control type</td>
+                            <td>Current (\(I_B\))</td>
+                            <td class="t-grn">Voltage (\(V_{GS}\))</td>
+                            <td class="t-grn">Voltage (\(V_{GS}\))</td>
+                            <td class="t-grn">Voltage (\(V_{GS}\))</td>
+                        </tr>
+                        <tr>
+                            <td>Input Resistance</td>
+                            <td>kΩ range</td>
+                            <td class="t-grn">MΩ</td>
+                            <td class="t-tel">GΩ (insulated)</td>
+                            <td class="t-tel">GΩ (insulated)</td>
+                        </tr>
+                        <tr>
+                            <td>Gate current</td>
+                            <td>\(I_B\) ≠ 0</td>
+                            <td class="t-grn">≈ 0</td>
+                            <td class="t-grn">= 0</td>
+                            <td class="t-grn">= 0</td>
+                        </tr>
+                        <tr>
+                            <td>On at \(V_{GS}\) = 0?</td>
+                            <td>No</td>
+                            <td class="t-org">Yes (depletion)</td>
+                            <td class="t-red">No (enhancement)</td>
+                            <td class="t-grn">Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Noise performance</td>
+                            <td>Moderate</td>
+                            <td class="t-grn">Very low</td>
+                            <td>Low</td>
+                            <td>Low</td>
+                        </tr>
+                        <tr>
+                            <td>\(I_C\) integration</td>
+                            <td>Moderate</td>
+                            <td>Moderate</td>
+                            <td class="t-grn">Excellent (CMOS)</td>
+                            <td>Good</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S12: GATE & IES QUESTIONS ═══ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr"><span class="sec-num">9.2.12</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+            </div>
+
+            <!-- Solved Numerical Example 1 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.2.1</span>
+                    <span class="ex-title">Voltage Divider Bias — Q-point Calculation (GATE Level)</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A silicon NPN transistor (\(\beta\) = 100, V<sub>BE</sub> = 0.7 V) is biased using
+                        voltage
+                        divider with R<sub>1</sub> = 47 kΩ, R<sub>2</sub> = 10 kΩ, R<sub>C</sub> = 2.2 kΩ, R<sub>E</sub>
+                        = 560 Ω, V<sub>CC</sub> = 12 V. Find I<sub>CQ</sub> and V<sub>CEQ</sub>. Verify the transistor
+                        is in the active region.</div>
+                    <div class="sol-lbl">▸ Step-by-Step Solution</div>
+                    <p><strong>Step 1 — Thevenin Voltage:</strong></p>
+                    <div class="math-block">
+                        <div class="math-lbl"></div>
+                        $$V_{TH} = V_{CC} \cdot \frac{R_2}{R_1+R_2} = 12 \times \frac{10}{47+10} = 12 \times
+                        \frac{10}{57} = 2.105 \text{ V}$$
+                    </div>
+                    <p><strong>Step 2 — Thevenin Resistance:</strong></p>
+                    <div class="math-block">
+                        <div class="math-lbl"></div>
+                        $$R_{TH} = R_1 \| R_2 = \frac{47 \times 10}{47+10} = \frac{470}{57} = 8.25 \text{ k}\Omega$$
+                    </div>
+                    <p><strong>Step 3 — Base Current I<sub>B</sub>:</strong></p>
+                    <div class="math-block">
+                        <div class="math-lbl"></div>
+                        $$I_B = \frac{V_{TH} - V_{BE}}{R_{TH} + (\beta+1)R_E} = \frac{2.105 - 0.7}{8250 + (101)(560)} =
+                        \frac{1.405}{8250 + 56560} = \frac{1.405}{64810} = 21.68 \text{ μA}$$
+                    </div>
+                    <p><strong>Step 4 — Collector Current:</strong></p>
+                    <div class="math-block">
+                        <div class="math-lbl"></div>
+                        $$I_{CQ} = \beta I_B = 100 \times 21.68 \times 10^{-6} = 2.168 \text{ mA}$$
+                    </div>
+                    <p><strong>Step 5 — V<sub>CEQ</sub>:</strong></p>
+                    <div class="math-block">
+                        <div class="math-lbl"></div>
+                        $$V_{CEQ} = V_{CC} - I_{CQ}(R_C + R_E) = 12 - 2.168 \times 10^{-3}(2200+560) = 12 - 5.98 = 6.02
+                        \text{ V}$$
+                    </div>
+                    <p><strong>Step 6 — Active Region Check:</strong> V<sub>CEQ</sub> = 6.02 V &gt; V<sub>CE(sat)</sub>
+                        ≈ 0.2 V ✓ and I<sub>B</sub> &gt; 0 ✓. The transistor is in the <strong>active region</strong>.
+                        Q-point: (6.02 V, 2.168 mA).</p>
+                </div>
+            </div>
+
+            <!-- GATE Question 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EC</span>
+                    <span class="pyq-title">In a BJT CE amplifier, the transconductance g<sub>m</sub> = 40 mA/V. If the
+                        collector bias current I<sub>C</sub> is doubled, the new g<sub>m</sub> will be:</span>
+                    <span class="pyq-year">GATE EC 2018</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) 20 mA/V</li>
+                        <li>(B) 40 mA/V</li>
+                        <li class="correct">✓ (C) 80 mA/V</li>
+                        <li>(D) 160 mA/V</li>
+                    </ul>
+                    <p><strong>Solution:</strong> g<sub>m</sub> = I<sub>C</sub>/V<sub>T</sub>. Since g<sub>m</sub> ∝
+                        I<sub>C</sub>, doubling I<sub>C</sub> doubles g<sub>m</sub>. New g<sub>m</sub> = 2 × 40 =
+                        <strong>80 mA/V</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">For the fixed bias circuit with V<sub>CC</sub> = 15 V, R<sub>B</sub> = 1 MΩ,
+                        \(\beta\) = 100, V<sub>BE</sub> = 0.7 V, find I<sub>C</sub>:</span>
+                    <span class="pyq-year">GATE EE 2015</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) 0.14 mA</li>
+                        <li class="correct">✓ (B) 1.43 mA</li>
+                        <li>(C) 2.86 mA</li>
+                        <li>(D) 14.3 mA</li>
+                    </ul>
+                    <p><strong>Solution:</strong> I<sub>B</sub> = (15 − 0.7)/(1×10<sup>6</sup>) = 14.3 μA. I<sub>C</sub>
+                        = \(\beta\)·I<sub>B</sub> = 100 × 14.3 μA = <strong>1.43 mA</strong>.</p>
+                </div>
+            </div>
+
+            <!-- IES Question -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&T</span>
+                    <span class="pyq-title pyq-title-ies">Which biasing configuration gives the best thermal stability
+                        for a BJT amplifier?</span>
+                    <span class="pyq-year">IES 2019</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) Fixed bias</li>
+                        <li>(B) Collector feedback bias</li>
+                        <li class="correct">✓ (C) Voltage divider bias with emitter resistor</li>
+                        <li>(D) Emitter bias with single supply</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> Voltage divider bias with R<sub>E</sub> achieves S ≈ 1 when
+                        R<sub>TH</sub> ≪ (\(\beta\)+1)R<sub>E</sub>. This combination of "stiff" voltage divider +
+                        emitter
+                        degeneration gives the most robust Q-point stability against temperature and \(\beta\)
+                        variations. Fixed
+                        bias has \(S = \beta+1\) — worst.</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EC</span>
+                    <span class="pyq-title">For an N-channel JFET with I<sub>DSS</sub> = 8 mA and V<sub>P</sub> = −4 V,
+                        the value of g<sub>m</sub> at V<sub>GS</sub> = −2 V is:</span>
+                    <span class="pyq-year">GATE EC 2016</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) 1 mA/V</li>
+                        <li>(B) 1.5 mA/V</li>
+                        <li class="correct">✓ (C) 2 mA/V</li>
+                        <li>(D) 4 mA/V</li>
+                    </ul>
+                    <p><strong>Solution:</strong> g<sub>m0</sub> = 2I<sub>DSS</sub>/|V<sub>P</sub>| = 2×8/4 = 4 mA/V. At
+                        V<sub>GS</sub> = −2 V: g<sub>m</sub> = g<sub>m0</sub>(1 − V<sub>GS</sub>/V<sub>P</sub>) = 4(1 −
+                        (−2)/(−4)) = 4×0.5 = <strong>2 mA/V</strong>.</p>
+                </div>
+            </div>
+
+            <!-- Ask Claude Widget -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI — BJT &amp; FET Doubts</div>
+                <p>Get instant explanations on biasing, small signal models, GATE numericals, and conceptual questions.
+                </p>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="userQ" type="text"
+                        placeholder="e.g. Derive the stability factor S for voltage divider bias…" autocomplete="off">
+                    <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('Derive the stability factor S for voltage divider bias circuit from first principles.')">Derive
+                        S for VDB</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Why is the CE configuration most widely used? Compare all three BJT configurations for GATE.')">CE
+                        vs CB vs CC</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain the hybrid-π model parameters \(g_m\), \(r_\pi\), \(r_o\) and their physical significance.')">Hybrid-π
+                        parameters</span>
+                    <span class="ai-chip"
+                        onclick="setQ('What is the difference between JFET and MOSFET? Compare their biasing methods.')">JFET
+                        vs MOSFET</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain thermal runaway in BJT and why voltage divider bias prevents it.')">Thermal
+                        runaway</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <!-- Summary Grid -->
+            <h3 class="sub">Chapter Summary</h3>
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">BJT Configurations</div>
+                    <p>CE: high \(A_v\) (−ve), high \(A_i\), 180° phase. CB: high \(A_v\) (+ve), \(A_i\) &lt; 1, 0°, RF
+                        use. CC: \(A_v \approx 1\),
+                        high \(A_i\), buffer. CE most common for amplification.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Fixed Bias</div>
+                    <p>\(I_B\) = (\(V_{CC}\)−\(V_{BE}\))/\(R_B\). Simple but worst stability \(S = \beta+1\). Thermal
+                        runaway risk. Not used in modern
+                        circuits. Baseline for comparison only.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Voltage Divider Bias</div>
+                    <p>\(V_{TH}\) = \(V_{CC}\)·\(R_2\)/(\(R_1\)+\(R_2\)). \(R_{TH}\) = \(R_1\)∥\(R_2\). \(S \to 1\) when
+                        \(R_{TH} \ll (\beta+1)R_E\). Industry standard. Q-point
+                        \(\beta\)-independent under stiff divider condition.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Stability Factors</div>
+                    <p>\(S = \frac{\partial I_C}{\partial I_{CO}}\). \(S' = \frac{\partial I_C}{\partial V_{BE}}\).
+                        \(S'' = \frac{\partial I_C}{\partial \beta}\). \(\Delta I_C = S \Delta I_{CO} + S' \Delta V_{BE}
+                        + S'' \Delta \beta\). Lower S = better. S =
+                        1 is ideal. Fixed bias \(S = \beta+1\) worst.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Small Signal Models</div>
+                    <p>Hybrid-π: \(r_\pi = \frac{\beta}{g_m}\), \(g_m\) = \(I_C\)/\(V_T\), \(r_o = \frac{V_A}{I_C}\).
+                        T-model: \(r_e = \frac{1}{g_m}\), \(r_\pi = \beta r_e\). Both equivalent.
+                        Hybrid-π for CE; T-model for CB/CC circuits.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">FET Devices</div>
+                    <p>JFET: \(I_D\) = \(I_{DSS}\)(1−\(V_{GS}\)/\(V_P\))². E-MOSFET: \(I_D\) =
+                        \(K_n\)(\(V_{GS}\)−\(V_{TN}\))². Gate current ≈ 0. Self-bias: \(V_{GS}\) =
+                        −\(I_D\)·\(R_S\). \(g_m\) = 2IDSS/|\(V_P\)|·(1−\(V_{GS}\)/\(V_P\)).</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 9.3</div>
+                    <p>Frequency Response of Amplifiers — Low-frequency response (coupling and bypass capacitor
+                        effects), mid-band gain, high-frequency response (Miller effect, bandwidth), Bode plots,
+                        gain-bandwidth product, and complete GATE and IES analysis of multi-stage amplifiers.</p>
+                </div>
+            </div>
+
+            <!-- GATE Insights Block -->
+            <div class="gate-card" style="margin-top:22px">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE INSIGHT</span>
+                    <span class="gate-title">High-Probability Topics for GATE EC/EE — Chapter 9.2</span>
+                </div>
+                <div class="gate-body">
+                    <div class="tw">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Topic</th>
+                                    <th>Probability</th>
+                                    <th>Key Formula to Remember</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>g<sub>m</sub> calculation from I<sub>C</sub></td>
+                                    <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                    <td>g<sub>m</sub> = I<sub>C</sub>/V<sub>T</sub> = I<sub>C</sub>/26 mV</td>
+                                </tr>
+                                <tr>
+                                    <td>Voltage divider Q-point</td>
+                                    <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                    <td>V<sub>TH</sub> = V<sub>CC</sub>·R<sub>2</sub>/(R<sub>1</sub>+R<sub>2</sub>),
+                                        Thevenin method</td>
+                                </tr>
+                                <tr>
+                                    <td>Stability factor \(S\)</td>
+                                    <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                    <td>Fixed: \(\beta\)+1; VDB:
+                                        (\(\beta\)+1)(1+R<sub>TH</sub>/R<sub>E</sub>)/(\(\beta\)+1+R<sub>TH</sub>/R<sub>E</sub>)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>CE amplifier gain (hybrid-π)</td>
+                                    <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                    <td>A<sub>v</sub> = −g<sub>m</sub>·R<sub>C</sub></td>
+                                </tr>
+                                <tr>
+                                    <td>JFET Shockley &amp; g<sub>m</sub></td>
+                                    <td><span class="prob prob-m">🟡 MED</span></td>
+                                    <td>I<sub>D</sub> = I<sub>DSS</sub>(1−V<sub>GS</sub>/V<sub>P</sub>)²</td>
+                                </tr>
+                                <tr>
+                                    <td>r<sub>π</sub>, r<sub>e</sub>, r<sub>o</sub> relations</td>
+                                    <td><span class="prob prob-m">🟡 MED</span></td>
+                                    <td>r<sub>π</sub> = \(\beta\)·r<sub>e</sub> = \(\beta\)/g<sub>m</sub>; r<sub>o</sub>
+                                        =
+                                        V<sub>A</sub>/I<sub>C</sub></td>
+                                </tr>
+                                <tr>
+                                    <td>E-MOSFET threshold voltage</td>
+                                    <td><span class="prob prob-m">🟡 MED</span></td>
+                                    <td>I<sub>D</sub> = K<sub>n</sub>(V<sub>GS</sub>−V<sub>TN</sub>)²</td>
+                                </tr>
+                                <tr>
+                                    <td>Emitter follower (CC) analysis</td>
+                                    <td><span class="prob prob-l">🔴 LOW</span></td>
+                                    <td>A<sub>v</sub> ≈ 1, R<sub>out</sub> =
+                                        R<sub>E</sub>∥(r<sub>e</sub>+R<sub>S</sub>/\(\beta\))</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory Tricks -->
+            <h3 class="sub">Memory Tricks &amp; Mnemonics</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">BJT Configurations Memory</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>"CE = Central/Excellent"</strong> — highest gain, most
+                            versatile</li>
+                        <li><span class="dot">▸</span><strong>"CB = Current-Barrier"</strong> — current gain &lt; 1,
+                            blocks current</li>
+                        <li><span class="dot">▸</span><strong>"CC = Carbon Copy"</strong> — copies input voltage
+                            (\(A_v\) ≈
+                            1)</li>
+                        <li><span class="dot">▸</span>Only CE inverts: "CE = Change Everything (phase)"</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Bias Stability Memory</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>S = 1 ideal, \(S = \beta+1\) worst</strong> (inverse of
+                            what seems
+                            intuitive)</li>
+                        <li><span class="dot">▸</span><strong>"Voltage Divider = Very Dependable Bias"</strong></li>
+                        <li><span class="dot">▸</span>g<sub>m</sub> = 40I<sub>C</sub> (mA/V if I<sub>C</sub> in mA) —
+                            useful shortcut at 300K</li>
+                        <li><span class="dot">▸</span>V<sub>T</sub> = 26 mV at room temp — memorise this</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Citations -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                    the following standard textbooks. All explanations, derivations, diagrams, and examples are original
+                    to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Sedra, A.S. and Smith, K.C. <em>Microelectronic
+                                Circuits</em>, 7th ed. Oxford University Press, 2014. Chapters 5–6 — BJT fundamentals,
+                            hybrid-π model, MOSFET operation, biasing, and small-signal analysis.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Boylestad, R. and Nashelsky, L. <em>Electronic Devices
+                                and Circuit Theory</em>, 11th ed. Pearson, 2012. Chapter 4 — BJT biasing techniques;
+                            Chapter 8 — FET biasing; Chapter 9 — BJT and FET amplifiers.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Millman, J. and Halkias, C.C. <em>Integrated
+                                Electronics</em>, 2nd ed. Tata McGraw-Hill, 2010. Chapter 9 — Stability factors S, S',
+                            S''; transistor biasing and thermal stabilisation.</span></li>
+                    <li><span class="cite-num">[4]</span><span>Razavi, B. <em>Fundamentals of Microelectronics</em>, 2nd
+                            ed. Wiley, 2013. Chapter 4 — Small signal analysis; Chapter 6 — BJT biasing and amplifier
+                            design; Chapter 7 — Frequency response.</span></li>
+
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Electronic Devices &amp; Circuits Series &nbsp;·&nbsp; Chapter
+                9.2 of 12<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EC / EE &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations, diagrams,
+                    and derivations are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+
+        </div><!-- end section s12 -->
+    </div><!-- end page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EC/EE and IES tutor specialising in Electronic Devices & Circuits. Topic: Chapter 9.2 — Transistor Biasing & Small Signal Models (BJT configurations CE/CB/CC, fixed bias, collector feedback bias, voltage divider bias, stability factors S/S'/S'', hybrid-π model, T-model, JFET, MOSFET, FET biasing). Answer with step-by-step working for numericals. Reference Sedra-Smith, Boylestad-Nashelsky, Millman-Halkias. All content is original — do not reproduce textbook text verbatim.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] })
+                });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response received.';
+            } catch (e) { resp.textContent = 'Could not connect. Please check your connection and try again.'; }
+            btn.textContent = 'Ask AI'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

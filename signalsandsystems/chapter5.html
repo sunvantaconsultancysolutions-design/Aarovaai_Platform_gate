@@ -1,0 +1,2807 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Signals &amp; Systems Ch.5 Sampling Theorem &amp; Reconstruction</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* PROGRESS */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 62.5%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .section:nth-child(13) {
+            animation-delay: .53s
+        }
+
+        .section:nth-child(14) {
+            animation-delay: .57s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px
+        }
+
+        /* CALLOUTS */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* FORMULA BLOCK */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* MATH BLOCK */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* SVG DIAGRAMS */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* EXAMPLES */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px)
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px
+        }
+
+        /* GATE / PYQ CARDS */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* TWO-COL CARDS */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            display: block;
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 20px;
+            border-bottom: 1px solid var(--bg3);
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .dot {
+            color: var(--muted);
+            position: absolute;
+            left: 0;
+            top: 8px;
+        }
+
+        /* SUMMARY GRID */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* PROBABILITY TAG */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* ASK CLAUDE WIDGET */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12)
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none
+        }
+
+        .ai-btn:hover {
+            background: #155250
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg)
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto
+        }
+
+        /* MISC */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border)
+        }
+
+        footer strong {
+            color: var(--orange)
+        }
+
+        ol.steps {
+            padding-left: 1.3em;
+            margin: 12px 0
+        }
+
+        ol.steps li {
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            color: var(--text2);
+            padding: 5px 0;
+            line-height: 1.65
+        }
+
+        /* TABLET */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .svg-wrap {
+                padding: 12px 10px
+            }
+
+            .svg-wrap svg {
+                min-width: 480px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px
+            }
+
+            .pyq-year {
+                margin-left: 0
+            }
+        }
+
+        /* MOBILE */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .hbadges {
+                display: none
+            }
+
+            .site-header {
+                padding: 10px 14px
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px)
+            }
+
+            .hero-desc {
+                font-size: 14px
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px
+            }
+
+            .pl {
+                font-size: 11px
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0
+            }
+
+            .toc {
+                padding: 14px 16px
+            }
+
+            .sec-hdr {
+                gap: 9px
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px)
+            }
+
+            .h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px)
+            }
+
+            .p {
+                font-size: 15px
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%
+            }
+
+            .svg-cap {
+                font-size: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px;
+                border-radius: 8px
+            }
+
+            .tw {
+                border-radius: 8px
+            }
+
+            .thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em
+            }
+
+            .tbody td {
+                font-size: 12px;
+                padding: 8px 10px
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px
+            }
+
+            .mini-card {
+                padding: 13px 14px
+            }
+
+            .sum-card {
+                padding: 14px 16px
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px
+            }
+
+            .ci {
+                font-size: 16px
+            }
+
+            .cb p {
+                font-size: 13.5px
+            }
+
+            .ex-hdr {
+                padding: 8px 13px
+            }
+
+            .ex-body {
+                padding: 12px 13px
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px
+            }
+
+            .pyq-year {
+                display: none
+            }
+
+            .ai-prompt {
+                padding: 14px
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-input {
+                font-size: 15px
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px
+            }
+
+            .ai-chip {
+                font-size: 11px
+            }
+
+            .ai-suggest {
+                gap: 5px
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px
+            }
+
+            .citations {
+                padding: 14px
+            }
+
+            .footer {
+                padding: 20px 0;
+                font-size: 11.5px
+            }
+
+            .math-block {
+                padding: 10px 12px
+            }
+        }
+
+        /* LARGE DESKTOP */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 var(--page-px) 100px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div style="display:flex;align-items:center;gap:0">
+            <span class="logo">Aarova AI</span>
+            <span class="logo-sub">Signals &amp; Systems · Chapter 5</span>
+        </div>
+        <div class="hbadges">
+            <span class="hbadge">GATE EE/EC</span>
+            <span class="hbadge">IES E&amp;T</span>
+            <span class="hbadge">🟢 High Scoring</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="eyebrow">Signals &amp; Systems · Chapter 5 of 8</div>
+            <h1 class="hero-title">Sampling Theorem &amp; <em>Reconstruction</em></h1>
+            <p class="hero-desc">The bridge between the continuous and digital worlds. From Nyquist's foundational
+                theorem to aliasing traps and perfect reconstruction — built from first principles for GATE, IES, and
+                PSU exams.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">🟢 High Scoring</span>
+                <span class="badge">Nyquist Theorem</span>
+                <span class="badge">Aliasing</span>
+                <span class="badge">Reconstruction Filters</span>
+                <span class="badge">f<sub>s</sub> ≥ 2f<sub>m</sub></span>
+            </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-bar">
+            <span class="pl">Course Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Ch 5 / 8 · 62.5%</span>
+        </div>
+
+        <!-- TOC -->
+        <div class="toc">
+            <div class="toc-h">Chapter Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">01</span>Why Sampling Matters</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">02</span>Sampling Process — How It Works</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">03</span>Nyquist-Shannon Sampling Theorem</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">04</span>Spectrum After Sampling</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">05</span>Aliasing — The Impostor Frequency</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">06</span>Reconstruction &amp; Ideal Filters</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">07</span>Practical Sampling Considerations</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">08</span>GATE Insights &amp; PYQs</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">09</span>Numerical Examples</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">10</span>Common Mistakes</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">11</span>Memory Tricks</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">12</span>Ask Aarova AI</a>
+                <a href="#s13" class="toc-item"><span class="toc-n">13</span>Quick Revision Sheet</a>
+                <a href="#s14" class="toc-item"><span class="toc-n">14</span>References</a>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 1: WHY SAMPLING MATTERS ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 01</span>
+                <h2 class="sec-t">Why Sampling Matters — The Big Picture</h2>
+            </div>
+
+            <p>Every piece of music you stream, every phone call you make, every ECG your doctor reads — all of it was
+                once an analogue continuous-time signal that had to be converted into numbers before a computer could
+                process it. <strong>Sampling is the act of converting a continuous-time signal into a discrete-time
+                    sequence.</strong> The Sampling Theorem answers the single most important question in this
+                conversion: <em>how often must we take samples so we don't lose any information?</em><sup
+                    class="cite">[1]</sup></p>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">The Engineering Problem</div>
+                    <p>Computers work with numbers — finite, discrete quantities. The physical world gives us voltages,
+                        pressures, and temperatures that vary continuously. Sampling is the legal passport that allows
+                        an analogue signal to enter the digital world. The Sampling Theorem guarantees that this journey
+                        is lossless — if done correctly.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Where This Topic Lives in Engineering</h3>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch5/fig5.1.png" alt="Analogue to Discrete Pipeline (Sampler, Quantizer)" />
+                <p class="svg-cap">Fig. 1 — The sampling step is where analogue meets digital. Nyquist's condition
+                    governs this gateway.</p>
+            </div>
+
+            <p>Sampling theory sits at the heart of: <strong>DSP (Digital Signal Processing)</strong>, audio engineering
+                (CD, MP3, Bluetooth), telecommunications (4G, 5G), medical imaging (MRI, ECG digitizers), radar and
+                sonar systems, and every analogue-to-digital converter (ADC) ever made.</p>
+        </div>
+
+        <!-- ═══ SECTION 2: SAMPLING PROCESS ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 02</span>
+                <h2 class="sec-t">The Sampling Process — How It Works</h2>
+            </div>
+
+            <p>Imagine you are trying to describe the motion of a pendulum to someone over the phone. You look at it
+                every second and say the angle. If the pendulum is slow, your one-second snapshots capture it perfectly.
+                If the pendulum is very fast, you might report it going left when it was actually already on the way
+                back — that is aliasing in a nutshell.</p>
+
+            <h3 class="sub">Ideal Impulse Sampling (Mathematical Model)</h3>
+            <p>In the ideal mathematical model, a continuous-time signal \(x(t)\) is multiplied by an <strong>impulse
+                    train</strong> (also called a Dirac comb) \(p(t)\):<sup class="cite">[1]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Impulse Train (Sampling Signal)</div>
+                $$p(t) = \sum_{n=-\infty}^{\infty} \delta(t - nT_s)$$
+            </div>
+
+            <p>where \(T_s = 1/f_s\) is the <strong>sampling period</strong> and \(f_s\) is the <strong>sampling
+                    frequency</strong> in Hz. The sampled signal is:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Sampled Signal</div>
+                $$x_s(t) = x(t) \cdot p(t) = \sum_{n=-\infty}^{\infty} x(nT_s)\,\delta(t - nT_s)$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Physical Meaning</div>
+                    <p>Each impulse in the train "picks up" the value of \(x(t)\) at that exact instant. The impulse at
+                        \(t = nT_s\) has a weight (area) equal to \(x(nT_s)\). So the sampled signal is a sequence of
+                        weighted impulses spaced \(T_s\) seconds apart. Each weight is exactly one sample value.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Visual: Time Domain Sampling</h3>
+            <div class="svg-wrap">
+                <div class="svg-scroll">
+                    <img src="images/ch5/fig5.2.png" alt="Visual: Time Domain Sampling (x(t), p(t), x_s(t))" />
+                </div>
+                <p class="svg-cap">Fig. 2 — Ideal impulse sampling: the original signal ① is multiplied by an impulse
+                    train ② to produce weighted impulses ③, each carrying the signal's amplitude at that instant.</p>
+                <p class="svg-cite">Ref: Oppenheim &amp; Schafer, Discrete-Time Signal Processing, 3rd ed., Chapter 4.
+                </p>
+            </div>
+
+            <h3 class="sub">Three Types of Sampling (Practical Context)</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Mathematical Model</th>
+                            <th>Used In</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Ideal (Impulse)</td>
+                            <td>Instantaneous snapshot; infinite resolution</td>
+                            <td>Multiply by Dirac comb \(\delta\)-train</td>
+                            <td>Theoretical analysis, GATE derivations</td>
+                        </tr>
+                        <tr>
+                            <td>Natural Sampling</td>
+                            <td>Top of sample follows signal during pulse width \(\tau\)</td>
+                            <td>Multiply by rectangular pulse train</td>
+                            <td>PAM systems, older multiplexers</td>
+                        </tr>
+                        <tr>
+                            <td>Flat-Top (S&amp;H)</td>
+                            <td>Sample held constant for full \(T_s\); causes aperture distortion</td>
+                            <td>Convolution with rect pulse after ideal sampling</td>
+                            <td>All real ADCs — sample-and-hold circuits</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 3: NYQUIST THEOREM ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 03</span>
+                <h2 class="sec-t">Nyquist-Shannon Sampling Theorem</h2>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">📖</div>
+                <div class="cb">
+                    <div class="ct">Theorem Statement (Shannon, 1949)</div>
+                    <p>A bandlimited signal \(x(t)\) with no spectral components above \(f_m\) Hz can be perfectly
+                        reconstructed from its uniformly-spaced samples taken at a rate \(f_s \geq 2f_m\) samples per
+                        second.</p>
+                </div>
+            </div>
+
+            <p>This theorem was independently developed by Harry Nyquist (1928) who identified the minimum rate, and
+                Claude Shannon (1949) who provided the complete mathematical proof. It is the bedrock result of the
+                entire field of digital signal processing.<sup class="cite">[1][2]</sup></p>
+
+            <h3 class="sub">Key Definitions</h3>
+            <div class="math-block">
+                <div class="math-lbl">Core Sampling Theorem Definitions</div>
+                $$
+                \begin{aligned}
+                &\text{Nyquist Rate} && f_N = 2f_m \quad \text{(minimum required sampling frequency)} \\
+                &\text{Nyquist Frequency} && \frac{f_N}{2} = f_m \quad \text{(half the sampling rate; maximum signal
+                frequency)} \\
+                &\text{Sampling Period} && T_s = \frac{1}{f_s} \quad \text{(time between consecutive samples, in
+                seconds)} \\
+                &\text{Oversampling} && f_s > 2f_m \implies \text{spectral gaps allow easier reconstruction} \\
+                &\text{Critical sampling} && f_s = 2f_m \implies \text{theoretically perfect (needs ideal filter)} \\
+                &\text{Undersampling} && f_s < 2f_m \implies \text{aliasing occurs} \implies \text{signal information
+                    LOST} \end{aligned} $$ </div>
+
+                    <div class="math-block">
+                        <div class="math-lbl">The Sampling Theorem Condition (Core GATE Formula)</div>
+                        $$\boxed{f_s \geq 2f_m}$$
+                    </div>
+
+                    <h3 class="sub">Proof Intuition — Why Does 2f<sub>m</sub> Work?</h3>
+                    <p>A sinusoid at frequency \(f_m\) Hz makes \(f_m\) complete cycles every second. To unambiguously
+                        capture
+                        the shape of even one cycle, you need at minimum <strong>two samples per cycle</strong> — one to
+                        capture
+                        the rising part, one to capture the falling part. Therefore you need \(2f_m\) samples per
+                        second. This
+                        is not a coincidence — it falls directly from the Fourier analysis of the sampled signal's
+                        spectrum, as
+                        we will see in the next section.</p>
+
+                    <div class="svg-wrap svg-simple">
+                        <img src="images/ch5/fig5.3.png"
+                            alt="Sampling Theorem Cases (Oversampled, Nyquist, Undersampled)" />
+                        <p class="svg-cap">Fig. 3 — Three sampling scenarios. Only adequate sampling rate (≥ 2f_m)
+                            preserves the
+                            original waveform.</p>
+                    </div>
+
+                    <h3 class="sub">Concept-Building Questions</h3>
+                    <div class="callout c-tip">
+                        <div class="ci">🤔</div>
+                        <div class="cb">
+                            <div class="ct">Why Does the Minimum = Exactly 2f_m, Not More?</div>
+                            <p>Because the highest-frequency component needs two points per cycle to define it — one
+                                peak and
+                                one trough. Fewer than two points and you cannot distinguish a fast oscillation from a
+                                slow one.
+                                More than two gives redundancy but is not required. The theoretical minimum is exactly
+                                two
+                                samples per cycle of the highest frequency present.</p>
+                        </div>
+                    </div>
+                    <div class="callout c-warn">
+                        <div class="ci">⚠️</div>
+                        <div class="cb">
+                            <div class="ct">What Happens as f_s → 2f_m Exactly?</div>
+                            <p>At exactly \(f_s = 2f_m\), reconstruction is theoretically possible but requires a
+                                <em>perfect
+                                    ideal low-pass filter</em> with an infinitely sharp cut-off at exactly \(f_m\). No
+                                such
+                                filter exists in practice. Engineers therefore always choose \(f_s\) somewhat greater
+                                than
+                                \(2f_m\). The audio CD standard uses \(f_s = 44.1\) kHz for audio up to \(f_m \approx
+                                20\) kHz —
+                                that is \(2.2 \times\) the Nyquist rate.</p>
+                        </div>
+                    </div>
+            </div>
+
+            <!-- ═══ SECTION 4: SPECTRUM AFTER SAMPLING ═══ -->
+            <div class="section" id="s4">
+                <div class="sec-hdr">
+                    <span class="sec-num">§ 04</span>
+                    <h2 class="sec-t">Spectrum After Sampling — The Fourier Perspective</h2>
+                </div>
+
+                <p>To truly understand the Nyquist theorem, we must look at what happens in the <strong>frequency
+                        domain</strong>. This is where the real insight lies.<sup class="cite">[1]</sup></p>
+
+                <h3 class="sub">The Fourier Transform of the Impulse Train</h3>
+                <p>The impulse train \(p(t)\) with period \(T_s\) has a Fourier transform that is also an impulse train,
+                    but
+                    in the frequency domain with spacing \(f_s = 1/T_s\):</p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Fourier Transform of Sampling Impulse Train</div>
+                    $$P(f) = \frac{1}{T_s}\sum_{k=-\infty}^{\infty}\delta(f - k f_s) = f_s
+                    \sum_{k=-\infty}^{\infty}\delta(f
+                    - k f_s)$$
+                </div>
+
+                <h3 class="sub">Spectrum of Sampled Signal</h3>
+                <p>Since \(x_s(t) = x(t) \cdot p(t)\), multiplication in time corresponds to convolution in frequency.
+                    The
+                    spectrum of the sampled signal is:</p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Spectrum of Sampled Signal — Key Result</div>
+                    $$X_s(f) = X(f) * P(f) = f_s \sum_{k=-\infty}^{\infty} X(f - k f_s)$$
+                </div>
+
+                <div class="callout c-key">
+                    <div class="ci">🔑</div>
+                    <div class="cb">
+                        <div class="ct">Physical Interpretation — Most Important Insight</div>
+                        <p>Sampling in time causes the spectrum of the original signal to repeat periodically in
+                            frequency,
+                            with repetitions at every multiple of \(f_s\). The original spectrum \(X(f)\) appears
+                            centred at
+                            \(f = 0\), and then copies appear at \(f = \pm f_s, \pm 2f_s, \pm 3f_s, \ldots\) These
+                            copies
+                            are called <strong>spectral replicas</strong> or <strong>images</strong>.</p>
+                    </div>
+                </div>
+
+                <h3 class="sub">Frequency Domain Diagram</h3>
+                <div class="svg-wrap">
+                    <div class="svg-scroll">
+                        <img src="images/ch5/fig5.4.png"
+                            alt="Frequency Domain Diagram (Adequate Sampling, No Overlap)" />
+                    </div>
+                    <p class="svg-cap">Fig. 4 — Frequency domain view of sampling. When f_s > 2f_m (Case A) the spectral
+                        copies are separate; reconstruction is possible with a simple LPF. When f_s < 2f_m (Case B)
+                            copies overlap — aliasing is irreversible.</p>
+                            <p class="svg-cite">Ref: Oppenheim &amp; Willsky, Signals and Systems, 2nd ed., Section 7.3.
+                            </p>
+                </div>
+            </div>
+
+            <!-- ═══ SECTION 5: ALIASING ═══ -->
+            <div class="section" id="s5">
+                <div class="sec-hdr">
+                    <span class="sec-num">§ 05</span>
+                    <h2 class="sec-t">Aliasing — The Impostor Frequency</h2>
+                </div>
+
+                <p>When the sampling rate is too low, a high-frequency signal <em>masquerades</em> as a low-frequency
+                    signal
+                    in the sampled data. This imposter is called an <strong>alias</strong>. The word comes from the
+                    Latin
+                    for "otherwise named" — the signal appears under a false identity.<sup class="cite">[2]</sup></p>
+
+                <div class="callout c-danger">
+                    <div class="ci">🚨</div>
+                    <div class="cb">
+                        <div class="ct">Critical Property — Aliasing is Irreversible</div>
+                        <p>Once aliasing occurs, the original signal <strong>cannot be recovered</strong> no matter how
+                            sophisticated the reconstruction algorithm. This makes it the most critical error in
+                            sampling —
+                            not a small distortion, but a fundamental loss of information. Prevention (adequate f_s) is
+                            the
+                            only cure.</p>
+                    </div>
+                </div>
+
+                <h3 class="sub">The Alias Formula</h3>
+                <p>When a signal at frequency \(f\) is sampled at rate \(f_s\), it can appear as a frequency \(f_a\)
+                    (its
+                    alias) given by:</p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Alias Frequency Formula</div>
+                    $$f_a = \left| f - k \cdot f_s \right| \quad \text{for the integer } k \text{ that brings } f_a
+                    \text{
+                    into } \left[0,\, \frac{f_s}{2}\right]$$
+                </div>
+
+                <p>Practically: find the integer \(k\) such that \(f_a = |f - k f_s|\) falls in the range \([0,
+                    f_s/2]\).
+                    That is the alias.</p>
+
+                <div class="callout c-warn">
+                    <div class="ci">📐</div>
+                    <div class="cb">
+                        <div class="ct">Quick Method to Find Alias</div>
+                        <p>Subtract multiples of \(f_s\) from the signal frequency \(f\) until the result falls between
+                            0
+                            and \(f_s/2\). If it falls between \(f_s/2\) and \(f_s\), reflect it: \(f_a = f_s - f'\).
+                            The
+                            result is the alias frequency that the sampler "sees."</p>
+                    </div>
+                </div>
+
+                <h3 class="sub">Real-World Aliasing Examples</h3>
+                <div class="two-col">
+                    <div class="mini-card mc-org">
+                        <div class="mc-t">Wagon Wheel Effect (Cinema)</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">→</span>Film shot at 24 frames/sec. Wheel spinning at exactly 12
+                                rev/sec
+                                appears stationary. Wheel at 13 rev/sec appears to rotate slowly backward — it aliases
+                                to 1
+                                rev/sec backward.</li>
+                        </ul>
+                    </div>
+                    <div class="mini-card mc-red">
+                        <div class="mc-t">Audio Aliasing</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">→</span>If a microphone picks up a 25 kHz ultrasound component and the
+                                ADC
+                                samples at 44.1 kHz, the alias appears at |25000 − 44100| = 19.1 kHz — audible and
+                                unpleasant.</li>
+                        </ul>
+                    </div>
+                    <div class="mini-card mc-tel">
+                        <div class="mc-t">Stroboscope</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">→</span>A strobe (sampling light) at 1000 flashes/sec viewing a 1001
+                                rpm
+                                motor makes it appear to turn at 1 rpm. Classic temporal aliasing demonstration.</li>
+                        </ul>
+                    </div>
+                    <div class="mini-card mc-grn">
+                        <div class="mc-t">Anti-Aliasing Filter</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">→</span>Every real ADC has an analogue low-pass filter placed
+                                <em>before</em> the sampler. Its job: remove all components above \(f_s/2\) before
+                                sampling,
+                                preventing aliases from forming.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ SECTION 6: RECONSTRUCTION ═══ -->
+            <div class="section" id="s6">
+                <div class="sec-hdr">
+                    <span class="sec-num">§ 06</span>
+                    <h2 class="sec-t">Reconstruction &amp; Ideal Reconstruction Filters</h2>
+                </div>
+
+                <p>Given the sampled signal \(X_s(f)\) whose spectrum consists of shifted copies of \(X(f)\),
+                    reconstruction
+                    of the original signal \(x(t)\) is straightforward in theory: pass \(x_s(t)\) through an
+                    <strong>ideal
+                        low-pass filter (LPF)</strong> that passes only the central copy (the original spectrum) and
+                    blocks
+                    all the spectral images.<sup class="cite">[1]</sup></p>
+
+                <h3 class="sub">The Ideal Reconstruction Filter</h3>
+
+                <div class="math-block">
+                    <div class="math-lbl">Ideal LPF (Reconstruction Filter) — Frequency Domain</div>
+                    $$H(f) = \begin{cases} T_s & |f| \leq \frac{f_s}{2} \\ 0 & |f| > \frac{f_s}{2} \end{cases}$$
+                </div>
+
+                <p>The gain \(T_s\) compensates for the \(1/T_s = f_s\) scaling factor introduced by the sampling
+                    formula.
+                    After filtering:</p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Reconstruction in Frequency Domain</div>
+                    $$\hat{X}(f) = X_s(f) \cdot H(f) = X(f) \quad \Rightarrow \quad \hat{x}(t) = x(t)$$
+                </div>
+
+                <h3 class="sub">Reconstruction = Sinc Interpolation in Time</h3>
+                <p>The impulse response of the ideal LPF is a sinc function. Convolution of \(x_s(t)\) with this sinc
+                    gives
+                    us the reconstruction formula — the <strong>Whittaker-Shannon interpolation formula</strong>:<sup
+                        class="cite">[1]</sup></p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Whittaker-Shannon Interpolation Formula</div>
+                    $$x(t) = \sum_{n=-\infty}^{\infty} x(nT_s)\, \text{sinc}\!\left(\frac{t - nT_s}{T_s}\right)$$
+                </div>
+
+                <p>where \(\text{sinc}(u) = \frac{\sin(\pi u)}{\pi u}\). Each sample \(x(nT_s)\) contributes a scaled
+                    and
+                    time-shifted sinc function. All these sinc pulses add together to produce the perfect
+                    continuous-time
+                    reconstruction. This is why the sinc function is called the <em>ideal interpolation kernel</em>.</p>
+
+                <div class="svg-wrap">
+                    <div class="svg-scroll">
+                        <img src="images/ch5/fig5.5.png"
+                            alt="Whittaker-Shannon Interpolation (Sampled signal → Ideal LPF)" />
+                    </div>
+                    <p class="svg-cap">Fig. 5 — Reconstruction process: the sampled signal passes through an ideal LPF
+                        to
+                        recover the original x(t). The ideal LPF has rectangular shape in frequency and sinc shape in
+                        time.
+                    </p>
+                </div>
+
+                <h3 class="sub">Why Ideal Filters are Impossible in Practice</h3>
+                <div class="tw">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ideal LPF Property</th>
+                                <th>Why It's Impossible</th>
+                                <th>Practical Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Perfectly rectangular frequency response</td>
+                                <td>Requires infinite order filter; infinite time response</td>
+                                <td>Butterworth, Chebyshev, Elliptic filters with steep but finite roll-off</td>
+                            </tr>
+                            <tr>
+                                <td>Zero transition band width</td>
+                                <td>Gibbs phenomenon; infinite coefficients in FIR design</td>
+                                <td>Use guard band: design f_s slightly above 2f_m</td>
+                            </tr>
+                            <tr>
+                                <td>Non-causal (sinc impulse response)</td>
+                                <td>Sinc extends to \(-\infty\) — requires future samples</td>
+                                <td>Windowed FIR filters with finite delay; IIR approximations</td>
+                            </tr>
+                            <tr>
+                                <td>Unity gain in passband only</td>
+                                <td>Real filters have passband ripple and stopband leakage</td>
+                                <td>Anti-aliasing filters specified for passband and stopband tolerances</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ═══ SECTION 7: PRACTICAL SAMPLING ═══ -->
+            <div class="section" id="s7">
+                <div class="sec-hdr">
+                    <span class="sec-num">§ 07</span>
+                    <h2 class="sec-t">Practical Sampling Considerations</h2>
+                </div>
+
+                <h3 class="sub">Anti-Aliasing Filter — The Guard at the Gate</h3>
+                <p>Before any real ADC samples the signal, an analogue <strong>anti-aliasing low-pass filter</strong>
+                    removes all frequency components above \(f_s/2\). This ensures aliasing cannot occur — there are no
+                    high-frequency components left to fold back into the baseband.<sup class="cite">[3]</sup></p>
+
+                <div class="svg-wrap">
+                    <div class="svg-scroll">
+                        <img src="images/ch5/fig5.6.png"
+                            alt="Anti-Aliasing Filter (Analogue Signal → LPF → Sample & Hold)" />
+                    </div>
+                    <p class="svg-cap">Fig. 6 — Practical ADC chain: analogue anti-aliasing LPF → sample-and-hold →
+                        quantiser. The anti-aliasing filter is mandatory.</p>
+                </div>
+
+                <h3 class="sub">Aperture Effect (Flat-Top Sampling)</h3>
+                <p>In real sample-and-hold circuits, the sample is held constant for the entire sampling period \(T_s\)
+                    rather than being instantaneous. This <strong>flat-top sampling</strong> introduces an <em>aperture
+                        effect</em> — the spectrum gets multiplied by a sinc envelope:</p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Aperture Effect — Distortion Due to Flat-Top Sampling</div>
+                    $$X_{FT}(f) = \tau \cdot \text{sinc}(f\tau) \cdot X_s(f)$$
+                </div>
+
+                <p>where \(\tau\) is the hold time (usually \(\approx T_s\)). The sinc envelope causes high-frequency
+                    droop.
+                    This is corrected by an <strong>aperture equaliser</strong> (an analogue or digital filter with
+                    inverse-sinc characteristic).</p>
+
+                <h3 class="sub">Oversampling and Noise Shaping</h3>
+                <p>Modern audio ADCs sample at \(4\times\) to \(64\times\) the Nyquist rate (oversampling). Benefits:
+                    the
+                    relaxed anti-aliasing filter requirement (wide guard band), and quantisation noise is spread over a
+                    wider band so less falls in the signal band — improving effective bit resolution by \(3\) dB per
+                    octave
+                    of oversampling (0.5 bit per doubling of sample rate).</p>
+
+                <div class="callout c-tip">
+                    <div class="ci">🎵</div>
+                    <div class="cb">
+                        <div class="ct">Real-World Sampling Rates to Remember</div>
+                        <p><strong>Telephone speech:</strong> \(f_m = 4\) kHz → \(f_s = 8\) kHz (ITU G.711).
+                            <strong>Audio
+                                CD:</strong> \(f_m \approx 20\) kHz → \(f_s = 44.1\) kHz. <strong>Professional
+                                audio:</strong> \(f_s = 96\)
+                            kHz or \(192\) kHz. <strong>ECG monitor:</strong> \(f_m \approx 100\) Hz → \(f_s =
+                            250\text{–}1000\) Hz. These are all
+                            well above Nyquist rate for real-world robustness.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ SECTION 8: GATE INSIGHTS ═══ -->
+            <div class="section" id="s8">
+                <div class="sec-hdr">
+                    <span class="sec-num">§ 08</span>
+                    <h2 class="sec-t">GATE Insights &amp; Previous Year Questions</h2>
+                </div>
+
+                <div class="gate-card">
+                    <div class="gate-hdr">
+                        <span class="gate-tag">GATE FOCUS</span>
+                        <span class="gate-title">High-Probability Topics in Sampling</span>
+                    </div>
+                    <div class="gate-body">
+                        <div class="tw">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Topic</th>
+                                        <th>Probability</th>
+                                        <th>What to Master</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Nyquist Rate Calculation</td>
+                                        <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                        <td>Find \(f_m\) from a given \(x(t)\) → state minimum \(f_s\). Most common
+                                            one-mark question.
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Aliasing — Finding Alias Frequency</td>
+                                        <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                        <td>Given \(f\) and \(f_s\), compute \(f_a = |f - k \cdot f_s|\) for appropriate
+                                            \(k\). Two-mark
+                                            numerical.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Spectrum After Sampling (frequency domain sketch)</td>
+                                        <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                        <td>Draw or identify \(X_s(f)\) — where copies are located, whether they
+                                            overlap.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Reconstruction Filter Bandwidth</td>
+                                        <td><span class="prob prob-m">🟡 MEDIUM</span></td>
+                                        <td>State that the ideal LPF must have cutoff at \(f_s/2\) and gain \(T_s\).
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Flat-Top Sampling / Aperture Effect</td>
+                                        <td><span class="prob prob-m">🟡 MEDIUM</span></td>
+                                        <td>Understand sinc distortion and the need for an aperture equaliser.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Oversampling Benefits</td>
+                                        <td><span class="prob prob-l">🔴 LOW</span></td>
+                                        <td>3 dB improvement per octave; noise shaping in \(\Delta\Sigma\) ADCs.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PYQ 1 -->
+                <div class="pyq-card">
+                    <div class="pyq-hdr">
+                        <span class="pyq-tag pyq-gate">GATE EE</span>
+                        <span class="pyq-title">A signal x(t) = 5 cos(200πt) + 3 cos(400πt) is sampled at a rate of 250
+                            samples/sec. What is the Nyquist rate and does aliasing occur?</span>
+                        <span class="pyq-year">GATE EE 2019</span>
+                    </div>
+                    <div class="pyq-body">
+                        <p><strong>Solution:</strong> The frequencies present are 100 Hz and 200 Hz. The maximum
+                            frequency
+                            \(f_m = 200\) Hz. Nyquist rate \(= 2 \times 200 = 400\) samples/sec. The given rate of 250 <
+                                400, so <strong>aliasing does occur</strong>.</p>
+                        <p>Alias of 200 Hz at f_s = 250: \(f_a = |200 - 250| = 50\) Hz. The 200 Hz component aliases to
+                            50
+                            Hz.</p>
+                        <ul class="pyq-opts">
+                            <li>Nyquist rate = 200 Hz, no aliasing</li>
+                            <li class="correct">✓ Nyquist rate = 400 Hz, aliasing occurs — 200 Hz aliases to 50 Hz</li>
+                            <li>Nyquist rate = 400 Hz, no aliasing</li>
+                            <li>Nyquist rate = 500 Hz, aliasing occurs</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- PYQ 2 -->
+                <div class="pyq-card">
+                    <div class="pyq-hdr">
+                        <span class="pyq-tag pyq-gate">GATE EC</span>
+                        <span class="pyq-title">A band-limited signal with maximum frequency f_m = 10 kHz is sampled at
+                            15
+                            kHz. A sinusoidal component at 8 kHz — what frequency does it appear as after
+                            sampling?</span>
+                        <span class="pyq-year">GATE EC 2016</span>
+                    </div>
+                    <div class="pyq-body">
+                        <p><strong>Solution:</strong> f_s = 15 kHz, Nyquist rate = 20 kHz &gt; 15 kHz → undersampling →
+                            aliasing.</p>
+                        <p>Alias of 8 kHz: \(f_a = |8000 - 15000| = 7000\) Hz \(= 7\) kHz. Check: 7 kHz &lt; 15/2 = 7.5
+                            kHz
+                            ✓ (within Nyquist band). So the 8 kHz tone appears as <strong>7 kHz</strong>.</p>
+                        <ul class="pyq-opts">
+                            <li>2 kHz</li>
+                            <li>8 kHz (no aliasing)</li>
+                            <li class="correct">✓ 7 kHz</li>
+                            <li>13 kHz</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- IES PYQ -->
+                <div class="pyq-card ies-card">
+                    <div class="pyq-hdr ies-hdr">
+                        <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                        <span class="pyq-title pyq-title-ies">The reconstruction of a continuous signal from its samples
+                            requires which of the following conditions?</span>
+                        <span class="pyq-year">IES 2018</span>
+                    </div>
+                    <div class="pyq-body">
+                        <p><strong>Answer:</strong> The sampling rate must equal or exceed twice the highest frequency
+                            in
+                            the signal (\(f_s \geq 2f_m\)), AND a low-pass filter with cutoff at \(f_s/2\) must be used
+                            in
+                            reconstruction.</p>
+                        <ul class="pyq-opts">
+                            <li>Only f_s ≥ f_m is needed</li>
+                            <li class="correct">✓ f_s ≥ 2f_m AND an ideal LPF is needed</li>
+                            <li>f_s ≥ 2f_m alone is sufficient with any filter</li>
+                            <li>Reconstruction is always possible regardless of f_s</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- PYQ 3 — bandpass signal -->
+                <div class="pyq-card">
+                    <div class="pyq-hdr">
+                        <span class="pyq-tag pyq-gate">GATE EE</span>
+                        <span class="pyq-title">A signal occupies the band 4–6 kHz (bandpass signal). What is the
+                            minimum
+                            sampling rate for alias-free sampling? <em>(Bandpass sampling theorem)</em></span>
+                        <span class="pyq-year">GATE EE 2022</span>
+                    </div>
+                    <div class="pyq-body">
+                        <p><strong>Concept:</strong> For a bandpass signal occupying \([f_L, f_H]\) with bandwidth \(B =
+                            f_H
+                            - f_L\), the minimum sampling rate is \(f_s = 2B\) (not \(2f_H\)!), provided \(f_H/B\) is an
+                            integer (or we use the appropriate bandpass sampling theorem).<sup class="cite">[2]</sup>
+                        </p>
+                        <p>Here: \(B = 6000 - 4000 = 2000\) Hz. Minimum \(f_s = 2B = 4000\) Hz (if bandpass sampling
+                            theorem
+                            applies). If using conventional Nyquist for baseband: \(f_s = 2 \times 6000 = 12\) kHz.</p>
+                        <div class="callout c-warn" style="margin-top:10px">
+                            <div class="ci">⚠️</div>
+                            <div class="cb">
+                                <div class="ct">GATE Trap</div>
+                                <p>If the question says "minimum sampling rate for bandpass signal," it expects the
+                                    bandpass
+                                    sampling theorem answer: \(f_s = 2B\). If it asks about the standard theorem applied
+                                    naively: \(f_s = 2f_H\). Read carefully.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ SECTION 9: NUMERICAL EXAMPLES ═══ -->
+            <div class="section" id="s9">
+                <div class="sec-hdr">
+                    <span class="sec-num">§ 09</span>
+                    <h2 class="sec-t">Numerical Examples — Step by Step</h2>
+                </div>
+
+                <!-- Example 1 -->
+                <div class="example">
+                    <div class="ex-hdr">
+                        <span class="ex-num">EXAMPLE 1</span>
+                        <span class="ex-title">Basic — Finding Nyquist Rate for a Multi-Component Signal</span>
+                    </div>
+                    <div class="ex-body">
+                        <div class="ex-q">Find the Nyquist sampling rate for the signal:<br>\(x(t) = 10\cos(400\pi t) +
+                            5\sin(600\pi t) - 3\cos(1000\pi t)\)</div>
+                        <div class="sol-lbl">✦ Solution</div>
+                        <ol class="steps">
+                            <li>Identify angular frequencies: \(\omega_1 = 400\pi\), \(\omega_2 = 600\pi\), \(\omega_3 =
+                                1000\pi\) rad/s.</li>
+                            <li>Convert to Hz: \(f_1 = 400\pi/(2\pi) = 200\) Hz, \(f_2 = 300\) Hz, \(f_3 = 500\) Hz.
+                            </li>
+                            <li>Maximum frequency: \(f_m = 500\) Hz.</li>
+                            <li>Nyquist rate: \(f_s = 2f_m = 2 \times 500 = \mathbf{1000}\)
+                                <strong>samples/second</strong>.
+                            </li>
+                            <li>Nyquist interval (sampling period): \(T_s = 1/f_s = 1/1000 = 1\) ms.</li>
+                        </ol>
+                        <div class="callout c-tip" style="margin-top:12px">
+                            <div class="ci">✅</div>
+                            <div class="cb">
+                                <div class="ct">Key Takeaway</div>
+                                <p>Always find the <em>maximum</em> frequency component, not the average. The Nyquist
+                                    rate
+                                    is set by the fastest oscillation in the signal.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example 2 -->
+                <div class="example">
+                    <div class="ex-hdr">
+                        <span class="ex-num">EXAMPLE 2</span>
+                        <span class="ex-title">GATE-Level — Aliasing Calculation</span>
+                    </div>
+                    <div class="ex-body">
+                        <div class="ex-q">A sinusoidal signal \(x(t) = \cos(2\pi \cdot 900t)\) is sampled at \(f_s =
+                            700\)
+                            Hz. Find the alias frequency that appears in the sampled spectrum.</div>
+                        <div class="sol-lbl">✦ Solution</div>
+                        <ol class="steps">
+                            <li>Signal frequency: \(f = 900\) Hz. Sampling rate: \(f_s = 700\) Hz.</li>
+                            <li>Check Nyquist: \(2f_m = 2 \times 900 = 1800 > 700\). Undersampling — aliasing will
+                                occur.
+                            </li>
+                            <li>Find alias using \(f_a = |f - k \cdot f_s|\):<br>k=1: \(|900 - 700| = 200\) Hz. Is 200
+                                Hz
+                                \(\leq f_s/2 = 350\) Hz? Yes ✓</li>
+                            <li>Alias frequency = <strong>200 Hz</strong>.</li>
+                            <li>Verification: \(k=0\) gives 900 Hz &gt; 350 Hz ✗. \(k=2\) gives |900−1400| = 500 Hz &gt;
+                                350
+                                Hz ✗. So \(k=1\) is correct.</li>
+                        </ol>
+                        <div class="math-block" style="margin-top:12px">
+                            <div class="math-lbl">Result</div>
+                            $$f_a = |900 - 1 \times 700| = 200 \text{ Hz}$$
+                        </div>
+                        <p style="margin-top:10px">The 900 Hz tone will appear indistinguishable from a 200 Hz tone in
+                            the
+                            sampled data — a classic aliasing scenario.</p>
+                    </div>
+                </div>
+
+                <!-- Example 3 -->
+                <div class="example">
+                    <div class="ex-hdr">
+                        <span class="ex-num">EXAMPLE 3</span>
+                        <span class="ex-title">Conceptual — Spectrum of Sampled Signal</span>
+                    </div>
+                    <div class="ex-body">
+                        <div class="ex-q">A signal \(x(t)\) has a triangular spectrum symmetric about \(f = 0\) with
+                            bandwidth \(W\) Hz. It is sampled at \(f_s = 4W\). Sketch and describe the spectrum of the
+                            sampled signal.</div>
+                        <div class="sol-lbl">✦ Solution</div>
+                        <ol class="steps">
+                            <li>Original spectrum \(X(f)\): triangle centred at 0, extending from \(-W\) to \(+W\) Hz.
+                            </li>
+                            <li>After sampling: copies appear at \(f = 0, \pm f_s = \pm 4W, \pm 2f_s = \pm 8W, \ldots\)
+                            </li>
+                            <li>Each copy is a triangle centred at those frequencies, extending ±W from the centre.</li>
+                            <li>Guard band between copies: from \(+W\) to \(4W - W = 3W\), a gap of \(2W\) on each side.
+                                <strong>No overlap</strong>.
+                            </li>
+                            <li>Reconstruction: apply ideal LPF with cutoff at \(f_s/2 = 2W\) → recovers only the
+                                central
+                                triangle = original \(X(f)\).</li>
+                        </ol>
+                        <div class="callout c-key" style="margin-top:12px">
+                            <div class="ci">🔑</div>
+                            <div class="cb">
+                                <div class="ct">Key Observation</div>
+                                <p>Oversampling by a factor of 2 (here \(f_s = 4W\) vs minimum \(2W\)) creates a guard
+                                    band
+                                    of \(W\) Hz on each side — this is why practical systems oversample: relaxed filter
+                                    requirements.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ SECTION 10: COMMON MISTAKES ═══ -->
+            <div class="section" id="s10">
+                <div class="sec-hdr">
+                    <span class="sec-num">§ 10</span>
+                    <h2 class="sec-t">Common Student Mistakes</h2>
+                </div>
+
+                <div class="callout c-danger">
+                    <div class="ci">❌</div>
+                    <div class="cb">
+                        <div class="ct">Mistake 1 — Using Frequency Instead of Maximum Frequency</div>
+                        <p>For \(x(t) = \cos(100\pi t) + \cos(500\pi t)\), some students compute Nyquist rate as \(2
+                            \times
+                            50 = 100\) Hz (using the first component). <strong>Correct:</strong> use the highest
+                            frequency
+                            \(f_m = 250\) Hz → \(f_s = 500\) Hz.</p>
+                    </div>
+                </div>
+
+                <div class="callout c-danger">
+                    <div class="ci">❌</div>
+                    <div class="cb">
+                        <div class="ct">Mistake 2 — Confusing Nyquist Rate with Nyquist Frequency</div>
+                        <p><strong>Nyquist Rate</strong> = \(2f_m\) = the minimum sampling frequency required.
+                            <strong>Nyquist Frequency</strong> = \(f_s/2\) = the maximum frequency that can be
+                            represented
+                            given a sampling rate \(f_s\). They are different quantities! Nyquist frequency is half the
+                            Nyquist rate when exactly at the minimum.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="callout c-danger">
+                    <div class="ci">❌</div>
+                    <div class="cb">
+                        <div class="ct">Mistake 3 — Thinking Aliasing Can Be Fixed After the Fact</div>
+                        <p>Students sometimes think a better reconstruction filter can fix aliasing. <strong>It
+                                cannot.</strong> Once two frequencies occupy the same spectral position, they are
+                            indistinguishable — no filter can separate them. The anti-aliasing filter must act
+                            <em>before</em> sampling.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="callout c-danger">
+                    <div class="ci">❌</div>
+                    <div class="cb">
+                        <div class="ct">Mistake 4 — Applying Baseband Nyquist to Bandpass Signals</div>
+                        <p>For a bandpass signal occupying 4–6 kHz, many students write Nyquist rate = 2 × 6000 = 12
+                            kHz.
+                            While conservative and safe, the <em>minimum</em> by the bandpass sampling theorem is only
+                            2B =
+                            4 kHz. GATE often asks for the minimum — know both.</p>
+                    </div>
+                </div>
+
+                <div class="callout c-danger">
+                    <div class="ci">❌</div>
+                    <div class="cb">
+                        <div class="ct">Mistake 5 — Forgetting the Gain Factor T_s in the Reconstruction Filter</div>
+                        <p>The ideal LPF for reconstruction has gain \(T_s = 1/f_s\), not unity. Without this factor,
+                            the
+                            reconstructed signal is scaled by \(1/f_s\). In derivation questions, always include this
+                            scaling factor.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ SECTION 11: MEMORY TRICKS ═══ -->
+            <div class="section" id="s11">
+                <div class="sec-hdr">
+                    <span class="sec-num">§ 11</span>
+                    <h2 class="sec-t">Memory Tricks &amp; Mnemonics</h2>
+                </div>
+
+                <div class="two-col">
+                    <div class="mini-card mc-org">
+                        <div class="mc-t">🎯 The "Two Photos" Rule</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">→</span>To capture a fly flapping its wings, you need at least <em>two
+                                    photos per flap</em> — one on the way up, one on the way down. Any fewer and you
+                                might
+                                think it's hovering. That's Nyquist: two samples per cycle.</li>
+                        </ul>
+                    </div>
+                    <div class="mini-card mc-tel">
+                        <div class="mc-t">🔑 N-A-S Acronym</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">N</span><strong>N</strong>yquist rate = 2 × f<sub>max</sub></li>
+                            <li><span class="dot">A</span><strong>A</strong>liasing = occurs when f_s &lt; 2f_m</li>
+                            <li><span class="dot">S</span><strong>S</strong>inc = ideal interpolation kernel</li>
+                        </ul>
+                    </div>
+                    <div class="mini-card mc-grn">
+                        <div class="mc-t">🎵 CD Rate Memory</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">→</span>"44.1 kHz for music, 8 kHz for speech" — CD samples at &gt;2×
+                                the
+                                audible limit (20 kHz). Telephone samples at exactly 2× the speech bandwidth (4 kHz).
+                                Remember 44,100 and 8,000.</li>
+                        </ul>
+                    </div>
+                    <div class="mini-card mc-red">
+                        <div class="mc-t">⚠️ The Impostor Story</div>
+                        <ul class="mc-list">
+                            <li><span class="dot">→</span>A criminal disguises as an honest person and enters a city —
+                                the
+                                alias sneaks into the digital world disguised as a lower frequency. The anti-aliasing
+                                filter
+                                is the border patrol that catches high-frequency impostors <em>before</em> they cross
+                                over.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 class="sub">Formula Revision Card</h3>
+                <div class="math-block">
+                    <div class="math-lbl">One-Page Formula Quick Reference</div>
+                    $$
+                    \begin{aligned}
+                    &\text{Nyquist Rate} && f_{s,\text{min}} = 2f_m \\
+                    &\text{Sampling Period} && T_s = \frac{1}{f_s} \\
+                    &\text{Sampled Signal} && X_s(f) = f_s \sum_{k=-\infty}^{\infty} X(f - kf_s) \\
+                    &\text{Alias Frequency} && f_a = |f - kf_s| \quad (k \text{ chosen so } 0 \le f_a \le f_s/2) \\
+                    &\text{Reconstruction LPF} && H(f) = \begin{cases} T_s & \text{for } |f| \le f_s/2 \\ 0 &
+                    \text{otherwise} \end{cases} \\
+                    &\text{Interpolation} && x(t) = \sum_{n=-\infty}^{\infty}
+                    x(nT_s)\text{sinc}\left(\frac{t-nT_s}{T_s}\right) \\
+                    &\text{Bandpass Nyquist} && f_{s,\text{min}} = 2B \quad \text{where } B = f_H - f_L
+                    \end{aligned}
+                    $$
+                </div>
+            </div>
+
+            <!-- ═══ SECTION 12: ASK AI ═══ -->
+            <div class="section" id="s12">
+                <div class="sec-hdr">
+                    <span class="sec-num">§ 12</span>
+                    <h2 class="sec-t">Ask Aarova AI</h2>
+                </div>
+                <div class="ai-prompt">
+                    <div class="ai-prompt-title">🤖 Ask a Sampling Theory Question</div>
+                    <p>Type any question on sampling, aliasing, reconstruction, or Nyquist theorem. Get a step-by-step
+                        GATE-focused answer.</p>
+                    <div class="ai-input-row">
+                        <input class="ai-input" id="userQ" type="text"
+                            placeholder="e.g. Why can't we reconstruct a signal sampled at exactly f_s = 2f_m in practice?">
+                        <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                    </div>
+                    <div class="ai-suggest">
+                        <span class="ai-chip"
+                            onclick="setQ('Prove the sampling theorem from the Fourier transform perspective — show why f_s ≥ 2fm ensures no spectral overlap.')">Prove
+                            sampling theorem</span>
+                        <span class="ai-chip"
+                            onclick="setQ('A signal x(t) = cos(600πt) is sampled at fs = 400 Hz. What alias frequency appears? Draw the spectrum.')">Alias
+                            of 300Hz at 400Hz</span>
+                        <span class="ai-chip"
+                            onclick="setQ('Derive the Whittaker-Shannon interpolation formula from first principles. Why is sinc the ideal kernel?')">Sinc
+                            interpolation derivation</span>
+                        <span class="ai-chip"
+                            onclick="setQ('What is bandpass sampling theorem? When can a bandpass signal be sampled at less than 2fH?')">Bandpass
+                            sampling</span>
+                        <span class="ai-chip"
+                            onclick="setQ('Compare ideal sampling, natural sampling, and flat-top sampling — spectrum diagrams and aperture effect.')">3
+                            types of sampling</span>
+                    </div>
+                    <div class="ai-response" id="aiResp"></div>
+                </div>
+            </div>
+
+            <!-- ═══ SECTION 13: REVISION SHEET ═══ -->
+            <div class="section" id="s13">
+                <div class="sec-hdr">
+                    <span class="sec-num">§ 13</span>
+                    <h2 class="sec-t">Quick Revision Sheet</h2>
+                </div>
+
+                <div class="sum-grid">
+                    <div class="sum-card sc-o">
+                        <div class="sum-lbl">Nyquist Theorem</div>
+                        <p>\( f_s \geq 2 f_m \). Bandlimited signal can be perfectly recovered from samples taken at \(
+                            \geq \) Nyquist rate.
+                            Shannon 1949 — complete proof. Nyquist 1928 — identified minimum rate.</p>
+                    </div>
+                    <div class="sum-card sc-g">
+                        <div class="sum-lbl">Sampling Spectrum</div>
+                        <p>\( X_s(f) = f_s \sum X(f - k f_s) \). Spectrum of sampled signal = copies of \( X(f) \) at
+                            multiples of \( f_s \).
+                            Copies overlap if \( f_s &lt; 2 f_m \) → aliasing.</p>
+                    </div>
+                    <div class="sum-card sc-t">
+                        <div class="sum-lbl">Aliasing</div>
+                        <p>\( f_a = |f - k f_s| \) (k to bring into \( [0, f_s/2] \)). Irreversible information loss.
+                            Caused by
+                            undersampling. Prevented by anti-aliasing LPF before ADC.</p>
+                    </div>
+                    <div class="sum-card sc-a">
+                        <div class="sum-lbl">Reconstruction</div>
+                        <p>Ideal LPF: \( H(f) = T_s \) for \( |f| \leq f_s/2 \). Time domain: sinc interpolation. \(
+                            x(t) = \sum x(n T_s) \text{sinc}\left(\frac{t - n T_s}{T_s}\right) \). Ideal filter is
+                            physically unrealisable.</p>
+                    </div>
+                    <div class="sum-card sc-r">
+                        <div class="sum-lbl">Practical Sampling</div>
+                        <p>Anti-aliasing LPF → sample-and-hold → ADC. Aperture effect: sinc distortion from flat-top
+                            hold.
+                            Oversampling: easier filter, lower quantisation noise. CD: 44.1 kHz. Phone: 8 kHz.</p>
+                    </div>
+                    <div class="sum-card sc-g">
+                        <div class="sum-lbl">Bandpass Sampling</div>
+                        <p>Signal occupies \( [f_L, f_H] \), BW \( = B = f_H - f_L \). Minimum \( f_s = 2B \) (not \(
+                            2f_H \)). Saves ADC cost. Used
+                            in radio receivers, OFDM, radar.</p>
+                    </div>
+                </div>
+
+                <div class="callout c-tip" style="margin-top:22px">
+                    <div class="ci">➡️</div>
+                    <div class="cb">
+                        <div class="ct">Coming Next — Chapter 6</div>
+                        <p>Discrete-Time Fourier Transform (DTFT) and Discrete Fourier Transform (DFT) — definitions,
+                            properties, circular convolution, the FFT algorithm, and spectral leakage with complete GATE
+                            and
+                            IES analysis.</p>
+                    </div>
+                </div>
+
+                <!-- CITATIONS -->
+                <div class="citations" id="s14">
+                    <div class="cite-h">References &amp; Citations</div>
+                    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived
+                        from
+                        the following standard textbooks and learning resources. All explanations, derivations, diagrams
+                        and
+                        examples are original to Aarova AI.</p>
+                    <ul class="cite-list">
+                        <li><span class="cite-num">[1]</span><span>Oppenheim, Alan V. and Schafer, Ronald W.
+                                <em>Discrete-Time Signal Processing</em>, 3rd ed. Pearson, 2010. Chapter 4 — Sampling of
+                                continuous-time signals, ideal sampling, Nyquist theorem, reconstruction by ideal
+                                interpolation.</span></li>
+                        <li><span class="cite-num">[2]</span><span>Oppenheim, Alan V. and Willsky, Alan S. <em>Signals
+                                    and
+                                    Systems</em>, 2nd ed. Pearson, 1997. Chapter 7 — Sampling: the sampling theorem,
+                                aliasing, discrete-time processing of continuous-time signals.</span></li>
+                        <li><span class="cite-num">[3]</span><span>Haykin, Simon and Van Veen, Barry. <em>Signals and
+                                    Systems</em>, 2nd ed. Wiley, 2003. Chapter 7 — Sampling and reconstruction, flat-top
+                                sampling, aperture effect, practical ADC design considerations.</span></li>
+                        <li><span class="cite-num">[4]</span><span>Proakis, John G. and Manolakis, Dimitris G.
+                                <em>Digital
+                                    Signal Processing</em>, 4th ed. Pearson, 2007. Chapter 1 — Introduction to digital
+                                signal processing, sampling theorem, quantisation, anti-aliasing filters.</span></li>
+
+                        <li><span class="cite-num">[5]</span><span>IIT Madras NPTEL. <em>Signals and Systems — Lecture
+                                    Series: Sampling Theorem and Reconstruction</em>. National Programme on Technology
+                                Enhanced Learning. nptel.ac.in. Sampling, Nyquist rate, spectral analysis of sampled
+                                signals.</span></li>
+                    </ul>
+                </div>
+
+                <hr>
+                <footer>
+                    <strong>Aarova AI</strong> &nbsp;·&nbsp; Signals &amp; Systems Series &nbsp;·&nbsp; Chapter 5 of
+                    8<br>
+                    <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; GATE EC
+                        &nbsp;·&nbsp;
+                        IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                    <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                        diagrams are original to Aarova AI. Derived from standard textbooks [1–6].</span>
+                </footer>
+            </div>
+        </div>
+
+        <script>
+            function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+            async function askClaude() {
+                const q = document.getElementById('userQ').value.trim(); if (!q) return;
+                const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+                btn.textContent = 'Thinking…'; btn.disabled = true;
+                resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+                const sys = `You are Aarova AI, an expert GATE EE/EC and IES E&T tutor specialising in Signals and Systems. Topic: Chapter 5 — Sampling Theorem and Reconstruction. Cover the Nyquist-Shannon sampling theorem, ideal impulse sampling, spectrum of sampled signals, aliasing and alias frequency calculation, reconstruction with ideal LPF, Whittaker-Shannon interpolation, practical sampling (anti-aliasing filters, flat-top sampling, aperture effect, oversampling), and bandpass sampling theorem. Answer with step-by-step working for numericals. Base answers on Oppenheim & Schafer (Discrete-Time Signal Processing), Oppenheim & Willsky (Signals and Systems), Haykin & Van Veen (Signals and Systems), and Proakis & Manolakis (Digital Signal Processing). All content is original to Aarova AI.`;
+                try {
+                    const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                    const data = await res.json();
+                    resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+                } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+                btn.textContent = 'Ask Claude'; btn.disabled = false;
+            }
+            document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+            /* Responsive SVG scroll hints on mobile */
+            (function () {
+                if (window.innerWidth > 600) return;
+                document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                    const hint = document.createElement('div');
+                    hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                    hint.textContent = '← scroll to see full diagram →';
+                    wrap.appendChild(hint);
+                    wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+                });
+            })();
+        </script>
+</body>
+
+</html>

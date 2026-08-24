@@ -1,0 +1,2557 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Signals & Systems Ch.3 Fourier Series</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+       AAROVA AI — RESPONSIVE DESIGN SYSTEM
+       Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+    ═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 37.5%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* ── TABLE OF CONTENTS ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .section:nth-child(13) {
+            animation-delay: .53s
+        }
+
+        .section:nth-child(14) {
+            animation-delay: .57s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px
+        }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* ── MATH (KaTeX) ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px)
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* ── TWO COLUMN CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 20px;
+            border-bottom: 1px solid var(--bg3);
+            position: relative;
+            line-height: 1.5
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .dot {
+            color: var(--muted);
+            position: absolute;
+            left: 0;
+            top: 8px
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* ── ASK CLAUDE WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12)
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none
+        }
+
+        .ai-btn:hover {
+            background: #155250
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg)
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border)
+        }
+
+        footer strong {
+            color: var(--orange)
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .svg-wrap {
+                padding: 12px 10px
+            }
+
+            .svg-wrap svg {
+                min-width: 480px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px
+            }
+
+            .pyq-year {
+                margin-left: 0
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .hbadges {
+                display: none
+            }
+
+            .site-header {
+                padding: 10px 14px
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px)
+            }
+
+            .hero-desc {
+                font-size: 14px
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px
+            }
+
+            .pl {
+                font-size: 11px
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0
+            }
+
+            .toc {
+                padding: 14px 16px
+            }
+
+            .sec-hdr {
+                gap: 9px
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px)
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px)
+            }
+
+            p {
+                font-size: 15px
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%
+            }
+
+            .svg-cap {
+                font-size: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px;
+                border-radius: 8px
+            }
+
+            .tw {
+                border-radius: 8px
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px
+            }
+
+            .mini-card {
+                padding: 13px 14px
+            }
+
+            .sum-card {
+                padding: 14px 16px
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px
+            }
+
+            .ci {
+                font-size: 16px
+            }
+
+            .cb p {
+                font-size: 13.5px
+            }
+
+            .ex-hdr {
+                padding: 8px 13px
+            }
+
+            .ex-body {
+                padding: 12px 13px
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px
+            }
+
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px
+            }
+
+            .pyq-body {
+                padding: 12px 13px
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px
+            }
+
+            .pyq-year {
+                display: none
+            }
+
+            .ai-prompt {
+                padding: 14px
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-input {
+                font-size: 15px
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px
+            }
+
+            .ai-chip {
+                font-size: 11px
+            }
+
+            .ai-suggest {
+                gap: 5px
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px
+            }
+
+            .citations {
+                padding: 14px
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px
+            }
+
+            .math-block {
+                padding: 10px 12px
+            }
+        }
+
+        /* ════ LARGE DESKTOP 1024+ ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow)
+            }
+
+            .ai-btn:hover {
+                background: var(--teal)
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none
+            }
+
+            .svg-wrap {
+                break-inside: avoid
+            }
+
+            body {
+                font-size: 12pt
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="logo">Aarova AI <span class="logo-sub">Signals &amp; Systems Series</span></div>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header>
+
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 03 &nbsp;·&nbsp; Signals &amp; Systems</div>
+            <h1 class="hero-title">Fourier <em>Series</em></h1>
+            <p class="hero-desc">Trigonometric and exponential Fourier series, Dirichlet conditions, symmetry
+                properties, Parseval's theorem, and coefficient computation — complete GATE, IES, and PSU coverage with
+                full derivations, original diagrams, and solved problems based on Oppenheim, Haykin, and Lathi.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">🟡 Medium Difficulty</span>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Chapter 3 of 8</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">3.1</span>Why Fourier Series Matters</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">3.8</span>Symmetry Properties</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">3.2</span>Dirichlet Conditions</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">3.9</span>Parseval's Theorem</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">3.3</span>Trigonometric Fourier Series</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">3.10</span>Common Misconceptions</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">3.4</span>Compact Trigonometric Form</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">3.11</span>Solved Numericals</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">3.5</span>Exponential Fourier Series</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">3.12</span>GATE &amp; IES Questions</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">3.6</span>Coefficient Computation</a>
+                <a href="#s13" class="toc-item"><span class="toc-n">3.13</span>Memory Tricks</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">3.7</span>Spectrum &amp; Line Spectra</a>
+                <a href="#s14" class="toc-item"><span class="toc-n">3.14</span>Quick Revision Sheet</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: WHY IT MATTERS ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">3.1</span>
+                <h2 class="sec-t">Why Fourier Series Exists — The Big Picture</h2>
+            </div>
+
+            <p>Imagine you are an electrical engineer trying to analyse the waveform produced by a thyristor-controlled
+                rectifier. The output is a strange, periodic but non-sinusoidal waveform. How do you find the current
+                through each component? How do you predict harmonics that heat up motors or trip protective relays?</p>
+
+            <p>The answer is the <strong>Fourier Series</strong>. Any periodic signal, no matter how complicated, can be
+                expressed as an infinite sum of sinusoids — each at a different frequency. Once you do that, you can
+                handle each sinusoid separately using the familiar phasor method, then superimpose the results. This is
+                why Fourier series is the cornerstone of power quality analysis, communication systems, and control
+                systems.</p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>Fourier series converts a time-domain problem (complex waveform) into a frequency-domain problem
+                        (sum of simple sinusoids). Every linear system can then be analysed frequency by frequency — a
+                        divide-and-conquer strategy that makes the intractable tractable.</p>
+                </div>
+            </div>
+
+            <!-- Big Picture SVG -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch3/fig3.1.png" alt="Fourier Series — Core Idea" />
+                <div class="svg-cap">Fig 3.1 — Fourier Series: from a complex periodic signal to its frequency spectrum
+                    and back.</div>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Why Sinusoids?</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Sinusoids are <em>eigenfunctions</em> of linear time-invariant
+                            (LTI) systems</li>
+                        <li><span class="dot">▸</span>A sinusoid in → same-frequency sinusoid out (only amplitude/phase
+                            changes)</li>
+                        <li><span class="dot">▸</span>Superposition applies — handle each harmonic independently</li>
+                        <li><span class="dot">▸</span>Physical systems (RLC, mechanical) respond naturally at resonant
+                            frequencies</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Where It Connects</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Fourier Transform:</strong> limit of Fourier Series as T →
+                            ∞</li>
+                        <li><span class="dot">▸</span><strong>Laplace Transform:</strong> generalisation to s-domain
+                        </li>
+                        <li><span class="dot">▸</span><strong>Z-Transform:</strong> discrete-time counterpart</li>
+                        <li><span class="dot">▸</span><strong>DFT/FFT:</strong> discrete, finite-length version for
+                            computers</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: DIRICHLET CONDITIONS ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">3.2</span>
+                <h2 class="sec-t">Dirichlet Conditions — When Does Fourier Series Exist?</h2>
+            </div>
+
+            <p>Not every periodic function has a valid Fourier series. The <strong>Dirichlet conditions</strong>, named
+                after the German mathematician Peter Gustav Lejeune Dirichlet, specify exactly when a periodic function
+                \(x(t)\) can be represented by its Fourier series.<sup class="cite">[1]</sup></p>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">Dirichlet's Three Conditions</div>
+                    <p><strong>D1 — Absolute integrability:</strong> \(\int_{T_0} |x(t)|\,dt < \infty\) — the signal
+                            must have finite energy over one period.<br>
+                            <strong>D2 — Finite extrema:</strong> \(x(t)\) must have a finite number of maxima and
+                            minima in any finite interval.<br>
+                            <strong>D3 — Finite discontinuities:</strong> \(x(t)\) must have a finite number of finite
+                            discontinuities per period. At each discontinuity, the series converges to the average of
+                            the left and right limits.</p>
+                </div>
+            </div>
+
+            <p>Practically speaking, all physically realisable periodic signals satisfy Dirichlet conditions. The series
+                does not converge at jump discontinuities but converges to the midpoint — this is perfectly acceptable
+                for engineering purposes.</p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Gibbs Phenomenon — GATE Trap</div>
+                    <p>When a Fourier series is truncated at N terms and the signal has jump discontinuities, the
+                        partial sum exhibits an overshoot of about <strong>8.9%</strong> of the jump magnitude at the
+                        discontinuity, regardless of how many terms are included. This is the <em>Gibbs phenomenon</em>
+                        and is a favourite GATE concept question.</p>
+                </div>
+            </div>
+
+            <!-- SVG: Gibbs phenomenon illustration -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch3/fig3.2.png" alt="Gibbs Phenomenon at a Jump Discontinuity" />
+                <div class="svg-cap">Fig 3.2 — Gibbs phenomenon: the partial Fourier series overshoots by ≈8.9% at a
+                    jump discontinuity, regardless of N.</div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: TRIGONOMETRIC FOURIER SERIES ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">3.3</span>
+                <h2 class="sec-t">Trigonometric Fourier Series</h2>
+            </div>
+
+            <p>The <strong>trigonometric Fourier series</strong> represents a periodic signal \(x(t)\) with period
+                \(T_0\) as a sum of cosine and sine terms at integer multiples (harmonics) of the fundamental frequency
+                \(\omega_0 = 2\pi/T_0\).<sup class="cite">[1]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Trigonometric Fourier Series — General Form</div>
+                $$x(t) = a_0 + \sum_{n=1}^{\infty}\bigl[a_n \cos(n\omega_0 t) + b_n \sin(n\omega_0 t)\bigr]$$
+            </div>
+
+            <h3 class="sub">Fourier Coefficients</h3>
+            <p>The coefficients are found by exploiting the <strong>orthogonality</strong> of sinusoids over a full
+                period. Multiplying both sides by \(\cos(m\omega_0 t)\) or \(\sin(m\omega_0 t)\) and integrating over
+                one period extracts exactly one coefficient at a time.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Coefficient Formulas</div>
+                $$a_0 = \frac{1}{T_0}\int_{0}^{T_0} x(t)\,dt \qquad \text{(DC component)}$$
+                $$a_n = \frac{2}{T_0}\int_{0}^{T_0} x(t)\cos(n\omega_0 t)\,dt \qquad n = 1,2,3,\ldots$$
+                $$b_n = \frac{2}{T_0}\int_{0}^{T_0} x(t)\sin(n\omega_0 t)\,dt \qquad n = 1,2,3,\ldots$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Physical Meaning of Each Term</div>
+                    <p><strong>a₀</strong> = average (DC) value of x(t) over one period.<br>
+                        <strong>aₙ</strong> = amplitude of the cosine at nth harmonic — captures the even part of the
+                        signal.<br>
+                        <strong>bₙ</strong> = amplitude of the sine at nth harmonic — captures the odd part of the
+                        signal.<br>
+                        <strong>Fundamental frequency</strong> f₀ = 1/T₀ Hz; angular ω₀ = 2πf₀ rad/s.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Orthogonality SVG -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch3/fig3.3.png" alt="Orthogonality of Sinusoids over One Period" />
+                <div class="svg-cap">Fig 3.3 — Orthogonality: the product of two different harmonics integrates to zero
+                    over one period. This is the mathematical key that allows us to extract each coefficient
+                    independently.</div>
+            </div>
+        </div>
+
+        <!-- ═══ S4: COMPACT TRIGONOMETRIC FORM ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">3.4</span>
+                <h2 class="sec-t">Compact Trigonometric Form</h2>
+            </div>
+
+            <p>The \(a_n\) and \(b_n\) form can be combined into a single cosine with phase, called the
+                <strong>compact</strong> or <strong>polar form</strong>. This is often more intuitive because it
+                directly shows amplitude and phase of each harmonic.<sup class="cite">[2]</sup>
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">Compact (Polar) Trigonometric Fourier Series</div>
+                $$x(t) = C_0 + \sum_{n=1}^{\infty} C_n \cos(n\omega_0 t + \phi_n)$$
+                $$C_0 = a_0, \qquad C_n = \sqrt{a_n^2 + b_n^2}, \qquad \phi_n = -\arctan\!\left(\frac{b_n}{a_n}\right)$$
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Amplitude Spectrum</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Plot of \(C_n\) vs \(n\omega_0\) (or \(nf_0\))</li>
+                        <li><span class="dot">▸</span>Always <strong>even symmetric</strong> for real signals</li>
+                        <li><span class="dot">▸</span>Discrete lines (line spectrum) at \(f_0, 2f_0, 3f_0, \ldots\)</li>
+                        <li><span class="dot">▸</span>Envelope shape depends on waveform type</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Phase Spectrum</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Plot of \(\phi_n\) vs \(nf_0\)</li>
+                        <li><span class="dot">▸</span>Always <strong>odd symmetric</strong> for real signals</li>
+                        <li><span class="dot">▸</span>Shifts not visible in time if system is LTI</li>
+                        <li><span class="dot">▸</span>Important in filter and communication design</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S5: EXPONENTIAL FOURIER SERIES ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">3.5</span>
+                <h2 class="sec-t">Exponential Fourier Series</h2>
+            </div>
+
+            <p>The trigonometric form uses sines and cosines; the <strong>exponential (complex) Fourier series</strong>
+                uses complex exponentials \(e^{jn\omega_0 t}\). This is more compact mathematically and connects
+                directly to the Fourier Transform, making it indispensable in communications and signal processing.<sup
+                    class="cite">[1]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Exponential Fourier Series — Synthesis Equation</div>
+                $$\boxed{x(t) = \sum_{n=-\infty}^{\infty} C_n\, e^{jn\omega_0 t}}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Exponential Fourier Coefficient — Analysis Equation</div>
+                $$C_n = \frac{1}{T_0}\int_{0}^{T_0} x(t)\, e^{-jn\omega_0 t}\,dt$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Key Properties of Cₙ</div>
+                    <p>For a <strong>real</strong> signal x(t): \(C_{-n} = C_n^*\) (complex conjugate symmetry).<br>
+                        \(|C_{-n}| = |C_n|\) — amplitude spectrum is even. \(\angle C_{-n} = -\angle C_n\) — phase
+                        spectrum is odd.<br>
+                        Relationship to trigonometric: \(C_0 = a_0\), \(\;C_n = \tfrac{1}{2}(a_n - jb_n)\), \(\;C_{-n} =
+                        \tfrac{1}{2}(a_n + jb_n)\) for \(n \geq 1\).</p>
+                </div>
+            </div>
+
+            <!-- SVG: Two-sided spectrum -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch3/fig3.4.png" alt="Two-Sided Amplitude Spectrum |Cₙ| of a Real Signal" />
+                <div class="svg-cap">Fig 3.4 — Two-sided amplitude spectrum of a real periodic signal. The spectrum is
+                    even-symmetric about f = 0. Each positive-frequency component has a mirror image at the
+                    corresponding negative frequency.</div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: COEFFICIENT COMPUTATION ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">3.6</span>
+                <h2 class="sec-t">Coefficient Computation — Step-by-Step Method</h2>
+            </div>
+
+            <p>The GATE examination consistently tests the ability to compute Fourier coefficients for standard
+                waveforms — rectangular pulse trains, triangular waves, half-wave rectified sine, and full-wave
+                rectified sine. Here is a systematic approach.<sup class="cite">[3]</sup></p>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch3/fig3.5.png" alt="Step-by-Step Fourier Coefficient Calculation" />
+                <div class="svg-cap">Fig 3.5 — Systematic five-step procedure for computing Fourier coefficients.</div>
+            </div>
+
+            <h3 class="sub">Fourier Series of Common Waveforms <span class="prob prob-h">🟢 High Probability</span></h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Waveform</th>
+                            <th>a₀ (DC)</th>
+                            <th>aₙ</th>
+                            <th>bₙ</th>
+                            <th>Special Values</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Square Wave (odd sym., amp A)</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td class="t-org">\(\dfrac{4A}{n\pi}\) (odd n only)</td>
+                            <td>b₁=4A/π, b₃=4A/3π…</td>
+                        </tr>
+                        <tr>
+                            <td>Rectangular Pulse (duty cycle δ=τ/T₀)</td>
+                            <td class="t-tel">Aδ</td>
+                            <td>\(\dfrac{2A}{n\pi}\sin(n\pi\delta)\)</td>
+                            <td>0 (even sym.)</td>
+                            <td>Envelope ~ sinc(nδ)</td>
+                        </tr>
+                        <tr>
+                            <td>Triangular Wave (odd sym., amp A)</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td class="t-grn">\(\dfrac{8A}{n^2\pi^2}\) (odd n only)</td>
+                            <td>Coefficients ∝ 1/n²</td>
+                        </tr>
+                        <tr>
+                            <td>Half-wave Rectified Sine (amp A)</td>
+                            <td class="t-org">A/π</td>
+                            <td>\(\dfrac{2A}{\pi(1-n^2)}\) (n even)</td>
+                            <td>b₁=A/2, others 0</td>
+                            <td>a₂ = 2A/3π</td>
+                        </tr>
+                        <tr>
+                            <td>Full-wave Rectified Sine (amp A)</td>
+                            <td class="t-grn">2A/π</td>
+                            <td>\(\dfrac{4A}{\pi(1-4n^2)}\) (all n)</td>
+                            <td>0</td>
+                            <td>No odd harmonics</td>
+                        </tr>
+                        <tr>
+                            <td>Sawtooth Wave (amplitude A)</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td class="t-red">\(\dfrac{-2A}{n\pi}(-1)^n\)</td>
+                            <td>All harmonics present</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ S7: SPECTRUM ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">3.7</span>
+                <h2 class="sec-t">Spectrum — Amplitude and Phase Line Spectra</h2>
+            </div>
+
+            <p>The Fourier series can be visualised as a <strong>line spectrum</strong> — discrete vertical lines at
+                multiples of the fundamental frequency. The height of each line is the amplitude of that harmonic. This
+                gives an instant picture of the signal's frequency content.</p>
+
+            <!-- Square wave spectrum SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch3/fig3.6.png" alt="Square Wave: Line Spectrum (Amplitude |bₙ|)" />
+                <div class="svg-cap">Fig 3.6 — Amplitude line spectrum of a symmetric square wave. Only odd harmonics
+                    exist; coefficients fall as 1/n. The sinc-like envelope (dashed) is the mathematical pattern of the
+                    spectrum.</div>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">📊</div>
+                <div class="cb">
+                    <div class="ct">Spectrum Bandwidth Insight</div>
+                    <p>A square wave needs <em>infinite</em> harmonics for perfect reconstruction. In practice, a
+                        bandwidth of \(B \approx \frac{1}{\tau}\) (where τ is the pulse width) captures 90% of the
+                        signal energy. This is why digital communication systems require wider bandwidth than the data
+                        rate alone suggests — the sharp edges of a bit stream contain high-frequency harmonics.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S8: SYMMETRY ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">3.8</span>
+                <h2 class="sec-t">Symmetry Properties — The GATE Shortcut Engine</h2>
+            </div>
+
+            <p>Symmetry is the single most powerful tool for computing Fourier coefficients quickly. Recognising the
+                symmetry of a waveform immediately tells you which coefficients are zero — saving significant
+                integration effort.<sup class="cite">[2]</sup></p>
+
+            <!-- Symmetry SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch3/fig3.7.png" alt="Four Types of Waveform Symmetry" />
+                <div class="svg-cap">Fig 3.7 — Four symmetry types with waveform sketches and their effect on Fourier
+                    coefficients. Recognising symmetry before integration halves or quarters the computation time.</div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">GATE Shortcut — Symmetry First!</div>
+                    <p>Before computing any integral, always check symmetry. In most GATE problems, symmetry eliminates
+                        half the unknowns immediately. A <strong>square wave centred at origin</strong> is odd → no
+                        cosines, no DC. A <strong>triangular wave centred at origin</strong> is also odd → same
+                        conclusion. A <strong>cosine wave</strong> is even → no sines.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S9: PARSEVAL'S THEOREM ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">3.9</span>
+                <h2 class="sec-t">Parseval's Theorem — Power in Frequency Domain</h2>
+            </div>
+
+            <p><strong>Parseval's theorem</strong> connects the time-domain average power of a periodic signal to the
+                sum of squares of its Fourier coefficients. It is the energy conservation law of the Fourier world —
+                total power equals the sum of powers at individual harmonics.<sup class="cite">[1]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Parseval's Theorem for Fourier Series</div>
+                $$P = \frac{1}{T_0}\int_{0}^{T_0} |x(t)|^2\,dt = a_0^2 + \frac{1}{2}\sum_{n=1}^{\infty}(a_n^2 + b_n^2) =
+                \sum_{n=-\infty}^{\infty}|C_n|^2$$
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Physical Meaning</div>
+                    <p>Total average power = (DC power) + (power in 1st harmonic) + (power in 2nd harmonic) + … Each
+                        harmonic contributes independently. This is why we can compute <strong>Total Harmonic Distortion
+                            (THD)</strong> from the Fourier coefficients of the supply voltage or current.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Total Harmonic Distortion (THD) — Power Systems Application</h3>
+            <p>THD is a direct application of Parseval's theorem. For a periodic current \(i(t)\) with fundamental
+                \(I_1\) and harmonics \(I_n\):</p>
+
+            <div class="math-block">
+                <div class="math-lbl">THD Formula</div>
+                $$\mathrm{THD} = \frac{\sqrt{\sum_{n=2}^{\infty} I_n^2}}{I_1} \times 100\%$$
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Parseval's Theorem — Common GATE Errors</div>
+                    <p>1. The factor of ½ applies only to AC terms: \(P = a_0^2 + \tfrac{1}{2}\sum(a_n^2+b_n^2)\). The
+                        DC term \(a_0^2\) has no factor of ½.<br>
+                        2. For exponential form: \(P = \sum|C_n|^2\) — the \(|C_n|\) already have the factor of ½ built
+                        in (since \(C_n = \tfrac{1}{2}(a_n - jb_n)\) for n≥1).<br>
+                        3. Do not confuse power (average of |x|²) with energy (integral of |x|²); periodic signals have
+                        finite power but infinite energy.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S10: COMMON MISCONCEPTIONS ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">3.10</span>
+                <h2 class="sec-t">Common Student Mistakes &amp; GATE Traps</h2>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-red">
+                    <div class="mc-t">❌ Wrong Assumption</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Forgetting the factor of \(\frac{2}{T_0}\) in \(a_n\) and \(b_n\) (using \(\frac{1}{T_0}\) instead)</li>
+                        <li><span class="dot">▸</span>Not checking symmetry first → computing zero coefficients</li>
+                        <li><span class="dot">▸</span>Confusing \(C_n\) (exponential) with \(a_n\)/\(b_n\) (trigonometric)</li>
+                        <li><span class="dot">▸</span>Assuming only even harmonics are zero in half-wave sym. — it's the
+                            even ones</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">✅ Correct Approach</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>\(a_n = \frac{2}{T_0}\int x(t)\cos(n\omega_0 t)dt\) — always \(\frac{2}{T_0}\)</li>
+                        <li><span class="dot">▸</span>Check even/odd/half-wave symmetry before any calculation</li>
+                        <li><span class="dot">▸</span>\(C_n = \frac{1}{2}(a_n - jb_n)\) for \(n \geq 1\), \(C_0 = a_0\)</li>
+                        <li><span class="dot">▸</span>Half-wave sym → odd harmonics present, even harmonics zero</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">🚫</div>
+                <div class="cb">
+                    <div class="ct">Critical Distinction — Fourier Series vs Fourier Transform</div>
+                    <p>Fourier <strong>Series</strong> applies to <em>periodic</em> signals → produces a
+                        <em>discrete</em> (line) spectrum at multiples of f₀.<br>
+                        Fourier <strong>Transform</strong> applies to <em>aperiodic</em> signals → produces a
+                        <em>continuous</em> spectrum.<br>
+                        Many students confuse these in GATE questions. A periodic signal does NOT have a Fourier
+                        Transform in the conventional sense (only in the distributional sense with impulses).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S11: SOLVED NUMERICALS ═══ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr"><span class="sec-num">3.11</span>
+                <h2 class="sec-t">Solved Numericals</h2>
+            </div>
+
+            <!-- Example 1 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 3.1</span>
+                    <span class="ex-title">Fourier Series of a Rectangular Pulse Train</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">Find the Fourier series of a rectangular pulse train with amplitude A, period T₀ =
+                        2 s, and pulse width τ = 0.5 s centred at t = 0.</div>
+                    <div class="sol-lbl">▸ Solution</div>
+                    <p><strong>Step 1:</strong> \(\omega_0 = 2\pi/T_0 = \pi\) rad/s. The waveform is even (symmetric
+                        about t = 0), so \(b_n = 0\).</p>
+                    <p><strong>Step 2:</strong> \(a_0 = \frac{1}{T_0}\int_{-\tau/2}^{\tau/2} A\,dt = \frac{A\tau}{T_0} =
+                        \frac{A \times 0.5}{2} = \frac{A}{4}\)</p>
+                    <p><strong>Step 3:</strong> For n ≥ 1 (using even symmetry, integrate 0 to T₀/2 and double):</p>
+                    <div class="math-block">
+                        $$a_n = \frac{2}{T_0}\int_{-\tau/2}^{\tau/2} A\cos(n\omega_0 t)\,dt =
+                        \frac{2A}{n\pi}\sin\!\left(\frac{n\pi\tau}{T_0}\right) =
+                        \frac{2A}{n\pi}\sin\!\left(\frac{n\pi}{4}\right)$$
+                    </div>
+                    <p><strong>Step 4:</strong> Values: \(a_1 = \frac{2A}{\pi}\sin(45°) = \frac{A\sqrt{2}}{\pi} \approx
+                        0.450A\), \(a_2 = \frac{A}{\pi}\sin(90°) = \frac{A}{\pi} \approx 0.318A\), \(a_3 =
+                        \frac{2A}{3\pi}\sin(135°) = \frac{A\sqrt{2}}{3\pi} \approx 0.150A\), \(a_4 = 0\) (sin(180°)=0).
+                    </p>
+                    <div class="math-block">
+                        $$\boxed{x(t) = \frac{A}{4} + \frac{A\sqrt{2}}{\pi}\cos(\pi t) + \frac{A}{\pi}\cos(2\pi t) +
+                        \frac{A\sqrt{2}}{3\pi}\cos(3\pi t) + \cdots}$$
+                    </div>
+                    <p><strong>Key insight:</strong> The duty cycle is δ = τ/T₀ = 0.25. The DC value is Aδ = A/4. The
+                        spectrum envelope follows a sinc pattern with nulls at n = 1/δ = 4, 8, 12, …</p>
+                </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 3.2</span>
+                    <span class="ex-title">GATE-Level: Power Computation Using Parseval's Theorem</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A periodic signal has Fourier series: \(x(t) = 3 + 4\cos(2\pi t) + 2\cos(4\pi t) -
+                        \sin(2\pi t)\). Find: (a) the average power, (b) the RMS value, (c) the power in the fundamental
+                        component.</div>
+                    <div class="sol-lbl">▸ Solution</div>
+                    <p><strong>Identifying coefficients:</strong> \(a_0 = 3\), \(a_1 = 4\), \(b_1 = 1\) (from the −sin
+                        at ω₀=2π), \(a_2 = 2\), \(b_2 = 0\).</p>
+                    <p><strong>(a) Average Power by Parseval's theorem:</strong></p>
+                    <div class="math-block">
+                        $$P = a_0^2 + \frac{1}{2}(a_1^2+b_1^2) + \frac{1}{2}(a_2^2+b_2^2) = 9 + \frac{1}{2}(16+1) +
+                        \frac{1}{2}(4+0) = 9 + 8.5 + 2 = \mathbf{19.5 \text{ W}}$$
+                    </div>
+                    <p><strong>(b) RMS value:</strong> \(X_{rms} = \sqrt{P} = \sqrt{19.5} \approx \mathbf{4.416 \text{
+                        V}}\)</p>
+                    <p><strong>(c) Power at fundamental (n=1):</strong> \(P_1 = \frac{1}{2}(a_1^2+b_1^2) =
+                        \frac{1}{2}(16+1) = \mathbf{8.5 \text{ W}}\)</p>
+                </div>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 3.3</span>
+                    <span class="ex-title">Exponential Fourier Coefficients of a Square Wave</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">Find the exponential Fourier series coefficients of a square wave: x(t) = A for 0
+                        &lt; t &lt; T₀/2, x(t) = −A for T₀/2 &lt; t &lt; T₀.</div>
+                    <div class="sol-lbl">▸ Solution</div>
+                    <p>The waveform is odd and has half-wave symmetry, so only odd harmonics contribute. Using the
+                        analysis equation:</p>
+                    <div class="math-block">
+                        $$C_n = \frac{1}{T_0}\!\left[\int_0^{T_0/2}\! A\,e^{-jn\omega_0 t}\,dt +
+                        \int_{T_0/2}^{T_0}\!(-A)\,e^{-jn\omega_0 t}\,dt\right]$$
+                    </div>
+                    <p>Evaluating each integral and simplifying:</p>
+                    <div class="math-block">
+                        $$C_n = \frac{A}{jn\pi}(1 - e^{-jn\pi}) = \frac{A}{jn\pi}(1-(-1)^n)$$
+                    </div>
+                    <p>For odd n: \((1-(-1)^n) = 2\), so \(\boxed{C_n = \frac{2A}{jn\pi}}\) (odd n only). For even n:
+                        \(C_n = 0\). Check: \(C_1 = \frac{2A}{j\pi} = \frac{-j2A}{\pi}\), so \(|C_1| = \frac{2A}{\pi}\),
+                        and the one-sided amplitude is \(\frac{4A}{\pi}\) — consistent with the trigonometric result
+                        \(b_1 = 4A/\pi\).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S12: GATE PYQ ═══ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr"><span class="sec-num">3.12</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Symmetry — Which coefficients are zero? <span class="prob prob-h">🟢
+                            High</span></span>
+                    <span class="pyq-year">2019</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A periodic signal x(t) satisfies x(t + T₀/2) = −x(t). Which of the following statements is true
+                        about its Fourier series?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) The series contains only even harmonics</li>
+                        <li class="correct">(B) The series contains only odd harmonics</li>
+                        <li>(C) The DC term is non-zero</li>
+                        <li>(D) The series contains only cosine terms</li>
+                    </ul>
+                    <p><strong>Solution:</strong> The condition x(t + T₀/2) = −x(t) is the definition of
+                        <strong>half-wave symmetry</strong>. All even harmonics (n = 2, 4, 6, …) are zero. The DC value
+                        is also zero. Answer: <strong>(B)</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Parseval's Theorem — Average Power <span class="prob prob-h">🟢
+                            High</span></span>
+                    <span class="pyq-year">2022</span>
+                </div>
+                <div class="pyq-body">
+                    <p>If the Fourier series of a periodic voltage v(t) is \(v(t) = 10 + 20\cos(\omega_0 t) +
+                        10\cos(2\omega_0 t)\), find the average power delivered to a 1 Ω resistor.</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 250 W</li>
+                        <li>(B) 300 W</li>
+                        <li class="correct">(C) 350 W</li>
+                        <li>(D) 400 W</li>
+                    </ul>
+                    <p><strong>Solution:</strong> Using Parseval's: \(P = a_0^2 + \frac{1}{2}a_1^2 + \frac{1}{2}a_2^2 =
+                        100 + \frac{400}{2} + \frac{100}{2} = 100 + 200 + 50 = \mathbf{350 \text{ W}}\). Answer:
+                        <strong>(C)</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Exponential Coefficients — Relationship to Trig Form <span
+                            class="prob prob-m">🟡 Medium</span></span>
+                    <span class="pyq-year">2018</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The trigonometric Fourier series of a real signal has a₁ = 6 and b₁ = −8. The magnitude and phase
+                        angle of the exponential Fourier coefficient C₁ are, respectively:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 5, −53.1°</li>
+                        <li class="correct">(B) 5, 53.1°</li>
+                        <li>(C) 10, −53.1°</li>
+                        <li>(D) 10, 53.1°</li>
+                    </ul>
+                    <p><strong>Solution:</strong> \(C_1 = \tfrac{1}{2}(a_1 - jb_1) = \tfrac{1}{2}(6 + j8) = 3 + j4\).
+                        \(|C_1| = \sqrt{9+16} = 5\). \(\angle C_1 = \arctan(4/3) = 53.1°\). Answer:
+                        <strong>(B)</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Dirichlet Conditions and Gibbs Phenomenon <span
+                            class="prob prob-m">🟡 Medium</span></span>
+                    <span class="pyq-year">2020</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The overshoot that occurs near a jump discontinuity in the partial Fourier series expansion of a
+                        signal, regardless of the number of terms included, is known as:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) Ringing effect</li>
+                        <li>(B) Aliasing error</li>
+                        <li class="correct">(C) Gibbs phenomenon</li>
+                        <li>(D) Truncation error</li>
+                    </ul>
+                    <p><strong>Solution:</strong> The Gibbs phenomenon produces an overshoot of ~8.9% at jump
+                        discontinuities that does not diminish as N → ∞ (though the region narrows). Answer:
+                        <strong>(C)</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES</span>
+                    <span class="pyq-title pyq-title-ies">THD Calculation — Power Quality <span class="prob prob-h">🟢
+                            High</span></span>
+                    <span class="pyq-year">2021</span>
+                </div>
+                <div class="pyq-body">
+                    <p>A supply current has Fourier components: I₁ = 10 A (fundamental), I₃ = 4 A (3rd harmonic), I₅ = 2
+                        A (5th harmonic). Find the Total Harmonic Distortion (THD).</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 40%</li>
+                        <li>(B) 42.4%</li>
+                        <li class="correct">(C) 44.7%</li>
+                        <li>(D) 60%</li>
+                    </ul>
+                    <p><strong>Solution:</strong> \(\mathrm{THD} = \frac{\sqrt{I_3^2+I_5^2}}{I_1} =
+                        \frac{\sqrt{16+4}}{10} = \frac{\sqrt{20}}{10} = \frac{4.47}{10} = \mathbf{44.7\%}\). Answer:
+                        <strong>(C)</strong>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S13: MEMORY TRICKS ═══ -->
+        <div class="section" id="s13">
+            <div class="sec-hdr"><span class="sec-num">3.13</span>
+                <h2 class="sec-t">Memory Tricks &amp; Mnemonics</h2>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic — "Even Adds, Odd Bowls"</div>
+                    <p><strong>E</strong>ven symmetry → only <strong>A</strong> (cosine) coefficients survive (a₀, aₙ —
+                        bₙ = 0).<br>
+                        <strong>O</strong>dd symmetry → only <strong>B</strong> (sine) coefficients and a₀ = 0
+                        (<strong>bowls</strong> are asymmetric, like sine waves).<br>
+                        <em>Even Adds [cosines], Odd Bowls [sines only]</em>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic — "HOW" for Half-wave Symmetry</div>
+                    <p><strong>H</strong>alf-wave symmetry → <strong>O</strong>dd harmonics <strong>W</strong>in (even
+                        harmonics are zero).<br>
+                        HOW to remember: <em>Half-wave → Odd Win</em>.</p>
+                </div>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">Formula Story — Coefficient of Exponential Series</div>
+                    <p>Think of \(C_n = \frac{1}{T_0}\int x(t) e^{-jn\omega_0 t}\,dt\) as "listening" to the signal at
+                        frequency nω₀.<br>
+                        The \(e^{-jn\omega_0 t}\) is a "tuning fork" — multiplying and averaging extracts only the nω₀
+                        component from the noisy mix (orthogonality does the magic).</p>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">🎯 Spectrum Envelopes</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Square/rect pulse:</strong> sinc envelope, nulls at n=1/δ
+                        </li>
+                        <li><span class="dot">▸</span><strong>Triangular wave:</strong> sinc² envelope, faster decay
+                            (1/n²)</li>
+                        <li><span class="dot">▸</span><strong>Smooth signals:</strong> coefficients decay faster than
+                            1/n</li>
+                        <li><span class="dot">▸</span><strong>Discontinuous:</strong> coefficients decay as 1/n only
+                        </li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">🚀 Quick Recall</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>DC = average value = a₀</li>
+                        <li><span class="dot">▸</span>\(C_n = \tfrac{1}{2}(a_n-jb_n)\) for n≥1</li>
+                        <li><span class="dot">▸</span>Parseval: P = a₀² + ½Σ(aₙ²+bₙ²)</li>
+                        <li><span class="dot">▸</span>Gibbs overshoot ≈ 8.9% — does NOT reduce with N</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S14: QUICK REVISION SHEET ═══ -->
+        <div class="section" id="s14">
+            <div class="sec-hdr"><span class="sec-num">3.14</span>
+                <h2 class="sec-t">Quick Revision Sheet</h2>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Trigonometric Form</div>
+                    <p>\(x(t) = a_0 + \sum[a_n\cos(n\omega_0 t)+b_n\sin(n\omega_0 t)]\)<br>
+                        \(a_0=\frac{1}{T_0}\int x\,dt\), \(a_n=\frac{2}{T_0}\int x\cos\,dt\), \(b_n=\frac{2}{T_0}\int
+                        x\sin\,dt\)</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Exponential Form</div>
+                    <p>\(x(t)=\sum_{-\infty}^{\infty}C_n e^{jn\omega_0 t}\)<br>
+                        \(C_n=\frac{1}{T_0}\int x(t)e^{-jn\omega_0 t}\,dt\)<br>
+                        \(C_0=a_0\), \(C_n=\tfrac{1}{2}(a_n-jb_n)\) for n≥1</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Symmetry Rules</div>
+                    <p>Even: bₙ = 0 only<br>
+                        Odd: aₙ = a₀ = 0 only<br>
+                        Half-wave: even harmonics = 0<br>
+                        QW (Even+HW): odd aₙ only</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Parseval's Theorem</div>
+                    <p>\(P = a_0^2 + \tfrac{1}{2}\sum(a_n^2+b_n^2)\)<br>
+                        \(P = \sum_{-\infty}^{\infty}|C_n|^2\)<br>
+                        \(X_{rms} = \sqrt{P}\)</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Dirichlet &amp; Gibbs</div>
+                    <p>Conditions: finite integral, finite extrema, finite discontinuities.<br>
+                        At discontinuity: series → average of left+right limits.<br>
+                        Gibbs overshoot ≈ <strong>8.9%</strong> (fixed, not ↓ with N)</p>
+                </div>
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Key Formulas</div>
+                    <p>Square wave: bₙ = 4A/nπ (odd n)<br>
+                        Rect pulse: aₙ = (2A/nπ)sin(nπδ)<br>
+                        Triangular: bₙ = 8A/n²π² (odd n)<br>
+                        \(\omega_0 = 2\pi/T_0 = 2\pi f_0\)</p>
+                </div>
+            </div>
+
+            <!-- Ask Claude Widget -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI — Fourier Series Tutor</div>
+                <p>Type any Fourier Series question — coefficient calculation, symmetry doubt, GATE problem, THD,
+                    Parseval's theorem application, or concept clarification.</p>
+                <div class="ai-input-row">
+                    <input type="text" id="userQ" class="ai-input"
+                        placeholder="e.g. Find the Fourier series of a triangular wave with amplitude 5 and period 2s…"
+                        autocomplete="off" autocorrect="off">
+                    <button class="ai-btn" onclick="askClaude()">Ask AAROVA AI</button>
+                </div>
+                <div class="ai-suggest">
+                    <button class="ai-chip" onclick="setQ('Why are even harmonics zero in half-wave symmetry?')">Why
+                        even harmonics = 0 in half-wave?</button>
+                    <button class="ai-chip" onclick="setQ('Derive Parseval\'s theorem for Fourier Series')">Derive
+                        Parseval's theorem</button>
+                    <button class="ai-chip"
+                        onclick="setQ('What is the Gibbs phenomenon and why is overshoot 8.9%?')">Gibbs phenomenon
+                        explained</button>
+                    <button class="ai-chip"
+                        onclick="setQ('Find Cₙ for a square wave of amplitude A and period T₀')">Exponential
+                        coefficients of square wave</button>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <!-- Citations -->
+            <div class="citations">
+                <div class="cite-h">References</div>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Oppenheim, A.V. and Willsky, A.S. <em>Signals and
+                                Systems</em>, 2nd ed. Prentice-Hall, 1997. Chapter 3 — Fourier Series Representation of
+                            Periodic Signals: Dirichlet conditions, trigonometric and exponential forms, Parseval's
+                            theorem.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Haykin, S. and Van Veen, B. <em>Signals and Systems</em>,
+                            2nd ed. John Wiley, 2003. Chapter 3 — Fourier Series and Spectrum Analysis: symmetry
+                            properties, amplitude and phase spectra, line spectra.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Lathi, B.P. and Ding, Z. <em>Modern Digital and Analog
+                                Communication Systems</em>, 4th ed. Oxford University Press, 2009. Chapter 2 — Fourier
+                            Analysis of Signals: coefficient computation methods, waveform examples.</span></li>
+                    <li><span class="cite-num">[4]</span><span>Nagrath, I.J. <em>Signals, Systems and Control</em>, 2nd
+                            ed. Tata McGraw-Hill, 2006. Chapter 4 — Fourier Series and Harmonics: power systems
+                            applications, THD computation from Fourier coefficients.</span></li>
+                    <li><span class="cite-num">[5]</span><span>IIT Madras NPTEL. <em>Signals and Systems — Lecture
+                                Series</em>. National Programme on Technology Enhanced Learning. nptel.ac.in. Fourier
+                            Series derivations, symmetry properties, exam-oriented examples.</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <hr>
+        <footer>
+            <strong>Aarova AI</strong> &nbsp;·&nbsp; Signals &amp; Systems Series &nbsp;·&nbsp; Chapter 3 of 8<br>
+            <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp;
+                PSU Electrical Engineering</span><br>
+            <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and diagrams
+                are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+        </footer>
+    </div>
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Signals & Systems. Topic: Fourier Series (Chapter 3). Cover trigonometric Fourier series, exponential Fourier series, Dirichlet conditions, symmetry properties (even, odd, half-wave, quarter-wave), Parseval's theorem, Gibbs phenomenon, coefficient calculation for standard waveforms (square, rectangular, triangular, sawtooth, half-wave and full-wave rectified sine), line spectra, THD. Answer with step-by-step working for numericals. Base answers on Oppenheim-Willsky, Haykin, Lathi. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,2698 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#fdf6ee">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Aarova AI — Electronic Devices Ch.4 Carrier Drift &amp; Diffusion</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+  <style>
+    /* ═══════════════════════════════════════════════
+       AAROVA AI — RESPONSIVE DESIGN SYSTEM
+       Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+    ═══════════════════════════════════════════════ */
+    :root {
+      --bg: #fdf6ee;
+      --bg2: #f8ede0;
+      --bg3: #f0e0cc;
+      --bg4: #e8d0b8;
+      --text: #1e1208;
+      --text2: #3d2010;
+      --text3: #6b3e22;
+      --muted: #9a6e50;
+      --orange: #c95f1a;
+      --orange-md: #e07235;
+      --orange-lt: #f5956a;
+      --orange-bg: #fdebd8;
+      --orange-bdr: #f0b48a;
+      --green: #2d6648;
+      --green-bg: #dff0e8;
+      --green-bdr: #8ecaaa;
+      --teal: #1e6b68;
+      --teal-bg: #d8eeed;
+      --teal-bdr: #7ec4c2;
+      --amber: #a05c00;
+      --amber-bg: #fef0d0;
+      --amber-bdr: #f0c060;
+      --red: #9a2020;
+      --red-bg: #fde8e8;
+      --red-bdr: #e89090;
+      --border: #ddc8b0;
+      --border2: #c8a888;
+      --radius: 14px;
+      --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+      --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+      --page-px: clamp(14px, 4vw, 48px);
+      --section-gap: clamp(36px, 6vw, 64px);
+      --card-px: clamp(14px, 2.5vw, 22px);
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 18px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text2);
+      font-family: 'Lora', Georgia, serif;
+      line-height: 1.85;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg2);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 3px;
+    }
+
+    img,
+    svg {
+      max-width: 100%;
+      display: block;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 var(--page-px) 80px;
+    }
+
+    /* HEADER */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(253, 246, 238, .96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1.5px solid var(--border);
+      padding: 12px var(--page-px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(14px, 2.5vw, 18px);
+      font-weight: 700;
+      color: var(--orange);
+      white-space: nowrap;
+    }
+
+    .logo-sub {
+      font-family: 'Lora', serif;
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: 8px;
+      font-weight: 400;
+    }
+
+    .hbadges {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .hbadge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--orange-bg);
+      border: 1px solid var(--orange-bdr);
+      color: var(--orange);
+      white-space: nowrap;
+    }
+
+    /* HERO */
+    .hero {
+      padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+      border-bottom: 1.5px solid var(--border);
+      margin-bottom: clamp(24px, 4vw, 44px);
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      color: var(--orange);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 2.5px;
+      background: var(--orange);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    h1.hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 7vw, 52px);
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 14px;
+    }
+
+    h1.hero-title em {
+      font-style: italic;
+      color: var(--orange);
+    }
+
+    .hero-desc {
+      font-size: clamp(14px, 2vw, 17px);
+      color: var(--text3);
+      max-width: 640px;
+      line-height: 1.75;
+      font-weight: 400;
+      margin-bottom: 22px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .badge {
+      font-size: 12px;
+      padding: 4px 13px;
+      border-radius: 22px;
+      border: 1.5px solid var(--border2);
+      color: var(--text3);
+      background: var(--bg2);
+      font-family: 'Lora', serif;
+    }
+
+    .badge-p {
+      background: var(--orange-bg);
+      border-color: var(--orange-bdr);
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    /* PROGRESS */
+    .progress-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--orange-bg);
+      border: 1.5px solid var(--orange-bdr);
+      border-radius: 10px;
+      padding: 11px 16px;
+      margin-bottom: clamp(20px, 4vw, 40px);
+    }
+
+    .pl {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--orange);
+      white-space: nowrap;
+    }
+
+    .pt {
+      flex: 1;
+      height: 7px;
+      background: rgba(201, 95, 26, .18);
+      border-radius: 4px;
+      overflow: hidden;
+      min-width: 30px;
+    }
+
+    .pf {
+      height: 100%;
+      width: 50%;
+      background: var(--orange);
+      border-radius: 4px;
+    }
+
+    .pp {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--orange);
+      white-space: nowrap;
+    }
+
+    /* TOC */
+    .toc {
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-left: 4px solid var(--orange);
+      border-radius: var(--radius);
+      padding: clamp(16px, 3vw, 28px);
+      margin-bottom: clamp(28px, 5vw, 52px);
+    }
+
+    .toc-h {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 0 24px;
+    }
+
+    .toc-item {
+      display: flex;
+      align-items: baseline;
+      gap: 9px;
+      font-size: 14px;
+      color: var(--text3);
+      text-decoration: none;
+      padding: 7px 0;
+      border-bottom: 1px dashed transparent;
+      transition: color .2s, border-color .2s;
+      line-height: 1.5;
+    }
+
+    .toc-item:hover,
+    .toc-item:focus {
+      color: var(--orange);
+      border-bottom-color: var(--orange-lt);
+    }
+
+    .toc-n {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--orange);
+      min-width: 28px;
+      flex-shrink: 0;
+    }
+
+    /* SECTIONS */
+    .section {
+      margin-bottom: var(--section-gap);
+      opacity: 0;
+      transform: translateY(12px);
+      animation: rise .42s forwards;
+    }
+
+    @keyframes rise {
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .section:nth-child(1) {
+      animation-delay: .04s
+    }
+
+    .section:nth-child(2) {
+      animation-delay: .09s
+    }
+
+    .section:nth-child(3) {
+      animation-delay: .13s
+    }
+
+    .section:nth-child(4) {
+      animation-delay: .17s
+    }
+
+    .section:nth-child(5) {
+      animation-delay: .21s
+    }
+
+    .section:nth-child(6) {
+      animation-delay: .25s
+    }
+
+    .section:nth-child(7) {
+      animation-delay: .29s
+    }
+
+    .section:nth-child(8) {
+      animation-delay: .33s
+    }
+
+    .section:nth-child(9) {
+      animation-delay: .37s
+    }
+
+    .section:nth-child(10) {
+      animation-delay: .41s
+    }
+
+    .section:nth-child(11) {
+      animation-delay: .45s
+    }
+
+    .section:nth-child(12) {
+      animation-delay: .49s
+    }
+
+    .section:nth-child(13) {
+      animation-delay: .53s
+    }
+
+    .section:nth-child(14) {
+      animation-delay: .57s
+    }
+
+    .sec-hdr {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: clamp(14px, 3vw, 24px);
+      padding-bottom: 12px;
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    .sec-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      background: var(--orange-bg);
+      color: var(--orange);
+      border: 1px solid var(--orange-bdr);
+      padding: 3px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    h2.sec-t {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(18px, 3.5vw, 26px);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    h3.sub {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(15px, 2.5vw, 19px);
+      font-weight: 600;
+      color: var(--text2);
+      margin: clamp(20px, 3vw, 32px) 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    h3.sub::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 16px;
+      background: var(--orange-lt);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    p {
+      margin-bottom: 14px;
+      color: var(--text2);
+      font-size: clamp(14px, 2vw, 17px);
+      line-height: 1.85;
+    }
+
+    strong {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    sup.cite {
+      font-size: 9px;
+      color: var(--teal);
+      font-weight: 700;
+      cursor: pointer;
+      vertical-align: super;
+      margin-left: 1px;
+    }
+
+    /* CALLOUTS */
+    .callout {
+      border-radius: 10px;
+      padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+      margin: 16px 0;
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+    }
+
+    .ci {
+      font-size: 17px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      line-height: 1;
+    }
+
+    .cb {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ct {
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 4px;
+    }
+
+    .cb p {
+      margin: 0;
+      font-size: clamp(13px, 1.8vw, 15.5px);
+      line-height: 1.68;
+    }
+
+    .c-info {
+      background: var(--orange-bg);
+      border-left: 4px solid var(--orange);
+    }
+
+    .c-info .ct {
+      color: var(--orange);
+    }
+
+    .c-info p {
+      color: var(--text2);
+    }
+
+    .c-tip {
+      background: var(--green-bg);
+      border-left: 4px solid var(--green);
+    }
+
+    .c-tip .ct {
+      color: var(--green);
+    }
+
+    .c-tip p {
+      color: #1e4d38;
+    }
+
+    .c-key {
+      background: var(--teal-bg);
+      border-left: 4px solid var(--teal);
+    }
+
+    .c-key .ct {
+      color: var(--teal);
+    }
+
+    .c-key p {
+      color: #154e4c;
+    }
+
+    .c-warn {
+      background: var(--amber-bg);
+      border-left: 4px solid var(--amber);
+    }
+
+    .c-warn .ct {
+      color: var(--amber);
+    }
+
+    .c-warn p {
+      color: #6e3f00;
+    }
+
+    .c-danger {
+      background: var(--red-bg);
+      border-left: 4px solid var(--red);
+    }
+
+    .c-danger .ct {
+      color: var(--red);
+    }
+
+    .c-danger p {
+      color: #6e1515;
+    }
+
+    /* TABLE */
+    .tw {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 16px 0;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: clamp(12px, 1.8vw, 15px);
+    }
+
+    thead tr {
+      background: var(--bg3);
+    }
+
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--text3);
+      border-bottom: 1.5px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--bg3);
+      transition: background .12s;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--bg2);
+    }
+
+    tbody td {
+      padding: 10px 14px;
+      color: var(--text2);
+      vertical-align: top;
+      line-height: 1.55;
+    }
+
+    tbody td:first-child {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .t-org {
+      color: var(--orange) !important;
+      font-weight: 600 !important;
+    }
+
+    .t-grn {
+      color: var(--green) !important;
+      font-weight: 600 !important;
+    }
+
+    .t-red {
+      color: var(--red) !important;
+      font-weight: 600 !important;
+    }
+
+    .t-amb {
+      color: var(--amber) !important;
+      font-weight: 600 !important;
+    }
+
+    .t-tel {
+      color: var(--teal) !important;
+      font-weight: 600 !important;
+    }
+
+    /* MATH */
+    .math-block {
+      background: var(--bg3);
+      border: 1.5px solid var(--border2);
+      border-left: 4px solid var(--teal);
+      border-radius: 10px;
+      padding: 14px 20px;
+      margin: 14px 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      text-align: center;
+    }
+
+    .math-block .math-lbl {
+      font-family: 'Lora', serif;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-align: left;
+    }
+
+    /* SVG */
+    .svg-wrap {
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: clamp(12px, 2.5vw, 24px);
+      margin: 16px 0;
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .svg-wrap svg {
+      width: 100%;
+      height: auto;
+      min-width: 300px;
+      display: block;
+    }
+
+    .svg-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .svg-scroll svg {
+      min-width: 560px;
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .svg-cap {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    .svg-cite {
+      font-size: 10.5px;
+      color: var(--teal);
+      text-align: center;
+      margin-top: 3px;
+    }
+
+    /* EXAMPLES */
+    .example {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      margin: 20px 0;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .ex-hdr {
+      background: var(--bg3);
+      padding: 9px var(--card-px);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      border-bottom: 1.5px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .ex-num {
+      font-size: 9px;
+      font-weight: 700;
+      background: var(--orange);
+      color: #fff;
+      padding: 3px 9px;
+      border-radius: 5px;
+      letter-spacing: .06em;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .ex-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text2);
+      line-height: 1.4;
+    }
+
+    .ex-body {
+      padding: clamp(13px, 2vw, 22px) var(--card-px);
+    }
+
+    .ex-q {
+      font-size: clamp(13px, 2vw, 15.5px);
+      color: var(--text);
+      background: var(--orange-bg);
+      border-left: 4px solid var(--orange);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 14px;
+      line-height: 1.62;
+    }
+
+    .sol-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .10em;
+      color: var(--green);
+      margin-bottom: 9px;
+    }
+
+    /* PYQ */
+    .pyq-card {
+      background: #fff;
+      border: 1.5px solid var(--teal-bdr);
+      border-radius: var(--radius);
+      margin: 18px 0;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .pyq-hdr {
+      background: var(--teal-bg);
+      border-bottom: 1.5px solid var(--teal-bdr);
+      padding: 9px var(--card-px);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .pyq-tag {
+      font-size: 9px;
+      font-weight: 700;
+      color: #fff;
+      padding: 3px 9px;
+      border-radius: 5px;
+      letter-spacing: .07em;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .pyq-gate {
+      background: var(--teal);
+    }
+
+    .pyq-ies {
+      background: var(--green);
+    }
+
+    .pyq-hdr.ies-hdr {
+      background: var(--green-bg);
+      border-color: var(--green-bdr);
+    }
+
+    .pyq-card.ies-card {
+      border-color: var(--green-bdr);
+    }
+
+    .pyq-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--teal);
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .pyq-title-ies {
+      color: var(--green);
+    }
+
+    .pyq-year {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .pyq-body {
+      padding: clamp(13px, 2vw, 20px) var(--card-px);
+    }
+
+    .pyq-body p {
+      color: var(--text2);
+      font-size: clamp(13px, 2vw, 15.5px);
+    }
+
+    .pyq-opts {
+      list-style: none;
+      margin: 10px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pyq-opts li {
+      font-size: clamp(13px, 1.8vw, 15px);
+      color: var(--text2);
+      padding: 9px 13px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--bg2);
+      font-family: 'Lora', serif;
+      cursor: default;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      line-height: 1.45;
+    }
+
+    .pyq-opts li.correct {
+      background: var(--green-bg);
+      border-color: var(--green-bdr);
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    /* TWO COL */
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+      margin: 16px 0;
+    }
+
+    .mini-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: var(--card-px);
+      box-shadow: var(--shadow);
+    }
+
+    .mc-t {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      margin-bottom: 11px;
+    }
+
+    .mc-grn .mc-t {
+      color: var(--green);
+    }
+
+    .mc-red .mc-t {
+      color: var(--red);
+    }
+
+    .mc-org .mc-t {
+      color: var(--orange);
+    }
+
+    .mc-tel .mc-t {
+      color: var(--teal);
+    }
+
+    .mc-amb .mc-t {
+      color: var(--amber);
+    }
+
+    .mc-list {
+      list-style: none;
+    }
+
+    .mc-list li {
+      font-size: clamp(13px, 1.8vw, 15px);
+      color: var(--text2);
+      padding: 6px 0 6px 18px;
+      border-bottom: 1px solid var(--bg3);
+      display: block;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .mc-list li:last-child {
+      border-bottom: none;
+    }
+
+    .dot {
+      color: var(--muted);
+      position: absolute;
+      left: 0;
+      top: 6px;
+      margin-top: 0;
+    }
+
+    /* SUMMARY */
+    .sum-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .sum-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+      transition: box-shadow .2s, transform .15s;
+    }
+
+    .sum-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .sum-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      margin-bottom: 6px;
+    }
+
+    .sum-card p {
+      font-size: clamp(12px, 1.7vw, 14px);
+      color: var(--text3);
+      margin: 0;
+      line-height: 1.62;
+    }
+
+    .sc-o .sum-lbl {
+      color: var(--orange);
+    }
+
+    .sc-g .sum-lbl {
+      color: var(--green);
+    }
+
+    .sc-t .sum-lbl {
+      color: var(--teal);
+    }
+
+    .sc-a .sum-lbl {
+      color: var(--amber);
+    }
+
+    .sc-r .sum-lbl {
+      color: var(--red);
+    }
+
+    /* CITATIONS */
+    .citations {
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-left: 4px solid var(--teal);
+      border-radius: var(--radius);
+      padding: clamp(16px, 3vw, 28px);
+      margin-top: 36px;
+    }
+
+    .cite-h {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .cite-list {
+      list-style: none;
+    }
+
+    .cite-list li {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: clamp(12px, 1.8vw, 14px);
+      color: var(--text2);
+      line-height: 1.62;
+    }
+
+    .cite-list li:last-child {
+      border-bottom: none;
+    }
+
+    .cite-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--teal);
+      background: var(--teal-bg);
+      padding: 2px 7px;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      height: fit-content;
+      margin-top: 2px;
+    }
+
+    .cite-list em {
+      color: var(--orange-md);
+      font-style: italic;
+    }
+
+    /* PROB TAGS */
+    .prob {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 8px;
+      border-radius: 5px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .prob-h {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid var(--green-bdr);
+    }
+
+    .prob-m {
+      background: var(--amber-bg);
+      color: var(--amber);
+      border: 1px solid var(--amber-bdr);
+    }
+
+    .prob-l {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red-bdr);
+    }
+
+    /* ASK CLAUDE */
+    .ai-prompt {
+      background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+      border: 2px solid var(--teal-bdr);
+      border-radius: var(--radius);
+      padding: clamp(16px, 3vw, 28px);
+      margin: 28px 0;
+      box-shadow: var(--shadow-md);
+    }
+
+    .ai-prompt-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--teal);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .ai-prompt>p {
+      color: var(--text2);
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .ai-input-row {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .ai-input {
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 9px;
+      border: 1.5px solid var(--border2);
+      background: var(--bg);
+      font-family: 'Lora', serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .ai-input:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(30, 107, 104, .12);
+    }
+
+    .ai-btn {
+      padding: 11px 20px;
+      border-radius: 9px;
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      font-family: 'Lora', serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s;
+      white-space: nowrap;
+      min-height: 44px;
+      -webkit-appearance: none;
+    }
+
+    .ai-btn:hover {
+      background: #155250;
+    }
+
+    .ai-btn:active {
+      background: #0f3d3b;
+    }
+
+    .ai-suggest {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .ai-chip {
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--teal-bdr);
+      color: var(--teal);
+      background: var(--bg);
+      cursor: pointer;
+      font-family: 'Lora', serif;
+      transition: background .15s;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+    }
+
+    .ai-chip:hover,
+    .ai-chip:active {
+      background: var(--teal-bg);
+    }
+
+    .ai-response {
+      margin-top: 14px;
+      padding: 13px 15px;
+      background: #fff;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      font-size: 14px;
+      color: var(--text2);
+      display: none;
+      line-height: 1.72;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+
+    /* MISC */
+    hr {
+      border: none;
+      border-top: 1.5px solid var(--border);
+      margin: 40px 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 26px 0;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1.5px solid var(--border);
+    }
+
+    footer strong {
+      color: var(--orange);
+    }
+
+    /* FBLOCK */
+    .fblock {
+      background: var(--bg3);
+      border: 1.5px solid var(--border2);
+      border-left: 4px solid var(--orange-lt);
+      border-radius: 10px;
+      padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+      margin: 14px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(11.5px, 1.8vw, 13.5px);
+      color: var(--text);
+      line-height: 2;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      white-space: pre;
+    }
+
+    .fblock .flbl {
+      font-family: 'Lora', serif;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: 5px;
+      white-space: normal;
+      display: block;
+    }
+
+    .fv {
+      color: var(--orange);
+    }
+
+    .feq {
+      color: var(--green);
+      font-weight: 500;
+    }
+
+    .fh {
+      color: var(--teal);
+    }
+
+    /* TABLET */
+    @media(min-width:481px) and (max-width:768px) {
+      html {
+        font-size: 16.5px;
+      }
+
+      .logo-sub {
+        display: none;
+      }
+
+      .svg-wrap {
+        padding: 12px 10px;
+      }
+
+      .svg-wrap svg {
+        min-width: 480px;
+      }
+
+      .toc-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0 20px;
+      }
+
+      .two-col {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
+      .sum-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 11px;
+      }
+
+      .fblock {
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 12px;
+        line-height: 1.8;
+      }
+
+      thead th,
+      tbody td {
+        padding: 8px 10px;
+      }
+
+      .pyq-year {
+        margin-left: 0;
+      }
+    }
+
+    /* MOBILE */
+    @media(max-width:480px) {
+      html {
+        font-size: 15.5px;
+      }
+
+      .logo-sub {
+        display: none;
+      }
+
+      .hbadges {
+        display: none;
+      }
+
+      .site-header {
+        padding: 10px 14px;
+      }
+
+      h1.hero-title {
+        font-size: clamp(26px, 8vw, 34px);
+      }
+
+      .hero-desc {
+        font-size: 14px;
+      }
+
+      .badge-row .badge {
+        font-size: 11px;
+        padding: 4px 10px;
+      }
+
+      .progress-bar {
+        padding: 9px 12px;
+        gap: 8px;
+      }
+
+      .pl {
+        font-size: 11px;
+      }
+
+      .toc-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .toc-item {
+        font-size: 14px;
+        padding: 9px 0;
+      }
+
+      .toc {
+        padding: 14px 16px;
+      }
+
+      .sec-hdr {
+        gap: 9px;
+      }
+
+      h2.sec-t {
+        font-size: clamp(16px, 5vw, 20px);
+      }
+
+      h3.sub {
+        font-size: clamp(14px, 4.5vw, 17px);
+      }
+
+      p {
+        font-size: 15px;
+      }
+
+      .svg-wrap {
+        padding: 10px 8px;
+        border-radius: 10px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .svg-wrap svg {
+        min-width: 520px;
+        width: 520px;
+        height: auto;
+      }
+
+      .svg-wrap.svg-simple svg {
+        min-width: 280px;
+        width: 100%;
+      }
+
+      .svg-cap {
+        font-size: 11px;
+      }
+
+      .fblock {
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 11.5px;
+        line-height: 1.75;
+        padding: 12px 12px;
+        border-radius: 8px;
+      }
+
+      .tw {
+        border-radius: 8px;
+      }
+
+      thead th {
+        font-size: 9px;
+        padding: 8px 10px;
+        letter-spacing: .06em;
+      }
+
+      tbody td {
+        font-size: 12px;
+        padding: 8px 10px;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .sum-grid {
+        grid-template-columns: 1fr;
+        gap: 9px;
+      }
+
+      .mini-card {
+        padding: 13px 14px;
+      }
+
+      .sum-card {
+        padding: 14px 16px;
+      }
+
+      .callout {
+        padding: 11px 13px;
+        gap: 9px;
+      }
+
+      .ci {
+        font-size: 16px;
+      }
+
+      .cb p {
+        font-size: 13.5px;
+      }
+
+      .ex-hdr {
+        padding: 8px 13px;
+      }
+
+      .ex-body {
+        padding: 12px 13px;
+      }
+
+      .ex-q {
+        font-size: 13.5px;
+        padding: 9px 12px;
+      }
+
+      .gate-hdr,
+      .pyq-hdr {
+        padding: 8px 13px;
+        gap: 7px;
+      }
+
+      .gate-body,
+      .pyq-body {
+        padding: 12px 13px;
+      }
+
+      .pyq-opts li {
+        font-size: 13px;
+        padding: 9px 11px;
+      }
+
+      .pyq-year {
+        display: none;
+      }
+
+      .ai-prompt {
+        padding: 14px 14px;
+      }
+
+      .ai-input-row {
+        flex-direction: column;
+      }
+
+      .ai-input {
+        font-size: 15px;
+      }
+
+      .ai-btn {
+        width: 100%;
+        justify-content: center;
+        font-size: 15px;
+        padding: 13px;
+      }
+
+      .ai-chip {
+        font-size: 11px;
+      }
+
+      .ai-suggest {
+        gap: 5px;
+      }
+
+      .cite-list li {
+        font-size: 12.5px;
+        gap: 9px;
+      }
+
+      .citations {
+        padding: 14px 14px;
+      }
+
+      footer {
+        padding: 20px 0;
+        font-size: 11.5px;
+      }
+
+      .math-block {
+        padding: 10px 12px;
+      }
+    }
+
+    /* LARGE DESKTOP */
+    @media(min-width:1024px) {
+      .page {
+        padding: 0 48px 100px;
+      }
+
+      .toc-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .two-col {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .sum-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .svg-wrap svg {
+        min-width: auto;
+        width: 100%;
+      }
+    }
+
+    @media(hover:none) {
+      .toc-item:hover {
+        color: var(--text3);
+        border-bottom-color: transparent;
+      }
+
+      .sum-card:hover {
+        transform: none;
+        box-shadow: var(--shadow);
+      }
+
+      .ai-btn:hover {
+        background: var(--teal);
+      }
+    }
+
+    @media print {
+
+      .site-header,
+      .ai-prompt,
+      footer {
+        display: none;
+      }
+
+      .section {
+        opacity: 1;
+        transform: none;
+        animation: none;
+      }
+
+      .svg-wrap {
+        break-inside: avoid;
+      }
+
+      body {
+        font-size: 12pt;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="logo">Aarova AI <span class="logo-sub">Electronic Devices Series</span></div>
+    <div class="hbadges"><span class="hbadge">GATE EC</span><span class="hbadge">IES E&amp;T</span><span
+        class="hbadge">PSU</span></div>
+  </header>
+
+  <div class="page">
+
+    <!-- ═══ HERO ═══ -->
+    <div class="hero">
+      <div class="eyebrow">Chapter 04 &nbsp;·&nbsp; Electronic Devices &amp; Circuits</div>
+      <h1 class="hero-title">Carrier <em>Drift &amp; Diffusion</em></h1>
+      <p class="hero-desc">How electrons and holes move in semiconductors — electric-field-driven drift,
+        concentration-gradient-driven diffusion, mobility, conductivity, resistivity, and the unifying Einstein
+        relation. Complete GATE EC/EE and IES coverage with full derivations, SVG visualisations, and solved PYQs.</p>
+      <div class="badge-row">
+        <span class="badge badge-p">GATE EC</span>
+        <span class="badge">GATE EE</span>
+        <span class="badge">IES E&amp;T</span>
+        <span class="badge">PSU Electronics</span>
+        <span class="badge">Follows Ch.3 — Fermi Level &amp; Carrier Statistics</span>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <span class="pl">Series Progress</span>
+      <div class="pt">
+        <div class="pf" style="width:50%"></div>
+      </div>
+      <span class="pp">Chapter 4 of 8</span>
+    </div>
+
+    <!-- ═══ TOC ═══ -->
+    <div class="toc">
+      <div class="toc-h">Contents</div>
+      <div class="toc-grid">
+        <a href="#s1" class="toc-item"><span class="toc-n">4.1</span>Why Carriers Move — Big Picture</a>
+        <a href="#s8" class="toc-item"><span class="toc-n">4.8</span>Conductivity &amp; Resistivity</a>
+        <a href="#s2" class="toc-item"><span class="toc-n">4.2</span>Drift Current — Intuition</a>
+        <a href="#s9" class="toc-item"><span class="toc-n">4.9</span>Einstein Relation</a>
+        <a href="#s3" class="toc-item"><span class="toc-n">4.3</span>Drift Velocity &amp; Mobility</a>
+        <a href="#s10" class="toc-item"><span class="toc-n">4.10</span>Common Mistakes (GATE Traps)</a>
+        <a href="#s4" class="toc-item"><span class="toc-n">4.4</span>Drift Current Density — Derivation</a>
+        <a href="#s11" class="toc-item"><span class="toc-n">4.11</span>Solved Numericals</a>
+        <a href="#s5" class="toc-item"><span class="toc-n">4.5</span>Factors Affecting Mobility</a>
+        <a href="#s12" class="toc-item"><span class="toc-n">4.12</span>GATE &amp; IES PYQs</a>
+        <a href="#s6" class="toc-item"><span class="toc-n">4.6</span>Diffusion Current — Intuition</a>
+        <a href="#s13" class="toc-item"><span class="toc-n">4.13</span>Memory Tricks</a>
+        <a href="#s7" class="toc-item"><span class="toc-n">4.7</span>Diffusion Current Density — Derivation</a>
+        <a href="#s14" class="toc-item"><span class="toc-n">4.14</span>Quick Revision Sheet</a>
+      </div>
+    </div>
+
+    <!-- ═══ S1: BIG PICTURE ═══ -->
+    <div class="section" id="s1">
+      <div class="sec-hdr"><span class="sec-num">4.1</span>
+        <h2 class="sec-t">Why Carriers Move — The Big Picture</h2>
+      </div>
+
+      <p>A semiconductor by itself just sits there. It becomes useful — a diode, a transistor, a solar cell — the moment
+        we make carriers move in a controlled, predictable way. There are exactly <strong>two distinct physical
+          mechanisms</strong> that drive carrier motion in semiconductors:</p>
+
+      <div class="two-col">
+        <div class="mini-card mc-org">
+          <div class="mc-t">⚡ Drift</div>
+          <ul class="mc-list">
+            <li><span class="dot">→</span>Caused by an applied <strong>electric field</strong> (\(\mathcal{E}\))</li>
+            <li><span class="dot">→</span>Carriers accelerate, then scatter; net drift velocity develops</li>
+            <li><span class="dot">→</span>Even at thermal equilibrium an applied voltage instantly produces drift</li>
+            <li><span class="dot">→</span>Electrons drift opposite to field; holes drift with field</li>
+          </ul>
+        </div>
+        <div class="mini-card mc-tel">
+          <div class="mc-t">🌊 Diffusion</div>
+          <ul class="mc-list">
+            <li><span class="dot">→</span>Caused by a <strong>concentration gradient</strong> (\(\frac{dn}{dx}\) or
+              \(\frac{dp}{dx}\))</li>
+            <li><span class="dot">→</span>Carriers spread from high to low concentration — no field needed</li>
+            <li><span class="dot">→</span>Responsible for the built-in potential at p-n junction</li>
+            <li><span class="dot">→</span>Direction: carriers flow down the concentration gradient</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout c-info">
+        <div class="ci">💡</div>
+        <div class="cb">
+          <div class="ct">Engineering Insight</div>
+          <p>Every semiconductor device — diode, BJT, MOSFET, solar cell, photodetector — operates because of one or
+            both of these mechanisms. Understanding drift and diffusion is therefore the key that unlocks all of
+            semiconductor electronics. Both currents add algebraically to give the <strong>total current
+              density</strong>: \(J_{total} = J_{drift} + J_{diffusion}\).</p>
+        </div>
+      </div>
+
+      <!-- Overview SVG -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch4/fig4.1.png" alt="Fig 4.1" />
+        <div class="svg-cap">Fig 4.1 — Two mechanisms of carrier transport. Drift is field-driven; diffusion is
+          gradient-driven.</div>
+        <div class="svg-cite">Based on concepts from Neamen, Streetman &amp; Banerjee, and Pierret</div>
+      </div>
+    </div>
+
+    <!-- ═══ S2: DRIFT CURRENT INTUITION ═══ -->
+    <div class="section" id="s2">
+      <div class="sec-hdr"><span class="sec-num">4.2</span>
+        <h2 class="sec-t">Drift Current — Building Intuition</h2>
+      </div>
+
+      <p>Imagine a crowded street where everyone is walking randomly in all directions — nobody is going anywhere on
+        average. This is the situation in a semiconductor at thermal equilibrium: carriers move at very high
+        <strong>thermal velocities</strong> (~10<sup>5</sup> m/s for electrons in Si), but the net motion in any
+        direction is zero because collisions randomise velocity after every \(\approx 10^{-13}\) s (mean free time
+        \(\tau_c\)).</p>
+
+      <p>Now apply an electric field — like a gentle slope on that street. Carriers still collide and scatter as before,
+        but between collisions they are slightly accelerated by the field. This tiny bias adds up to a measurable
+        <strong>net drift velocity</strong> superimposed on the chaotic thermal motion.<sup class="cite">[1]</sup></p>
+
+      <div class="callout c-key">
+        <div class="ci">🎯</div>
+        <div class="cb">
+          <div class="ct">Key Physical Picture</div>
+          <p>Thermal velocity ≈ 10<sup>5</sup> m/s is enormous. Drift velocity in typical GATE problems is ~10² to 10³
+            m/s — three orders of magnitude smaller! Yet drift velocity is what carries current, because thermal motion
+            averages to zero.</p>
+        </div>
+      </div>
+
+      <!-- Drift micro-picture SVG -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch4/fig4.2.png" alt="Fig 4.2" />
+        <div class="svg-cap">Fig 4.2 — Electrons scatter randomly off lattice ions but the net displacement between
+          collisions is opposite to the applied field.</div>
+      </div>
+    </div>
+
+    <!-- ═══ S3: DRIFT VELOCITY & MOBILITY ═══ -->
+    <div class="section" id="s3">
+      <div class="sec-hdr"><span class="sec-num">4.3</span>
+        <h2 class="sec-t">Drift Velocity and Carrier Mobility</h2>
+      </div>
+
+      <p>Between two successive collisions, a carrier in field \(\mathcal{E}\) is accelerated by the force \(F =
+        q\mathcal{E}\). If the mean free time (average time between collisions) is \(\tau_c\), the average velocity
+        gained between collisions — the <strong>drift velocity</strong> — is:<sup class="cite">[1],[2]</sup></p>
+
+      <div class="math-block">
+        <div class="math-lbl">Drift Velocity — Electron</div>
+        $$v_{d} = \frac{q\tau_c}{m^*} \mathcal{E} = \mu_n \mathcal{E}$$
+      </div>
+
+      <p>This defines carrier <strong>mobility</strong> \(\mu\) — the proportionality constant between drift velocity
+        and electric field:</p>
+
+      <div class="math-block">
+        <div class="math-lbl">Mobility Definition</div>
+        $$\mu_n = \frac{q\tau_c}{m_n^*} \quad \text{(electron)} \qquad \mu_p = \frac{q\tau_c}{m_p^*} \quad
+        \text{(hole)}$$
+        $$ \text{Units: } \frac{\mathrm{m}^2}{\mathrm{V \cdot s}} \quad \text{or} \quad \frac{\mathrm{cm}^2}{\mathrm{V
+        \cdot s}} $$
+      </div>
+
+      <div class="callout c-info">
+        <div class="ci">📐</div>
+        <div class="cb">
+          <div class="ct">Physical Meaning of Mobility</div>
+          <p>Mobility tells you how fast a carrier drifts per unit electric field. Higher mobility → carrier responds
+            more aggressively to the field → more current. Mobility is determined by <strong>two things</strong>: how
+            long the carrier travels before a collision (\(\tau_c\)) and how heavy the carrier feels to the field
+            (\(m^*\) — effective mass). Lighter carriers with longer free paths have higher mobility.</p>
+        </div>
+      </div>
+
+      <h3 class="sub">Standard Mobility Values in Silicon at 300 K</h3>
+      <div class="tw">
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Silicon (Si)</th>
+              <th>Germanium (Ge)</th>
+              <th>GaAs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>μₙ — Electron Mobility</td>
+              <td class="t-org">1350 cm²/V·s</td>
+              <td>3900 cm²/V·s</td>
+              <td class="t-grn">8500 cm²/V·s</td>
+            </tr>
+            <tr>
+              <td>μₚ — Hole Mobility</td>
+              <td class="t-org">480 cm²/V·s</td>
+              <td>1900 cm²/V·s</td>
+              <td>400 cm²/V·s</td>
+            </tr>
+            <tr>
+              <td>μₙ/μₚ ratio</td>
+              <td class="t-tel">≈ 2.8</td>
+              <td>≈ 2.1</td>
+              <td>≈ 21</td>
+            </tr>
+            <tr>
+              <td>Band Gap</td>
+              <td>1.12 eV</td>
+              <td>0.66 eV</td>
+              <td>1.43 eV</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-top:-6px;">Source: Neamen, <em>Semiconductor Physics and
+          Devices</em>, 4th ed., Table 3.2. <strong>Electrons are always more mobile than holes</strong> in most
+        semiconductors — holes move through bond-to-bond hopping which has higher effective mass.</p>
+
+      <div class="callout c-warn">
+        <div class="ci">⚠️</div>
+        <div class="cb">
+          <div class="ct">GATE Exam Point</div>
+          <p>Always remember: <strong>μₙ &gt; μₚ for silicon</strong>. In GaAs, the ratio is extreme (≈21), which is why
+            GaAs devices can operate at much higher frequencies. Questions often test whether you know the ratio or
+            which carrier dominates.</p>
+        </div>
+      </div>
+
+      <!-- Velocity saturation SVG -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch4/fig4.3.png" alt="Fig 4.3" />
+        <div class="svg-cap">Fig 4.3 — Drift velocity is linear with field (slope = μ) at low fields; saturates at
+          v<sub>sat</sub> ≈ 10<sup>7</sup> cm/s in silicon at high fields due to increased scattering (optical phonon
+          emission).</div>
+        <div class="svg-cite">Concept from Neamen Ch.3 and Pierret Vol.1 Ch.3</div>
+      </div>
+    </div>
+
+    <!-- ═══ S4: DRIFT CURRENT DENSITY DERIVATION ═══ -->
+    <div class="section" id="s4">
+      <div class="sec-hdr"><span class="sec-num">4.4</span>
+        <h2 class="sec-t">Drift Current Density — Full Derivation</h2>
+      </div>
+
+      <p>Consider a semiconductor slab with electron concentration \(n\) (electrons/cm³) and hole concentration \(p\)
+        (holes/cm³), each moving with respective drift velocities in response to an applied field \(\mathcal{E}\).</p>
+
+      <h3 class="sub">Step 1 — Electron Drift Current Density</h3>
+      <p>The electron drift velocity is \(v_{dn} = \mu_n \mathcal{E}\) but electrons move <em>opposite</em> to
+        \(\mathcal{E}\). Current density is charge flux:</p>
+
+      <div class="math-block">
+        <div class="math-lbl">Electron Drift Current Density</div>
+        $$J_n^{drift} = (-q)(n)(-\mu_n \mathcal{E}) = qn\mu_n \mathcal{E}$$
+      </div>
+      <p>The two negatives cancel — electrons moving left under a right-pointing field produce a conventional current
+        density pointing <em>right</em> (same direction as \(\mathcal{E}\)).</p>
+
+      <h3 class="sub">Step 2 — Hole Drift Current Density</h3>
+      <p>Holes carry charge \(+q\) and drift in the direction of \(\mathcal{E}\):</p>
+      <div class="math-block">
+        <div class="math-lbl">Hole Drift Current Density</div>
+        $$J_p^{drift} = (+q)(p)(+\mu_p \mathcal{E}) = qp\mu_p \mathcal{E}$$
+      </div>
+
+      <h3 class="sub">Step 3 — Total Drift Current Density</h3>
+      <p>Since both contributions are in the direction of \(\mathcal{E}\):</p>
+      <div class="math-block">
+        <div class="math-lbl">Total Drift Current Density (Key Formula)</div>
+        $$\boxed{J_{drift} = J_n^{drift} + J_p^{drift} = q(n\mu_n + p\mu_p)\mathcal{E}}$$
+      </div>
+
+      <div class="callout c-tip">
+        <div class="ci">✅</div>
+        <div class="cb">
+          <div class="ct">Sign Convention Check</div>
+          <p>Both electrons (negative charge, negative velocity relative to field) and holes (positive charge, positive
+            velocity relative to field) produce current <em>in the direction of the electric field</em>. This is why the
+            total drift current adds up, not subtracts. This fact trips up many GATE aspirants who confuse particle flow
+            direction with current direction.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ S5: FACTORS AFFECTING MOBILITY ═══ -->
+    <div class="section" id="s5">
+      <div class="sec-hdr"><span class="sec-num">4.5</span>
+        <h2 class="sec-t">Factors Affecting Carrier Mobility</h2>
+      </div>
+
+      <p>Mobility is fundamentally limited by how often carriers collide and scatter. There are two dominant scattering
+        mechanisms in semiconductors:<sup class="cite">[1],[3]</sup></p>
+
+      <!-- Scattering mechanisms SVG -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch4/fig4.4.png" alt="Fig 4.4" />
+        <div class="svg-cap">Fig 4.4 — Two primary scattering mechanisms. Matthiessen's rule: \(
+          \frac{1}{\mu_{\text{total}}} = \frac{1}{\mu_L} + \frac{1}{\mu_I} \)</div>
+      </div>
+
+      <div class="tw">
+        <table>
+          <thead>
+            <tr>
+              <th>Factor</th>
+              <th>Effect on μ</th>
+              <th>Physics Reason</th>
+              <th>GATE Probability</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>↑ Temperature</td>
+              <td class="t-red">μ decreases</td>
+              <td>More phonon scattering; μ ∝ T⁻³/²</td>
+              <td class="t-org">🟢 High</td>
+            </tr>
+            <tr>
+              <td>↑ Doping (Nd or Na)</td>
+              <td class="t-red">μ decreases</td>
+              <td>More ionised impurity scattering</td>
+              <td class="t-org">🟢 High</td>
+            </tr>
+            <tr>
+              <td>Effective mass m*</td>
+              <td class="t-amb">μ ∝ 1/m*</td>
+              <td>Heavier carriers respond less to field</td>
+              <td class="t-amb">🟡 Medium</td>
+            </tr>
+            <tr>
+              <td>Intrinsic Si (low doping)</td>
+              <td class="t-grn">μ highest</td>
+              <td>Fewest impurities; only phonon scattering</td>
+              <td class="t-org">🟢 High</td>
+            </tr>
+            <tr>
+              <td>High electric field</td>
+              <td class="t-red">μ degrades (vₛₐₜ)</td>
+              <td>Velocity saturation; μ_eff = vₛₐₜ/ℰ</td>
+              <td class="t-amb">🟡 Medium</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout c-warn">
+        <div class="ci">⚠️</div>
+        <div class="cb">
+          <div class="ct">Common GATE Trap</div>
+          <p><strong>Conductivity vs. Mobility</strong>: Adding more dopants increases carrier concentration \(n\) but
+            simultaneously decreases \(\mu\). Conductivity \(\sigma = qn\mu\) can still increase because the increase in
+            \(n\) usually dominates. But mobility itself always decreases with increased doping — never forget this.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ S6: DIFFUSION CURRENT INTUITION ═══ -->
+    <div class="section" id="s6">
+      <div class="sec-hdr"><span class="sec-num">4.6</span>
+        <h2 class="sec-t">Diffusion Current — Building Intuition</h2>
+      </div>
+
+      <p>Think of a room full of perfume molecules released from one corner. Even with no wind (no field), the molecules
+        spread uniformly throughout the room over time. This is <strong>diffusion</strong> — pure statistical spreading
+        driven by the randomness of thermal motion wherever a concentration gradient exists.<sup class="cite">[2]</sup>
+      </p>
+
+      <p>In a semiconductor, if electrons are injected into one end of a bar (creating a high concentration there),
+        those electrons — even without any electric field — will statistically drift away from the crowded region toward
+        the less-crowded region. This net motion of charged particles constitutes a <strong>diffusion current</strong>.
+      </p>
+
+      <div class="callout c-key">
+        <div class="ci">🔑</div>
+        <div class="cb">
+          <div class="ct">Critical Distinction</div>
+          <p>Drift current needs an <strong>electric field</strong>. Diffusion current needs a <strong>concentration
+              gradient</strong>. Both can exist simultaneously. In a p-n junction at equilibrium, drift and diffusion
+            currents exactly cancel each other — producing zero net current even though both mechanisms are active!</p>
+        </div>
+      </div>
+
+      <!-- Diffusion SVG -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch4/fig4.5.png" alt="Fig 4.5" />
+        <div class="svg-cap">Fig 4.5 — Electrons diffuse from high to low concentration. Since electron charge is
+          negative, conventional current flows in the opposite direction to electron particle flow.</div>
+      </div>
+    </div>
+
+    <!-- ═══ S7: DIFFUSION CURRENT DERIVATION ═══ -->
+    <div class="section" id="s7">
+      <div class="sec-hdr"><span class="sec-num">4.7</span>
+        <h2 class="sec-t">Diffusion Current Density — Derivation (Fick's Law)</h2>
+      </div>
+
+      <p>The diffusion flux of particles (Fick's First Law) is proportional to the concentration gradient and opposes it
+        (flows from high to low). For electrons with concentration \(n(x)\):<sup class="cite">[1],[4]</sup></p>
+
+      <div class="math-block">
+        <div class="math-lbl">Electron Diffusion Current Density</div>
+        $$J_n^{diff} = qD_n\frac{dn}{dx}$$
+      </div>
+
+      <div class="math-block">
+        <div class="math-lbl">Hole Diffusion Current Density</div>
+        $$J_p^{diff} = -qD_p\frac{dp}{dx}$$
+      </div>
+
+      <div class="callout c-warn">
+        <div class="ci">⚠️</div>
+        <div class="cb">
+          <div class="ct">Sign Convention — Most Common GATE Mistake</div>
+          <p>The sign in the hole diffusion equation is <strong>negative</strong>. Holes flow from high to low
+            concentration (positive dn/dx means flow in the +x direction), but the negative sign accounts for the fact
+            that conventional current due to positive charges flowing right is positive — and the gradient being
+            negative (falling to right) reverses things. Keep the equations as given — never guess signs.</p>
+        </div>
+      </div>
+
+      <h3 class="sub">Total Current Densities (Drift + Diffusion)</h3>
+      <p>Combining drift and diffusion, the total electron and hole current densities are:</p>
+
+      <div class="math-block">
+        <div class="math-lbl">Complete Current Density Equations (Semiconductor Fundamentals)</div>
+        $$\boxed{J_n = qn\mu_n\mathcal{E} + qD_n\frac{dn}{dx}}$$
+        $$\boxed{J_p = qp\mu_p\mathcal{E} - qD_p\frac{dp}{dx}}$$
+        $$\boxed{J_{total} = J_n + J_p}$$
+      </div>
+
+      <p>Here \(D_n\) and \(D_p\) are the <strong>diffusion coefficients</strong> (cm²/s) for electrons and holes,
+        respectively. They measure how fast carriers spread under a concentration gradient.</p>
+
+      <div class="tw">
+        <table>
+          <thead>
+            <tr>
+              <th>Quantity</th>
+              <th>Symbol</th>
+              <th>Silicon (300K)</th>
+              <th>Units</th>
+              <th>Relation to μ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Electron diffusion coeff.</td>
+              <td class="t-org">\(D_n\)</td>
+              <td class="t-org">\(25 \text{ cm}^2/\text{s}\)</td>
+              <td>\(\text{cm}^2/\text{s}\)</td>
+              <td>\(D_n = \mu_n \cdot V_T\)</td>
+            </tr>
+            <tr>
+              <td>Hole diffusion coeff.</td>
+              <td class="t-tel">\(D_p\)</td>
+              <td class="t-tel">\(10 \text{ cm}^2/\text{s}\)</td>
+              <td>\(\text{cm}^2/\text{s}\)</td>
+              <td>\(D_p = \mu_p \cdot V_T\)</td>
+            </tr>
+            <tr>
+              <td>Thermal voltage</td>
+              <td>\(V_T\)</td>
+              <td>\(0.02585 \text{ V} \approx 26 \text{ mV}\)</td>
+              <td>V</td>
+              <td>\(V_T = kT/q\)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ S8: CONDUCTIVITY & RESISTIVITY ═══ -->
+    <div class="section" id="s8">
+      <div class="sec-hdr"><span class="sec-num">4.8</span>
+        <h2 class="sec-t">Conductivity and Resistivity</h2>
+      </div>
+
+      <p>The material's ability to conduct current is captured by the <strong>conductivity</strong> \(\sigma\)
+        (siemens/cm) and its inverse, <strong>resistivity</strong> \(\rho\) (Ω·cm). From the drift current equation \(J
+        = \sigma\mathcal{E}\):<sup class="cite">[2]</sup></p>
+
+      <div class="math-block">
+        <div class="math-lbl">Conductivity &amp; Resistivity</div>
+        $$\sigma = q(n\mu_n + p\mu_p) \qquad \rho = \frac{1}{\sigma} = \frac{1}{q(n\mu_n + p\mu_p)}$$
+      </div>
+
+      <h3 class="sub">Special Cases</h3>
+
+      <div class="two-col">
+        <div class="mini-card mc-org">
+          <div class="mc-t">n-type semiconductor</div>
+          <ul class="mc-list">
+            <li><span class="dot">→</span>\(n \approx N_d \gg p\) (electrons dominate)</li>
+            <li><span class="dot">→</span>\(\sigma \approx qN_d\mu_n\)</li>
+            <li><span class="dot">→</span>\(\rho \approx \dfrac{1}{qN_d\mu_n}\)</li>
+            <li><span class="dot">→</span>As Nd ↑, n ↑ but μₙ ↓ — σ still ↑ (n effect dominates)</li>
+          </ul>
+        </div>
+        <div class="mini-card mc-tel">
+          <div class="mc-t">p-type semiconductor</div>
+          <ul class="mc-list">
+            <li><span class="dot">→</span>\(p \approx N_a \gg n\) (holes dominate)</li>
+            <li><span class="dot">→</span>\(\sigma \approx qN_a\mu_p\)</li>
+            <li><span class="dot">→</span>\(\rho \approx \dfrac{1}{qN_a\mu_p}\)</li>
+            <li><span class="dot">→</span>As Na ↑, p ↑ but μₚ ↓ — σ still ↑</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mini-card mc-grn" style="margin-top:14px">
+        <div class="mc-t">Intrinsic Semiconductor</div>
+        <ul class="mc-list">
+          <li><span class="dot">→</span>\(n = p = n_i\) (intrinsic carrier concentration)</li>
+          <li><span class="dot">→</span>\(\sigma_i = qn_i(\mu_n + \mu_p)\)</li>
+          <li><span class="dot">→</span>At 300 K in Si: \(n_i \approx 1.5 \times 10^{10}\) cm⁻³</li>
+          <li><span class="dot">→</span>\(\sigma_i\) is very small — Si is nearly an insulator at room temperature
+            without doping!</li>
+        </ul>
+      </div>
+
+      <!-- Resistivity vs Doping SVG -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch4/fig4.6.png" alt="Fig 4.6" />
+        <div class="svg-cap">Fig 4.6 — Resistivity decreases as doping increases. p-type has higher ρ than n-type at
+          same doping because μₚ &lt; μₙ.</div>
+        <div class="svg-cite">Concept based on Neamen Fig. 3.7 and Streetman &amp; Banerjee Fig. 3-5</div>
+      </div>
+    </div>
+
+    <!-- ═══ S9: EINSTEIN RELATION ═══ -->
+    <div class="section" id="s9">
+      <div class="sec-hdr"><span class="sec-num">4.9</span>
+        <h2 class="sec-t">The Einstein Relation — Connecting Drift and Diffusion</h2>
+      </div>
+
+      <p>Drift and diffusion are not independent — both arise from the same physical process of thermal carrier motion
+        in the semiconductor. At thermal equilibrium, the net current must be zero everywhere. Applying this condition
+        to a semiconductor with a built-in electric field (like a non-uniformly doped material) forces the drift and
+        diffusion current contributions to cancel, leading to a fundamental relationship between \(D\) and \(\mu\).<sup
+          class="cite">[1],[2],[3]</sup></p>
+
+      <div class="callout c-info">
+        <div class="ci">📖</div>
+        <div class="cb">
+          <div class="ct">Derivation Idea</div>
+          <p>In equilibrium, \(J_n = 0\). So \(qn\mu_n\mathcal{E} + qD_n\frac{dn}{dx} = 0\). Using the Boltzmann
+            distribution for \(n(x) = n_0 \exp(-qV/kT)\) and Poisson's equation \(\mathcal{E} = -dV/dx\), the drift and
+            diffusion terms cancel only if \(D_n/\mu_n = kT/q\). This is the Einstein relation.</p>
+        </div>
+      </div>
+
+      <div class="math-block">
+        <div class="math-lbl">Einstein Relation (Most Frequently Tested!)</div>
+        $$\boxed{\frac{D_n}{\mu_n} = \frac{D_p}{\mu_p} = \frac{kT}{q} = V_T}$$
+        $$\text{At 300 K: } V_T = \frac{kT}{q} = \frac{(1.38\times10^{-23})(300)}{1.6\times10^{-19}} \approx 0.02585
+        \text{ V} \approx 26 \text{ mV}$$
+      </div>
+
+      <div class="callout c-tip">
+        <div class="ci">🏆</div>
+        <div class="cb">
+          <div class="ct">GATE Exam Tip — Einstein Relation</div>
+          <p>At 300 K: \(D_n = \mu_n \times 0.026\) and \(D_p = \mu_p \times 0.026\). Since \(\mu_n = 1350\) cm²/V·s,
+            \(D_n = 1350 \times 0.026 \approx 35\) cm²/s. Since \(\mu_p = 480\) cm²/V·s, \(D_p = 480 \times 0.026
+            \approx 12.5\) cm²/s. These numbers appear very frequently in GATE numericals. Learn the Einstein relation
+            forward and backward.</p>
+        </div>
+      </div>
+
+      <!-- Einstein relation SVG diagram -->
+      <div class="svg-wrap svg-simple">
+        <img src="images/ch4/fig4.7.png" alt="Fig 4.7" />
+        <div class="svg-cap">Fig 4.7 — The Einstein relation emerges from the requirement of zero net current at thermal
+          equilibrium.</div>
+      </div>
+    </div>
+
+    <!-- ═══ S10: COMMON MISTAKES ═══ -->
+    <div class="section" id="s10">
+      <div class="sec-hdr"><span class="sec-num">4.10</span>
+        <h2 class="sec-t">Common Mistakes and GATE Traps</h2>
+      </div>
+
+      <div class="callout c-danger">
+        <div class="ci">❌</div>
+        <div class="cb">
+          <div class="ct">Mistake 1 — Sign of Hole Diffusion Current</div>
+          <p>Students often write \(J_p^{diff} = +qD_p\frac{dp}{dx}\). The correct form is \(J_p^{diff} =
+            -qD_p\frac{dp}{dx}\). Holes flowing down a positive gradient (right) give a rightward (positive) current —
+            the negative of the negative gradient — so the overall sign works out, but writing it wrongly leads to sign
+            errors in problems.</p>
+        </div>
+      </div>
+
+      <div class="callout c-danger">
+        <div class="ci">❌</div>
+        <div class="cb">
+          <div class="ct">Mistake 2 — Confusing Particle Flow with Current Direction (Electrons)</div>
+          <p>Electrons drift <em>opposite</em> to the electric field. But conventional current flows in the
+            <em>direction of the field</em>. Many students flip this. Remember: \(J_{drift}\) is always in the direction
+            of \(\mathcal{E}\) for both carriers.</p>
+        </div>
+      </div>
+
+      <div class="callout c-danger">
+        <div class="ci">❌</div>
+        <div class="cb">
+          <div class="ct">Mistake 3 — Using Einstein Relation Upside Down</div>
+          <p>The relation is \(D/\mu = kT/q\), so \(D = \mu \cdot (kT/q)\). At 300 K, \(kT/q \approx 0.026\) V. Students
+            sometimes invert this: \(\mu = D \cdot kT/q\), which is wrong. If you double \(\mu\), you double \(D\) —
+            they scale together.</p>
+        </div>
+      </div>
+
+      <div class="callout c-danger">
+        <div class="ci">❌</div>
+        <div class="cb">
+          <div class="ct">Mistake 4 — Forgetting Both Carriers in Conductivity</div>
+          <p>In an intrinsic semiconductor, \(\sigma = qn_i(\mu_n + \mu_p)\). In a lightly doped n-type, holes still
+            contribute a little. Most GATE problems specify either strongly n-type or p-type so you can neglect minority
+            carriers — but check the doping level before dropping a term.</p>
+        </div>
+      </div>
+
+      <div class="callout c-warn">
+        <div class="ci">⚠️</div>
+        <div class="cb">
+          <div class="ct">Mistake 5 — Assuming μ is Independent of Temperature</div>
+          <p>Mobility is strongly temperature-dependent: \(\mu \propto T^{-3/2}\) (lattice scattering dominant at room
+            temperature). At high temperatures, mobility drops and resistivity rises — this is opposite to metals where
+            resistivity increases with temperature for a different reason (more scattering), but the sign is the same
+            for the resistivity trend.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ S11: SOLVED EXAMPLES ═══ -->
+    <div class="section" id="s11">
+      <div class="sec-hdr"><span class="sec-num">4.11</span>
+        <h2 class="sec-t">Solved Numerical Examples</h2>
+      </div>
+
+      <div class="example">
+        <div class="ex-hdr">
+          <span class="ex-num">EX 4.1</span>
+          <span class="ex-title">Basic — Drift Current Density in n-type Silicon</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-q">Silicon doped with \(N_d = 5 \times 10^{16}\) cm⁻³ donors. An electric field \(\mathcal{E} =
+            100\) V/cm is applied. Find: (a) electron drift velocity, (b) hole drift velocity, (c) total drift current
+            density. Use \(\mu_n = 1000\) cm²/V·s, \(\mu_p = 400\) cm²/V·s at this doping level. Assume complete
+            ionisation, minority hole concentration negligible.</div>
+          <div class="sol-lbl">Solution</div>
+          <p><strong>Given:</strong> \(n \approx N_d = 5 \times 10^{16}\) cm⁻³, \(p \approx n_i^2/n \approx
+            (1.5\times10^{10})^2/(5\times10^{16}) \approx 4500\) cm⁻³ (negligible)</p>
+          <p><strong>(a) Electron drift velocity:</strong></p>
+          <div class="math-block">$$v_{dn} = \mu_n \mathcal{E} = 1000 \times 100 = 10^5 \text{ cm/s} = 1000 \text{
+            m/s}$$</div>
+          <p><strong>(b) Hole drift velocity:</strong></p>
+          <div class="math-block">$$v_{dp} = \mu_p \mathcal{E} = 400 \times 100 = 4 \times 10^4 \text{ cm/s}$$</div>
+          <p><strong>(c) Total drift current density:</strong></p>
+          <div class="math-block">$$J_{drift} = qn\mu_n\mathcal{E} = (1.6\times10^{-19})(5\times10^{16})(1000)(100)$$
+            $$= 1.6 \times 10^{-19} \times 5 \times 10^{21} = \mathbf{800} \text{ A/cm}^2$$</div>
+          <div class="callout c-tip" style="margin-top:10px">
+            <div class="ci">💡</div>
+            <div class="cb">
+              <div class="ct">Insight</div>
+              <p>The hole contribution is \(J_p = qp\mu_p\mathcal{E} = (1.6\times10^{-19})(4500)(400)(100) \approx
+                2.88\times10^{-11}\) A/cm² — completely negligible. In strongly doped n-type material, only electrons
+                contribute to drift.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="ex-hdr">
+          <span class="ex-num">EX 4.2</span>
+          <span class="ex-title">GATE-Level — Einstein Relation and Diffusion Coefficient</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-q">A semiconductor has hole mobility \(\mu_p = 500\) cm²/V·s at 400 K. Find: (a) the diffusion
+            coefficient \(D_p\), and (b) the thermal voltage \(V_T\) at 400 K.</div>
+          <div class="sol-lbl">Solution</div>
+          <p><strong>(b) Thermal voltage at 400 K:</strong></p>
+          <div class="math-block">$$V_T = \frac{kT}{q} = \frac{(1.38\times10^{-23})(400)}{1.6\times10^{-19}} =
+            \frac{5.52\times10^{-21}}{1.6\times10^{-19}} \approx 0.03448 \text{ V} \approx 34.5 \text{ mV}$$</div>
+          <p><strong>(a) Diffusion coefficient via Einstein relation:</strong></p>
+          <div class="math-block">$$D_p = \mu_p \cdot V_T = 500 \times 0.03448 \approx \mathbf{17.24} \text{
+            cm}^2/\text{s}$$</div>
+          <div class="callout c-key" style="margin-top:10px">
+            <div class="ci">🔑</div>
+            <div class="cb">
+              <div class="ct">Key Point</div>
+              <p>Note that \(V_T\) at 400 K (34.5 mV) is higher than at 300 K (26 mV). This is linear in temperature.
+                \(D_p\) also increases, meaning diffusion is faster at higher temperatures — carriers have more thermal
+                energy to spread.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="example">
+        <div class="ex-hdr">
+          <span class="ex-num">EX 4.3</span>
+          <span class="ex-title">Conceptual — Conductivity Calculation in Intrinsic Silicon</span>
+        </div>
+        <div class="ex-body">
+          <div class="ex-q">Calculate the conductivity and resistivity of intrinsic silicon at 300 K. Given: \(n_i = 1.5
+            \times 10^{10}\) cm⁻³, \(\mu_n = 1350\) cm²/V·s, \(\mu_p = 480\) cm²/V·s, \(q = 1.6\times10^{-19}\) C.</div>
+          <div class="sol-lbl">Solution</div>
+          <div class="math-block">$$\sigma_i = qn_i(\mu_n + \mu_p) = (1.6\times10^{-19})(1.5\times10^{10})(1350 + 480)$$
+            $$= (1.6\times10^{-19})(1.5\times10^{10})(1830)$$
+            $$= 1.6 \times 1.5 \times 1830 \times 10^{-9} = 4392 \times 10^{-9} \approx 4.39\times10^{-6} \text{ S/cm}$$
+          </div>
+          <div class="math-block">$$\rho_i = \frac{1}{\sigma_i} = \frac{1}{4.39 \times 10^{-6}} \approx \mathbf{2.28}
+            \times 10^5 \, \Omega \cdot \mathrm{cm}$$</div>
+          <div class="callout c-info" style="margin-top:10px">
+            <div class="ci">💡</div>
+            <div class="cb">
+              <div class="ct">Perspective</div>
+              <p>Intrinsic silicon has \(\rho \approx 2.3 \times 10^5\) Ω·cm at room temperature — about 10 orders of
+                magnitude more resistive than copper (∼1.7 μΩ·cm) and about 5 orders of magnitude less resistive than a
+                good insulator like SiO₂ (∼10¹⁵ Ω·cm). This is why it is called a <em>semiconductor</em>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ S12: GATE & IES PYQs ═══ -->
+    <div class="section" id="s12">
+      <div class="sec-hdr"><span class="sec-num">4.12</span>
+        <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+      </div>
+
+      <div class="pyq-card">
+        <div class="pyq-hdr">
+          <span class="pyq-tag pyq-gate">GATE EC</span>
+          <span class="pyq-title">Drift current in semiconductor</span>
+          <span class="pyq-year">GATE EC 2019</span>
+        </div>
+        <div class="pyq-body">
+          <p>In a p-type semiconductor, the hole concentration is \(10^{16}\) cm⁻³ and the hole mobility is 400 cm²/V·s.
+            If an electric field of 50 V/cm is applied, the drift current density is:</p>
+          <ul class="pyq-opts">
+            <li>(A) 160 A/cm²</li>
+            <li>(B) 32 A/cm²</li>
+            <li class="correct">✓ (C) 32 A/cm² — \(J = qp\mu_p\mathcal{E} = (1.6\times10^{-19})(10^{16})(400)(50) = 32\)
+              A/cm²</li>
+            <li>(D) 320 A/cm²</li>
+          </ul>
+          <p style="font-size:13px;color:var(--green);margin-top:8px;"><strong>Key:</strong> Direct application of \(J_p
+            = qp\mu_p\mathcal{E}\). The minority electrons contribute negligibly in heavily doped p-type.</p>
+        </div>
+      </div>
+
+      <div class="pyq-card">
+        <div class="pyq-hdr">
+          <span class="pyq-tag pyq-gate">GATE EC</span>
+          <span class="pyq-title">Einstein relation — diffusion coefficient</span>
+          <span class="pyq-year">GATE EC 2016</span>
+        </div>
+        <div class="pyq-body">
+          <p>The electron and hole mobilities in a semiconductor are 0.135 m²/V·s and 0.048 m²/V·s respectively. If the
+            intrinsic carrier concentration is \(1.5 \times 10^{16}\) m⁻³, the electron and hole diffusion coefficients
+            at 300 K are, respectively:</p>
+          <ul class="pyq-opts">
+            <li>(A) 3.5 × 10⁻³ m²/s and 1.25 × 10⁻³ m²/s</li>
+            <li class="correct">✓ (B) 3.51 × 10⁻³ m²/s and 1.25 × 10⁻³ m²/s — using \(D = \mu \times 0.026\)</li>
+            <li>(C) 5.2 × 10⁻³ m²/s and 1.8 × 10⁻³ m²/s</li>
+            <li>(D) 2.8 × 10⁻³ m²/s and 1.0 × 10⁻³ m²/s</li>
+          </ul>
+          <p style="font-size:13px;color:var(--green);margin-top:8px;"><strong>Solution:</strong> \(D_n = \mu_n \cdot
+            V_T = 0.135 \times 0.026 = 3.51\times10^{-3}\) m²/s. \(D_p = 0.048 \times 0.026 = 1.25\times10^{-3}\) m²/s.
+          </p>
+        </div>
+      </div>
+
+      <div class="pyq-card">
+        <div class="pyq-hdr">
+          <span class="pyq-tag pyq-gate">GATE EC</span>
+          <span class="pyq-title">Total current density — drift + diffusion</span>
+          <span class="pyq-year">GATE EC 2014</span>
+        </div>
+        <div class="pyq-body">
+          <p>In a semiconductor bar, the electron concentration varies linearly from \(10^{17}\) cm⁻³ at \(x=0\) to
+            \(10^{15}\) cm⁻³ at \(x = 10\) μm. The bar has no applied electric field. The electron diffusion current
+            density at \(x = 0\) is: (Take \(D_n = 25\) cm²/s, \(q = 1.6\times10^{-19}\) C)</p>
+          <ul class="pyq-opts">
+            <li>(A) −400 A/cm²</li>
+            <li class="correct">✓ (B) 400 A/cm² — \(J_n = qD_n\frac{dn}{dx} = q \cdot D_n \cdot
+              \frac{10^{15}-10^{17}}{10\times10^{-4}}\)</li>
+            <li>(C) −4000 A/cm²</li>
+            <li>(D) 4000 A/cm²</li>
+          </ul>
+          <p style="font-size:13px;color:var(--green);margin-top:8px;"><strong>Solution:</strong> \(\frac{dn}{dx} =
+            \frac{10^{15} - 10^{17}}{10 \times 10^{-4}} = \frac{-0.99\times10^{17}}{10^{-3}} \approx -9.9\times10^{19}\)
+            cm⁻⁴. \(J_n = (1.6\times10^{-19})(25)(-9.9\times10^{19}) \approx -396 \approx -400\) A/cm². Current flows in
+            −x direction (electrons diffuse in +x). Conventional current is negative.</p>
+        </div>
+      </div>
+
+      <div class="pyq-card ies-card">
+        <div class="pyq-hdr ies-hdr">
+          <span class="pyq-tag pyq-ies">IES E&T</span>
+          <span class="pyq-title pyq-title-ies">Conductivity and mobility relationship</span>
+          <span class="pyq-year">IES 2018</span>
+        </div>
+        <div class="pyq-body">
+          <p>The conductivity of an n-type semiconductor increases when the temperature is raised from 300 K to 400 K.
+            Which of the following is the most probable reason?</p>
+          <ul class="pyq-opts">
+            <li>(A) Mobility of electrons increases with temperature</li>
+            <li>(B) Doping concentration increases with temperature</li>
+            <li class="correct">✓ (C) Intrinsic carrier concentration \(n_i\) increases exponentially with temperature,
+              generating more free carriers that overwhelm the mobility decrease</li>
+            <li>(D) The band gap decreases with temperature</li>
+          </ul>
+          <p style="font-size:13px;color:var(--green);margin-top:8px;"><strong>Explanation:</strong> At high enough
+            temperatures, thermally generated carriers exceed the doped carrier concentration. \(n_i \propto
+            e^{-E_g/2kT}\) rises steeply; this increase in \(n\) dominates the decrease in \(\mu \propto T^{-3/2}\), and
+            conductivity rises overall.</p>
+        </div>
+      </div>
+
+      <div class="pyq-card">
+        <div class="pyq-hdr">
+          <span class="pyq-tag pyq-gate">GATE EE</span>
+          <span class="pyq-title">Resistivity of intrinsic semiconductor vs conductor</span>
+          <span class="pyq-year">GATE EE 2020</span>
+        </div>
+        <div class="pyq-body">
+          <p>As the temperature of an intrinsic semiconductor increases, its resistivity:</p>
+          <ul class="pyq-opts">
+            <li>(A) increases, because lattice vibrations scatter more electrons</li>
+            <li class="correct">✓ (B) decreases, because exponential increase in carrier concentration dominates the
+              mobility decrease</li>
+            <li>(C) remains constant</li>
+            <li>(D) first decreases then increases</li>
+          </ul>
+          <p style="font-size:13px;color:var(--green);margin-top:8px;"><strong>Key Contrast with Metals:</strong> Metals
+            have fixed carrier concentration; heating only reduces μ → ρ increases. Semiconductors have exponentially
+            growing \(n_i\) with temperature → ρ decreases. This is the fundamental difference between metallic and
+            semiconducting conduction.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ S13: MEMORY TRICKS ═══ -->
+    <div class="section" id="s13">
+      <div class="sec-hdr"><span class="sec-num">4.13</span>
+        <h2 class="sec-t">Memory Tricks &amp; Mnemonics</h2>
+      </div>
+
+      <div class="callout c-key">
+        <div class="ci">🧠</div>
+        <div class="cb">
+          <div class="ct">Mnemonic 1 — "FED" for the two transport mechanisms</div>
+          <p><strong>F</strong>ield → drift. <strong>G</strong>radient → diffusion. "Field drives, Gradient glides."
+            Drift needs field force; diffusion just needs a density slope.</p>
+        </div>
+      </div>
+
+      <div class="callout c-key">
+        <div class="ci">🧠</div>
+        <div class="cb">
+          <div class="ct">Mnemonic 2 — Sign of Diffusion Currents</div>
+          <p>For <strong>electrons</strong>: Jₙ_diff = +qDₙ(dn/dx) — <em>same</em> sign as gradient (electrons go down
+            the gradient, and since they're negative, conventional current goes up — but the formula has a + because two
+            negatives cancel).<br>
+            For <strong>holes</strong>: Jₚ_diff = −qDₚ(dp/dx) — has a <strong>minus</strong>. Memory trick:
+            "<strong>Holes have a hole (negative sign)</strong> in their diffusion equation."</p>
+        </div>
+      </div>
+
+      <div class="callout c-key">
+        <div class="ci">🧠</div>
+        <div class="cb">
+          <div class="ct">Mnemonic 3 — μₙ vs μₚ</div>
+          <p>"<strong>N</strong>imble <strong>n</strong>-type carriers, <strong>S</strong>luggish
+            <strong>p</strong>-type holes." Electrons are about 3× more mobile than holes in silicon. Think of electrons
+            as speedy motorcycles, holes as slow buses that move by passengers (bonds) getting off and on.</p>
+        </div>
+      </div>
+
+      <div class="callout c-key">
+        <div class="ci">🧠</div>
+        <div class="cb">
+          <div class="ct">Mnemonic 4 — Einstein Relation</div>
+          <p>"<strong>D over mu equals kT over q</strong>" — the ratio \(D/\mu\) is always the thermal voltage \(V_T\).
+            At room temperature ≈ 26 mV. Story: "Albert Einstein (diffusion expert) is paid in Thermal Voltage per unit
+            Mobility." Remember: D = μ × 26mV (at 300K). To go from μ to D: multiply by 0.026. To go from D to μ: divide
+            by 0.026.</p>
+        </div>
+      </div>
+
+      <div class="callout c-key">
+        <div class="ci">🧠</div>
+        <div class="cb">
+          <div class="ct">Mnemonic 5 — Semiconductor vs Metal Temperature Dependence</div>
+          <p>"<strong>M</strong>etals <strong>M</strong>oan when hot" — resistivity increases with T.
+            "<strong>S</strong>emiconductors <strong>S</strong>mile when hot" — resistivity decreases with T. Different
+            physics: metals have fixed carriers (only μ changes); semiconductors have growing \(n_i\) (overwhelms μ
+            decrease).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ S14: QUICK REVISION SHEET ═══ -->
+    <div class="section" id="s14">
+      <div class="sec-hdr"><span class="sec-num">4.14</span>
+        <h2 class="sec-t">Quick Revision Sheet</h2>
+      </div>
+
+      <div class="sum-grid">
+        <div class="sum-card sc-o">
+          <div class="sum-lbl">Drift Velocity</div>
+          <p>\(v_d = \mu\mathcal{E}\). Electrons opposite to ℰ. Holes with ℰ. At high fields: saturation at vₛₐₜ ≈ 10⁷
+            cm/s.</p>
+        </div>
+        <div class="sum-card sc-t">
+          <div class="sum-lbl">Drift Current Density</div>
+          <p>\(J_{drift} = q(n\mu_n + p\mu_p)\mathcal{E}\). Both carriers contribute in same direction. Units: A/cm².
+          </p>
+        </div>
+        <div class="sum-card sc-g">
+          <div class="sum-lbl">Diffusion Current Density</div>
+          <p>\(J_n^{diff} = qD_n\frac{dn}{dx}\). \(J_p^{diff} = -qD_p\frac{dp}{dx}\). Note opposite signs!</p>
+        </div>
+        <div class="sum-card sc-a">
+          <div class="sum-lbl">Mobility (Si at 300 K)</div>
+          <p>μₙ = 1350 cm²/V·s; μₚ = 480 cm²/V·s. μ ∝ T⁻³/² (lattice). μ ↓ with doping (impurity scattering).</p>
+        </div>
+        <div class="sum-card sc-r">
+          <div class="sum-lbl">Conductivity</div>
+          <p>\(\sigma = q(n\mu_n + p\mu_p)\). \(\rho = 1/\sigma\). Intrinsic: \(\sigma_i = qn_i(\mu_n+\mu_p)\).</p>
+        </div>
+        <div class="sum-card sc-t">
+          <div class="sum-lbl">Einstein Relation ⭐</div>
+          <p>\(D_n/\mu_n = D_p/\mu_p = kT/q = V_T\). At 300 K: \(V_T \approx 26\) mV. \(D_n \approx 35\) cm²/s, \(D_p
+            \approx 12\) cm²/s.</p>
+        </div>
+        <div class="sum-card sc-o">
+          <div class="sum-lbl">Total Current</div>
+          <p>\(J_{total} = J_n + J_p\). \(J_n = qn\mu_n\mathcal{E} + qD_n\frac{dn}{dx}\). \(J_p = qp\mu_p\mathcal{E} -
+            qD_p\frac{dp}{dx}\).</p>
+        </div>
+        <div class="sum-card sc-g">
+          <div class="sum-lbl">GATE Exam Priority</div>
+          <p>🟢 Einstein relation (very high). 🟢 Drift current density. 🟢 μₙ vs μₚ. 🟡 Temperature effects on μ. 🟡
+            Diffusion signs.</p>
+        </div>
+        <div class="sum-card sc-a">
+          <div class="sum-lbl">Key Numbers (300 K, Si)</div>
+          <p>nᵢ = 1.5×10¹⁰ cm⁻³. μₙ=1350, μₚ=480 cm²/V·s. Dₙ≈35, Dₚ≈12.5 cm²/s. ρᵢ ≈ 2.3×10⁵ Ω·cm.</p>
+        </div>
+      </div>
+
+      <!-- Ask Aarova AI widget -->
+      <div class="ai-prompt">
+        <div class="ai-prompt-title">🤖 Ask Aarova AI</div>
+        <p>Have a doubt about drift current, diffusion, mobility, or the Einstein relation? Ask your tutor:</p>
+        <div class="ai-input-row">
+          <input class="ai-input" id="userQ" type="text"
+            placeholder="e.g. Why does electron mobility decrease with doping?">
+          <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+        </div>
+        <div class="ai-suggest">
+          <span class="ai-chip"
+            onclick="setQ('What is the physical meaning of mobility and how does it relate to mean free time and effective mass?')">Mobility
+            — physical meaning</span>
+          <span class="ai-chip"
+            onclick="setQ('Derive the Einstein relation starting from the condition of zero net current at thermal equilibrium.')">Derive
+            Einstein relation</span>
+          <span class="ai-chip"
+            onclick="setQ('Why does the hole diffusion current equation have a negative sign but electron diffusion does not?')">Diffusion
+            sign conventions</span>
+          <span class="ai-chip"
+            onclick="setQ('In a semiconductor, when temperature increases, why does conductivity increase while in a metal it decreases?')">Temperature
+            &amp; conductivity</span>
+          <span class="ai-chip"
+            onclick="setQ('Explain velocity saturation — why does drift velocity not keep increasing with electric field?')">Velocity
+            saturation</span>
+        </div>
+        <div class="ai-response" id="aiResp"></div>
+      </div>
+
+      <div class="callout c-tip" style="margin-top:22px">
+        <div class="ci">➡️</div>
+        <div class="cb">
+          <div class="ct">Coming Next — Chapter 5</div>
+          <p>Excess Carriers in Semiconductors — generation and recombination processes, minority carrier lifetime,
+            continuity equations, diffusion length, and the connection to p-n junction analysis. This chapter bridges
+            the gap between carrier transport theory and actual device physics.</p>
+        </div>
+      </div>
+
+      <!-- Citations -->
+      <div class="citations" id="citations">
+        <div class="cite-h">References &amp; Citations</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from the
+          following standard textbooks. All explanations, derivations, diagrams, and examples are original to Aarova AI.
+        </p>
+        <ul class="cite-list">
+          <li><span class="cite-num">[1]</span><span>Neamen, Donald A. <em>Semiconductor Physics and Devices: Basic
+                Principles</em>, 4th ed. McGraw-Hill, 2012. Chapter 3 — Introduction to the Quantum Theory of Solids;
+              Chapter 5 — Carrier Transport Phenomena. Primary reference for mobility, drift, and Einstein relation
+              derivations.</span></li>
+          <li><span class="cite-num">[2]</span><span>Streetman, Ben G. and Banerjee, Sanjay Kumar. <em>Solid State
+                Electronic Devices</em>, 7th ed. Pearson, 2015. Chapter 3 — Energy Bands and Charge Carriers; Chapter 4
+              — Excess Carriers in Semiconductors. Drift-diffusion equations and conductivity discussion.</span></li>
+          <li><span class="cite-num">[3]</span><span>Pierret, Robert F. <em>Semiconductor Device Fundamentals</em>, 2nd
+              ed. Addison-Wesley, 1996. Part I — Semiconductor Fundamentals, Chapter 3 — Carrier Action. Detailed
+              scattering mechanism analysis and mobility-temperature relationship.</span></li>
+          <li><span class="cite-num">[4]</span><span>Sze, S.M. and Ng, Kwok K. <em>Physics of Semiconductor
+                Devices</em>, 3rd ed. Wiley, 2007. Chapter 1 — Physics and Properties of Semiconductors. Advanced
+              treatment of transport phenomena.</span></li>
+          <li><span class="cite-num">[5]</span><span>IIT Madras / IIT Kharagpur NPTEL. <em>Semiconductor Devices —
+                Lectures 5–9: Carrier Transport</em>. nptel.ac.in. Drift velocity, mobility, diffusion coefficients,
+              Einstein relation. Used for conceptual cross-referencing.</span></li>
+        </ul>
+      </div>
+
+      <hr>
+      <footer>
+        <strong>Aarova AI</strong> &nbsp;·&nbsp; Electronic Devices &amp; Circuits Series &nbsp;·&nbsp; Chapter 4 of
+        8<br>
+        <span style="font-size:12px;margin-top:5px;display:block;">GATE EC &nbsp;·&nbsp; GATE EE &nbsp;·&nbsp; IES
+          E&amp;T &nbsp;·&nbsp; PSU Electronics Engineering</span><br>
+        <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations, derivations, and
+          diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+      </footer>
+
+    </div><!-- end section 14 -->
+  </div><!-- end page -->
+
+  <script>
+    function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+    async function askClaude() {
+      const q = document.getElementById('userQ').value.trim(); if (!q) return;
+      const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+      btn.textContent = 'Thinking…'; btn.disabled = true;
+      resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+      const sys = `You are Aarova AI, an expert GATE EC/EE and IES tutor specialising in Electronic Devices and Circuits. Topic: Chapter 4 — Carrier Drift and Diffusion. Cover drift velocity, mobility, drift current density, diffusion current density, conductivity, resistivity, and the Einstein relation. Answer with step-by-step working for numericals. Base answers on Neamen, Streetman & Banerjee, and Pierret. All content is original.`;
+      try {
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] })
+        });
+        const data = await res.json();
+        resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+      } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+      btn.textContent = 'Ask Claude'; btn.disabled = false;
+    }
+    document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+    /* Responsive SVG scroll hints on mobile */
+    (function () {
+      if (window.innerWidth > 600) return;
+      document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+        const hint = document.createElement('div');
+        hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+        hint.textContent = '← scroll to see full diagram →';
+        wrap.appendChild(hint);
+        wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+      });
+    })();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — S&amp;S Ch.9 Discrete Fourier Transform (DFT) &amp; FFT</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]'], ['\\begin{align*}', '\\end{align*}']],
+                tags: 'ams'
+            },
+            options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — SIGNALS & SYSTEMS Ch.9 — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; font-size: 18px; -webkit-text-size-adjust: 100%; }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg2); }
+        ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+        img, svg { max-width: 100%; display: block; }
+
+        .page { max-width: 900px; margin: 0 auto; padding: 0 var(--page-px) 80px; }
+
+        .site-header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+        }
+
+        .logo { font-family: 'Playfair Display', serif; font-size: clamp(14px, 2.5vw, 18px); font-weight: 700; color: var(--orange); white-space: nowrap; }
+        .logo-sub { font-family: 'Lora', serif; font-size: 11px; color: var(--muted); margin-left: 8px; font-weight: 400; }
+        .hbadges { display: flex; gap: 5px; flex-wrap: wrap; }
+        .hbadge { font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: var(--orange-bg); border: 1px solid var(--orange-bdr); color: var(--orange); white-space: nowrap; }
+
+        .hero { padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px); border-bottom: 1.5px solid var(--border); margin-bottom: clamp(24px, 4vw, 44px); }
+        .eyebrow { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; color: var(--orange); margin-bottom: 12px; display: flex; align-items: center; gap: 9px; }
+        .eyebrow::before { content: ''; display: inline-block; width: 24px; height: 2.5px; background: var(--orange); border-radius: 2px; flex-shrink: 0; }
+        h1.hero-title { font-family: 'Playfair Display', serif; font-size: clamp(28px, 7vw, 52px); font-weight: 800; color: var(--text); line-height: 1.1; margin-bottom: 14px; }
+        h1.hero-title em { font-style: italic; color: var(--orange); }
+        .hero-desc { font-size: clamp(14px, 2vw, 17px); color: var(--text3); max-width: 640px; line-height: 1.75; font-weight: 400; margin-bottom: 22px; }
+        .badge-row { display: flex; flex-wrap: wrap; gap: 7px; }
+        .badge { font-size: 12px; padding: 4px 13px; border-radius: 22px; border: 1.5px solid var(--border2); color: var(--text3); background: var(--bg2); font-family: 'Lora', serif; }
+        .badge-p { background: var(--orange-bg); border-color: var(--orange-bdr); color: var(--orange); font-weight: 600; }
+
+        .progress-bar { display: flex; align-items: center; gap: 12px; background: var(--orange-bg); border: 1.5px solid var(--orange-bdr); border-radius: 10px; padding: 11px 16px; margin-bottom: clamp(20px, 4vw, 40px); }
+        .pl { font-size: 12px; font-weight: 600; color: var(--orange); white-space: nowrap; }
+        .pt { flex: 1; height: 7px; background: rgba(201, 95, 26, 0.18); border-radius: 4px; overflow: hidden; min-width: 30px; }
+        .pf { height: 100%; width: 75%; background: var(--orange); border-radius: 4px; }
+        .pp { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--orange); white-space: nowrap; }
+
+        .toc { background: var(--bg2); border: 1.5px solid var(--border); border-left: 4px solid var(--orange); border-radius: var(--radius); padding: clamp(16px, 3vw, 28px); margin-bottom: clamp(28px, 5vw, 52px); }
+        .toc-h { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 14px; }
+        .toc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 0 24px; }
+        .toc-item { display: flex; align-items: baseline; gap: 9px; font-size: 14px; color: var(--text3); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed transparent; transition: color .2s, border-color .2s; line-height: 1.5; }
+        .toc-item:hover, .toc-item:focus { color: var(--orange); border-bottom-color: var(--orange-lt); }
+        .toc-n { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--orange); min-width: 28px; flex-shrink: 0; }
+
+        .section { margin-bottom: var(--section-gap); opacity: 0; transform: translateY(12px); animation: rise .42s forwards; }
+        @keyframes rise { to { opacity: 1; transform: none; } }
+        .section:nth-child(1) { animation-delay: .04s }
+        .section:nth-child(2) { animation-delay: .09s }
+        .section:nth-child(3) { animation-delay: .13s }
+        .section:nth-child(4) { animation-delay: .17s }
+        .section:nth-child(5) { animation-delay: .21s }
+        .section:nth-child(6) { animation-delay: .25s }
+        .section:nth-child(7) { animation-delay: .29s }
+        .section:nth-child(8) { animation-delay: .33s }
+        .section:nth-child(9) { animation-delay: .37s }
+        .section:nth-child(10) { animation-delay: .41s }
+        .section:nth-child(11) { animation-delay: .45s }
+        .section:nth-child(12) { animation-delay: .49s }
+
+        .sec-hdr { display: flex; align-items: center; gap: 12px; margin-bottom: clamp(14px, 3vw, 24px); padding-bottom: 12px; border-bottom: 1.5px solid var(--border); }
+        .sec-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-bdr); padding: 3px 10px; border-radius: 6px; white-space: nowrap; flex-shrink: 0; }
+        h2.sec-t { font-family: 'Playfair Display', serif; font-size: clamp(18px, 3.5vw, 26px); font-weight: 700; color: var(--text); line-height: 1.2; }
+        h3.sub { font-family: 'Playfair Display', serif; font-size: clamp(15px, 2.5vw, 19px); font-weight: 600; color: var(--text2); margin: clamp(20px, 3vw, 32px) 0 10px; display: flex; align-items: center; gap: 9px; }
+        h3.sub::before { content: ''; display: inline-block; width: 4px; height: 16px; background: var(--orange-lt); border-radius: 2px; flex-shrink: 0; }
+        h4.subsub { font-family: 'Lora', serif; font-size: clamp(14px, 2vw, 16px); font-weight: 600; color: var(--text2); margin: 16px 0 8px; padding-left: 12px; border-left: 3px solid var(--border2); }
+
+        p { margin-bottom: 14px; color: var(--text2); font-size: clamp(14px, 2vw, 17px); line-height: 1.85; }
+
+        ul.content-list { margin: 10px 0 14px 0; padding-left: 0; list-style: none; }
+        ul.content-list li { font-size: clamp(13.5px, 1.9vw, 16px); color: var(--text2); padding: 5px 0 5px 22px; position: relative; line-height: 1.72; }
+        ul.content-list li::before { content: '▸'; position: absolute; left: 0; color: var(--orange-lt); font-size: 12px; top: 7px; }
+
+        ol.content-ol { margin: 10px 0 14px 0; padding-left: 22px; }
+        ol.content-ol li { font-size: clamp(13.5px, 1.9vw, 16px); color: var(--text2); padding: 4px 0; line-height: 1.72; }
+
+        strong { font-weight: 600; color: var(--text); }
+
+        .callout { border-radius: 10px; padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px); margin: 16px 0; display: flex; gap: 11px; align-items: flex-start; }
+        .ci { font-size: 17px; flex-shrink: 0; margin-top: 2px; line-height: 1; }
+        .cb { flex: 1; min-width: 0; }
+        .ct { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+        .cb p { margin: 0; font-size: clamp(13px, 1.8vw, 15.5px); line-height: 1.68; }
+
+        .c-info { background: var(--orange-bg); border-left: 4px solid var(--orange); }
+        .c-info .ct { color: var(--orange); }
+        .c-info p { color: var(--text2); }
+        .c-tip { background: var(--green-bg); border-left: 4px solid var(--green); }
+        .c-tip .ct { color: var(--green); }
+        .c-tip p { color: #1e4d38; }
+        .c-key { background: var(--teal-bg); border-left: 4px solid var(--teal); }
+        .c-key .ct { color: var(--teal); }
+        .c-key p { color: #154e4c; }
+        .c-warn { background: var(--amber-bg); border-left: 4px solid var(--amber); }
+        .c-warn .ct { color: var(--amber); }
+        .c-warn p { color: #6e3f00; }
+        .c-danger { background: var(--red-bg); border-left: 4px solid var(--red); }
+        .c-danger .ct { color: var(--red); }
+        .c-danger p { color: #6e1515; }
+
+        .tw { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 16px 0; border-radius: 10px; border: 1.5px solid var(--border); box-shadow: var(--shadow); }
+        table { width: 100%; border-collapse: collapse; font-size: clamp(12px, 1.8vw, 15px); }
+        thead tr { background: var(--bg3); }
+        thead th { padding: 10px 14px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--text3); border-bottom: 1.5px solid var(--border); white-space: nowrap; }
+        tbody tr { border-bottom: 1px solid var(--bg3); transition: background .12s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: var(--bg2); }
+        tbody td { padding: 10px 14px; color: var(--text2); vertical-align: top; line-height: 1.55; }
+        tbody td:first-child { font-weight: 600; color: var(--text); }
+        .t-org { color: var(--orange) !important; font-weight: 600 !important; }
+        .t-grn { color: var(--green) !important; font-weight: 600 !important; }
+        .t-red { color: var(--red) !important; font-weight: 600 !important; }
+        .t-amb { color: var(--amber) !important; font-weight: 600 !important; }
+        .t-tel { color: var(--teal) !important; font-weight: 600 !important; }
+
+        .fblock { background: var(--bg3); border: 1.5px solid var(--border2); border-left: 4px solid var(--orange-lt); border-radius: 10px; padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px); margin: 14px 0; font-size: clamp(13px, 1.8vw, 15px); color: var(--text); line-height: 2; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .fblock .flbl { font-family: 'Lora', serif; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 5px; display: block; }
+        .fblock .MathJax { font-size: 1.1em !important; }
+        mjx-container { overflow-x: auto; max-width: 100%; }
+
+        .svg-wrap { background: var(--bg2); border: 1.5px solid var(--border); border-radius: 12px; padding: clamp(12px, 2.5vw, 24px); margin: 16px 0; box-shadow: var(--shadow); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .svg-wrap svg { width: 100%; height: auto; min-width: 300px; display: block; }
+        .svg-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .svg-scroll svg { min-width: 560px; width: 100%; height: auto; display: block; }
+        .svg-cap { font-size: 12px; color: var(--muted); text-align: center; margin-top: 8px; font-style: italic; line-height: 1.5; }
+
+        .example { background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius); margin: 20px 0; box-shadow: var(--shadow); overflow: hidden; }
+        .ex-hdr { background: var(--bg3); padding: 9px var(--card-px); display: flex; align-items: center; gap: 9px; border-bottom: 1.5px solid var(--border); flex-wrap: wrap; }
+        .ex-num { font-size: 9px; font-weight: 700; background: var(--orange); color: #fff; padding: 3px 9px; border-radius: 5px; letter-spacing: .06em; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+        .ex-title { font-size: 13px; font-weight: 600; color: var(--text2); line-height: 1.4; }
+        .ex-body { padding: clamp(13px, 2vw, 22px) var(--card-px); }
+        .ex-q { font-size: clamp(13px, 2vw, 15.5px); color: var(--text); background: var(--orange-bg); border-left: 4px solid var(--orange); padding: 10px 14px; border-radius: 0 8px 8px 0; margin-bottom: 14px; line-height: 1.62; }
+        .sol-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .10em; color: var(--green); margin-bottom: 9px; }
+        .sol-step { display: flex; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--bg3); }
+        .sol-step:last-child { border-bottom: none; }
+        .sol-n { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--orange); background: var(--orange-bg); padding: 2px 7px; border-radius: 4px; white-space: nowrap; height: fit-content; margin-top: 3px; flex-shrink: 0; }
+        .sol-t { font-size: clamp(13px, 1.8vw, 15px); color: var(--text2); line-height: 1.72; }
+
+        .gate-card { background: #fff; border: 1.5px solid var(--teal-bdr); border-radius: var(--radius); margin: 18px 0; box-shadow: var(--shadow); overflow: hidden; }
+        .gate-hdr { background: var(--teal-bg); border-bottom: 1.5px solid var(--teal-bdr); padding: 9px var(--card-px); display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+        .gate-tag { font-size: 9px; font-weight: 700; background: var(--teal); color: #fff; padding: 3px 9px; border-radius: 5px; letter-spacing: .07em; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+        .gate-title { font-size: 13px; font-weight: 600; color: var(--teal); line-height: 1.4; }
+        .gate-body { padding: clamp(13px, 2vw, 20px) var(--card-px); }
+        .gate-body p { color: var(--text2); font-size: clamp(13px, 2vw, 15.5px); }
+
+        .pyq-card { background: #fff; border: 1.5px solid var(--teal-bdr); border-radius: var(--radius); margin: 18px 0; box-shadow: var(--shadow); overflow: hidden; }
+        .pyq-hdr { background: var(--teal-bg); border-bottom: 1.5px solid var(--teal-bdr); padding: 9px var(--card-px); display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+        .pyq-tag { font-size: 9px; font-weight: 700; color: #fff; padding: 3px 9px; border-radius: 5px; letter-spacing: .07em; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+        .pyq-gate { background: var(--teal); }
+        .pyq-ies { background: var(--green); }
+        .pyq-hdr.ies-hdr { background: var(--green-bg); border-color: var(--green-bdr); }
+        .pyq-card.ies-card { border-color: var(--green-bdr); }
+        .pyq-title { font-size: 13px; font-weight: 600; color: var(--teal); line-height: 1.4; flex: 1; }
+        .pyq-title-ies { color: var(--green); }
+        .pyq-year { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); white-space: nowrap; }
+        .pyq-body { padding: clamp(13px, 2vw, 20px) var(--card-px); }
+        .pyq-body p { color: var(--text2); font-size: clamp(13px, 2vw, 15.5px); }
+        .pyq-opts { list-style: none; margin: 10px 0; display: flex; flex-direction: column; gap: 6px; }
+        .pyq-opts li { font-size: clamp(13px, 1.8vw, 15px); color: var(--text2); padding: 9px 13px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--bg2); font-family: 'Lora', serif; cursor: default; min-height: 44px; display: flex; align-items: center; line-height: 1.45; }
+        .pyq-opts li.correct { background: var(--green-bg); border-color: var(--green-bdr); color: var(--green); font-weight: 600; }
+        .ans-reveal { font-size: 11px; font-weight: 600; font-family: 'JetBrains Mono', monospace; color: var(--green); background: var(--green-bg); border: 1px solid var(--green-bdr); padding: 3px 10px; border-radius: 5px; margin-top: 8px; display: inline-block; }
+
+        .two-col { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin: 16px 0; }
+        .mini-card { background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: var(--card-px); box-shadow: var(--shadow); }
+        .mc-t { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 11px; }
+        .mc-grn .mc-t { color: var(--green); }
+        .mc-red .mc-t { color: var(--red); }
+        .mc-org .mc-t { color: var(--orange); }
+        .mc-tel .mc-t { color: var(--teal); }
+        .mc-amb .mc-t { color: var(--amber); }
+        .mc-list { list-style: none; }
+        .mc-list li { font-size: clamp(13px, 1.8vw, 15px); color: var(--text2); padding: 6px 0; border-bottom: 1px solid var(--bg3); display: flex; align-items: flex-start; gap: 9px; line-height: 1.5; }
+        .mc-list li:last-child { border-bottom: none; }
+        .dot { color: var(--muted); flex-shrink: 0; margin-top: 2px; }
+
+        .sum-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin: 16px 0; }
+        .sum-card { background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); transition: box-shadow .2s, transform .15s; }
+        .sum-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .sum-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 6px; }
+        .sum-card p { font-size: clamp(12px, 1.7vw, 14px); color: var(--text3); margin: 0; line-height: 1.62; }
+        .sc-o .sum-lbl { color: var(--orange); }
+        .sc-g .sum-lbl { color: var(--green); }
+        .sc-t .sum-lbl { color: var(--teal); }
+        .sc-a .sum-lbl { color: var(--amber); }
+        .sc-r .sum-lbl { color: var(--red); }
+
+        .prob-high::after { content: '🟢 High Probability'; font-size: 10px; font-weight: 700; margin-left: 8px; vertical-align: middle; }
+        .prob-med::after { content: '🟡 Medium Probability'; font-size: 10px; font-weight: 700; margin-left: 8px; vertical-align: middle; }
+        .prob-low::after { content: '🔴 Low Probability'; font-size: 10px; font-weight: 700; margin-left: 8px; vertical-align: middle; }
+
+        .ai-prompt { background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg)); border: 2px solid var(--teal-bdr); border-radius: var(--radius); padding: clamp(16px, 3vw, 28px); margin: 28px 0; box-shadow: var(--shadow-md); }
+        .ai-prompt-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--teal); margin-bottom: 8px; display: flex; align-items: center; gap: 7px; }
+        .ai-prompt>p { color: var(--text2); font-size: 14px; margin-bottom: 12px; }
+        .ai-input-row { display: flex; gap: 9px; flex-wrap: wrap; }
+        .ai-input { flex: 1; min-width: 0; width: 100%; padding: 11px 14px; border-radius: 9px; border: 1.5px solid var(--border2); background: var(--bg); font-family: 'Lora', serif; font-size: 14px; color: var(--text); outline: none; -webkit-appearance: none; }
+        .ai-input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12); }
+        .ai-btn { padding: 11px 20px; border-radius: 9px; background: var(--teal); color: #fff; border: none; font-family: 'Lora', serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .18s; white-space: nowrap; min-height: 44px; -webkit-appearance: none; }
+        .ai-btn:hover { background: #155250; }
+        .ai-btn:active { background: #0f3d3b; }
+        .ai-suggest { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .ai-chip { font-size: 11px; padding: 6px 12px; border-radius: 20px; border: 1.5px solid var(--teal-bdr); color: var(--teal); background: var(--bg); cursor: pointer; font-family: 'Lora', serif; transition: background .15s; min-height: 36px; display: flex; align-items: center; }
+        .ai-chip:hover, .ai-chip:active { background: var(--teal-bg); }
+        .ai-response { margin-top: 14px; padding: 13px 15px; background: #fff; border-radius: 8px; border: 1.5px solid var(--border); font-size: 14px; color: var(--text2); display: none; line-height: 1.72; white-space: pre-wrap; overflow-x: auto; }
+
+        hr { border: none; border-top: 1.5px solid var(--border); margin: 40px 0; }
+        footer { text-align: center; padding: 26px 0; font-size: 12px; color: var(--muted); border-top: 1.5px solid var(--border); }
+        footer strong { color: var(--orange); }
+
+        @media(min-width:481px) and (max-width:768px) {
+            html { font-size: 16.5px; }
+            .logo-sub { display: none; }
+            .svg-wrap { padding: 12px 10px; }
+            .svg-wrap svg { min-width: 480px; }
+            .toc-grid { grid-template-columns: repeat(2, 1fr); gap: 0 20px; }
+            .two-col { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .sum-grid { grid-template-columns: repeat(2, 1fr); gap: 11px; }
+            .fblock { white-space: pre-wrap; word-break: break-word; font-size: 12px; line-height: 1.8; }
+            thead th, tbody td { padding: 8px 10px; }
+            .pyq-year { margin-left: 0; }
+        }
+
+        @media(max-width:480px) {
+            html { font-size: 15.5px; }
+            .logo-sub { display: none; }
+            .hbadges { display: none; }
+            .site-header { padding: 10px 14px; }
+            h1.hero-title { font-size: clamp(26px, 8vw, 34px); }
+            .hero-desc { font-size: 14px; }
+            .badge-row .badge { font-size: 11px; padding: 4px 10px; }
+            .progress-bar { padding: 9px 12px; gap: 8px; }
+            .pl { font-size: 11px; }
+            .toc-grid { grid-template-columns: 1fr; gap: 0; }
+            .toc-item { font-size: 14px; padding: 9px 0; }
+            .toc { padding: 14px 16px; }
+            .sec-hdr { gap: 9px; }
+            h2.sec-t { font-size: clamp(16px, 5vw, 20px); }
+            h3.sub { font-size: clamp(14px, 4.5vw, 17px); }
+            p { font-size: 15px; }
+            .svg-wrap { padding: 10px 8px; border-radius: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .svg-wrap svg { min-width: 520px; width: 520px; height: auto; }
+            .svg-wrap.svg-simple svg { min-width: 280px; width: 100%; }
+            .svg-cap { font-size: 11px; }
+            .fblock { white-space: pre-wrap; word-break: break-word; font-size: 11.5px; line-height: 1.75; padding: 12px 12px; border-radius: 8px; }
+            .tw { border-radius: 8px; }
+            thead th { font-size: 9px; padding: 8px 10px; letter-spacing: .06em; }
+            tbody td { font-size: 12px; padding: 8px 10px; }
+            .two-col { grid-template-columns: 1fr; gap: 10px; }
+            .sum-grid { grid-template-columns: 1fr; gap: 9px; }
+            .mini-card { padding: 13px 14px; }
+            .sum-card { padding: 14px 16px; }
+            .callout { padding: 11px 13px; gap: 9px; }
+            .ci { font-size: 16px; }
+            .cb p { font-size: 13.5px; }
+            .ex-hdr { padding: 8px 13px; }
+            .ex-body { padding: 12px 13px; }
+            .ex-q { font-size: 13.5px; padding: 9px 12px; }
+            .gate-hdr, .pyq-hdr { padding: 8px 13px; gap: 7px; }
+            .gate-body, .pyq-body { padding: 12px 13px; }
+            .pyq-opts li { font-size: 13px; padding: 9px 11px; }
+            .pyq-year { display: none; }
+            .ai-prompt { padding: 14px 14px; }
+            .ai-input-row { flex-direction: column; }
+            .ai-input { font-size: 15px; }
+            .ai-btn { width: 100%; justify-content: center; font-size: 15px; padding: 13px; }
+            .ai-chip { font-size: 11px; }
+            .ai-suggest { gap: 5px; }
+            footer { padding: 20px 0; font-size: 11.5px; }
+        }
+
+        @media(min-width:1024px) {
+            .page { padding: 0 48px 100px; }
+            .toc-grid { grid-template-columns: repeat(3, 1fr); }
+            .two-col { grid-template-columns: repeat(2, 1fr); }
+            .sum-grid { grid-template-columns: repeat(3, 1fr); }
+            .svg-wrap svg { min-width: auto; width: 100%; }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover { color: var(--text3); border-bottom-color: transparent; }
+            .sum-card:hover { transform: none; box-shadow: var(--shadow); }
+            .ai-btn:hover { background: var(--teal); }
+        }
+
+        .citations { background: var(--bg2); border: 1.5px solid var(--border); border-left: 4px solid var(--teal); border-radius: var(--radius); padding: clamp(16px, 3vw, 28px); margin-top: 36px; }
+        .cite-h { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+        .cite-list { list-style: none; }
+        .cite-list li { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: clamp(12px, 1.8vw, 14px); color: var(--text2); line-height: 1.62; }
+        .cite-list li:last-child { border-bottom: none; }
+        .cite-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--teal); background: var(--teal-bg); padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; height: fit-content; margin-top: 2px; }
+        .cite-list em { color: var(--orange-md); font-style: italic; }
+
+        mjx-container[jax="CHTML"][display="true"] { overflow-y: hidden !important; overflow-x: auto !important; padding-bottom: 1px; }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div>
+            <span class="logo">Aarova AI<span class="logo-sub">— Signals &amp; Systems</span></span>
+        </div>
+        <div class="hbadges">
+            <span class="hbadge">Ch.9</span>
+            <span class="hbadge">GATE EE/EC</span>
+            <span class="hbadge">IES/ESE</span>
+            <span class="hbadge">ISRO</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <section class="hero">
+            <div class="eyebrow">Signals &amp; Systems · Chapter 9</div>
+            <h1 class="hero-title">The Discrete Fourier Transform &amp; <em>Fast Fourier Transform</em></h1>
+            <p class="hero-desc">A complete deep-dive into the DFT — the only Fourier representation a digital computer can actually
+                compute. Covers the DFT/IDFT pair, its core properties, circular convolution, linear convolution via the DFT, and
+                the Radix-2 FFT algorithm that makes real-time spectral analysis possible — essential for GATE EE/EC, IES/ESE and
+                ISRO exam aspirants.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE/EC</span>
+                <span class="badge badge-p">IES/ESE</span>
+                <span class="badge">ISRO Scientist/Engineer</span>
+                <span class="badge">ACE Academy Notes</span>
+                <span class="badge">Ch. 9 — DFT &amp; FFT</span>
+            </div>
+        </section>
+
+        <div class="progress-bar">
+            <span class="pl">Course Progress</span>
+            <div class="pt"><div class="pf"></div></div>
+            <span class="pp">Ch 9 / 12</span>
+        </div>
+
+        <nav class="toc" aria-label="Chapter contents">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a class="toc-item" href="#sec1"><span class="toc-n">01</span>Big Picture — Why the DFT?</a>
+                <a class="toc-item" href="#sec2"><span class="toc-n">02</span>From DTFT to DFT — Sampling in Frequency</a>
+                <a class="toc-item" href="#sec3"><span class="toc-n">03</span>DFT &amp; IDFT — Definition &amp; Derivation</a>
+                <a class="toc-item" href="#sec4"><span class="toc-n">04</span>Properties of the DFT</a>
+                <a class="toc-item" href="#sec5"><span class="toc-n">05</span>Circular Convolution</a>
+                <a class="toc-item" href="#sec6"><span class="toc-n">06</span>Linear Convolution using the DFT</a>
+                <a class="toc-item" href="#sec7"><span class="toc-n">07</span>Computational Cost &amp; the Case for FFT</a>
+                <a class="toc-item" href="#sec8"><span class="toc-n">08</span>Fast Fourier Transform — Radix-2 DIT</a>
+                <a class="toc-item" href="#sec9"><span class="toc-n">09</span>Numerical Examples</a>
+                <a class="toc-item" href="#sec10"><span class="toc-n">10</span>GATE &amp; IES PYQs</a>
+                <a class="toc-item" href="#sec11"><span class="toc-n">11</span>Memory Tricks &amp; Quick Revision</a>
+            </div>
+        </nav>
+
+        <!-- ══════════════════════════════════
+     SECTION 1 — BIG PICTURE
+══════════════════════════════════ -->
+        <section class="section" id="sec1">
+            <div class="sec-hdr">
+                <span class="sec-num">01</span>
+                <h2 class="sec-t">Big Picture — Why the DFT?</h2>
+            </div>
+
+            <div class="callout c-info">
+                <span class="ci">💡</span>
+                <div class="cb">
+                    <div class="ct">The Problem It Solves</div>
+                    <p>The Fourier series works only for periodic signals, and the DTFT gives a spectrum \(X(e^{j\omega})\) that is
+                        <strong>continuous in frequency</strong>. Neither can be typed into a computer or a DSP chip, because a
+                        processor can only store and multiply a <strong>finite list of numbers</strong>. The Discrete Fourier
+                        Transform (DFT) is the bridge: it maps a finite-length discrete-time sequence to a finite-length
+                        discrete-frequency sequence — both sides are arrays a computer can actually hold in memory.</p>
+                </div>
+            </div>
+
+            <p>Every time a signal is digitized — a voice sample, a sensor reading, a radar echo — the resulting sequence is finite
+                in length. To analyse its frequency content numerically, we need a transform whose input <em>and</em> output are
+                both finite, discrete arrays. The DFT is precisely that transform, and it connects seamlessly with everything
+                studied so far: it is the DTFT of a finite sequence, sampled at N equally spaced points in frequency, and it is
+                also what you get by evaluating the Z-transform on the unit circle at N equally spaced angles.</p>
+
+            <h3 class="sub">Where the DFT Shows Up in Real Engineering</h3>
+            <ul class="content-list">
+                <li><strong>Digital audio &amp; speech processing</strong> — computing the spectrogram of a voice signal, pitch
+                    detection, noise-cancelling headphones.</li>
+                <li><strong>Image &amp; video compression</strong> — JPEG and MPEG use the closely related Discrete Cosine
+                    Transform, whose fast computation borrows FFT ideas.</li>
+                <li><strong>OFDM in 4G/5G and Wi-Fi</strong> — every OFDM symbol is generated with an IDFT at the transmitter and
+                    decoded with a DFT (FFT) at the receiver; this is the single most widely deployed use of the FFT today.</li>
+                <li><strong>Digital filter design &amp; implementation</strong> — fast (FFT-based) convolution for FIR filtering
+                    of long data streams via overlap-add/overlap-save.</li>
+                <li><strong>Radar &amp; sonar signal processing</strong> — Doppler frequency estimation from a pulse train using
+                    the DFT of the received echoes.</li>
+                <li><strong>Vibration &amp; fault analysis</strong> — spectral analysis of machine vibration signals for bearing
+                    fault detection in industrial condition monitoring.</li>
+            </ul>
+
+            <div class="callout c-key">
+                <span class="ci">🔑</span>
+                <div class="cb">
+                    <div class="ct">Connects With</div>
+                    <p>DFT builds directly on the <strong>DTFT</strong> (frequency-domain sampling) and the <strong>Z-transform</strong>
+                        (DFT = Z-transform evaluated on the unit circle at N points). It also feeds forward into digital filter
+                        design and communication systems (OFDM), making it one of the highest-yield topics for GATE.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 2 — FROM DTFT TO DFT
+══════════════════════════════════ -->
+        <section class="section" id="sec2">
+            <div class="sec-hdr">
+                <span class="sec-num">02</span>
+                <h2 class="sec-t">From DTFT to DFT — Sampling in the Frequency Domain</h2>
+            </div>
+
+            <p>For a finite-length sequence \(x[n]\) of length N (defined for \(n = 0, 1, \dots, N-1\)), the DTFT
+                \(X(e^{j\omega}) = \sum_{n=0}^{N-1} x[n]e^{-j\omega n}\) is a <strong>continuous, periodic</strong> function of
+                \(\omega\) with period \(2\pi\). Storing this continuous function exactly would require infinite data. The key
+                idea behind the DFT is to sample this continuous spectrum at exactly N equally spaced points over one period:</p>
+
+            <div class="fblock">
+                <span class="flbl">Frequency sampling — the origin of the DFT</span>
+                $$ \omega_k = \frac{2\pi k}{N}, \quad k = 0, 1, \dots, N-1 $$
+                $$ X[k] \triangleq X(e^{j\omega})\Big|_{\omega = 2\pi k/N} = \sum_{n=0}^{N-1} x[n]\,e^{-j2\pi kn/N} $$
+            </div>
+
+            <p>Because exactly N samples of a period-\(2\pi\) function are enough to reconstruct it without loss (for a sequence of
+                length ≤ N), no information is lost by sampling the DTFT this way — the DFT is a <strong>complete and exactly
+                invertible</strong> representation of a finite-length sequence, not an approximation.</p>
+
+            <!-- SVG: DTFT continuous spectrum sampled at N discrete points -->
+            <div class="svg-wrap">
+                <img src="images/ch9/fig9.1.png" alt="DTFT continuous spectrum sampled at N discrete points" />
+                <div class="svg-cap">Figure 9.1 — The DFT is obtained by sampling the continuous, periodic DTFT spectrum at N equally
+                    spaced frequency points \(\omega_k = 2\pi k/N\). No information is lost for a length-N sequence.</div>
+            </div>
+
+            <div class="callout c-warn">
+                <span class="ci">⚠️</span>
+                <div class="cb">
+                    <div class="ct">Common Confusion — DFT is Not an Approximation</div>
+                    <p>Students often think the DFT is a "discretized, less accurate" version of the DTFT. In fact, for a
+                        finite-length sequence of length N, sampling its DTFT at N points captures it <strong>exactly</strong> —
+                        the original sequence can always be perfectly recovered via the IDFT. Error only creeps in if you use
+                        fewer than N samples (aliasing in the time domain) or if the sequence itself is not finite-length.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 3 — DFT & IDFT DEFINITION
+══════════════════════════════════ -->
+        <section class="section" id="sec3">
+            <div class="sec-hdr">
+                <span class="sec-num">03</span>
+                <h2 class="sec-t">DFT &amp; IDFT — Definition and Derivation</h2>
+            </div>
+
+            <p>For convenience, define the <strong>twiddle factor</strong> \(W_N = e^{-j2\pi/N}\), the primitive N-th root of
+                unity. The DFT pair is then written compactly as follows.</p>
+
+            <div class="fblock">
+                <span class="flbl">DFT — Analysis Equation</span>
+                $$ X[k] = \sum_{n=0}^{N-1} x[n]\,W_N^{kn}, \qquad k = 0, 1, \dots, N-1 $$
+            </div>
+
+            <div class="fblock">
+                <span class="flbl">IDFT — Synthesis Equation</span>
+                $$ x[n] = \frac{1}{N}\sum_{k=0}^{N-1} X[k]\,W_N^{-kn}, \qquad n = 0, 1, \dots, N-1 $$
+            </div>
+
+            <h3 class="sub">Matrix Interpretation</h3>
+            <p>The DFT can be viewed as a linear transformation of the N-point vector \(\mathbf{x}\) by an \(N\times N\) matrix of
+                twiddle factors — this viewpoint is exactly what makes the circulant/matrix method of circular convolution work.</p>
+            <div class="fblock">
+                <span class="flbl">DFT as matrix multiplication</span>
+                \begin{align*}
+                \begin{bmatrix} X[0] \\ X[1] \\ \vdots \\ X[N-1] \end{bmatrix}
+                =
+                \begin{bmatrix}
+                W_N^{0} & W_N^{0} & \cdots & W_N^{0} \\
+                W_N^{0} & W_N^{1} & \cdots & W_N^{N-1} \\
+                \vdots & \vdots & \ddots & \vdots \\
+                W_N^{0} & W_N^{N-1} & \cdots & W_N^{(N-1)^2}
+                \end{bmatrix}
+                \begin{bmatrix} x[0] \\ x[1] \\ \vdots \\ x[N-1] \end{bmatrix}
+                \end{align*}
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Periodicity — Both Domains</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><span>\(x[n]\) is treated as periodic with period N when using the DFT.</span></li>
+                        <li><span class="dot">▸</span><span>\(X[k]\) is likewise periodic with period N: \(X[k+N] = X[k]\).</span></li>
+                        <li><span class="dot">▸</span><span>This implicit periodicity is exactly why convolution "wraps around" —
+                            giving rise to circular convolution.</span></li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Twiddle Factor Facts</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><span>\(W_N = e^{-j2\pi/N}\); it lies on the unit circle.</span></li>
+                        <li><span class="dot">▸</span><span>\(W_N^{N} = 1\) and \(W_N^{N/2} = -1\).</span></li>
+                        <li><span class="dot">▸</span><span>\(W_N^{k(N-n)} = W_N^{-kn} = (W_N^{kn})^{*}\) — used heavily in FFT
+                            derivations.</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <span class="ci">✅</span>
+                <div class="cb">
+                    <div class="ct">GATE Insight — Relation to Z-Transform</div>
+                    <p>The DFT is nothing but the Z-transform \(X(z)\) evaluated at N equally spaced points on the unit circle:
+                        \(X[k] = X(z)\big|_{z = e^{j2\pi k/N}}\). If a GATE question gives \(X(z)\) and asks for the DFT, simply
+                        substitute \(z = e^{j2\pi k/N}\) for \(k = 0,\dots,N-1\).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 4 — PROPERTIES OF DFT
+══════════════════════════════════ -->
+        <section class="section" id="sec4">
+            <div class="sec-hdr">
+                <span class="sec-num">04</span>
+                <h2 class="sec-t">Properties of the DFT</h2>
+            </div>
+
+            <p>Almost every DFT numerical in GATE/IES is solved faster using a property rather than direct summation. Master this
+                table — it is the single highest-value asset in this chapter.</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr><th>Property</th><th>Time Domain</th><th>DFT Domain</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Linearity</td><td>\(a\,x_1[n] + b\,x_2[n]\)</td><td>\(a\,X_1[k] + b\,X_2[k]\)</td></tr>
+                        <tr><td>Periodicity</td><td>\(x[n+N] = x[n]\)</td><td>\(X[k+N] = X[k]\)</td></tr>
+                        <tr><td>Circular time shift</td><td>\(x[(n-m) \bmod N]\)</td><td>\(W_N^{km}\,X[k]\)</td></tr>
+                        <tr><td>Circular freq. shift (modulation)</td><td>\(W_N^{-ln}\,x[n]\)</td><td>\(X[(k-l)\bmod N]\)</td></tr>
+                        <tr><td>Time reversal</td><td>\(x[(-n)\bmod N] = x[(N-n)\bmod N]\)</td><td>\(X[(-k)\bmod N]\)</td></tr>
+                        <tr><td>Circular convolution</td><td>\(x_1[n] \circledast x_2[n]\)</td><td>\(X_1[k]\,X_2[k]\)</td></tr>
+                        <tr><td>Multiplication</td><td>\(x_1[n]\,x_2[n]\)</td><td>\(\tfrac{1}{N}X_1[k] \circledast X_2[k]\)</td></tr>
+                        <tr><td>Parseval&rsquo;s theorem</td><td>\(\sum_n |x[n]|^2\)</td><td class="t-org">\(\tfrac{1}{N}\sum_k |X[k]|^2\)</td></tr>
+                        <tr><td>Duality</td><td>DFT of \(X[n]\)</td><td>\(N\,x[(-k)\bmod N]\)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Symmetry for a Real-Valued Sequence</h3>
+            <p>Almost all practical signals \(x[n]\) are real-valued. In that case the DFT is <strong>conjugate symmetric</strong>,
+                which lets you compute only about half the DFT coefficients:</p>
+            <div class="fblock">
+                <span class="flbl">Conjugate symmetry (x[n] real)</span>
+                $$ X[N-k] = X^{*}[k] \quad \Rightarrow \quad |X[N-k]| = |X[k]|,\;\; \angle X[N-k] = -\angle X[k] $$
+            </div>
+
+            <div class="callout c-key">
+                <span class="ci">🔑</span>
+                <div class="cb">
+                    <div class="ct">Why This Matters in Practice</div>
+                    <p>Because of conjugate symmetry, real-input FFT libraries (and hardware) only need to compute and store
+                        \(N/2 + 1\) unique complex values instead of N — halving both memory and computation for real signals such
+                        as audio or sensor data.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Two Illustrative Special Cases</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">DC Value X[0]</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><span>\(X[0] = \sum_{n=0}^{N-1}x[n]\) — simply the sum of all samples (N × average
+                            value).</span></li>
+                        <li><span class="dot">▸</span><span>A quick sanity check on any DFT numerical.</span></li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Sum of All X[k]</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><span>\(\sum_{k=0}^{N-1}X[k] = N\,x[0]\) (from the IDFT definition at n=0).</span></li>
+                        <li><span class="dot">▸</span><span>Frequently used as a shortcut to verify a computed DFT table.</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <span class="ci">⚠️</span>
+                <div class="cb">
+                    <div class="ct">GATE Trap — Circular vs Linear Shift</div>
+                    <p>The DFT time-shift property is a <strong>circular</strong> shift, not an ordinary linear shift. Shifting
+                        \(x[n]\) linearly and taking the N-point DFT does <em>not</em> simply multiply by \(W_N^{km}\) unless the
+                        shifted samples that "fall off the end" wrap around to the beginning (i.e., a genuine circular shift).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 5 — CIRCULAR CONVOLUTION
+══════════════════════════════════ -->
+        <section class="section" id="sec5">
+            <div class="sec-hdr">
+                <span class="sec-num">05</span>
+                <h2 class="sec-t">Circular Convolution</h2>
+            </div>
+
+            <div class="callout c-info">
+                <span class="ci">💡</span>
+                <div class="cb">
+                    <div class="ct">Definition</div>
+                    <p>Circular convolution of two N-point sequences \(x_1[n]\) and \(x_2[n]\) folds one sequence around a circle
+                        of N points instead of sliding it linearly off the end. It is the time-domain operation that corresponds
+                        to simple multiplication of DFTs.</p>
+                </div>
+            </div>
+
+            <div class="fblock">
+                <span class="flbl">N-point circular convolution</span>
+                $$ y[n] = x_1[n] \circledast x_2[n] = \sum_{m=0}^{N-1} x_1[m]\;x_2[(n-m)\bmod N], \qquad n = 0,\dots,N-1 $$
+            </div>
+
+            <h3 class="sub">Three Standard Methods</h3>
+            <ol class="content-ol">
+                <li><strong>Direct summation</strong> — apply the formula above term by term for each n; reliable but slow for
+                    hand computation.</li>
+                <li><strong>Graphical / circular-shift ("wheel") method</strong> — plot \(x_2[m]\) reversed and wrapped around a
+                    circle of N points, rotate it counter-clockwise by n positions, multiply overlapping values pointwise, and
+                    sum.</li>
+                <li><strong>Matrix (circulant matrix) method</strong> — arrange circularly shifted versions of \(x_2\) as rows of
+                    an \(N\times N\) circulant matrix and multiply by the column vector \(x_1\).</li>
+                <li><strong>DFT–IDFT method</strong> — take N-point DFTs of both sequences, multiply pointwise, and take the
+                    IDFT: \(y[n] = \text{IDFT}\{X_1[k]\,X_2[k]\}\). This is exactly how the FFT is used to speed up
+                    convolution.</li>
+            </ol>
+
+            <!-- SVG: circular convolution wheel diagram -->
+            <div class="svg-wrap">
+                <img src="images/ch9/fig9.2.png" alt="Circular convolution wheel diagram" />
+                <div class="svg-cap">Figure 9.2 — Graphical ("wheel") method: keep x₁ fixed, place x₂ reversed around an identical
+                    circle, rotate it one step at a time, multiply the values that face each other, and sum to get each y[n].</div>
+            </div>
+
+            <div class="callout c-warn">
+                <span class="ci">⚠️</span>
+                <div class="cb">
+                    <div class="ct">GATE Trap — Circular ≠ Linear Convolution</div>
+                    <p>For two sequences of length \(L_1\) and \(L_2\), <strong>linear convolution</strong> produces
+                        \(L_1+L_2-1\) samples, but N-point <strong>circular convolution</strong> always produces exactly N
+                        samples. If \(N < L_1+L_2-1\), circular convolution gives a <em>time-aliased</em> version of the linear
+                        convolution — some of the linear-convolution "tail" wraps around and adds into the front.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 6 — LINEAR CONVOLUTION VIA DFT
+══════════════════════════════════ -->
+        <section class="section" id="sec6">
+            <div class="sec-hdr">
+                <span class="sec-num">06</span>
+                <h2 class="sec-t">Linear Convolution using the DFT</h2>
+            </div>
+
+            <p>Since fast convolution via the DFT is inherently circular, we deliberately make circular convolution
+                <strong>behave like</strong> linear convolution by padding both sequences with enough zeros so that no
+                wrap-around/aliasing occurs.</p>
+
+            <div class="callout c-key">
+                <span class="ci">🔑</span>
+                <div class="cb">
+                    <div class="ct">The Zero-Padding Rule</div>
+                    <p>For sequences of length \(L_1\) and \(L_2\), choose the DFT size \(N \geq L_1 + L_2 - 1\) (usually the next
+                        power of 2, for FFT compatibility). Pad both sequences with trailing zeros up to length N; then N-point
+                        circular convolution exactly equals linear convolution.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Step-by-Step Procedure</h3>
+            <ol class="content-ol">
+                <li>Determine \(N \geq L_1 + L_2 - 1\) (round up to next power of 2 if using FFT).</li>
+                <li>Zero-pad \(x_1[n]\) and \(x_2[n]\) to length N.</li>
+                <li>Compute N-point DFTs: \(X_1[k]\) and \(X_2[k]\) (via FFT for speed).</li>
+                <li>Multiply pointwise: \(Y[k] = X_1[k]\,X_2[k]\).</li>
+                <li>Take the N-point IDFT of \(Y[k]\) to obtain \(y[n]\), the linear convolution result.</li>
+            </ol>
+
+            <div class="callout c-tip">
+                <span class="ci">✅</span>
+                <div class="cb">
+                    <div class="ct">Why Bother — Speed</div>
+                    <p>Direct linear convolution of two length-N sequences costs \(O(N^2)\) multiplications. Doing it via
+                        zero-padded FFT–multiply–IFFT costs only \(O(N\log_2 N)\) — for long sequences (e.g. digital filtering of
+                        an audio stream) this is the difference between real-time and unusable. For streaming data, the
+                        <strong>overlap-add</strong> and <strong>overlap-save</strong> methods apply this block-by-block using a
+                        fixed-size FFT.</p>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Overlap-Add (brief)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Split long input into non-overlapping blocks.</li>
+                        <li><span class="dot">▸</span>Linearly convolve each block with the filter via FFT (zero-padded).</li>
+                        <li><span class="dot">▸</span>Overlap and add the tails of consecutive output blocks.</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Overlap-Save (brief)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Input blocks overlap by (filter length − 1) samples.</li>
+                        <li><span class="dot">▸</span>Circular convolution via FFT is computed per block.</li>
+                        <li><span class="dot">▸</span>Discard the first (filter length − 1) corrupted samples of each block.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 7 — COMPUTATIONAL COST
+══════════════════════════════════ -->
+        <section class="section" id="sec7">
+            <div class="sec-hdr">
+                <span class="sec-num">07</span>
+                <h2 class="sec-t">Computational Cost &amp; the Case for FFT</h2>
+            </div>
+
+            <p>Computing the N-point DFT directly from its definition requires, for each of the N output values \(X[k]\), a sum of
+                N complex products — giving \(N^2\) complex multiplications and \(N(N-1)\) complex additions overall. As N grows,
+                this quickly becomes computationally prohibitive.</p>
+
+            <div class="fblock">
+                <span class="flbl">Direct DFT complexity</span>
+                $$ \text{Complex multiplications} = N^2, \qquad \text{Complex additions} = N(N-1) $$
+            </div>
+
+            <div class="fblock">
+                <span class="flbl">Radix-2 FFT complexity</span>
+                $$ \text{Complex multiplications} = \frac{N}{2}\log_2 N, \qquad \text{Complex additions} = N\log_2 N $$
+            </div>
+
+            <h3 class="sub">Direct DFT vs FFT — Scaling with N</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr><th>N</th><th>Direct DFT (N²)</th><th>Radix-2 FFT ((N/2)log₂N)</th><th>Speedup</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>8</td><td>64</td><td class="t-grn">12</td><td class="t-org">~5×</td></tr>
+                        <tr><td>64</td><td>4,096</td><td class="t-grn">192</td><td class="t-org">~21×</td></tr>
+                        <tr><td>256</td><td>65,536</td><td class="t-grn">1,024</td><td class="t-org">~64×</td></tr>
+                        <tr><td>1024</td><td>1,048,576</td><td class="t-grn">5,120</td><td class="t-org">~205×</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-info">
+                <span class="ci">💡</span>
+                <div class="cb">
+                    <div class="ct">The Core FFT Idea</div>
+                    <p>The dramatic speedup comes from exploiting <strong>symmetry and periodicity of the twiddle factor</strong>
+                        \(W_N\): a large DFT is recursively decomposed into smaller DFTs whose partial results are reused —
+                        instead of computing every product independently, common sub-computations are shared, following a
+                        divide-and-conquer strategy.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 8 — FFT RADIX-2 DIT
+══════════════════════════════════ -->
+        <section class="section" id="sec8">
+            <div class="sec-hdr">
+                <span class="sec-num">08</span>
+                <h2 class="sec-t">Fast Fourier Transform — Radix-2 Decimation-in-Time</h2>
+            </div>
+
+            <p>The most common FFT algorithm, <strong>Radix-2 Decimation-in-Time (DIT)</strong>, requires N to be a power of 2. It
+                repeatedly splits the DFT sum into a sum over even-indexed samples and a sum over odd-indexed samples.</p>
+
+            <h3 class="sub">Derivation</h3>
+            <div class="fblock">
+                <span class="flbl">Step 1 — split even/odd samples</span>
+                $$ X[k] = \sum_{n=0}^{N-1} x[n]W_N^{kn} = \sum_{r=0}^{N/2-1} x[2r]\,W_N^{2rk} + \sum_{r=0}^{N/2-1} x[2r+1]\,W_N^{(2r+1)k} $$
+            </div>
+            <div class="fblock">
+                <span class="flbl">Step 2 — use W<sub>N</sub><sup>2</sup> = W<sub>N/2</sub></span>
+                $$ X[k] = \underbrace{\sum_{r=0}^{N/2-1} x[2r]\,W_{N/2}^{rk}}_{E[k]} \;+\; W_N^{k}\underbrace{\sum_{r=0}^{N/2-1} x[2r+1]\,W_{N/2}^{rk}}_{O[k]} $$
+            </div>
+            <div class="fblock">
+                <span class="flbl">Step 3 — the butterfly (using periodicity of E[k], O[k])</span>
+                $$ X[k] = E[k] + W_N^{k}\,O[k], \qquad X[k+N/2] = E[k] - W_N^{k}\,O[k], \quad k = 0,\dots,\tfrac{N}{2}-1 $$
+            </div>
+
+            <p>\(E[k]\) and \(O[k]\) are themselves N/2-point DFTs of the even- and odd-indexed samples. Applying this splitting
+                recursively — an N/2-point DFT is split into two N/4-point DFTs, and so on — for \(N = 2^m\) gives exactly
+                \(\log_2 N\) stages, each consisting of N/2 butterfly computations.</p>
+
+            <!-- SVG: 8-point radix-2 DIT FFT butterfly flow graph -->
+            <div class="svg-wrap svg-scroll">
+                <img src="images/ch9/fig9.3.png" alt="8-point Radix-2 DIT FFT butterfly flow graph" />
+                <div class="svg-cap">Figure 9.3 — 8-point Radix-2 DIT-FFT signal flow graph: 3 stages (log₂8) of butterfly
+                    computations. Input samples enter in bit-reversed order; output X[k] emerges in natural order.</div>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Bit-Reversed Input Order</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><span>Repeated even/odd splitting scrambles the input index in
+                            <strong>bit-reversed</strong> order (e.g. index 1 = 001₂ → 100₂ = 4 for N=8).</span></li>
+                        <li><span class="dot">▸</span><span>Output \(X[k]\) is recovered in natural order — a hallmark identifying
+                            feature of DIT FFT flow graphs.</span></li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Decimation-in-Frequency (DIF) — Contrast</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><span>DIF splits \(X[k]\) into even/odd <em>output</em> index instead of input
+                            index.</span></li>
+                        <li><span class="dot">▸</span><span>Input is in natural order; output emerges bit-reversed — exactly the
+                            mirror image of DIT.</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <span class="ci">🧠</span>
+                <div class="cb">
+                    <div class="ct">Mnemonic — DIT vs DIF</div>
+                    <p><strong>"DIT: Decimate Input, Twiddle after add"</strong> — in DIT the twiddle factor multiplies <em>after</em>
+                        the add/subtract in each butterfly; input is bit-reversed. <strong>"DIF: Decimate frequency,
+                            twiddle First"</strong> — in DIF the twiddle multiplies <em>before</em> the final butterfly add/subtract;
+                        output is bit-reversed.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 9 — NUMERICAL EXAMPLES
+══════════════════════════════════ -->
+        <section class="section" id="sec9">
+            <div class="sec-hdr">
+                <span class="sec-num">09</span>
+                <h2 class="sec-t">Numerical Examples</h2>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.1</span>
+                    <span class="ex-title">4-Point DFT of a Constant Sequence</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">Find the 4-point DFT of \(x[n] = \{1, 1, 1, 1\}\).</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="sol-step"><span class="sol-n">S1</span><span class="sol-t">\(X[k] = \sum_{n=0}^{3} x[n]\,W_4^{kn}\), with \(W_4 = e^{-j\pi/2} = -j\).</span></div>
+                    <div class="sol-step"><span class="sol-n">S2</span><span class="sol-t">\(X[0] = 1+1+1+1 = \mathbf{4}\) (sum of all samples — the DC value).</span></div>
+                    <div class="sol-step"><span class="sol-n">S3</span><span class="sol-t">\(X[1] = 1 + W_4 + W_4^2 + W_4^3 = 1 - j - 1 + j = \mathbf{0}\); similarly \(X[2] = X[3] = 0\) since the sequence is already constant (pure DC, no AC content).</span></div>
+                    <div class="sol-step"><span class="sol-n">KEY</span><span class="sol-t">A constant sequence has energy only at \(k=0\); this is the discrete analogue of a DC signal having a single spectral line at zero frequency.</span></div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.2</span>
+                    <span class="ex-title">4-Point DFT of an Impulse — Duality Check</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">Find the 4-point DFT of \(x[n] = \{1, 0, 0, 0\}\) and comment on the result.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="sol-step"><span class="sol-n">S1</span><span class="sol-t">\(X[k] = \sum_{n=0}^{3}x[n]W_4^{kn} = x[0]\cdot W_4^{0} = 1\) for every k (only the n=0 term survives).</span></div>
+                    <div class="sol-step"><span class="sol-n">S2</span><span class="sol-t">So \(X[k] = \{1,1,1,1\}\) for all k.</span></div>
+                    <div class="sol-step"><span class="sol-n">KEY</span><span class="sol-t">An impulse in time gives a flat spectrum — exactly the dual of Example 9.1. This impulse ↔ constant duality is a favourite GATE conceptual question.</span></div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.3</span>
+                    <span class="ex-title">4-Point Circular Convolution — Direct Method</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">Find the circular convolution of \(x_1[n] = \{1,2,3,4\}\) and \(x_2[n] = \{1,1,1,1\}\) (N=4).</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="sol-step"><span class="sol-n">S1</span><span class="sol-t">\(y[n] = \sum_{m=0}^{3}x_1[m]\,x_2[(n-m)\bmod 4]\). Since \(x_2\) is constant (=1), every term in the sum is just \(x_1[m]\).</span></div>
+                    <div class="sol-step"><span class="sol-n">S2</span><span class="sol-t">\(y[n] = \sum_{m=0}^{3}x_1[m] = 1+2+3+4 = \mathbf{10}\) for every n.</span></div>
+                    <div class="sol-step"><span class="sol-n">KEY</span><span class="sol-t">\(y[n] = \{10,10,10,10\}\). Circular convolution with an all-ones sequence always produces the constant "sum of the other sequence" — a fast mental-math shortcut.</span></div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.4</span>
+                    <span class="ex-title">Linear Convolution via Zero-Padded Circular Convolution</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">\(x_1[n] = \{1,2\}\) and \(x_2[n] = \{1,1\}\). Use DFT-based (zero-padded) circular convolution to find the linear convolution.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="sol-step"><span class="sol-n">S1</span><span class="sol-t">\(L_1 = L_2 = 2 \Rightarrow N \geq L_1+L_2-1 = 3\); choose \(N=4\) (power of 2).</span></div>
+                    <div class="sol-step"><span class="sol-n">S2</span><span class="sol-t">Zero-pad: \(x_1 = \{1,2,0,0\}\), \(x_2 = \{1,1,0,0\}\).</span></div>
+                    <div class="sol-step"><span class="sol-n">S3</span><span class="sol-t">4-point circular convolution of the padded sequences gives \(y[n] = \{1, 3, 2, 0\}\).</span></div>
+                    <div class="sol-step"><span class="sol-n">KEY</span><span class="sol-t">Direct linear convolution check: \(\{1,2\}*\{1,1\} = \{1, 1{+}2, 2\} = \{1,3,2\}\) — matches exactly (the trailing zero from padding is expected). This confirms the zero-padding rule.</span></div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.5</span>
+                    <span class="ex-title">FFT Multiplication Count — Classic GATE Numerical</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">How many complex multiplications are needed to compute a 512-point DFT using (a) the direct method and (b) the radix-2 FFT?</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="sol-step"><span class="sol-n">S1</span><span class="sol-t">Direct: \(N^2 = 512^2 = \mathbf{262{,}144}\) complex multiplications.</span></div>
+                    <div class="sol-step"><span class="sol-n">S2</span><span class="sol-t">FFT: \(\tfrac{N}{2}\log_2 N = \tfrac{512}{2}\times 9 = 256 \times 9 = \mathbf{2304}\) complex multiplications (since \(2^9=512\)).</span></div>
+                    <div class="sol-step"><span class="sol-n">KEY</span><span class="sol-t">Speedup ≈ 262144/2304 ≈ <strong>114×</strong> — this is exactly the kind of ratio GATE asks you to compute directly from the two formulas.</span></div>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 9.6</span>
+                    <span class="ex-title">Applying Parseval&rsquo;s Theorem</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A 4-point sequence has DFT \(X[k] = \{4, 0, 0, 0\}\). Verify Parseval&rsquo;s theorem given \(x[n] = \{1,1,1,1\}\).</div>
+                    <div class="sol-lbl">Solution</div>
+                    <div class="sol-step"><span class="sol-n">S1</span><span class="sol-t">Time-domain energy: \(\sum |x[n]|^2 = 1+1+1+1 = 4\).</span></div>
+                    <div class="sol-step"><span class="sol-n">S2</span><span class="sol-t">Frequency-domain: \(\tfrac{1}{N}\sum|X[k]|^2 = \tfrac{1}{4}(16+0+0+0) = 4\).</span></div>
+                    <div class="sol-step"><span class="sol-n">KEY</span><span class="sol-t">Both sides equal 4 — Parseval&rsquo;s theorem verified. This cross-check is often used in GATE to validate a computed DFT without full re-derivation.</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 10 — GATE & IES PYQs
+══════════════════════════════════ -->
+        <section class="section" id="sec10">
+            <div class="sec-hdr">
+                <span class="sec-num">10</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE</span>
+                    <span class="pyq-title">Complex multiplications in radix-2 FFT</span>
+                    <span class="pyq-year">Classic Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The number of complex multiplications required to compute an N-point DFT using the radix-2 FFT algorithm (N a power of 2) is:</p>
+                    <ul class="pyq-opts">
+                        <li><span>(a) \(N^2\)</span></li>
+                        <li class="correct"><span>(b) \(\dfrac{N}{2}\log_2 N\) ✓</span></li>
+                        <li><span>(c) \(N\log_2 N\)</span></li>
+                        <li><span>(d) \(N\)</span></li>
+                    </ul>
+                    <span class="ans-reveal">ANS: (b) — standard radix-2 FFT complexity formula.</span>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES</span>
+                    <span class="pyq-title pyq-title-ies">DFT of a real sequence — symmetry</span>
+                    <span class="pyq-year">Classic Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p>If \(x[n]\) is a real-valued N-point sequence, then its N-point DFT \(X[k]\) satisfies:</p>
+                    <ul class="pyq-opts">
+                        <li><span>(a) \(X[k] = X[N-k]\)</span></li>
+                        <li class="correct"><span>(b) \(X[k] = X^{*}[N-k]\) ✓</span></li>
+                        <li><span>(c) \(X[k] = -X[N-k]\)</span></li>
+                        <li><span>(d) \(X[k]\) is always real</span></li>
+                    </ul>
+                    <span class="ans-reveal">ANS: (b) — conjugate symmetry of the DFT of a real sequence.</span>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE</span>
+                    <span class="pyq-title">Circular convolution result length</span>
+                    <span class="pyq-year">Classic Numerical</span>
+                </div>
+                <div class="pyq-body">
+                    <p>Two sequences of length 5 and 4 are linearly convolved. The minimum DFT size N needed so that circular convolution of the zero-padded sequences equals the linear convolution is:</p>
+                    <ul class="pyq-opts">
+                        <li>(a) 4</li>
+                        <li>(b) 5</li>
+                        <li>(c) 9</li>
+                        <li class="correct">(d) 8 (next power of 2 ≥ 8) ✓</li>
+                    </ul>
+                    <span class="ans-reveal">ANS: (d) — need N ≥ L₁+L₂−1 = 8; since 8 is already a power of 2, N=8 works directly.</span>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES</span>
+                    <span class="pyq-title pyq-title-ies">DIT-FFT input ordering</span>
+                    <span class="pyq-year">Classic Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In an N-point radix-2 Decimation-In-Time FFT flow graph, the input sequence is fed in:</p>
+                    <ul class="pyq-opts">
+                        <li>(a) Natural order, output in natural order</li>
+                        <li class="correct">(b) Bit-reversed order, output in natural order ✓</li>
+                        <li>(c) Natural order, output in bit-reversed order</li>
+                        <li>(d) Bit-reversed order, output in bit-reversed order</li>
+                    </ul>
+                    <span class="ans-reveal">ANS: (b) — hallmark of DIT-FFT; DIF-FFT is exactly the reverse (c).</span>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE</span>
+                    <span class="pyq-title">DFT relation to Z-transform</span>
+                    <span class="pyq-year">Classic Pattern</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The N-point DFT \(X[k]\) of a finite-length sequence \(x[n]\) is related to its Z-transform \(X(z)\) by:</p>
+                    <ul class="pyq-opts">
+                        <li><span>(a) \(X[k] = X(z)\) evaluated at \(z = k\)</span></li>
+                        <li class="correct"><span>(b) \(X[k] = X(z)\big|_{z = e^{j2\pi k/N}}\) ✓</span></li>
+                        <li><span>(c) \(X[k] = X(z)\big|_{z=1}\) for all k</span></li>
+                        <li><span>(d) No general relationship exists</span></li>
+                    </ul>
+                    <span class="ans-reveal">ANS: (b) — DFT samples the Z-transform on the unit circle at N equally spaced angles.</span>
+                </div>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr">
+                    <span class="gate-tag">GATE FOCUS</span>
+                    <span class="gate-title">High-Frequency Exam Topics in This Chapter</span>
+                </div>
+                <div class="gate-body">
+                    <p><span class="prob-high">DFT/IDFT direct computation for short sequences (N=4, 8)</span></p>
+                    <p><span class="prob-high">Circular convolution — direct, graphical, and DFT-based methods</span></p>
+                    <p><span class="prob-high">FFT computational complexity comparisons (N² vs (N/2)log₂N)</span></p>
+                    <p><span class="prob-med">Zero-padding rule for linear convolution via DFT</span></p>
+                    <p><span class="prob-med">DFT properties — circular shift, conjugate symmetry, Parseval&rsquo;s theorem</span></p>
+                    <p><span class="prob-med">DIT vs DIF FFT flow-graph identification</span></p>
+                    <p><span class="prob-low">Overlap-add / overlap-save block convolution numericals</span></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════
+     SECTION 11 — MEMORY TRICKS & REVISION
+══════════════════════════════════ -->
+        <section class="section" id="sec11">
+            <div class="sec-hdr">
+                <span class="sec-num">11</span>
+                <h2 class="sec-t">Memory Tricks &amp; Quick Revision</h2>
+            </div>
+
+            <div class="callout c-tip">
+                <span class="ci">🧠</span>
+                <div class="cb">
+                    <div class="ct">Mnemonic — DFT Pair</div>
+                    <p><strong>"Analysis is Negative, Synthesis is Sunny (positive) and Shared (÷N)"</strong><br>
+                        DFT (analysis): exponent \(-j2\pi kn/N\), no 1/N factor. IDFT (synthesis): exponent \(+j2\pi kn/N\),
+                        divide by N.</p>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <span class="ci">⚠️</span>
+                <div class="cb">
+                    <div class="ct">Common Mistakes — GATE Traps</div>
+                    <p>1. <strong>Forgetting the 1/N in IDFT</strong> — many students drop it under exam pressure.<br>
+                        2. <strong>Treating DFT time-shift as linear shift</strong> — it is always circular (mod N).<br>
+                        3. <strong>Using N &lt; L₁+L₂−1</strong> for "linear via DFT" convolution — causes aliasing in the
+                        result.<br>
+                        4. <strong>Mixing up DIT and DIF</strong> input/output ordering — DIT: bit-reversed in, natural out; DIF:
+                        the opposite.<br>
+                        5. <strong>Confusing FFT with a different transform</strong> — the FFT is <em>not</em> a new transform;
+                        it is only a fast <em>algorithm</em> to compute the same DFT values.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Quick Revision Cards</h3>
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">DFT / IDFT</div>
+                    <p>\(X[k]=\sum x[n]W_N^{kn}\); \(x[n]=\tfrac{1}{N}\sum X[k]W_N^{-kn}\). Both domains periodic with period N.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Circular Convolution</div>
+                    <p>\(y[n]=\sum_m x_1[m]x_2[(n{-}m)\bmod N] \leftrightarrow X_1[k]X_2[k]\). Result length always N.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Linear via DFT</div>
+                    <p>Zero-pad both sequences to \(N \geq L_1+L_2-1\), then circular convolution = linear convolution.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Direct DFT Cost</div>
+                    <p>\(N^2\) complex multiplications, \(N(N{-}1)\) additions. Grows quadratically — motivates FFT.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Radix-2 FFT Cost</div>
+                    <p>\((N/2)\log_2 N\) multiplications, \(N\log_2 N\) additions. \(\log_2 N\) stages, N/2 butterflies/stage.</p>
+                </div>
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">DIT vs DIF</div>
+                    <p>DIT: bit-reversed input, natural output, twiddle after add. DIF: natural input, bit-reversed output, twiddle before add.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Real Sequence Symmetry</div>
+                    <p>\(X[N-k]=X^{*}[k]\) for real x[n]. Only \(N/2+1\) unique DFT values need computing.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Parseval&rsquo;s Theorem</div>
+                    <p>\(\sum|x[n]|^2 = \tfrac{1}{N}\sum|X[k]|^2\). Energy is preserved (up to the 1/N factor) between domains.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Twiddle Factor</div>
+                    <p>\(W_N=e^{-j2\pi/N}\); \(W_N^N=1\), \(W_N^{N/2}=-1\). Its periodicity/symmetry is the entire basis of the FFT speedup.</p>
+                </div>
+            </div>
+
+            <!-- ASK AAROVA AI WIDGET -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI</div>
+                <p>Have a doubt about the DFT, circular convolution, or FFT? Ask anything — GATE concepts, numericals, or exam
+                    tips!</p>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="ai-q" type="text"
+                        placeholder="e.g. Why does the DFT time-shift wrap around circularly?" />
+                    <button class="ai-btn" onclick="askAarova()">Ask Aarova AI</button>
+                </div>
+                <div class="ai-suggest">
+                    <button class="ai-chip" onclick="setQ('Why is DFT time shift circular and not linear?')">Circular Shift Explained</button>
+                    <button class="ai-chip" onclick="setQ('Derive the radix-2 DIT FFT butterfly step by step')">FFT Butterfly Derivation</button>
+                    <button class="ai-chip" onclick="setQ('Explain the difference between DIT and DIF FFT with an example')">DIT vs DIF</button>
+                    <button class="ai-chip" onclick="setQ('How does zero padding make circular convolution equal linear convolution?')">Zero Padding Rule</button>
+                    <button class="ai-chip" onclick="setQ('Where is the FFT actually used in OFDM communication systems?')">FFT in OFDM</button>
+                </div>
+                <div class="ai-response" id="ai-resp"></div>
+            </div>
+
+        </section>
+
+        <div class="citations" id="citations">
+            <div class="cite-h">References &amp; Citations</div>
+            <p style="font-size: 13px; color: var(--text2); margin-bottom: 16px;">All technical content is derived from the
+                following standard textbooks and learning resources. All explanations, derivations, diagrams and examples are
+                original to Aarova AI.</p>
+            <ul class="cite-list">
+                <li><span class="cite-num">[1]</span><span>Oppenheim, Alan V., and Schafer, Ronald W. <em>Discrete-Time Signal
+                    Processing</em>, 3rd ed. Pearson. Chapter 8: The Discrete Fourier Transform.</span></li>
+                <li><span class="cite-num">[2]</span><span>Proakis, John G., and Manolakis, Dimitris G. <em>Digital Signal
+                    Processing: Principles, Algorithms and Applications</em>, 4th ed. Pearson. Chapter 5–6: The DFT &amp; Fast
+                    Fourier Transform Algorithms.</span></li>
+                <li><span class="cite-num">[3]</span><span>Ramesh Babu, P. <em>Digital Signal Processing</em>, 4th ed. Scitech
+                    Publications. Chapters on DFT properties and FFT algorithms.</span></li>
+            </ul>
+        </div>
+
+        <footer>
+            <strong>Aarova AI</strong> · Signals &amp; Systems · Chapter 9 — Discrete Fourier Transform &amp; FFT ·
+            Content based on Oppenheim–Schafer, Proakis–Manolakis &amp; Ramesh Babu DSP texts.<br>
+            For GATE EE/EC · IES/ESE · ISRO · B.Tech &nbsp;|&nbsp; © Aarova AI Educational Platform
+        </footer>
+
+    </div><!-- .page -->
+
+    <script>
+        async function askAarova() {
+            const q = document.getElementById('ai-q').value.trim();
+            if (!q) return;
+            const resp = document.getElementById('ai-resp');
+            resp.style.display = 'block';
+            resp.textContent = '⏳ Aarova AI is thinking...';
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1000,
+                        system: `You are Aarova AI — a senior Signals & Systems / DSP professor specialising in GATE EE/EC, IES/ESE, and ISRO exam preparation in India.
+Your personality: warm, encouraging, exam-focused. You explain every concept with:
+1. Intuitive analogy first
+2. Core theory / formula
+3. Physical significance
+4. GATE exam tips
+5. A memory trick if relevant
+Keep answers concise (under 300 words). Use LaTeX for equations where appropriate. Context: Chapter 9 — Discrete Fourier Transform: DFT/IDFT definition, DFT properties, circular convolution, linear convolution via DFT (zero padding), computational complexity, and the Radix-2 DIT FFT algorithm.`,
+                        messages: [{ role: 'user', content: q }]
+                    })
+                });
+                const data = await res.json();
+                resp.textContent = data.content?.[0]?.text || 'Sorry, unable to get a response. Please try again.';
+            } catch (e) {
+                resp.textContent = '⚠️ Network error. Please try again.';
+            }
+        }
+
+        function setQ(txt) {
+            document.getElementById('ai-q').value = txt;
+            document.getElementById('ai-q').focus();
+        }
+
+        document.getElementById('ai-q').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') askAarova();
+        });
+    </script>
+</body>
+
+</html>

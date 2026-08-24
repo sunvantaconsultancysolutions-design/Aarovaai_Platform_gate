@@ -1,0 +1,2792 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Signals & Systems Ch.4 Continuous-Time Fourier Transform</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 50%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TABLE OF CONTENTS ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH (KaTeX) display ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COLUMN CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 20px;
+            border-bottom: 1px solid var(--bg3);
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            position: absolute;
+            left: 0;
+            top: 8px;
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── ASK CLAUDE WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .gate-body p,
+            .pyq-body p {
+                font-size: 14px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 8px 11px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-chip {
+                font-size: 10.5px;
+                padding: 5px 10px;
+            }
+
+            .ai-btn {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div style="display:flex;align-items:center;">
+            <span class="logo">Aarova AI</span>
+            <span class="logo-sub">Signals &amp; Systems · Chapter 4</span>
+        </div>
+        <div class="hbadges">
+            <span class="hbadge">GATE EE</span>
+            <span class="hbadge">IES E&amp;T</span>
+            <span class="hbadge">PSU</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Signals &amp; Systems · Chapter 4 of 8</div>
+            <h1 class="hero-title">Continuous-Time<br><em>Fourier Transform</em></h1>
+            <p class="hero-desc">From time-domain waveforms to frequency-domain spectra — the CTFT is the mathematical
+                backbone of signal analysis, filter design, communication systems, and every spectrum analyser on the
+                planet. Master this and you command the language of all signals.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">🟡 Medium Difficulty</span>
+                <span class="badge">Transform Pairs</span>
+                <span class="badge">Properties</span>
+                <span class="badge">Duality</span>
+                <span class="badge">Parseval's Theorem</span>
+                <span class="badge">Spectrum Interpretation</span>
+            </div>
+        </div>
+
+        <!-- ── Progress ── -->
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf" style="width:50%"></div>
+            </div>
+            <span class="pp">Ch 4 / 8 · 50%</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Table of Contents</div>
+            <div class="toc-grid">
+                <a class="toc-item" href="#s1"><span class="toc-n">01</span>Why CTFT Exists</a>
+                <a class="toc-item" href="#s2"><span class="toc-n">02</span>Derivation from Fourier Series</a>
+                <a class="toc-item" href="#s3"><span class="toc-n">03</span>Definition &amp; Synthesis Pair</a>
+                <a class="toc-item" href="#s4"><span class="toc-n">04</span>Standard Transform Pairs</a>
+                <a class="toc-item" href="#s5"><span class="toc-n">05</span>Properties of CTFT</a>
+                <a class="toc-item" href="#s6"><span class="toc-n">06</span>Duality Property</a>
+                <a class="toc-item" href="#s7"><span class="toc-n">07</span>Convolution &amp; Filtering</a>
+                <a class="toc-item" href="#s8"><span class="toc-n">08</span>Parseval's Relation</a>
+                <a class="toc-item" href="#s9"><span class="toc-n">09</span>Spectrum Interpretation</a>
+                <a class="toc-item" href="#s10"><span class="toc-n">10</span>GATE / IES PYQs</a>
+                <a class="toc-item" href="#s11"><span class="toc-n">11</span>Worked Numericals</a>
+                <a class="toc-item" href="#s12"><span class="toc-n">12</span>Quick Revision Sheet</a>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+         SECTION 1 — WHY CTFT EXISTS
+    ════════════════════════════════════════ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 01</span>
+                <h2 class="sec-t">Why the Fourier Transform Exists</h2>
+            </div>
+
+            <p>Every engineer has asked: <em>"What frequencies are hiding inside this signal?"</em> When you plug a
+                guitar into a tuner, the tuner does not measure time — it measures which frequency is loudest. When a
+                spectrum analyser shows you channels on a radio band, it is displaying the result of a Fourier
+                Transform. The <strong>Continuous-Time Fourier Transform (CTFT)</strong> is the mathematical operation
+                that converts a time-domain signal \(x(t)\) into its frequency-domain representation \(X(j\omega)\),
+                revealing every sinusoidal component present.<sup class="cite"
+                    onclick="document.getElementById('citations').scrollIntoView()">[1]</sup></p>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">The Central Idea</div>
+                    <p>Any physically realisable, energy-finite signal can be thought of as an infinite superposition of
+                        sinusoids of different frequencies, amplitudes, and phases. The CTFT tells you <em>exactly how
+                            much</em> of each frequency is present — both its amplitude and its phase angle.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">The Engineering Problem CTFT Solves</h3>
+            <p>Consider an AM radio signal carrying voice: in time domain it looks like a noisy, irregular wave —
+                impossible to decode visually. In frequency domain it separates neatly into a carrier frequency and
+                sidebands. The receiver's filter can then surgically extract only the desired channel. This is
+                impossible without the Fourier Transform. Similarly, in power systems, harmonic analysers apply CTFT to
+                detect 3rd, 5th, 7th harmonics injected by nonlinear loads — essential for power quality management.</p>
+
+            <!-- Real-world applications block -->
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Electrical Engineering Applications</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">◆</span>AM/FM radio — modulation &amp; demodulation of carrier signals
+                        </li>
+                        <li><span class="dot">◆</span>Power systems — harmonic distortion analysis (IEEE 519)</li>
+                        <li><span class="dot">◆</span>Control systems — frequency response \(H(j\omega)\), Bode plots
+                        </li>
+                        <li><span class="dot">◆</span>Filter design — ideal lowpass, bandpass, highpass cut-off</li>
+                        <li><span class="dot">◆</span>Radar — Doppler frequency shift analysis</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Connected Concepts</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">◆</span>Fourier Series (periodic signals) → CTFT (aperiodic signals)</li>
+                        <li><span class="dot">◆</span>Laplace Transform: \(s = j\omega\) on imaginary axis</li>
+                        <li><span class="dot">◆</span>DTFT → Z-Transform (discrete counterparts)</li>
+                        <li><span class="dot">◆</span>Convolution Theorem → LTI system analysis</li>
+                        <li><span class="dot">◆</span>Sampling Theorem — Nyquist built on Fourier spectrum</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+         SECTION 2 — DERIVATION FROM FOURIER SERIES
+    ════════════════════════════════════════ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 02</span>
+                <h2 class="sec-t">Derivation — From Fourier Series to CTFT</h2>
+            </div>
+
+            <p>The cleanest way to understand the CTFT is to derive it by taking a periodic signal and letting the
+                period \(T_0 \to \infty\). This is not just a mathematical trick — it is exactly what happens physically
+                when you take an isolated pulse and imagine copies of it spaced infinitely far apart.<sup class="cite"
+                    onclick="document.getElementById('citations').scrollIntoView()">[2]</sup></p>
+
+            <h3 class="sub">Step 1 — Fourier Series of a Periodic Signal</h3>
+            <p>For a periodic signal \(\tilde{x}(t)\) with period \(T_0\) and fundamental frequency \(\omega_0 =
+                2\pi/T_0\), the complex exponential Fourier series is:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Fourier Series — Analysis &amp; Synthesis</div>
+                $$\tilde{x}(t) = \sum_{k=-\infty}^{\infty} c_k \, e^{jk\omega_0 t}, \qquad c_k =
+                \frac{1}{T_0}\int_{-T_0/2}^{T_0/2} \tilde{x}(t)\, e^{-jk\omega_0 t}\, dt$$
+            </div>
+
+            <h3 class="sub">Step 2 — Letting \(T_0 \to \infty\)</h3>
+            <p>Now imagine we stretch the period: \(T_0 \to \infty\). The copies of the pulse move infinitely far away.
+                The signal becomes an isolated aperiodic pulse \(x(t)\). What happens to the spectrum?</p>
+            <p>As \(T_0 \to \infty\):</p>
+            <ul style="margin:0 0 14px 28px;color:var(--text2);font-size:clamp(14px,2vw,17px);line-height:1.85;">
+                <li>The fundamental frequency \(\omega_0 = 2\pi/T_0 \to 0\) — spectral lines crowd infinitely close
+                    together</li>
+                <li>The discrete spectrum \(c_k\) becomes a continuous function of frequency</li>
+                <li>The sum \(\sum\) becomes an integral \(\int\)</li>
+            </ul>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch4/fig4.1.png" alt="Periodic x̃(t) — Discrete Spectrum" />
+                <div class="svg-cap">Fig 1 — As period T₀ → ∞, the discrete spectral lines merge into a continuous
+                    spectrum X(jω). This is the CTFT.</div>
+            </div>
+
+            <h3 class="sub">Step 3 — The Limiting Form</h3>
+            <p>Multiplying both sides of the Fourier series equation by \(T_0\) and taking the limit gives us the CTFT
+                pair. Define \(X(j\omega) \triangleq \lim_{T_0\to\infty} T_0 \cdot c_k\). Then:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Key Limiting Relationship</div>
+                $$T_0 \cdot c_k \;\to\; X(j\omega) = \int_{-\infty}^{\infty} x(t)\, e^{-j\omega t}\, dt \quad \text{as }
+                T_0 \to \infty$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Key Physical Insight</div>
+                    <p>The Fourier Transform coefficient \(X(j\omega)\) is the <strong>density</strong> of the
+                        sinusoidal content per unit frequency bandwidth. The Fourier Series coefficient \(c_k\) was the
+                        amplitude at a single discrete frequency. When frequencies become continuous, we must speak of
+                        "amplitude per Hz" — hence the density interpretation.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+         SECTION 3 — DEFINITION & SYNTHESIS
+    ════════════════════════════════════════ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 03</span>
+                <h2 class="sec-t">The CTFT Definition — Analysis &amp; Synthesis Pair</h2>
+            </div>
+
+            <p>The Continuous-Time Fourier Transform is defined as a pair of equations — one that analyses (breaks a
+                signal into frequencies) and one that synthesises (reconstructs the signal from frequencies).<sup
+                    class="cite" onclick="document.getElementById('citations').scrollIntoView()">[1]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">CTFT — Analysis Equation (Forward Transform)</div>
+                $$\boxed{X(j\omega) = \mathcal{F}\{x(t)\} = \int_{-\infty}^{\infty} x(t)\, e^{-j\omega t}\, dt}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">CTFT — Synthesis Equation (Inverse Transform)</div>
+                $$\boxed{x(t) = \mathcal{F}^{-1}\{X(j\omega)\} = \frac{1}{2\pi}\int_{-\infty}^{\infty} X(j\omega)\,
+                e^{j\omega t}\, d\omega}$$
+            </div>
+
+            <p>The notation \(x(t) \xleftrightarrow{\mathcal{F}} X(j\omega)\) denotes a Fourier Transform pair. Some
+                textbooks use \(f\) (Hz) instead of \(\omega\) (rad/s): \(X(f) = \int_{-\infty}^{\infty} x(t) e^{-j2\pi
+                ft} dt\). In GATE EE, the \(\omega\) convention is most common — always confirm which convention a
+                problem uses before solving.<sup class="cite"
+                    onclick="document.getElementById('citations').scrollIntoView()">[3]</sup></p>
+
+            <h3 class="sub">Understanding Each Variable</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Name</th>
+                            <th>Units</th>
+                            <th>Physical Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>\(x(t)\)</td>
+                            <td>Time-domain signal</td>
+                            <td>Volts, Amperes, etc.</td>
+                            <td>The signal you can measure with an oscilloscope</td>
+                        </tr>
+                        <tr>
+                            <td>\(X(j\omega)\)</td>
+                            <td>Frequency spectrum</td>
+                            <td>V·s, A·s, etc.</td>
+                            <td>Complex amplitude density at each frequency \(\omega\)</td>
+                        </tr>
+                        <tr>
+                            <td>\(\omega\)</td>
+                            <td>Angular frequency</td>
+                            <td>rad/s</td>
+                            <td>\(\omega = 2\pi f\) where \(f\) is frequency in Hz</td>
+                        </tr>
+                        <tr>
+                            <td>\(|X(j\omega)|\)</td>
+                            <td>Magnitude spectrum</td>
+                            <td>—</td>
+                            <td>Amplitude of each frequency component</td>
+                        </tr>
+                        <tr>
+                            <td>\(\angle X(j\omega)\)</td>
+                            <td>Phase spectrum</td>
+                            <td>radians</td>
+                            <td>Phase shift of each frequency component</td>
+                        </tr>
+                        <tr>
+                            <td>\(e^{-j\omega t}\)</td>
+                            <td>Analysis kernel</td>
+                            <td>—</td>
+                            <td>Complex sinusoid used to "probe" signal at frequency \(\omega\)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Dirichlet Conditions — When Does CTFT Exist?</h3>
+            <p>The CTFT exists (converges) if a signal satisfies the <strong>Dirichlet conditions</strong>:<sup
+                    class="cite" onclick="document.getElementById('citations').scrollIntoView()">[2]</sup></p>
+
+            <div class="fblock"><span class="flbl">Dirichlet Conditions for CTFT Existence</span>
+                <ul style="padding-left: 1.5rem; margin-top: 1rem;">
+                    <li><span class="fh">Condition 1:</span> \( x(t) \) is absolutely integrable:
+                        $$ \int_{-\infty}^{\infty} |x(t)| \, dt < \infty $$ (finite energy) </li>
+                    <li style="margin-top: 0.5rem;"><span class="fh">Condition 2:</span> \( x(t) \) has finite maxima
+                        and minima in any finite interval</li>
+                    <li style="margin-top: 0.5rem;"><span class="fh">Condition 3:</span> \( x(t) \) has finite number of
+                        discontinuities in any finite interval</li>
+                </ul>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">GATE Trap — Signals that violate Condition 1</div>
+                    <p>A unit step \(u(t)\) and \(\cos(\omega_0 t)\) are <strong>not absolutely integrable</strong> —
+                        their CTFT contains Dirac delta functions \(\delta(\omega)\). Their transforms exist in the
+                        <em>generalised function</em> sense but require special treatment. GATE frequently tests this
+                        distinction.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+         SECTION 4 — STANDARD TRANSFORM PAIRS
+    ════════════════════════════════════════ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 04</span>
+                <h2 class="sec-t">Standard Transform Pairs</h2>
+            </div>
+
+            <p>These are the backbone pairs that GATE and IES test repeatedly. Derive each one at least once from the
+                definition to build intuition — then memorise them for exam speed.<sup class="cite"
+                    onclick="document.getElementById('citations').scrollIntoView()">[1,2]</sup></p>
+
+            <!-- ── RECT PULSE — full derivation ── -->
+            <h3 class="sub">Pair 1 — Rectangular Pulse <span class="prob prob-h">🟢 HIGH</span></h3>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch4/fig4.2.png" alt="x(t) = rect(t/τ)" />
+                <div class="svg-cap">Fig 2 — Rectangular pulse in time domain produces a sinc function in frequency
+                    domain. Narrower pulse → wider spectrum (time-bandwidth product).</div>
+            </div>
+
+            <p>Let \(x(t) = A\) for \(|t| \leq \tau/2\) and zero elsewhere. Applying the definition:</p>
+            <div class="math-block">
+                <div class="math-lbl">Rectangular Pulse CTFT — Full Derivation</div>
+                $$X(j\omega) = \int_{-\tau/2}^{\tau/2} A\, e^{-j\omega t}\, dt = A \left[\frac{e^{-j\omega
+                t}}{-j\omega}\right]_{-\tau/2}^{\tau/2} = A \cdot \frac{e^{-j\omega\tau/2} -
+                e^{j\omega\tau/2}}{-j\omega}$$
+                $$= A \cdot \frac{2\sin(\omega\tau/2)}{\omega} = A\tau \cdot \frac{\sin(\omega\tau/2)}{\omega\tau/2} =
+                A\tau\,\mathrm{sinc}\!\left(\frac{\omega\tau}{2\pi}\right)$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">sinc Function Convention</div>
+                    <p>GATE uses two conventions: <strong>unnormalised:</strong> \(\mathrm{sinc}(\theta) =
+                        \dfrac{\sin\theta}{\theta}\) — nulls at \(\omega = \pm 2\pi k/\tau\).
+                        <strong>Normalised:</strong> \(\mathrm{sinc}(x) = \dfrac{\sin(\pi x)}{\pi x}\) — nulls at
+                        integer \(x\). Oppenheim uses unnormalised; Haykin uses normalised. Always read the problem
+                        definition.
+                    </p>
+                </div>
+            </div>
+
+            <!-- KEY TRANSFORM PAIRS TABLE -->
+            <h3 class="sub">All Standard Pairs — GATE Master Table <span class="prob prob-h">🟢 HIGH</span></h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Signal \(x(t)\)</th>
+                            <th>Transform \(X(j\omega)\)</th>
+                            <th>Exam Weightage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>\(\delta(t)\) — Dirac impulse</td>
+                            <td class="t-org">\(1\) (flat spectrum)</td>
+                            <td class="t-grn">🟢 Very High</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>\(1\) — DC signal</td>
+                            <td class="t-org">\(2\pi\delta(\omega)\)</td>
+                            <td class="t-grn">🟢 High</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>\(e^{-at}u(t),\; a&gt;0\) — one-sided decaying exp.</td>
+                            <td class="t-org">\(\dfrac{1}{a+j\omega}\)</td>
+                            <td class="t-grn">🟢 Very High</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>\(e^{-a|t|},\; a&gt;0\) — two-sided decaying exp.</td>
+                            <td class="t-org">\(\dfrac{2a}{a^2+\omega^2}\)</td>
+                            <td class="t-amb">🟡 Medium</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>\(u(t)\) — unit step</td>
+                            <td class="t-org">\(\pi\delta(\omega) + \dfrac{1}{j\omega}\)</td>
+                            <td class="t-grn">🟢 High</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>\(\mathrm{rect}(t/\tau)\) — rectangular pulse</td>
+                            <td class="t-org">\(\tau\,\mathrm{sinc}(\omega\tau/2\pi)\)</td>
+                            <td class="t-grn">🟢 High</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>\(\mathrm{sinc}(Wt/\pi)\) — sinc function</td>
+                            <td class="t-org">\(\dfrac{\pi}{W}\mathrm{rect}\!\left(\dfrac{\omega}{2W}\right)\) — ideal
+                                LPF</td>
+                            <td class="t-grn">🟢 High (Duality)</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>\(e^{j\omega_0 t}\) — complex exponential</td>
+                            <td class="t-org">\(2\pi\delta(\omega - \omega_0)\)</td>
+                            <td class="t-grn">🟢 Very High</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>\(\cos(\omega_0 t)\)</td>
+                            <td class="t-org">\(\pi[\delta(\omega-\omega_0)+\delta(\omega+\omega_0)]\)</td>
+                            <td class="t-grn">🟢 Very High</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>\(\sin(\omega_0 t)\)</td>
+                            <td class="t-org">\(\dfrac{\pi}{j}[\delta(\omega-\omega_0)-\delta(\omega+\omega_0)]\)</td>
+                            <td class="t-amb">🟡 Medium</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>\(te^{-at}u(t),\; a&gt;0\)</td>
+                            <td class="t-org">\(\dfrac{1}{(a+j\omega)^2}\)</td>
+                            <td class="t-amb">🟡 Medium</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td>\(\sum_{n=-\infty}^{\infty}\delta(t-nT_s)\) — impulse train</td>
+                            <td class="t-org">\(\dfrac{2\pi}{T_s}\sum_{k=-\infty}^{\infty}\delta(\omega - k\omega_s)\)
+                            </td>
+                            <td class="t-tel">🟡 Sampling Thm</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Derivation of e^-at u(t) -->
+            <h3 class="sub">Derivation: \(e^{-at}u(t) \xleftrightarrow{\mathcal{F}} \frac{1}{a+j\omega}\) <span
+                    class="prob prob-h">🟢 HIGH</span></h3>
+            <p>This is the single most tested transform pair in GATE EE. Derivation from first principles:</p>
+            <div class="math-block">
+                <div class="math-lbl">One-sided decaying exponential — full derivation</div>
+                $$X(j\omega) = \int_{-\infty}^{\infty} e^{-at}u(t)\, e^{-j\omega t}\, dt = \int_{0}^{\infty} e^{-at}
+                e^{-j\omega t}\, dt = \int_{0}^{\infty} e^{-(a+j\omega)t}\, dt$$
+                $$= \left[\frac{e^{-(a+j\omega)t}}{-(a+j\omega)}\right]_{0}^{\infty} = \frac{1}{a+j\omega} \qquad
+                (\text{valid since } a > 0 \Rightarrow e^{-(a+j\omega)t}\to 0 \text{ as } t\to\infty)$$
+            </div>
+            <p>The magnitude and phase spectra are: \(|X(j\omega)| = \dfrac{1}{\sqrt{a^2+\omega^2}}\) and \(\angle
+                X(j\omega) = -\arctan\!\left(\dfrac{\omega}{a}\right)\). This is the Lorentzian spectrum — also the
+                frequency response of an RC low-pass filter with \(a = 1/RC\).</p>
+        </div>
+
+        <!-- ════════════════════════════════════════
+         SECTION 5 — PROPERTIES
+    ════════════════════════════════════════ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 05</span>
+                <h2 class="sec-t">Properties of the CTFT</h2>
+            </div>
+            <p>Properties let you compute Fourier Transforms of complex signals without evaluating integrals from
+                scratch. This is where GATE saves you time — learn to chain properties together.<sup class="cite"
+                    onclick="document.getElementById('citations').scrollIntoView()">[1,2]</sup></p>
+
+            <!-- PROPERTIES TABLE -->
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Time Domain</th>
+                            <th>Frequency Domain</th>
+                            <th>GATE Weight</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Linearity</td>
+                            <td>\(ax(t)+by(t)\)</td>
+                            <td class="t-org">\(aX(j\omega)+bY(j\omega)\)</td>
+                            <td class="t-grn">🟢 Very High</td>
+                        </tr>
+                        <tr>
+                            <td>Time Shifting</td>
+                            <td>\(x(t-t_0)\)</td>
+                            <td class="t-org">\(e^{-j\omega t_0} X(j\omega)\)</td>
+                            <td class="t-grn">🟢 Very High</td>
+                        </tr>
+                        <tr>
+                            <td>Frequency Shifting (Modulation)</td>
+                            <td>\(e^{j\omega_0 t} x(t)\)</td>
+                            <td class="t-org">\(X(j(\omega-\omega_0))\)</td>
+                            <td class="t-grn">🟢 Very High</td>
+                        </tr>
+                        <tr>
+                            <td>Time Scaling</td>
+                            <td>\(x(at)\)</td>
+                            <td class="t-org">\(\frac{1}{|a|}X\!\left(\frac{j\omega}{a}\right)\)</td>
+                            <td class="t-grn">🟢 High</td>
+                        </tr>
+                        <tr>
+                            <td>Time Reversal</td>
+                            <td>\(x(-t)\)</td>
+                            <td class="t-org">\(X(-j\omega) = X^*(j\omega)\)</td>
+                            <td class="t-amb">🟡 Medium</td>
+                        </tr>
+                        <tr>
+                            <td>Differentiation in Time</td>
+                            <td>\(\frac{d^n x}{dt^n}\)</td>
+                            <td class="t-org">\((j\omega)^n X(j\omega)\)</td>
+                            <td class="t-grn">🟢 High</td>
+                        </tr>
+                        <tr>
+                            <td>Integration in Time</td>
+                            <td>\(\int_{-\infty}^{t} x(\tau)d\tau\)</td>
+                            <td class="t-org">\(\frac{1}{j\omega}X(j\omega) + \pi X(0)\delta(\omega)\)</td>
+                            <td class="t-amb">🟡 Medium</td>
+                        </tr>
+                        <tr>
+                            <td>Multiplication in Time (Convolution in Freq)</td>
+                            <td>\(x(t)\cdot y(t)\)</td>
+                            <td class="t-org">\(\frac{1}{2\pi}X(j\omega)*Y(j\omega)\)</td>
+                            <td class="t-grn">🟢 High</td>
+                        </tr>
+                        <tr>
+                            <td>Convolution in Time</td>
+                            <td>\(x(t)*y(t)\)</td>
+                            <td class="t-org">\(X(j\omega)\cdot Y(j\omega)\)</td>
+                            <td class="t-grn">🟢 Very High</td>
+                        </tr>
+                        <tr>
+                            <td>Conjugate Symmetry (real \(x(t)\))</td>
+                            <td>\(x(t) \in \mathbb{R}\)</td>
+                            <td class="t-org">\(X(-j\omega) = X^*(j\omega)\)</td>
+                            <td class="t-amb">🟡 Medium</td>
+                        </tr>
+                        <tr>
+                            <td>Parseval's Theorem</td>
+                            <td>\(\int|x(t)|^2 dt\)</td>
+                            <td class="t-org">\(\frac{1}{2\pi}\int|X(j\omega)|^2 d\omega\)</td>
+                            <td class="t-grn">🟢 High</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Time Shifting Detail -->
+            <h3 class="sub">Time Shifting — Deep Dive <span class="prob prob-h">🟢 HIGH</span></h3>
+            <p>If \(x(t) \xleftrightarrow{\mathcal{F}} X(j\omega)\), then a delay of \(t_0\) seconds produces:</p>
+            <div class="math-block">
+                $$x(t-t_0) \xleftrightarrow{\mathcal{F}} e^{-j\omega t_0} X(j\omega)$$
+            </div>
+            <p><strong>Physical meaning:</strong> A time delay does not change the magnitude spectrum \(|X(j\omega)|\) —
+                only the phase spectrum picks up a linear phase term \(-\omega t_0\). This is the basis for <em>linear
+                    phase filters</em> in communications.</p>
+
+            <div class="callout c-tip">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">GATE Shortcut — Time Shift vs Frequency Shift</div>
+                    <p><strong>Time shift:</strong> multiply spectrum by \(e^{-j\omega t_0}\) → affects phase only, NOT
+                        magnitude. <strong>Frequency shift:</strong> multiply time signal by \(e^{j\omega_0 t}\) →
+                        shifts spectrum on \(\omega\)-axis. These are the mathematical tools behind AM modulation
+                        (frequency shifting) and signal delay (time shifting).</p>
+                </div>
+            </div>
+
+            <!-- Time Scaling Detail -->
+            <h3 class="sub">Time Scaling — The Time-Bandwidth Product <span class="prob prob-h">🟢 HIGH</span></h3>
+            <div class="math-block">
+                <div class="math-lbl">Time Scaling Property — Proof Sketch</div>
+                $$\mathcal{F}\{x(at)\} = \int_{-\infty}^{\infty} x(at)e^{-j\omega t}dt \xrightarrow{\tau=at}
+                \frac{1}{|a|}\int_{-\infty}^{\infty} x(\tau)e^{-j(\omega/a)\tau}d\tau =
+                \frac{1}{|a|}X\!\left(\frac{j\omega}{a}\right)$$
+            </div>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch4/fig4.3.png" alt="Time Scaling property (x(t), x(2t), x(t/2))" />
+                <div class="svg-cap">Fig 3 — Time-Bandwidth Product: Compressing a signal in time (a&gt;1) expands its
+                    spectrum by the same factor, and vice versa. This is a fundamental constraint of nature.</div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Mistake — Time Compression vs Expansion</div>
+                    <p>\(x(2t)\) compresses the signal in time (makes it faster/shorter) — students often confuse the
+                        direction. Remember: <strong>a &gt; 1 → compressed in time → expanded in frequency</strong>. If
+                        \(a = 2\): width in time halves, width in frequency doubles. The energy is conserved only when
+                        accounting for the \(1/|a|\) amplitude factor.</p>
+                </div>
+            </div>
+
+            <!-- Frequency Shifting -->
+            <h3 class="sub">Frequency Shifting — Amplitude Modulation <span class="prob prob-h">🟢 HIGH</span></h3>
+            <div class="math-block">
+                $$e^{j\omega_0 t} x(t) \xleftrightarrow{\mathcal{F}} X(j(\omega-\omega_0))$$
+                $$\cos(\omega_0 t)\cdot x(t) = \frac{e^{j\omega_0 t}+e^{-j\omega_0 t}}{2}\cdot x(t)
+                \xleftrightarrow{\mathcal{F}} \frac{1}{2}\left[X(j(\omega-\omega_0)) + X(j(\omega+\omega_0))\right]$$
+            </div>
+            <p>This is exactly how <strong>AM (Amplitude Modulation)</strong> works — multiplying a baseband message
+                signal \(x(t)\) (audio, up to 15 kHz) by a high-frequency carrier \(\cos(\omega_c t)\) shifts the
+                message spectrum up to the carrier frequency for broadcast. The CTFT tells you that the transmitted
+                signal has two sidebands, each a shifted copy of \(X(j\omega)\).</p>
+        </div>
+
+        <!-- ════════════════════════════════════════
+         SECTION 6 — DUALITY
+    ════════════════════════════════════════ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 06</span>
+                <h2 class="sec-t">Duality Property</h2>
+            </div>
+            <p>Duality is the most elegant property of the CTFT — it says the roles of time and frequency are
+                interchangeable with a small adjustment. It effectively doubles your table of known transforms for
+                free.<sup class="cite" onclick="document.getElementById('citations').scrollIntoView()">[2]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Duality Theorem — Statement</div>
+                $$\text{If } x(t) \xleftrightarrow{\mathcal{F}} X(j\omega) \quad \text{then} \quad X(jt)
+                \xleftrightarrow{\mathcal{F}} 2\pi\, x(-\omega)$$
+            </div>
+
+            <h3 class="sub">Proof of Duality</h3>
+            <div class="math-block">
+                <div class="math-lbl">Duality — Proof from Inverse Transform</div>
+                $$\text{Starting from the inverse CTFT:}\quad x(t) = \frac{1}{2\pi}\int_{-\infty}^{\infty} X(j\omega)
+                e^{j\omega t} d\omega$$
+                $$\text{Replace } t \to -t:\quad x(-t) = \frac{1}{2\pi}\int_{-\infty}^{\infty} X(j\omega) e^{-j\omega t}
+                d\omega$$
+                $$\text{Now replace } t \to \omega \text{ and treat } t \text{ as a variable:}\quad 2\pi\, x(-\omega) =
+                \int_{-\infty}^{\infty} X(jt) e^{-j\omega t} dt = \mathcal{F}\{X(jt)\}$$
+            </div>
+
+            <h3 class="sub">Duality in Action — Key Examples</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Known Pair</th>
+                            <th>Duality Gives You</th>
+                            <th>Interpretation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>\(\delta(t) \leftrightarrow 1\)</td>
+                            <td class="t-org">\(1 \leftrightarrow 2\pi\delta(\omega)\)</td>
+                            <td>DC signal has spectrum only at \(\omega=0\)</td>
+                        </tr>
+                        <tr>
+                            <td>\(e^{-at}u(t) \leftrightarrow \frac{1}{a+j\omega}\)</td>
+                            <td class="t-org">\(\frac{1}{a+jt} \leftrightarrow 2\pi e^{a\omega}u(-\omega)\)</td>
+                            <td>Swapping roles of time &amp; frequency</td>
+                        </tr>
+                        <tr>
+                            <td>\(\mathrm{rect}(t/\tau) \leftrightarrow \tau\,\mathrm{sinc}(\omega\tau/2\pi)\)</td>
+                            <td class="t-org">\(W\,\mathrm{sinc}(Wt/\pi) \leftrightarrow \mathrm{rect}(\omega/2W)\)</td>
+                            <td>Ideal LPF in frequency has sinc impulse response</td>
+                        </tr>
+                        <tr>
+                            <td>\(e^{j\omega_0 t} \leftrightarrow 2\pi\delta(\omega-\omega_0)\)</td>
+                            <td class="t-org">\(\delta(t-t_0) \leftrightarrow e^{-j\omega t_0}\)</td>
+                            <td>Time shift → linear phase (re-deriving time-shift property)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Ideal LPF diagram -->
+            <h3 class="sub">The Ideal Lowpass Filter — Duality Example <span class="prob prob-h">🟢 HIGH</span></h3>
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch4/fig4.4.png" alt="Ideal Lowpass Filter — Duality Example" />
+                <div class="svg-cap">Fig 4 — The ideal LPF has a rectangular frequency response. By Duality, its impulse
+                    response h(t) is a sinc function — which extends to −∞, making the ideal LPF physically
+                    unrealisable.</div>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">🚫</div>
+                <div class="cb">
+                    <div class="ct">Why Ideal Filters are Unrealisable</div>
+                    <p>The sinc function \(h(t)\) is non-zero for \(t < 0\) — the filter output would start before the
+                            input arrives! This violates causality. Practical filters (Butterworth, Chebyshev, Elliptic)
+                            approximate the ideal rectangular response while remaining causal. This GATE favourite
+                            connects CTFT duality with filter theory.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+         SECTION 7 — CONVOLUTION
+    ════════════════════════════════════════ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 07</span>
+                <h2 class="sec-t">Convolution Theorem &amp; LTI Filtering</h2>
+            </div>
+
+            <p>The Convolution Theorem is arguably the most important result in signals and systems — it is why Fourier
+                Transforms are so useful in engineering. It converts the difficult operation of convolution into simple
+                multiplication.<sup class="cite"
+                    onclick="document.getElementById('citations').scrollIntoView()">[1,3]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Convolution Theorem — Time ↔ Frequency</div>
+                $$y(t) = x(t) * h(t) = \int_{-\infty}^{\infty} x(\tau)h(t-\tau)d\tau \quad \xleftrightarrow{\mathcal{F}}
+                \quad Y(j\omega) = X(j\omega)\cdot H(j\omega)$$
+            </div>
+
+            <h3 class="sub">Proof of Convolution Theorem</h3>
+            <div class="math-block">
+                <div class="math-lbl">Proof — Interchanging order of integration</div>
+                $$\mathcal{F}\{x(t)*h(t)\} = \int_{-\infty}^{\infty}\left[\int_{-\infty}^{\infty}
+                x(\tau)h(t-\tau)d\tau\right]e^{-j\omega t}dt$$
+                $$= \int_{-\infty}^{\infty} x(\tau)\left[\int_{-\infty}^{\infty} h(t-\tau)e^{-j\omega t}dt\right]d\tau =
+                \int_{-\infty}^{\infty} x(\tau) e^{-j\omega\tau} H(j\omega)\, d\tau = X(j\omega)\cdot H(j\omega)$$
+            </div>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch4/fig4.5.png" alt="LTI System — Time vs Frequency Domain" />
+                <div class="svg-cap">Fig 5 — The convolution theorem converts the complex integral of convolution into
+                    simple multiplication. Engineers analyse LTI systems in the frequency domain where output = input ×
+                    frequency response.</div>
+            </div>
+
+            <h3 class="sub">Why This Matters in Engineering</h3>
+            <p>An RC circuit's response to an input signal is \(y(t) = x(t) * h(t)\) — a convolution integral that would
+                be hard to evaluate directly. But in frequency domain: \(Y(j\omega) = X(j\omega) \cdot H(j\omega)\) —
+                just multiply! The filter frequency response \(H(j\omega)\) for the RC circuit is simply \(1/(1+j\omega
+                RC)\). Divide output spectrum by input spectrum to get \(H(j\omega)\) — this is how engineers measure
+                filter characteristics using a spectrum analyser.</p>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Dual of Convolution Theorem</div>
+                    <p>Multiplication in time domain ↔ convolution in frequency domain (with \(1/2\pi\) factor):
+                        \(x(t)\cdot y(t) \xleftrightarrow{\mathcal{F}} \dfrac{1}{2\pi}X(j\omega)*Y(j\omega)\). This is
+                        used in AM modulation analysis where multiplying by \(\cos(\omega_0 t)\) convolves the spectrum
+                        with \(\pi[\delta(\omega-\omega_0)+\delta(\omega+\omega_0)]\).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+         SECTION 8 — PARSEVAL'S RELATION
+    ════════════════════════════════════════ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 08</span>
+                <h2 class="sec-t">Parseval's Relation — Energy in Time = Energy in Frequency</h2>
+            </div>
+
+            <p>Parseval's theorem states that the total energy of a signal is the same whether computed in the time
+                domain or the frequency domain. It connects energy to the power spectral density and is essential for
+                communication link budget calculations.<sup class="cite"
+                    onclick="document.getElementById('citations').scrollIntoView()">[1,2]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Parseval's Theorem — Energy Conservation</div>
+                $$E = \int_{-\infty}^{\infty} |x(t)|^2 dt = \frac{1}{2\pi}\int_{-\infty}^{\infty} |X(j\omega)|^2
+                d\omega$$
+            </div>
+
+            <h3 class="sub">Proof of Parseval's Theorem</h3>
+            <div class="math-block">
+                <div class="math-lbl">Parseval Proof — Using Inverse CTFT</div>
+                $$\int_{-\infty}^{\infty} |x(t)|^2 dt = \int_{-\infty}^{\infty} x(t)\cdot x^*(t)\, dt =
+                \int_{-\infty}^{\infty} x(t) \left[\frac{1}{2\pi}\int_{-\infty}^{\infty} X^*(j\omega) e^{-j\omega
+                t}d\omega\right]dt$$
+                $$= \frac{1}{2\pi}\int_{-\infty}^{\infty} X^*(j\omega) \underbrace{\left[\int_{-\infty}^{\infty}
+                x(t)e^{-j\omega t}dt\right]}_{X(j\omega)} d\omega = \frac{1}{2\pi}\int_{-\infty}^{\infty} |X(j\omega)|^2
+                d\omega$$
+            </div>
+
+            <h3 class="sub">Energy Spectral Density (ESD)</h3>
+            <p>The quantity \(\mathcal{E}(\omega) = |X(j\omega)|^2\) is called the <strong>Energy Spectral
+                    Density</strong> — it tells you how the signal's energy is distributed across frequencies. The total
+                energy in a frequency band \([\omega_1, \omega_2]\) is:</p>
+            <div class="math-block">
+                $$E_{[\omega_1,\omega_2]} = \frac{1}{2\pi}\int_{\omega_1}^{\omega_2} |X(j\omega)|^2 d\omega$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">📡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Application — Bandwidth Efficiency</div>
+                    <p>Parseval's theorem is used to compute the fraction of signal energy in a given bandwidth. For an
+                        RC filter with input energy \(E_{in}\) and output energy \(E_{out}\), the energy transmission
+                        factor is \(|H(j\omega)|^2\) applied to the ESD of the input. Communication engineers use this
+                        to verify that sufficient energy passes through the channel bandwidth.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+         SECTION 9 — SPECTRUM INTERPRETATION
+    ════════════════════════════════════════ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 09</span>
+                <h2 class="sec-t">Spectrum Interpretation</h2>
+            </div>
+            <p>Reading and interpreting spectra is a direct GATE skill. You must be able to look at \(X(j\omega)\) and
+                predict the shape of \(x(t)\), and vice versa. The key tools are symmetry properties of real
+                signals.<sup class="cite" onclick="document.getElementById('citations').scrollIntoView()">[2,3]</sup>
+            </p>
+
+            <h3 class="sub">Conjugate Symmetry of Real Signals</h3>
+            <p>If \(x(t)\) is real, then: \(X(-j\omega) = X^*(j\omega)\). This means:</p>
+            <ul style="margin:0 0 14px 28px;color:var(--text2);font-size:clamp(14px,2vw,17px);line-height:1.85;">
+                <li><strong>Magnitude spectrum is even:</strong> \(|X(-j\omega)| = |X(j\omega)|\)</li>
+                <li><strong>Phase spectrum is odd:</strong> \(\angle X(-j\omega) = -\angle X(j\omega)\)</li>
+                <li>Only need to know \(X(j\omega)\) for \(\omega \geq 0\) to reconstruct the full spectrum</li>
+            </ul>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch4/fig4.6.png" alt="Magnitude/Phase Spectrum (Even/Odd Symmetry)" />
+                <div class="svg-cap">Fig 6 — For any real signal x(t), the magnitude spectrum is even and the phase
+                    spectrum is odd. GATE exploits this to eliminate wrong answer choices.</div>
+            </div>
+
+            <h3 class="sub">Key Spectrum Properties to Memorise</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Signal Property</th>
+                            <th>Time Domain</th>
+                            <th>Frequency Domain</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Real signal</td>
+                            <td>\(x(t) = x^*(t)\)</td>
+                            <td class="t-org">\(|X(j\omega)|\) even, \(\angle X\) odd</td>
+                        </tr>
+                        <tr>
+                            <td>Real and even</td>
+                            <td>\(x(t) = x(-t)\), real</td>
+                            <td class="t-org">\(X(j\omega)\) real and even</td>
+                        </tr>
+                        <tr>
+                            <td>Real and odd</td>
+                            <td>\(x(t) = -x(-t)\), real</td>
+                            <td class="t-org">\(X(j\omega)\) purely imaginary and odd</td>
+                        </tr>
+                        <tr>
+                            <td>Time-limited</td>
+                            <td>\(x(t) = 0\) outside finite interval</td>
+                            <td class="t-org">\(X(j\omega)\) has infinite bandwidth</td>
+                        </tr>
+                        <tr>
+                            <td>Band-limited</td>
+                            <td>\(X(j\omega) = 0\) outside finite band</td>
+                            <td class="t-org">\(x(t)\) has infinite time duration</td>
+                        </tr>
+                        <tr>
+                            <td>DC value</td>
+                            <td>\(X(j0) = \int_{-\infty}^{\infty} x(t)\,dt\)</td>
+                            <td class="t-org">Area under \(x(t)\)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+         SECTION 10 — PYQ GATE / IES
+    ════════════════════════════════════════ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 10</span>
+                <h2 class="sec-t">Previous Year Questions — GATE &amp; IES</h2>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Fourier Transform of a one-sided exponential</span>
+                    <span class="pyq-year">2019 · 2 Marks</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The Fourier Transform of the signal \(x(t) = e^{-2t}u(t) + e^{3t}u(-t)\) is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) &nbsp; \(\dfrac{1}{2+j\omega} + \dfrac{1}{3-j\omega}\)</li>
+                        <li class="correct">(B) &nbsp; \(\dfrac{1}{2+j\omega} - \dfrac{1}{3-j\omega}\) &nbsp; ✓ Correct
+                        </li>
+                        <li>(C) &nbsp; \(\dfrac{1}{2-j\omega} + \dfrac{1}{3+j\omega}\)</li>
+                        <li>(D) &nbsp; \(\dfrac{1}{2+j\omega} + \dfrac{1}{3+j\omega}\)</li>
+                    </ul>
+                    <p style="margin-top:10px;"><strong>Solution:</strong> For the first term, \(e^{-2t}u(t)
+                        \xrightarrow{\mathcal{F}} \frac{1}{2+j\omega}\) (standard pair, \(a=2>0\) ✓). For the second
+                        term, \(e^{3t}u(-t)\): Let \(x_2(t) = e^{3t}u(-t)\). Using time reversal on \(e^{-3t}u(t)\):
+                        \(e^{-3t}u(t) \to \frac{1}{3+j\omega}\). Time-reversed: replace \(\omega \to -\omega\) giving
+                        \(\frac{1}{3-j\omega}\). But note the sign: \(\mathcal{F}\{e^{3t}u(-t)\} =
+                        \frac{-1}{3-j\omega}\) (or equivalently \(\frac{1}{j\omega-3}\)). So total \(=
+                        \frac{1}{2+j\omega} - \frac{1}{3-j\omega}\). Answer: <strong>(B)</strong>.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Time scaling — effect on spectrum</span>
+                    <span class="pyq-year">2017 · 1 Mark</span>
+                </div>
+                <div class="pyq-body">
+                    <p>If \(X(j\omega)\) is the Fourier Transform of \(x(t)\), then the Fourier Transform of \(x(3t-6)\)
+                        is:</p>
+                    <ul class="pyq-opts">
+                        <li class="correct">(A) &nbsp; \(\dfrac{1}{3}e^{-j2\omega}X\!\left(\dfrac{j\omega}{3}\right)\)
+                            &nbsp; ✓ Correct</li>
+                        <li>(B) &nbsp; \(\dfrac{1}{3}e^{-j6\omega}X\!\left(\dfrac{j\omega}{3}\right)\)</li>
+                        <li>(C) &nbsp; \(e^{-j2\omega}X\!\left(\dfrac{j\omega}{3}\right)\)</li>
+                        <li>(D) &nbsp; \(\dfrac{1}{3}X\!\left(\dfrac{j\omega}{3}\right)\)</li>
+                    </ul>
+                    <p style="margin-top:10px;"><strong>Solution:</strong> Write \(x(3t-6) = x(3(t-2))\). Apply time
+                        shifting first (delay by 2): \(x(t-2) \to e^{-j2\omega}X(j\omega)\). Then apply time scaling by
+                        3: replace \(\omega \to \omega/3\) and multiply by \(1/3\). Result:
+                        \(\frac{1}{3}e^{-j(2)(\omega/3)\cdot 3} \cdot X(j\omega/3) =
+                        \frac{1}{3}e^{-j2\omega}X(j\omega/3)\). Answer: <strong>(A)</strong>.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 3 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Parseval's theorem — energy calculation</span>
+                    <span class="pyq-year">2021 · 2 Marks</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The energy of the signal \(x(t) = e^{-|t|}\) using Parseval's theorem is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) &nbsp; \(\pi\)</li>
+                        <li class="correct">(B) &nbsp; \(1\) &nbsp; ✓ Correct</li>
+                        <li>(C) &nbsp; \(2\)</li>
+                        <li>(D) &nbsp; \(\pi/2\)</li>
+                    </ul>
+                    <p style="margin-top:10px;"><strong>Solution (Time domain):</strong> \(E = \int_{-\infty}^{\infty}
+                        e^{-2|t|} dt = 2\int_{0}^{\infty} e^{-2t} dt = 2 \cdot \frac{1}{2} = 1\).
+                        <br><strong>Verification (Frequency domain):</strong> \(X(j\omega) = \frac{2}{1+\omega^2}\). By
+                        Parseval: \(E = \frac{1}{2\pi}\int_{-\infty}^{\infty} \frac{4}{(1+\omega^2)^2}d\omega =
+                        \frac{4}{2\pi}\cdot\frac{\pi}{2} = 1\). ✓ Answer: <strong>(B)</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- IES PYQ -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Duality — recognising transform pairs</span>
+                    <span class="pyq-year">2018 · 2 Marks</span>
+                </div>
+                <div class="pyq-body">
+                    <p>If the Fourier Transform of \(x(t)\) is \(X(j\omega) = \mathrm{rect}(\omega/2W)\), the signal
+                        \(x(t)\) is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) &nbsp; A rectangular pulse in time</li>
+                        <li class="correct">(B) &nbsp; A sinc function: \(\dfrac{W}{\pi}\mathrm{sinc}(Wt/\pi)\) &nbsp; ✓
+                            Correct</li>
+                        <li>(C) &nbsp; A Gaussian pulse</li>
+                        <li>(D) &nbsp; A triangular pulse</li>
+                    </ul>
+                    <p style="margin-top:10px;"><strong>Solution:</strong> This is the Duality property. We know
+                        \(\mathrm{rect}(t/\tau) \xrightarrow{\mathcal{F}} \tau\,\mathrm{sinc}(\omega\tau/2\pi)\). By
+                        duality: \(\mathrm{sinc}(Wt/\pi) \xrightarrow{\mathcal{F}} (\pi/W)\,\mathrm{rect}(\omega/2W)\).
+                        So if \(X(j\omega) = \mathrm{rect}(\omega/2W)\), then \(x(t) =
+                        \frac{W}{\pi}\mathrm{sinc}(Wt/\pi)\) — the impulse response of an ideal LPF. Answer:
+                        <strong>(B)</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PYQ 5 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EE</span>
+                    <span class="pyq-title">Spectrum of cos signal — using Euler's formula</span>
+                    <span class="pyq-year">2015 · 1 Mark</span>
+                </div>
+                <div class="pyq-body">
+                    <p>The Fourier Transform of \(x(t) = \cos(2\pi \cdot 5 \cdot t)\) is:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) &nbsp; \(\delta(\omega - 5) + \delta(\omega + 5)\)</li>
+                        <li class="correct">(B) &nbsp; \(\pi[\delta(\omega - 10\pi) + \delta(\omega + 10\pi)]\) &nbsp; ✓
+                            Correct</li>
+                        <li>(C) &nbsp; \(2\pi[\delta(f-5)+\delta(f+5)]\) (in Hz convention)</li>
+                        <li>(D) &nbsp; \(\frac{1}{2}[\delta(\omega-5)+\delta(\omega+5)]\)</li>
+                    </ul>
+                    <p style="margin-top:10px;"><strong>Solution:</strong> \(f_0 = 5\) Hz, so \(\omega_0 = 2\pi \times 5
+                        = 10\pi\) rad/s. Using \(\cos(\omega_0 t) \xleftrightarrow{\mathcal{F}}
+                        \pi[\delta(\omega-\omega_0)+\delta(\omega+\omega_0)]\): the FT is
+                        \(\pi[\delta(\omega-10\pi)+\delta(\omega+10\pi)]\). Answer: <strong>(B)</strong>. Common error:
+                        confusing \(f\) and \(\omega\) — always convert to rad/s for the \(\omega\)-convention formula.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+         SECTION 11 — WORKED NUMERICALS
+    ════════════════════════════════════════ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 11</span>
+                <h2 class="sec-t">Worked Numerical Examples</h2>
+            </div>
+
+            <!-- Example 1 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 01</span>
+                    <span class="ex-title">Find CTFT of \(x(t) = e^{-3t}u(t-2)\) using properties</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">Find the Fourier Transform of \(x(t) = e^{-3t}u(t-2)\). Express in standard form.
+                        Do NOT evaluate the integral from scratch.</div>
+                    <div class="sol-lbl">✦ Solution — Step by Step</div>
+                    <p><strong>Step 1 — Recognise the structure.</strong> Write \(x(t) = e^{-3t}u(t-2)\). This is NOT
+                        the same as \(e^{-3(t-2)}u(t-2)\). We must factor carefully:</p>
+                    <div class="math-block">
+                        $$x(t) = e^{-3t}u(t-2) = e^{-3t+6-6}u(t-2) = e^{-6}\cdot e^{-3(t-2)}u(t-2)$$
+                    </div>
+                    <p><strong>Step 2 — Apply known pair.</strong> We know \(e^{-3t}u(t) \xleftrightarrow{\mathcal{F}}
+                        \frac{1}{3+j\omega}\). So \(e^{-3(t-2)}u(t-2)\) is a time-shifted version (delay by 2):</p>
+                    <div class="math-block">
+                        $$e^{-3(t-2)}u(t-2) \xleftrightarrow{\mathcal{F}} e^{-j2\omega} \cdot \frac{1}{3+j\omega}$$
+                    </div>
+                    <p><strong>Step 3 — Apply scalar factor.</strong></p>
+                    <div class="math-block">
+                        $$\boxed{X(j\omega) = \frac{e^{-6}\cdot e^{-j2\omega}}{3+j\omega} =
+                        \frac{e^{-(6+j2\omega)}}{3+j\omega}}$$
+                    </div>
+                    <p><strong>Check:</strong> Magnitude \(|X(j\omega)| = \frac{e^{-6}}{\sqrt{9+\omega^2}}\) —
+                        attenuated Lorentzian. The \(e^{-6}\) factor comes from the evaluation of the exponential at the
+                        delay point.</p>
+                </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 02</span>
+                    <span class="ex-title">Energy of a signal using Parseval's Theorem</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A signal has Fourier Transform \(X(j\omega) = \frac{4}{(j\omega+2)^2}\). Find the
+                        total energy of the signal \(x(t)\).</div>
+                    <div class="sol-lbl">✦ Solution — Step by Step</div>
+                    <p><strong>Step 1 — Identify \(x(t)\).</strong> Using the known pair \(te^{-at}u(t)
+                        \xleftrightarrow{\mathcal{F}} \frac{1}{(a+j\omega)^2}\): here \(a=2\), so \(x(t) =
+                        4te^{-2t}u(t)\).</p>
+                    <p><strong>Step 2 — Energy via time domain (Parseval verification).</strong></p>
+                    <div class="math-block">
+                        $$E = \int_0^{\infty} |4te^{-2t}|^2 dt = 16\int_0^{\infty} t^2 e^{-4t} dt =
+                        16\cdot\frac{2!}{4^3} = 16\cdot\frac{2}{64} = \frac{1}{2}$$
+                    </div>
+                    <p><strong>Step 3 — Energy via Parseval in frequency domain.</strong></p>
+                    <div class="math-block">
+                        $$E = \frac{1}{2\pi}\int_{-\infty}^{\infty}\frac{16}{(4+\omega^2)^2}d\omega =
+                        \frac{16}{2\pi}\cdot\frac{\pi}{16} = \frac{1}{2} \checkmark$$
+                    </div>
+                    <p><em>Using the standard result \(\int_{-\infty}^{\infty}\frac{d\omega}{(a^2+\omega^2)^2} =
+                            \frac{\pi}{2a^3}\) with \(a=2\).</em></p>
+                    <div class="callout c-tip" style="margin-top:10px;">
+                        <div class="ci">💡</div>
+                        <div class="cb">
+                            <div class="ct">Exam Tip</div>
+                            <p>Always verify Parseval's result using time-domain integration. If both match, you have
+                                high confidence. GATE numerical questions often accept either method — choose the faster
+                                one.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EX 03</span>
+                    <span class="ex-title">GATE-Level — LTI System Output using Convolution Theorem</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An LTI system has impulse response \(h(t) = e^{-t}u(t)\). The input is \(x(t) =
+                        e^{-2t}u(t)\). Find the output \(y(t)\) using the Fourier Transform method.</div>
+                    <div class="sol-lbl">✦ Solution — Step by Step</div>
+                    <p><strong>Step 1 — CTFT of input and impulse response.</strong></p>
+                    <div class="math-block">
+                        $$X(j\omega) = \frac{1}{1+j\omega}, \quad H(j\omega) = \frac{1}{2+j\omega}$$
+                    </div>
+                    <p><strong>Step 2 — Output spectrum.</strong></p>
+                    <div class="math-block">
+                        $$Y(j\omega) = X(j\omega)\cdot H(j\omega) = \frac{1}{(1+j\omega)(2+j\omega)}$$
+                    </div>
+                    <p><strong>Step 3 — Partial fraction decomposition.</strong></p>
+                    <div class="math-block">
+                        $$\frac{1}{(1+j\omega)(2+j\omega)} = \frac{A}{1+j\omega} + \frac{B}{2+j\omega}$$
+                        $$A = \lim_{j\omega\to -1}(1+j\omega)\cdot Y = \frac{1}{-1+2} = 1, \quad B = \lim_{j\omega\to
+                        -2}(2+j\omega)\cdot Y = \frac{1}{-2+1} = -1$$
+                    </div>
+                    <p><strong>Step 4 — Inverse CTFT.</strong></p>
+                    <div class="math-block">
+                        $$Y(j\omega) = \frac{1}{1+j\omega} - \frac{1}{2+j\omega} \quad \xrightarrow{\mathcal{F}^{-1}}
+                        \quad \boxed{y(t) = (e^{-t} - e^{-2t})u(t)}$$
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════
+         SECTION 12 — QUICK REVISION
+    ════════════════════════════════════════ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 12</span>
+                <h2 class="sec-t">Quick Revision Sheet</h2>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Core Definition</div>
+                    <p>Analysis: \(X(j\omega) = \int_{-\infty}^{\infty} x(t)e^{-j\omega t}dt\). Synthesis: \(x(t) =
+                        \frac{1}{2\pi}\int X(j\omega)e^{j\omega t}d\omega\). Pair notation: \(x(t) \leftrightarrow
+                        X(j\omega)\).</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Must-Know Pairs</div>
+                    <p>\(\delta(t) \leftrightarrow 1\). \(1 \leftrightarrow 2\pi\delta(\omega)\). \(e^{-at}u(t)
+                        \leftrightarrow \frac{1}{a+j\omega}\). \(\cos(\omega_0 t) \leftrightarrow
+                        \pi[\delta(\omega\pm\omega_0)]\). \(\mathrm{rect} \leftrightarrow \mathrm{sinc}\).</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Key Properties</div>
+                    <p>Time shift → \(e^{-j\omega t_0}\) factor. Freq shift → \(\omega-\omega_0\) shift. Scaling by
+                        \(a\) → \(\frac{1}{|a|}X(j\omega/a)\). Differentiation → \((j\omega)^n\) multiplication.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Duality</div>
+                    <p>If \(x(t)\leftrightarrow X(j\omega)\), then \(X(jt)\leftrightarrow 2\pi x(-\omega)\). rect ↔ sinc
+                        and sinc ↔ rect. Impulse in time → flat spectrum; flat signal → impulse in frequency.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Parseval's Theorem</div>
+                    <p>\(\int|x(t)|^2 dt = \frac{1}{2\pi}\int|X(j\omega)|^2 d\omega\). ESD = \(|X(j\omega)|^2\). Energy
+                        is conserved across CTFT transform pair.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Convolution Theorem</div>
+                    <p>Time convolution \(x*h\) → frequency multiplication \(X\cdot H\). Time multiplication \(x\cdot
+                        h\) → frequency convolution \(X*H\) (with \(1/2\pi\)). Foundation of LTI analysis.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Symmetry (real signals)</div>
+                    <p>Magnitude \(|X(j\omega)|\) is even. Phase \(\angle X(j\omega)\) is odd. Real+even → real+even FT.
+                        Real+odd → purely imaginary + odd FT.</p>
+                </div>
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">GATE Exam Tips</div>
+                    <p>Watch \(\omega\) vs \(f\) convention. Ideal LPF → sinc impulse response (non-causal).
+                        Time-limited signals have infinite BW. Chain properties: scale then shift (order matters!).
+                        Parseval verifies numericals.</p>
+                </div>
+            </div>
+
+            <!-- Memory Tricks -->
+            <h3 class="sub">Memory Tricks</h3>
+            <div class="callout c-info">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonics for CTFT</div>
+                    <p><strong>"Time Tight = Frequency Wide"</strong> — compressing in time expands the spectrum (Time
+                        Scaling). <br>
+                        <strong>"Delay = Phase Ramp"</strong> — a time delay \(t_0\) adds a linear phase \(-\omega t_0\)
+                        to the spectrum. <br>
+                        <strong>"Conv in Time = Mult in Freq"</strong> — the bridge between time and frequency analysis.
+                        <br>
+                        <strong>"Dual = Swap the axis"</strong> — replace \(t \to \omega\) and multiply by \(2\pi\) and
+                        flip sign: \(X(jt) \to 2\pi x(-\omega)\). <br>
+                        <strong>"delta(t) is flat"</strong> — impulse in time has equal energy at ALL frequencies (white
+                        spectrum).
+                    </p>
+                </div>
+            </div>
+
+            <!-- AI Widget -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI — CTFT Tutor</div>
+                <p>Ask any question about CTFT, properties, derivations, or GATE numericals. Get step-by-step
+                    explanations.</p>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="userQ" type="text"
+                        placeholder="e.g. Derive the CTFT of a triangular pulse..." autocomplete="off">
+                    <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('Why does the CTFT of cos(ω₀t) produce delta functions? Derive it step-by-step.')">Why
+                        cos → delta functions?</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain duality with a specific example — show how the sinc-rect pair arises from the rect-sinc pair.')">Duality
+                        — sinc ↔ rect</span>
+                    <span class="ai-chip"
+                        onclick="setQ('What is the difference between CTFT and Laplace Transform? When to use which for GATE?')">CTFT
+                        vs Laplace</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Solve: Find CTFT of x(t) = t·e^(-2t)·u(t) using differentiation in frequency domain property.')">Freq
+                        differentiation example</span>
+                    <span class="ai-chip"
+                        onclick="setQ('How does the convolution theorem prove that an ideal LPF in frequency domain has a sinc impulse response?')">Ideal
+                        LPF impulse response</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <!-- Chapter Summary -->
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 5</div>
+                    <p>Discrete-Time Fourier Transform (DTFT) — the sampled-signal counterpart of CTFT. Periodic
+                        spectrum, convergence, standard pairs, and connection to the Z-Transform and DFT. Essential for
+                        digital signal processing and GATE EE questions on digital filters.</p>
+                </div>
+            </div>
+
+            <!-- Citations -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                    the following standard textbooks. All explanations, derivations, diagrams, and examples are original
+                    to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Oppenheim, A.V. and Willsky, A.S. <em>Signals and
+                                Systems</em>, 2nd ed. Prentice Hall, 1997. Chapter 4 — The Continuous-Time Fourier
+                            Transform: definition, properties, and systems. Primary reference for CTFT pair tables and
+                            property proofs.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Haykin, S. and Van Veen, B. <em>Signals and Systems</em>,
+                            2nd ed. Wiley, 2003. Chapter 4 — Fourier Representations of Aperiodic Signals. Derivation
+                            from Fourier series, duality, and Parseval's theorem treatment.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Lathi, B.P. and Ding, Z. <em>Modern Digital and Analog
+                                Communication Systems</em>, 4th ed. Oxford University Press, 2009. Chapter 3 — Signal
+                            analysis and Fourier transforms. AM modulation application of frequency shifting
+                            property.</span></li>
+                    <li><span class="cite-num">[4]</span><span>NPTEL IIT Kharagpur. <em>Signals and Systems — Lectures
+                                12–20</em>. National Programme on Technology Enhanced Learning. nptel.ac.in. CTFT
+                            derivation, properties, and examples. Basis for exam-oriented problem selection.</span></li>
+                    <li><span class="cite-num">[5]</span><span>GATE EE Previous Year Question Papers 2014–2024. Ministry
+                            of Education, Government of India. gateforum.com / GOAPS portal. All PYQ cards are based on
+                            original GATE question patterns — explanations are original to Aarova AI.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Signals &amp; Systems Series &nbsp;·&nbsp; Chapter 4 of 8<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                    diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+        </div><!-- end section 12 -->
+
+    </div><!-- end page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Signals & Systems. Topic: Chapter 4 — Continuous-Time Fourier Transform (CTFT). Cover CTFT definition, derivation from Fourier series, transform pairs (exponential, rectangular, delta, cosine, sinc), properties (linearity, time/frequency shifting, scaling, convolution, duality, Parseval), spectrum interpretation. Answer with step-by-step working for numericals. Base answers on Oppenheim & Willsky, Haykin, Lathi. All explanations are original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+
+</body>
+
+</html>

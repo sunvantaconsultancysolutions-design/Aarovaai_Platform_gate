@@ -1,0 +1,3034 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Signals &amp; Systems Ch.6 Laplace Transform</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* PROGRESS */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 75%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* CALLOUTS */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* FORMULA BLOCK */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* MATH BLOCK */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* SVG */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* EXAMPLES */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* GATE / PYQ */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* TWO-COL */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0 6px 20px;
+            border-bottom: 1px solid var(--bg3);
+            position: relative;
+            line-height: 1.5;
+            display: block;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            position: absolute;
+            left: 0;
+            top: 8px;
+        }
+
+        /* SUMMARY GRID */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* PROB TAGS */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* AI WIDGET */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* MISC */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        ol.steps {
+            padding-left: 18px;
+            margin-bottom: 14px;
+        }
+
+        ol.steps li {
+            font-size: clamp(14px, 2vw, 16px);
+            color: var(--text2);
+            margin-bottom: 8px;
+            line-height: 1.75;
+        }
+
+        /* TABLET */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* MOBILE */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .callout {
+                flex-direction: column;
+                gap: 7px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                flex-wrap: wrap;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══ STICKY HEADER ═══ -->
+    <header class="site-header">
+        <div style="display:flex;align-items:center;gap:0;">
+            <span class="logo">Aarova AI</span>
+            <span class="logo-sub">Signals &amp; Systems · Ch.6</span>
+        </div>
+        <div class="hbadges">
+            <span class="hbadge">GATE EE/EC</span>
+            <span class="hbadge">IES E&amp;T</span>
+            <span class="hbadge">🟡 Medium</span>
+        </div>
+    </header>
+
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Signals &amp; Systems · Chapter 6 of 8</div>
+            <h1 class="hero-title">Laplace Transform &amp; <em>System Analysis</em></h1>
+            <p class="hero-desc">From the bilateral definition to ROC, poles, zeros, stability, and transfer functions —
+                the complete GATE &amp; IES treatment with intuition-first derivations, inline SVG diagrams, and solved
+                examples from standard textbooks.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">🟢 ROC Determination</span>
+                <span class="badge badge-p">🟢 Stability</span>
+                <span class="badge badge-p">🟡 Pole-Zero Analysis</span>
+                <span class="badge">Oppenheim &amp; Willsky [1]</span>
+                <span class="badge">Haykin &amp; Van Veen [2]</span>
+                <span class="badge">Nagoor Kani [3]</span>
+            </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-bar">
+            <span class="pl">Course Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Ch 6 / 8 · 75%</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents of This Chapter</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">§1</span>Why Laplace Transform?</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">§2</span>Bilateral &amp; Unilateral LT</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">§3</span>Region of Convergence (ROC)</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">§4</span>Properties of Laplace Transform</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">§5</span>Initial &amp; Final Value Theorems</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">§6</span>Transfer Function &amp; System Analysis</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">§7</span>Pole-Zero Interpretation</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">§8</span>Stability via Laplace</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">§9</span>Solved Numerical Examples</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">§10</span>GATE &amp; IES Previous Questions</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">§11</span>Memory Tricks &amp; Revision</a>
+                <a href="#s12" class="toc-item"><span class="toc-n">§12</span>Ask Claude (AI Tutor)</a>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+       §1  WHY LAPLACE TRANSFORM?
+  ══════════════════════════════════════════════ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 01</span>
+                <h2 class="sec-t">Why Does the Laplace Transform Exist?</h2>
+            </div>
+
+            <p>Imagine you are an electrical engineer designing a control system for a power plant. You write the
+                governing differential equation — it is perfectly correct — but solving it analytically is nightmarish
+                the moment the system has more than two energy-storage elements. <strong>The Laplace transform converts
+                    that differential equation into an algebraic equation in the complex frequency domain,</strong>
+                where multiplication and division replace differentiation and integration.<sup class="cite">[1]</sup>
+            </p>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Core Engineering Problem It Solves</div>
+                    <p>Every real-world system — RLC circuit, motor drive, feedback controller, filter — is governed by
+                        a linear ordinary differential equation. Laplace transforms these into simple algebraic
+                        expressions, find the solution in \(s\)-domain, then invert back to time domain. This is the
+                        fundamental workflow of linear system analysis.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Historical Perspective &amp; Big Picture</h3>
+            <p>Pierre-Simon Laplace introduced this transform in the late 18th century while working on probability
+                theory. Engineers adopted it in the early 20th century when Heaviside used operational calculus (a
+                pre-cursor) to solve telegraph equations. Today, the Laplace transform is the backbone of control system
+                design, circuit analysis, signal processing, and communication theory.<sup class="cite">[1,2]</sup></p>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.1.png" alt="Laplace Transform workflow diagram" />
+                <p class="svg-cap">Fig. 1.1 — The three-step Laplace workflow: transform to s-domain, solve
+                    algebraically, invert back.</p>
+            </div>
+
+            <h3 class="sub">Where Is It Used in Engineering?</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Control Systems</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">·</span>Transfer function \(H(s) = Y(s)/X(s)\)</li>
+                        <li><span class="dot">·</span>Bode plots, root locus, Nyquist</li>
+                        <li><span class="dot">·</span>PID controller design</li>
+                        <li><span class="dot">·</span>Stability via pole locations</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Circuit Analysis</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">·</span>Impedance: \(Z_L = sL,\ Z_C = 1/sC\)</li>
+                        <li><span class="dot">·</span>Initial conditions handled naturally</li>
+                        <li><span class="dot">·</span>Transient &amp; steady-state in one shot</li>
+                        <li><span class="dot">·</span>RLC filter design</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Signal Processing</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">·</span>Continuous-time filter design</li>
+                        <li><span class="dot">·</span>Butterworth, Chebyshev filters</li>
+                        <li><span class="dot">·</span>Convolution → multiplication in s</li>
+                        <li><span class="dot">·</span>System identification</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Communication</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">·</span>Envelope detection analysis</li>
+                        <li><span class="dot">·</span>Modulator/demodulator design</li>
+                        <li><span class="dot">·</span>Phase-locked loop stability</li>
+                        <li><span class="dot">·</span>Channel impulse response analysis</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+       §2  BILATERAL & UNILATERAL
+  ══════════════════════════════════════════════ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 02</span>
+                <h2 class="sec-t">Bilateral &amp; Unilateral Laplace Transform</h2>
+            </div>
+
+            <h3 class="sub">The Bilateral (Two-Sided) Laplace Transform</h3>
+            <p>The <strong>bilateral Laplace transform</strong> is the most general form, integrating over all time from
+                \(-\infty\) to \(+\infty\). It is used when the signal exists for both negative and positive time — for
+                example, in signal processing and when analysing non-causal systems.<sup class="cite">[1]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Definition — Bilateral (Two-Sided) Laplace Transform</div>
+                $$\mathcal{L}_B\{x(t)\} = X(s) = \int_{-\infty}^{+\infty} x(t)\,e^{-st}\,dt$$
+            </div>
+
+            <p>Here \(s = \sigma + j\omega\) is the <strong>complex frequency variable</strong>. The real part
+                \(\sigma\) is the exponential damping rate, and \(j\omega\) is the angular frequency (purely imaginary
+                axis is the Fourier transform axis).</p>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Physical Meaning of s = σ + jω</div>
+                    <p>Think of \(e^{-st} = e^{-\sigma t} \cdot e^{-j\omega t}\). The factor \(e^{-\sigma t}\) is a
+                        <em>damping envelope</em> — it forces even growing signals to converge if \(\sigma\) is large
+                        enough. The factor \(e^{-j\omega t}\) is a <em>sinusoidal kernel</em> (same as Fourier). The
+                        Laplace transform extends the Fourier analysis to the entire complex plane.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">The Unilateral (One-Sided) Laplace Transform</h3>
+            <p>For causal systems — systems where the output depends only on present and past inputs — signals are zero
+                for \(t < 0\). The <strong>unilateral Laplace transform</strong> restricts integration to \(0^-\) to
+                    \(+\infty\), allowing initial conditions to be incorporated directly.<sup class="cite">[1,3]</sup>
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">Definition — Unilateral (One-Sided) Laplace Transform</div>
+                $$\mathcal{L}_U\{x(t)\} = X(s) = \int_{0^-}^{+\infty} x(t)\,e^{-st}\,dt$$
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">📝</div>
+                <div class="cb">
+                    <div class="ct">Why 0⁻ and not 0?</div>
+                    <p>The lower limit \(0^-\) means "just before zero." This captures any impulse \(\delta(t)\) located
+                        <em>at</em> \(t=0\). If we used \(0^+\), we would miss the impulse contribution. This is
+                        critical when dealing with initial conditions and impulsive inputs.<sup class="cite">[1]</sup>
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Bilateral vs Unilateral — Head-to-Head Comparison</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Bilateral LT</th>
+                            <th>Unilateral LT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Integration limits</td>
+                            <td>\(-\infty\) to \(+\infty\)</td>
+                            <td>\(0^-\) to \(+\infty\)</td>
+                        </tr>
+                        <tr>
+                            <td>Signal type</td>
+                            <td>All signals (causal &amp; non-causal)</td>
+                            <td>Causal signals only</td>
+                        </tr>
+                        <tr>
+                            <td>ROC</td>
+                            <td>A vertical strip in s-plane</td>
+                            <td>A right half-plane \(\sigma > \sigma_0\)</td>
+                        </tr>
+                        <tr>
+                            <td>Initial conditions</td>
+                            <td>Not naturally handled</td>
+                            <td><span class="t-grn">Built-in via differentiation property</span></td>
+                        </tr>
+                        <tr>
+                            <td>GATE focus</td>
+                            <td><span class="t-amb">ROC problems, stability</span></td>
+                            <td><span class="t-org">Circuit analysis, IVT, FVT</span></td>
+                        </tr>
+                        <tr>
+                            <td>Inverse formula</td>
+                            <td>Bromwich contour integral</td>
+                            <td>Partial fractions (practical)</td>
+                        </tr>
+                        <tr>
+                            <td>Connection to Fourier</td>
+                            <td>\(X(j\omega)\) when \(\sigma=0\) and ROC includes \(j\omega\)-axis</td>
+                            <td>Same, for stable causal systems</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Inverse Laplace Transform</h3>
+            <p>Theoretically, the inverse is given by the Bromwich contour integral (a complex line integral). In
+                practice, engineers use <strong>partial fraction decomposition</strong> and a table of known pairs.<sup
+                    class="cite">[1]</sup></p>
+            <div class="math-block">
+                <div class="math-lbl">Inverse Laplace Transform (Bromwich Integral)</div>
+                $$x(t) = \mathcal{L}^{-1}\{X(s)\} = \frac{1}{2\pi j}\int_{\sigma_0 - j\infty}^{\sigma_0 + j\infty}
+                X(s)\,e^{st}\,ds$$
+            </div>
+
+            <h3 class="sub">Common Laplace Transform Pairs <span class="prob prob-h">🟢 HIGH</span></h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Signal \(x(t)\)</th>
+                            <th>Transform \(X(s)\)</th>
+                            <th>ROC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>\(\delta(t)\)</td>
+                            <td>\(1\)</td>
+                            <td>Entire s-plane</td>
+                        </tr>
+                        <tr>
+                            <td>\(u(t)\)</td>
+                            <td>\(\dfrac{1}{s}\)</td>
+                            <td>\(\text{Re}(s) > 0\)</td>
+                        </tr>
+                        <tr>
+                            <td>\(e^{-at}u(t),\ a>0\)</td>
+                            <td>\(\dfrac{1}{s+a}\)</td>
+                            <td>\(\text{Re}(s) > -a\)</td>
+                        </tr>
+                        <tr>
+                            <td>\(e^{-at}u(-t),\ a>0\)</td>
+                            <td>\(\dfrac{-1}{s+a}\)</td>
+                            <td>\(\text{Re}(s) < -a\)</td>
+                        </tr>
+                        <tr>
+                            <td>\(t\,u(t)\)</td>
+                            <td>\(\dfrac{1}{s^2}\)</td>
+                            <td>\(\text{Re}(s) > 0\)</td>
+                        </tr>
+                        <tr>
+                            <td>\(t^n e^{-at}u(t)\)</td>
+                            <td>\(\dfrac{n!}{(s+a)^{n+1}}\)</td>
+                            <td>\(\text{Re}(s) > -a\)</td>
+                        </tr>
+                        <tr>
+                            <td>\(\sin(\omega_0 t)\,u(t)\)</td>
+                            <td>\(\dfrac{\omega_0}{s^2+\omega_0^2}\)</td>
+                            <td>\(\text{Re}(s) > 0\)</td>
+                        </tr>
+                        <tr>
+                            <td>\(\cos(\omega_0 t)\,u(t)\)</td>
+                            <td>\(\dfrac{s}{s^2+\omega_0^2}\)</td>
+                            <td>\(\text{Re}(s) > 0\)</td>
+                        </tr>
+                        <tr>
+                            <td>\(e^{-at}\sin(\omega_0 t)\,u(t)\)</td>
+                            <td>\(\dfrac{\omega_0}{(s+a)^2+\omega_0^2}\)</td>
+                            <td>\(\text{Re}(s) > -a\)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+       §3  REGION OF CONVERGENCE
+  ══════════════════════════════════════════════ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 03</span>
+                <h2 class="sec-t">Region of Convergence (ROC) <span class="prob prob-h">🟢 HIGH GATE PRIORITY</span>
+                </h2>
+            </div>
+
+            <p>The Laplace transform integral \(\int_{-\infty}^{+\infty} x(t)\,e^{-st}\,dt\) does not converge for all
+                values of \(s\). The <strong>Region of Convergence (ROC)</strong> is the set of all complex values of
+                \(s\) for which the integral converges absolutely, i.e., gives a finite value.<sup
+                    class="cite">[1]</sup></p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Why ROC Is Critical</div>
+                    <p>The same algebraic expression \(X(s)\) can correspond to <em>different time-domain signals</em>
+                        depending on the ROC. Without specifying the ROC, the inverse Laplace transform is <strong>not
+                            unique</strong>. GATE consistently tests this: two different signals can share the same
+                        \(X(s)\) formula but different ROCs — giving completely different \(x(t)\).</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Properties of ROC — The Golden Rules <span class="prob prob-h">🟢 HIGH</span></h3>
+            <ol class="steps">
+                <li><strong>ROC is a vertical strip</strong> (open or closed) in the s-plane: \(\sigma_1 < \text{Re}(s)
+                        < \sigma_2\).</li>
+                <li><strong>ROC cannot contain any poles</strong> of \(X(s)\). ROC boundaries are always at poles.</li>
+                <li>For a <strong>right-sided signal</strong> (causal): ROC is a <em>right half-plane</em>
+                    \(\text{Re}(s) > \sigma_{\max\,\text{pole}}\).</li>
+                <li>For a <strong>left-sided signal</strong> (anti-causal): ROC is a <em>left half-plane</em>
+                    \(\text{Re}(s) < \sigma_{\min\,\text{pole}}\).</li>
+                <li>For a <strong>two-sided signal</strong>: ROC is a <em>vertical strip</em> between two poles (if it
+                    exists).</li>
+                <li>For a <strong>finite-duration signal</strong> (time-limited): ROC is the <em>entire s-plane</em>,
+                    except possibly \(s=0\) or \(s=\infty\).</li>
+                <li>If \(X(s)\) is rational and the ROC includes the \(j\omega\)-axis, the <strong>Fourier transform
+                        exists</strong>.</li>
+            </ol>
+
+            <!-- S-plane diagram -->
+            <div class="svg-wrap">
+                <img src="images/ch6/fig6.2.png"
+                    alt="S-Plane ROC diagrams for right-sided, left-sided, and two-sided signals" />
+                <p class="svg-cap">Fig. 3.1 — ROC in the s-plane for three signal types. Poles (×) bound the ROC. ROC
+                    never contains poles. [Ref: Oppenheim &amp; Willsky, Ch.9]</p>
+            </div>
+
+            <h3 class="sub">Worked ROC Determination</h3>
+            <div class="callout c-tip">
+                <div class="ci">✏️</div>
+                <div class="cb">
+                    <div class="ct">Example: Two signals, same X(s), different ROC</div>
+                    <p>Let \(X(s) = \dfrac{1}{s+2}\). This could arise from:<br>
+                        • \(x_1(t) = e^{-2t}u(t)\) → ROC: \(\text{Re}(s) > -2\) (right-sided, causal)<br>
+                        • \(x_2(t) = -e^{-2t}u(-t)\) → ROC: \(\text{Re}(s) < -2\) (left-sided, anti-causal)<br>
+                            Same algebraic \(X(s)\), completely different time functions! The ROC is what distinguishes
+                            them.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+       §4  PROPERTIES
+  ══════════════════════════════════════════════ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 04</span>
+                <h2 class="sec-t">Properties of the Laplace Transform</h2>
+            </div>
+
+            <p>These properties make the Laplace transform immensely powerful in engineering analysis. Understanding
+                each property intuitively — not just its formula — is how GATE toppers solve problems quickly.<sup
+                    class="cite">[1,2]</sup></p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Time Domain</th>
+                            <th>s-Domain</th>
+                            <th>ROC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Linearity</td>
+                            <td>\(a\,x_1(t)+b\,x_2(t)\)</td>
+                            <td>\(a\,X_1(s)+b\,X_2(s)\)</td>
+                            <td>At least \(R_1 \cap R_2\)</td>
+                        </tr>
+                        <tr>
+                            <td>Time Shifting</td>
+                            <td>\(x(t-t_0)\)</td>
+                            <td>\(e^{-st_0}X(s)\)</td>
+                            <td>Same as \(X(s)\)</td>
+                        </tr>
+                        <tr>
+                            <td>Frequency Shifting</td>
+                            <td>\(e^{s_0 t}x(t)\)</td>
+                            <td>\(X(s-s_0)\)</td>
+                            <td>Shifted by \(\text{Re}(s_0)\)</td>
+                        </tr>
+                        <tr>
+                            <td>Time Scaling</td>
+                            <td>\(x(at),\ a>0\)</td>
+                            <td>\(\frac{1}{a}X\!\left(\frac{s}{a}\right)\)</td>
+                            <td>Scaled</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Differentiation</strong></td>
+                            <td>\(\frac{dx}{dt}\)</td>
+                            <td class="t-org">\(sX(s) - x(0^-)\)</td>
+                            <td>Same or larger</td>
+                        </tr>
+                        <tr>
+                            <td>Integration</td>
+                            <td>\(\int_{-\infty}^t x(\tau)d\tau\)</td>
+                            <td>\(\frac{X(s)}{s}+\frac{x^{(-1)}(0^-)}{s}\)</td>
+                            <td>Intersect with \(\text{Re}(s)>0\)</td>
+                        </tr>
+                        <tr>
+                            <td>Convolution</td>
+                            <td>\(x_1(t)*x_2(t)\)</td>
+                            <td class="t-grn">\(X_1(s)\cdot X_2(s)\)</td>
+                            <td>At least \(R_1 \cap R_2\)</td>
+                        </tr>
+                        <tr>
+                            <td>Multiplication</td>
+                            <td>\(x_1(t)\cdot x_2(t)\)</td>
+                            <td>\(\frac{1}{2\pi j}X_1(s)*X_2(s)\)</td>
+                            <td>\(R_1+R_2\)</td>
+                        </tr>
+                        <tr>
+                            <td>Time Reversal</td>
+                            <td>\(x(-t)\)</td>
+                            <td>\(X(-s)\)</td>
+                            <td>Reflected ROC</td>
+                        </tr>
+                        <tr>
+                            <td>Conjugation</td>
+                            <td>\(x^*(t)\)</td>
+                            <td>\(X^*(s^*)\)</td>
+                            <td>Same</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">The Differentiation Property — Most Used in GATE <span class="prob prob-h">🟢 HIGH</span>
+            </h3>
+            <p>This is the property that makes the Laplace transform so powerful for solving differential equations. For
+                the <em>unilateral</em> LT with initial conditions:<sup class="cite">[1]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Differentiation with Initial Conditions (Unilateral LT)</div>
+                $$\mathcal{L}\!\left\{\frac{d^n x}{dt^n}\right\} = s^n X(s) - s^{n-1}x(0^-) - s^{n-2}x'(0^-) - \cdots -
+                x^{(n-1)}(0^-)$$
+            </div>
+            <p>For a second-order system (most common in GATE):</p>
+            <div class="math-block">
+                <div class="math-lbl">Second-Order Differentiation</div>
+                $$\mathcal{L}\!\left\{\frac{d^2x}{dt^2}\right\} = s^2 X(s) - s\,x(0^-) - x'(0^-)$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Intuition: Why s represents differentiation</div>
+                    <p>When we differentiate \(e^{st}\), we get \(s\,e^{st}\). So in the "s-domain world,"
+                        differentiation is just multiplication by \(s\). Integration is division by \(s\). This is the
+                        core reason engineers love working in the s-domain — calculus becomes algebra.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+       §5  INITIAL & FINAL VALUE THEOREMS
+  ══════════════════════════════════════════════ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 05</span>
+                <h2 class="sec-t">Initial Value &amp; Final Value Theorems <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>These two theorems allow us to find the initial value \(x(0^+)\) and final (steady-state) value
+                \(x(\infty)\) of a signal directly from its Laplace transform, <em>without performing the inverse
+                    LT</em>. They are extremely useful in control system analysis and are heavily tested in GATE.<sup
+                    class="cite">[1,3]</sup></p>
+
+            <h3 class="sub">Initial Value Theorem (IVT)</h3>
+
+            <div class="math-block">
+                <div class="math-lbl">Initial Value Theorem — Statement</div>
+                $$x(0^+) = \lim_{t \to 0^+} x(t) = \lim_{s \to \infty} s\,X(s)$$
+            </div>
+
+            <p><strong>Validity conditions:</strong> \(x(t)\) must be causal (unilateral LT context), and the limit must
+                exist. If \(X(s)\) is an improper rational function (degree of numerator ≥ degree of denominator), IVT
+                gives incorrect results — a common GATE trap!</p>
+
+            <div class="callout c-danger">
+                <div class="ci">🚨</div>
+                <div class="cb">
+                    <div class="ct">GATE Trap — IVT Cannot Be Applied When</div>
+                    <p>Do NOT apply IVT if \(X(s) = \frac{s^2+3s+1}{s+2}\) — the numerator degree (2) ≥ denominator
+                        degree (1). This is an improper fraction. First perform polynomial long division, then apply IVT
+                        to the proper fractional part. GATE has tested this distinction multiple times.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Final Value Theorem (FVT)</h3>
+
+            <div class="math-block">
+                <div class="math-lbl">Final Value Theorem — Statement</div>
+                $$x(\infty) = \lim_{t \to \infty} x(t) = \lim_{s \to 0} s\,X(s)$$
+            </div>
+
+            <p><strong>Validity conditions (very important):</strong> FVT is valid <em>only if</em> all poles of
+                \(sX(s)\) are in the <strong>left half of the s-plane</strong> (i.e., the system is stable and \(x(t)\)
+                actually reaches a steady-state). If there are poles on the \(j\omega\)-axis or in the right half-plane,
+                FVT gives a meaningless result.</p>
+
+            <div class="callout c-danger">
+                <div class="ci">🚨</div>
+                <div class="cb">
+                    <div class="ct">GATE Trap — FVT Cannot Be Applied When</div>
+                    <p>If \(X(s) = \frac{1}{s^2+4}\), then \(sX(s) = \frac{s}{s^2+4}\) has poles at \(s = \pm j2\) (on
+                        the \(j\omega\)-axis). This corresponds to a sinusoid \(\sin(2t)\) which never settles. Applying
+                        FVT would incorrectly give 0. The correct answer is that the final value does not exist. This is
+                        among the most frequently tested GATE trap.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">IVT vs FVT — Comparison &amp; When To Apply</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Initial Value Theorem</th>
+                            <th>Final Value Theorem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Formula</td>
+                            <td>\(\lim_{s\to\infty} sX(s)\)</td>
+                            <td>\(\lim_{s\to 0} sX(s)\)</td>
+                        </tr>
+                        <tr>
+                            <td>What it finds</td>
+                            <td>\(x(0^+)\) — initial value</td>
+                            <td>\(x(\infty)\) — steady-state</td>
+                        </tr>
+                        <tr>
+                            <td>Must be causal?</td>
+                            <td class="t-grn">Yes</td>
+                            <td class="t-grn">Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Stability needed?</td>
+                            <td class="t-grn">No</td>
+                            <td class="t-red">Yes — all poles of sX(s) in LHP</td>
+                        </tr>
+                        <tr>
+                            <td>Improper X(s)?</td>
+                            <td class="t-red">Cannot apply directly</td>
+                            <td class="t-grn">Not a concern typically</td>
+                        </tr>
+                        <tr>
+                            <td>Sinusoidal input?</td>
+                            <td class="t-grn">Can handle</td>
+                            <td class="t-red">Cannot apply — no steady-state</td>
+                        </tr>
+                        <tr>
+                            <td>Engineering use</td>
+                            <td>Check initial capacitor voltage, inductor current</td>
+                            <td>Check steady-state output of control system</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 5.1</span>
+                    <span class="ex-title">Applying IVT and FVT — Step-by-Step</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">Given \(X(s) = \dfrac{3s+5}{s^2+3s+2}\), find \(x(0^+)\) and \(x(\infty)\).</div>
+                    <div class="sol-lbl">▶ Solution</div>
+                    <p><strong>Step 1 — Compute \(sX(s)\):</strong></p>
+                    <div class="math-block">$$sX(s) = \frac{3s^2 + 5s}{s^2+3s+2}$$</div>
+                    <p><strong>Step 2 — Check IVT validity:</strong> \(X(s)\) is proper (numerator degree 1 &lt;
+                        denominator degree 2). ✓ IVT applicable.</p>
+                    <p><strong>Step 3 — Apply IVT:</strong></p>
+                    <div class="math-block">$$x(0^+) = \lim_{s\to\infty} sX(s) = \lim_{s\to\infty}
+                        \frac{3s^2+5s}{s^2+3s+2} = \frac{3s^2}{s^2} = \boxed{3}$$</div>
+                    <p><strong>Step 4 — Check FVT validity:</strong> Poles of \(sX(s)\) — factor denominator: \(s^2+3s+2
+                        = (s+1)(s+2)\). Poles at \(s=-1\) and \(s=-2\), both in LHP. ✓ FVT applicable.</p>
+                    <p><strong>Step 5 — Apply FVT:</strong></p>
+                    <div class="math-block">$$x(\infty) = \lim_{s\to 0} sX(s) = \frac{3(0)^2+5(0)}{0+0+2} =
+                        \boxed{\frac{0}{2} = 0}$$</div>
+                    <div class="callout c-tip" style="margin-top:12px;">
+                        <div class="ci">✅</div>
+                        <div class="cb">
+                            <div class="ct">Verification Insight</div>
+                            <p>The signal \(x(t)\) starts at 3 and decays to 0. This makes physical sense — the system
+                                has poles at −1 and −2 (both decaying exponentials), so the output returns to zero as
+                                \(t\to\infty\).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+       §6  TRANSFER FUNCTION
+  ══════════════════════════════════════════════ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 06</span>
+                <h2 class="sec-t">Transfer Function &amp; System Analysis <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <p>The <strong>transfer function</strong> \(H(s)\) is the Laplace transform of the system's impulse response
+                \(h(t)\), assuming zero initial conditions. Equivalently, it is the ratio of output transform to input
+                transform:<sup class="cite">[1,2]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Transfer Function Definition</div>
+                $$H(s) = \frac{Y(s)}{X(s)}\Bigg|_{\text{zero initial conditions}} = \mathcal{L}\{h(t)\}$$
+            </div>
+
+            <p>For a general LTI system described by the differential equation:</p>
+            <div class="math-block">
+                <div class="math-lbl">General LCCDE and its Transfer Function</div>
+                $$\sum_{k=0}^{N} a_k \frac{d^k y}{dt^k} = \sum_{k=0}^{M} b_k \frac{d^k x}{dt^k}$$
+                $$H(s) = \frac{b_M s^M + b_{M-1}s^{M-1} + \cdots + b_0}{a_N s^N + a_{N-1}s^{N-1} + \cdots + a_0} =
+                \frac{B(s)}{A(s)}$$
+            </div>
+
+            <h3 class="sub">Key System Properties from H(s)</h3>
+            <div class="two-col">
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Impulse Response</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">·</span>\(h(t) = \mathcal{L}^{-1}\{H(s)\}\)</li>
+                        <li><span class="dot">·</span>Complete characterisation of LTI system</li>
+                        <li><span class="dot">·</span>Output = input convolved with \(h(t)\)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Step Response</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">·</span>\(Y(s) = H(s)/s\) for unit step input</li>
+                        <li><span class="dot">·</span>\(y(t) = \int_0^t h(\tau)d\tau\)</li>
+                        <li><span class="dot">·</span>Steady-state = \(H(0)\) (if stable)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Frequency Response</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">·</span>\(H(j\omega) = H(s)|_{s=j\omega}\)</li>
+                        <li><span class="dot">·</span>Valid only if ROC includes \(j\omega\)-axis</li>
+                        <li><span class="dot">·</span>Same as Fourier transform of \(h(t)\)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Stability Check</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">·</span>All poles in LHP → BIBO stable</li>
+                        <li><span class="dot">·</span>Any pole in RHP → unstable</li>
+                        <li><span class="dot">·</span>Simple poles on \(j\omega\)-axis → marginally stable</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Transfer function system diagram -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.3.png" alt="Block diagram of LTI system with transfer function" />
+                <p class="svg-cap">Fig. 6.1 — LTI system block diagram. Convolution in time ↔ multiplication in
+                    s-domain.</p>
+            </div>
+
+            <h3 class="sub">How to Find Transfer Function from Differential Equation</h3>
+            <ol class="steps">
+                <li>Write the governing differential equation of the system with zero initial conditions.</li>
+                <li>Take the Laplace transform of both sides (each \(d^k/dt^k\) becomes \(s^k\)).</li>
+                <li>Group the \(Y(s)\) and \(X(s)\) terms on their respective sides.</li>
+                <li>Form the ratio \(H(s) = Y(s)/X(s)\).</li>
+                <li>Factor numerator and denominator to find poles and zeros.</li>
+            </ol>
+
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 6.1</span>
+                    <span class="ex-title">Transfer Function of a Series RLC Circuit</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">For a series RLC circuit with \(R=2\,\Omega\), \(L=1\,\text{H}\),
+                        \(C=0.5\,\text{F}\), find \(H(s) = V_C(s)/V_s(s)\).</div>
+                    <div class="sol-lbl">▶ Solution</div>
+
+                    <!-- Circuit SVG -->
+                    <div class="svg-wrap svg-simple" style="margin-bottom:14px;">
+                        <img src="images/ch6/fig6.4.png" alt="Circuit SVG" />
+                        <p class="svg-cap">Fig. 6.2 — Series RLC circuit for transfer function derivation.</p>
+                    </div>
+
+                    <p><strong>KVL in s-domain (zero initial conditions):</strong></p>
+                    <div class="math-block">$$V_s(s) = I(s)\!\left[R + sL + \frac{1}{sC}\right] = I(s)\!\left[2 + s +
+                        \frac{2}{s}\right]$$</div>
+                    <p>Output voltage across capacitor: \(V_C(s) = I(s)\cdot\dfrac{1}{sC} = \dfrac{2\,I(s)}{s}\)</p>
+                    <div class="math-block">$$H(s) = \frac{V_C(s)}{V_s(s)} = \frac{2/s}{2+s+2/s} = \frac{2}{s^2+2s+2}$$
+                    </div>
+                    <p><strong>Poles:</strong> \(s = \dfrac{-2 \pm \sqrt{4-8}}{2} = -1 \pm j1\) — complex conjugate
+                        poles in LHP → <span class="t-grn">stable underdamped system</span>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+       §7  POLE-ZERO INTERPRETATION
+  ══════════════════════════════════════════════ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 07</span>
+                <h2 class="sec-t">Pole-Zero Interpretation <span class="prob prob-m">🟡 MEDIUM</span></h2>
+            </div>
+
+            <p>When \(X(s)\) is written as a rational function, we can factor both numerator and denominator:</p>
+            <div class="math-block">
+                <div class="math-lbl">Pole-Zero Form of X(s)</div>
+                $$X(s) = K\,\frac{(s-z_1)(s-z_2)\cdots(s-z_M)}{(s-p_1)(s-p_2)\cdots(s-p_N)}$$
+            </div>
+            <p>where \(z_i\) are called <strong>zeros</strong> (values of \(s\) that make \(X(s)=0\)) and \(p_i\) are
+                called <strong>poles</strong> (values of \(s\) that make \(X(s)\to\infty\)).<sup
+                    class="cite">[1,2]</sup></p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pole Location</th>
+                            <th>Time-Domain Behaviour</th>
+                            <th>System Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Left Half-Plane (LHP)<br>\(\text{Re}(p) < 0\)</td>
+                            <td class="t-grn">Decaying exponential / sinusoid → 0</td>
+                            <td class="t-grn">Stable</td>
+                        </tr>
+                        <tr>
+                            <td>Right Half-Plane (RHP)<br>\(\text{Re}(p) > 0\)</td>
+                            <td class="t-red">Growing exponential / sinusoid → ∞</td>
+                            <td class="t-red">Unstable</td>
+                        </tr>
+                        <tr>
+                            <td>Origin \(s=0\)<br>(simple)</td>
+                            <td class="t-amb">Constant (integrator)</td>
+                            <td class="t-amb">Marginally stable</td>
+                        </tr>
+                        <tr>
+                            <td>\(j\omega\)-axis \(\text{Re}(p)=0\)<br>(simple)</td>
+                            <td class="t-amb">Pure sinusoid — persists forever</td>
+                            <td class="t-amb">Marginally stable</td>
+                        </tr>
+                        <tr>
+                            <td>\(j\omega\)-axis<br>(repeated)</td>
+                            <td class="t-red">Growing sinusoid → ∞</td>
+                            <td class="t-red">Unstable</td>
+                        </tr>
+                        <tr>
+                            <td>Real, negative<br>\(p = -a,\ a>0\)</td>
+                            <td>Decaying: \(e^{-at}\)</td>
+                            <td class="t-grn">Stable</td>
+                        </tr>
+                        <tr>
+                            <td>Complex conjugate in LHP<br>\(p = -a\pm j\omega_d\)</td>
+                            <td>Decaying sinusoid: \(e^{-at}\sin(\omega_d t)\)</td>
+                            <td class="t-grn">Stable (underdamped)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pole-zero plot SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch6/fig6.5.png" alt="Pole-zero plot in the s-plane with stability regions" />
+                <p class="svg-cap">Fig. 7.1 — Pole-zero plot showing stability regions. LHP poles → stable. RHP poles →
+                    unstable. Poles on jω-axis → marginally stable. [Ref: Oppenheim &amp; Willsky, Ch.9]</p>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Effect of Poles vs Zeros</div>
+                    <p><strong>Poles</strong> determine the natural frequencies of the system — they dictate how the
+                        system responds on its own (free response). <strong>Zeros</strong> shape the forced response —
+                        they can enhance or attenuate certain frequency components of the output. For stability, only
+                        poles matter; zeros never cause instability in themselves.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+       §8  STABILITY
+  ══════════════════════════════════════════════ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 08</span>
+                <h2 class="sec-t">Stability Analysis via Laplace Transform <span class="prob prob-h">🟢 HIGH</span></h2>
+            </div>
+
+            <h3 class="sub">BIBO Stability</h3>
+            <p>A system is <strong>Bounded-Input Bounded-Output (BIBO) stable</strong> if and only if every bounded
+                input produces a bounded output. In the Laplace domain, this requires that the impulse response \(h(t)\)
+                be absolutely integrable:<sup class="cite">[1,2]</sup></p>
+            <div class="math-block">$$\int_{-\infty}^{\infty} |h(t)|\,dt < \infty \quad \Leftrightarrow \quad \text{BIBO
+                    Stable}$$</div>
+                    <p>For a causal LTI system with rational transfer function: <strong>BIBO stable iff all poles of
+                            H(s) lie strictly in the Left Half-Plane (LHP)</strong>, i.e., \(\text{Re}(p_i) < 0\) for
+                            all \(i\).</p>
+
+                            <h3 class="sub">ROC and BIBO Stability Relationship</h3>
+                            <div class="callout c-key">
+                                <div class="ci">🔑</div>
+                                <div class="cb">
+                                    <div class="ct">Stability Condition in terms of ROC</div>
+                                    <p>A causal LTI system is BIBO stable if and only if the ROC of \(H(s)\) includes
+                                        the entire imaginary axis \(j\omega\). Equivalently, the Fourier transform of
+                                        \(h(t)\) — i.e., \(H(j\omega)\) — exists. This is because the \(j\omega\)-axis
+                                        lies within the ROC only when all poles are in the open LHP.</p>
+                                </div>
+                            </div>
+
+                            <div class="tw">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Pole Configuration</th>
+                                            <th>ROC Includes jω-axis?</th>
+                                            <th>BIBO Stability</th>
+                                            <th>Free Response</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>All poles strictly in LHP</td>
+                                            <td class="t-grn">Yes ✓</td>
+                                            <td class="t-grn">Stable</td>
+                                            <td>Decays to zero</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Any pole in RHP</td>
+                                            <td class="t-red">No ✗</td>
+                                            <td class="t-red">Unstable</td>
+                                            <td>Grows without bound</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Simple poles on jω-axis, none in RHP</td>
+                                            <td class="t-amb">Boundary</td>
+                                            <td class="t-amb">Marginally stable</td>
+                                            <td>Sustained oscillation</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Repeated poles on jω-axis</td>
+                                            <td class="t-red">No ✗</td>
+                                            <td class="t-red">Unstable</td>
+                                            <td>Grows (polynomial × sinusoid)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h3 class="sub">Routh-Hurwitz Criterion (GATE Shortcut)</h3>
+                            <p>Without explicitly finding poles, the <strong>Routh-Hurwitz criterion</strong> determines
+                                stability from the coefficients of the characteristic polynomial \(A(s)\). For \(A(s) =
+                                a_n s^n + \cdots + a_1 s + a_0\):<sup class="cite">[3]</sup></p>
+                            <div class="callout c-tip">
+                                <div class="ci">✅</div>
+                                <div class="cb">
+                                    <div class="ct">Necessary Condition (Quick Test)</div>
+                                    <p>All coefficients of \(A(s)\) must be <strong>positive</strong> and
+                                        <strong>non-zero</strong>. If any coefficient is negative, zero, or missing, the
+                                        system is immediately unstable — no Routh table needed. This single check
+                                        eliminates many GATE options instantly.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="example">
+                                <div class="ex-hdr">
+                                    <span class="ex-num">EXAMPLE 8.1</span>
+                                    <span class="ex-title">Stability Analysis of a Third-Order System</span>
+                                </div>
+                                <div class="ex-body">
+                                    <div class="ex-q">Determine stability: \(H(s) = \dfrac{10}{s^3 + 2s^2 + 3s + 4}\).
+                                    </div>
+                                    <div class="sol-lbl">▶ Solution</div>
+                                    <p><strong>Step 1 — Quick check:</strong> All coefficients (1, 2, 3, 4) are
+                                        positive. Necessary condition ✓. But not sufficient for order ≥ 3.</p>
+                                    <p><strong>Step 2 — Routh Array:</strong></p>
+                                    <div class="fblock"><span class="flbl">Routh Array Construction</span><span
+                                            class="fh">s³ │</span> <span class="fv">1</span> <span class="fv">3</span>
+                                        <span class="fh">s² │</span> <span class="fv">2</span> <span class="fv">4</span>
+                                        <span class="fh">s¹ │</span> <span class="feq">(2×3−1×4)/2</span> = <span
+                                            class="fv">1</span> 0
+                                        <span class="fh">s⁰ │</span> <span class="feq">(1×4−2×0)/1</span> = <span
+                                            class="fv">4</span>
+                                    </div>
+                                    <p><strong>Step 3 — Count sign changes in first column:</strong> {1, 2, 1, 4} → all
+                                        positive, <strong>zero sign changes</strong>.</p>
+                                    <p><strong>Conclusion:</strong> <span class="t-grn">System is BIBO stable</span>.
+                                        Number of RHP poles = 0.</p>
+                                </div>
+                            </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════
+       §9  SOLVED EXAMPLES
+  ══════════════════════════════════════════════ -->
+            <div class="section" id="s9">
+                <div class="sec-hdr">
+                    <span class="sec-num">§ 09</span>
+                    <h2 class="sec-t">Solved Numerical Examples</h2>
+                </div>
+
+                <div class="example">
+                    <div class="ex-hdr">
+                        <span class="ex-num">EXAMPLE 9.1 — BASIC</span>
+                        <span class="ex-title">Inverse Laplace by Partial Fractions</span>
+                    </div>
+                    <div class="ex-body">
+                        <div class="ex-q">Find \(x(t) = \mathcal{L}^{-1}\!\left\{\dfrac{2s+5}{(s+1)(s+3)}\right\}\) for
+                            \(t \geq 0\).</div>
+                        <div class="sol-lbl">▶ Solution</div>
+                        <p><strong>Step 1 — Partial fraction expansion:</strong></p>
+                        <div class="math-block">$$\frac{2s+5}{(s+1)(s+3)} = \frac{A}{s+1} + \frac{B}{s+3}$$</div>
+                        <p><strong>Step 2 — Find A and B:</strong></p>
+                        <div class="math-block">$$A = \left.\frac{2s+5}{s+3}\right|_{s=-1} = \frac{-2+5}{-1+3} =
+                            \frac{3}{2}$$
+                            $$B = \left.\frac{2s+5}{s+1}\right|_{s=-3} = \frac{-6+5}{-3+1} = \frac{-1}{-2} =
+                            \frac{1}{2}$$</div>
+                        <p><strong>Step 3 — Inverse LT:</strong></p>
+                        <div class="math-block">$$\boxed{x(t) = \frac{3}{2}e^{-t}\,u(t) + \frac{1}{2}e^{-3t}\,u(t)}$$
+                        </div>
+                        <p>Both poles at −1 and −3 are in the LHP → the signal decays to zero as \(t\to\infty\).</p>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <div class="ex-hdr">
+                        <span class="ex-num">EXAMPLE 9.2 — GATE LEVEL</span>
+                        <span class="ex-title">ROC Determination for a Two-Sided Signal</span>
+                    </div>
+                    <div class="ex-body">
+                        <div class="ex-q">Given \(x(t) = e^{-2t}u(t) + e^{3t}u(-t)\), find \(X(s)\) and specify its ROC.
+                        </div>
+                        <div class="sol-lbl">▶ Solution</div>
+                        <p><strong>Step 1 — Transform each part separately:</strong></p>
+                        <div class="math-block">$$\mathcal{L}\{e^{-2t}u(t)\} = \frac{1}{s+2}, \quad \text{ROC: Re}(s) >
+                            -2$$
+                            $$\mathcal{L}\{e^{3t}u(-t)\} = \frac{-1}{s-3}, \quad \text{ROC: Re}(s) < 3$$</div>
+                                <p><strong>Step 2 — Combine (linearity):</strong></p>
+                                <div class="math-block">$$X(s) = \frac{1}{s+2} - \frac{1}{s-3} =
+                                    \frac{(s-3)-(s+2)}{(s+2)(s-3)} = \frac{-5}{(s+2)(s-3)}$$</div>
+                                <p><strong>Step 3 — ROC is intersection:</strong></p>
+                                <div class="math-block">$$\text{ROC} = \{\text{Re}(s) > -2\} \cap \{\text{Re}(s) <
+                                        3\}=\boxed{-2 < \text{Re}(s) < 3}$$</div>
+                                        <div class="callout c-tip" style="margin-top:10px;">
+                                            <div class="ci">📌</div>
+                                            <div class="cb">
+                                                <div class="ct">Key Observation</div>
+                                                <p>This is a two-sided signal with a strip ROC. The \(j\omega\)-axis
+                                                    (Re(s)=0) lies within the ROC, so the Fourier transform
+                                                    \(X(j\omega)\) exists. The system is BIBO stable in the sense that
+                                                    the bilateral LT has ROC including the \(j\omega\)-axis.</p>
+                                            </div>
+                                        </div>
+                                </div>
+                        </div>
+
+                        <div class="example">
+                            <div class="ex-hdr">
+                                <span class="ex-num">EXAMPLE 9.3 — GATE LEVEL</span>
+                                <span class="ex-title">Solving a Differential Equation with Initial Conditions</span>
+                            </div>
+                            <div class="ex-body">
+                                <div class="ex-q">Solve \(\dfrac{dy}{dt} + 3y = 2u(t)\) with \(y(0^-) = 1\).</div>
+                                <div class="sol-lbl">▶ Solution</div>
+                                <p><strong>Step 1 — Take unilateral LT (include initial condition):</strong></p>
+                                <div class="math-block">$$[sY(s) - y(0^-)] + 3Y(s) = \frac{2}{s}$$
+                                    $$(s+3)Y(s) - 1 = \frac{2}{s}$$</div>
+                                <p><strong>Step 2 — Solve for Y(s):</strong></p>
+                                <div class="math-block">$$Y(s) = \frac{1}{s+3} + \frac{2}{s(s+3)}$$
+                                    $$Y(s) = \frac{1}{s+3} + \frac{2/3}{s} - \frac{2/3}{s+3} = \frac{2}{3s} +
+                                    \frac{1}{3(s+3)}$$</div>
+                                <p><strong>Step 3 — Inverse LT:</strong></p>
+                                <div class="math-block">$$\boxed{y(t) = \frac{2}{3}u(t) + \frac{1}{3}e^{-3t}u(t)}$$
+                                </div>
+                                <p>The solution contains a <em>forced response</em> \(2/3\) (steady-state) and a
+                                    <em>natural response</em> \(\frac{1}{3}e^{-3t}\) (dies out). At \(t=0^+\): \(y(0^+)
+                                    = 2/3+1/3 = 1\) ✓ (consistent with initial condition).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══════════════════════════════════════════
+       §10  GATE & IES PYQs
+  ══════════════════════════════════════════════ -->
+                    <div class="section" id="s10">
+                        <div class="sec-hdr">
+                            <span class="sec-num">§ 10</span>
+                            <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+                        </div>
+
+                        <div class="pyq-card">
+                            <div class="pyq-hdr">
+                                <span class="pyq-tag pyq-gate">GATE EE</span>
+                                <span class="pyq-title">ROC of \(X(s) = \frac{1}{(s+1)(s+2)}\) for the signal
+                                    \(e^{-t}u(t) - e^{-2t}u(t)\)</span>
+                                <span class="pyq-year">GATE 2019</span>
+                            </div>
+                            <div class="pyq-body">
+                                <p><strong>Question:</strong> The ROC of the Laplace transform of \(x(t) = e^{-t}u(t) -
+                                    e^{-2t}u(t)\) is:</p>
+                                <ul class="pyq-opts">
+                                    <li>(A) \(\text{Re}(s) < -2\)</li>
+                                    <li>(B) \(-2 < \text{Re}(s) < -1\)</li>
+                                    <li class="correct">(C) \(\text{Re}(s) > -1\) ✓</li>
+                                    <li>(D) \(-1 < \text{Re}(s) < -2\)</li>
+                                </ul>
+                                <p><strong>Explanation:</strong> Both \(e^{-t}u(t)\) and \(e^{-2t}u(t)\) are right-sided
+                                    (causal). Their individual ROCs are \(\text{Re}(s) > -1\) and \(\text{Re}(s) > -2\).
+                                    The combined ROC is the intersection, which is the more restrictive: \(\text{Re}(s)
+                                    > -1\). The combined \(X(s) = \frac{1}{s+1} - \frac{1}{s+2} =
+                                    \frac{1}{(s+1)(s+2)}\), and since both signals are right-sided, the ROC is
+                                    \(\text{Re}(s) > -1\) (to the right of the rightmost pole).</p>
+                            </div>
+                        </div>
+
+                        <div class="pyq-card">
+                            <div class="pyq-hdr">
+                                <span class="pyq-tag pyq-gate">GATE EC</span>
+                                <span class="pyq-title">Final Value Theorem Application</span>
+                                <span class="pyq-year">GATE 2021</span>
+                            </div>
+                            <div class="pyq-body">
+                                <p><strong>Question:</strong> If \(X(s) = \dfrac{4}{s(s^2+4)}\), then \(x(\infty)\)
+                                    using the Final Value Theorem is:</p>
+                                <ul class="pyq-opts">
+                                    <li>(A) 0</li>
+                                    <li>(B) 1</li>
+                                    <li class="correct">(C) Final Value Theorem cannot be applied ✓</li>
+                                    <li>(D) \(\infty\)</li>
+                                </ul>
+                                <p><strong>Explanation:</strong> \(sX(s) = \frac{4}{s^2+4}\) has poles at \(s = \pm
+                                    j2\), which lie on the \(j\omega\)-axis. Since the poles of \(sX(s)\) are not
+                                    strictly in the LHP, the FVT is not applicable. The signal \(x(t)\) would contain a
+                                    sinusoidal component \(\sin(2t)\) that never settles. This is a classic GATE trap —
+                                    even though \(s=0\) is not a pole of \(sX(s)\), the imaginary-axis poles invalidate
+                                    FVT.</p>
+                            </div>
+                        </div>
+
+                        <div class="pyq-card ies-card">
+                            <div class="pyq-hdr ies-hdr">
+                                <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                                <span class="pyq-title pyq-title-ies">Transfer Function from Pole-Zero Data</span>
+                                <span class="pyq-year">IES 2018</span>
+                            </div>
+                            <div class="pyq-body">
+                                <p><strong>Question:</strong> A causal LTI system has poles at \(s=-1, -3\) and zeros at
+                                    \(s=0, -2\), with gain constant \(K=6\). The transfer function is:</p>
+                                <ul class="pyq-opts">
+                                    <li>(A) \(\dfrac{6s(s+2)}{(s+1)(s+3)}\)</li>
+                                    <li class="correct">(B) \(\dfrac{6s(s+2)}{(s+1)(s+3)}\) ✓</li>
+                                    <li>(C) \(\dfrac{6(s+2)}{(s+1)(s+3)}\)</li>
+                                    <li>(D) \(\dfrac{6s}{(s+1)(s+3)}\)</li>
+                                </ul>
+                                <p><strong>Explanation:</strong> The pole-zero form directly gives: \(H(s) =
+                                    K\frac{(s-z_1)(s-z_2)}{(s-p_1)(s-p_2)} =
+                                    6\cdot\frac{(s-0)(s-(-2))}{(s-(-1))(s-(-3))} = \frac{6s(s+2)}{(s+1)(s+3)}\). All
+                                    poles in LHP → stable causal system.</p>
+                            </div>
+                        </div>
+
+                        <div class="pyq-card">
+                            <div class="pyq-hdr">
+                                <span class="pyq-tag pyq-gate">GATE EE</span>
+                                <span class="pyq-title">Initial Value Theorem — Improper Fraction Trap</span>
+                                <span class="pyq-year">GATE 2016</span>
+                            </div>
+                            <div class="pyq-body">
+                                <p><strong>Question:</strong> The initial value \(x(0^+)\) for \(X(s) =
+                                    \dfrac{s^2+s+1}{s+1}\) is:</p>
+                                <ul class="pyq-opts">
+                                    <li>(A) 0</li>
+                                    <li>(B) 1</li>
+                                    <li class="correct">(C) IVT not directly applicable; perform long division first →
+                                        \(x(0^+) = 1\) ✓</li>
+                                    <li>(D) \(\infty\)</li>
+                                </ul>
+                                <p><strong>Explanation:</strong> \(X(s) = \frac{s^2+s+1}{s+1}\) is improper. Long
+                                    division: \(\frac{s^2+s+1}{s+1} = s + \frac{1}{s+1}\). Now \(\lim_{s\to\infty} sX(s)
+                                    = \lim_{s\to\infty} s\!\left(s+\frac{1}{s+1}\right) = \infty\). The \(\delta'(t)\)
+                                    and \(\delta(t)\) terms indicate an impulsive-type signal. For the purely proper
+                                    part: \(\mathcal{L}^{-1}\!\{1/(s+1)\}\) contributes \(e^{-t}u(t)\), giving initial
+                                    value 1. The improper part contributes singular terms at \(t=0\).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══════════════════════════════════════════
+       §11  MEMORY TRICKS & REVISION
+  ══════════════════════════════════════════════ -->
+                    <div class="section" id="s11">
+                        <div class="sec-hdr">
+                            <span class="sec-num">§ 11</span>
+                            <h2 class="sec-t">Memory Tricks, Common Mistakes &amp; Quick Revision</h2>
+                        </div>
+
+                        <h3 class="sub">Memory Mnemonics</h3>
+                        <div class="two-col">
+                            <div class="mini-card mc-org">
+                                <div class="mc-t">ROC Rules — "RLSTF"</div>
+                                <ul class="mc-list">
+                                    <li><span class="dot">R</span><strong>R</strong>ight-sided → Right half-plane ROC
+                                    </li>
+                                    <li><span class="dot">L</span><strong>L</strong>eft-sided → Left half-plane ROC</li>
+                                    <li><span class="dot">S</span><strong>S</strong>trip → Two-sided signal</li>
+                                    <li><span class="dot">T</span><strong>T</strong>ime-limited → Entire plane</li>
+                                    <li><span class="dot">F</span><strong>F</strong>inite → Whole s-plane ROC</li>
+                                </ul>
+                            </div>
+                            <div class="mini-card mc-grn">
+                                <div class="mc-t">Stability Memory — "SLU"</div>
+                                <ul class="mc-list">
+                                    <li><span class="dot">S</span><strong>S</strong>table = poles in LHP</li>
+                                    <li><span class="dot">L</span><strong>L</strong>eft Half Plane = good/stable</li>
+                                    <li><span class="dot">U</span><strong>U</strong>nstable = any pole in RHP or
+                                        repeated on jω-axis</li>
+                                </ul>
+                            </div>
+                            <div class="mini-card mc-amb">
+                                <div class="mc-t">IVT/FVT Check — "PLS"</div>
+                                <ul class="mc-list">
+                                    <li><span class="dot">P</span>Check <strong>P</strong>roper fraction before IVT</li>
+                                    <li><span class="dot">L</span>Check poles of <strong>s</strong>X(s) in
+                                        <strong>L</strong>HP before FVT
+                                    </li>
+                                    <li><span class="dot">S</span><strong>S</strong>inusoidal input → FVT invalid</li>
+                                </ul>
+                            </div>
+                            <div class="mini-card mc-tel">
+                                <div class="mc-t">Key Relationships</div>
+                                <ul class="mc-list">
+                                    <li><span class="dot">·</span>\(d/dt \leftrightarrow s\) (s = differentiation)</li>
+                                    <li><span class="dot">·</span>\(\int \leftrightarrow 1/s\) (1/s = integration)</li>
+                                    <li><span class="dot">·</span>Convolution ↔ Multiplication in s</li>
+                                    <li><span class="dot">·</span>Time delay \(T\) → multiply by \(e^{-sT}\)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h3 class="sub">Common Student Mistakes <span class="prob prob-h">🟢 ALWAYS TESTED</span></h3>
+                        <div class="callout c-danger">
+                            <div class="ci">🚫</div>
+                            <div class="cb">
+                                <div class="ct">Mistake 1 — Ignoring ROC in Inverse LT</div>
+                                <p>Seeing \(X(s) = 1/(s+2)\) and immediately writing \(x(t) = e^{-2t}u(t)\) without
+                                    checking the ROC. Could be \(-e^{-2t}u(-t)\) if the system is anti-causal. Always
+                                    specify the ROC.</p>
+                            </div>
+                        </div>
+                        <div class="callout c-danger">
+                            <div class="ci">🚫</div>
+                            <div class="cb">
+                                <div class="ct">Mistake 2 — Applying FVT to Unstable Systems</div>
+                                <p>Applying \(\lim_{s\to 0} sX(s)\) when \(sX(s)\) has RHP or \(j\omega\)-axis poles.
+                                    The system doesn't reach a steady state; FVT gives a meaningless number. Always
+                                    check pole locations of \(sX(s)\) first.</p>
+                            </div>
+                        </div>
+                        <div class="callout c-danger">
+                            <div class="ci">🚫</div>
+                            <div class="cb">
+                                <div class="ct">Mistake 3 — Confusing Unilateral and Bilateral LT</div>
+                                <p>For circuits and control (initial conditions known), use unilateral LT. For ROC and
+                                    signal analysis problems involving non-causal signals, use bilateral LT. Mixing them
+                                    leads to wrong ROC specifications.</p>
+                            </div>
+                        </div>
+                        <div class="callout c-danger">
+                            <div class="ci">🚫</div>
+                            <div class="cb">
+                                <div class="ct">Mistake 4 — ROC of Sum Is Not Always Intersection</div>
+                                <p>When two signals with different ROCs are added, the ROC of the sum is <em>at
+                                        least</em> the intersection — but can be larger if pole-zero cancellation occurs
+                                    at a boundary. This is rare but tested in GATE.</p>
+                            </div>
+                        </div>
+
+                        <h3 class="sub">One-Page Revision Sheet</h3>
+                        <div class="tw">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Topic</th>
+                                        <th>Key Formula / Rule</th>
+                                        <th>GATE Priority</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Bilateral LT</td>
+                                        <td>\(\int_{-\infty}^{\infty} x(t)e^{-st}dt\)</td>
+                                        <td class="t-grn">HIGH</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Unilateral LT</td>
+                                        <td>\(\int_{0^-}^{\infty} x(t)e^{-st}dt\)</td>
+                                        <td class="t-grn">HIGH</td>
+                                    </tr>
+                                    <tr>
+                                        <td>ROC — right-sided</td>
+                                        <td>Re(s) &gt; rightmost pole real part</td>
+                                        <td class="t-grn">HIGH</td>
+                                    </tr>
+                                    <tr>
+                                        <td>ROC — left-sided</td>
+                                        <td>Re(s) &lt; leftmost pole real part</td>
+                                        <td class="t-grn">HIGH</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Differentiation</td>
+                                        <td>\(\mathcal{L}\{x'\} = sX(s) - x(0^-)\)</td>
+                                        <td class="t-grn">HIGH</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Convolution</td>
+                                        <td>\(x_1*x_2 \leftrightarrow X_1(s)X_2(s)\)</td>
+                                        <td class="t-grn">HIGH</td>
+                                    </tr>
+                                    <tr>
+                                        <td>IVT</td>
+                                        <td>\(x(0^+) = \lim_{s\to\infty} sX(s)\) — proper X(s) only</td>
+                                        <td class="t-grn">HIGH</td>
+                                    </tr>
+                                    <tr>
+                                        <td>FVT</td>
+                                        <td>\(x(\infty) = \lim_{s\to 0} sX(s)\) — poles of sX(s) in LHP</td>
+                                        <td class="t-grn">HIGH</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Transfer function</td>
+                                        <td>\(H(s) = Y(s)/X(s)\) at zero ICs</td>
+                                        <td class="t-grn">HIGH</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Stability</td>
+                                        <td>All poles strictly in LHP ↔ BIBO stable</td>
+                                        <td class="t-grn">HIGH</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Marginal stability</td>
+                                        <td>Simple poles on jω-axis, none in RHP</td>
+                                        <td class="t-amb">MEDIUM</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pole-zero form</td>
+                                        <td>\(H(s) = K\frac{\prod(s-z_i)}{\prod(s-p_j)}\)</td>
+                                        <td class="t-amb">MEDIUM</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Impedance (s-domain)</td>
+                                        <td>\(Z_L=sL,\ Z_C=1/(sC),\ Z_R=R\)</td>
+                                        <td class="t-amb">MEDIUM</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h3 class="sub">Interview &amp; Industry Perspective</h3>
+                        <div class="callout c-info">
+                            <div class="ci">🏭</div>
+                            <div class="cb">
+                                <div class="ct">How Industry Uses Laplace Transform</div>
+                                <p>In power systems, the Laplace transform is used to analyse transient behaviour of
+                                    generators, transformers, and motors after a fault. Control engineers use transfer
+                                    functions daily to design voltage regulators, speed controllers, and protection
+                                    relays. In the design of Butterworth and Chebyshev filters (used in audio,
+                                    instrumentation, and communications), prototype transfer functions are specified in
+                                    the s-domain, then mapped to digital domain via bilinear transform.</p>
+                            </div>
+                        </div>
+                        <p><strong>Common PSU Interview Questions:</strong></p>
+                        <ol class="steps">
+                            <li>What is the physical significance of a pole? What happens if a pole is in the RHP?</li>
+                            <li>Why is the imaginary axis important in Laplace analysis?</li>
+                            <li>How do you check stability without computing poles explicitly?</li>
+                            <li>What is the difference between natural and forced response in the Laplace domain?</li>
+                            <li>Can a system with a zero in the RHP be stable? (Yes — non-minimum phase system.)</li>
+                        </ol>
+                    </div>
+
+                    <!-- ══════════════════════════════════════════
+       §12  ASK CLAUDE
+  ══════════════════════════════════════════════ -->
+                    <div class="section" id="s12">
+                        <div class="sec-hdr">
+                            <span class="sec-num">§ 12</span>
+                            <h2 class="sec-t">Ask Aarova AI — Your GATE Tutor</h2>
+                        </div>
+
+                        <div class="ai-prompt">
+                            <div class="ai-prompt-title">🤖 Ask a Question</div>
+                            <p>Type your doubt about Laplace Transform, ROC, stability, or any concept in this chapter.
+                                Aarova AI will answer like a GATE faculty member.</p>
+                            <div class="ai-input-row">
+                                <input class="ai-input" id="userQ" type="text"
+                                    placeholder="e.g. Why does the ROC never contain a pole?" autocomplete="off" />
+                                <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                            </div>
+                            <div class="ai-suggest">
+                                <span class="ai-chip"
+                                    onclick="setQ('Explain intuitively why the ROC cannot contain a pole of X(s).')">Why
+                                    ROC excludes poles?</span>
+                                <span class="ai-chip"
+                                    onclick="setQ('A signal has X(s) = 1/((s+1)(s-2)). What are the three possible ROCs and corresponding signals?')">Three
+                                    ROCs for same X(s)</span>
+                                <span class="ai-chip"
+                                    onclick="setQ('Derive the Initial Value Theorem from the Laplace differentiation property step by step.')">Derive
+                                    IVT from scratch</span>
+                                <span class="ai-chip"
+                                    onclick="setQ('What is the difference between natural frequency and damped natural frequency in second-order system poles?')">Natural
+                                    vs damped frequency</span>
+                                <span class="ai-chip"
+                                    onclick="setQ('How does the convolution property of Laplace transform relate to the concept of transfer function in LTI systems?')">Convolution
+                                    ↔ Transfer function</span>
+                                <span class="ai-chip"
+                                    onclick="setQ('Explain why a non-minimum phase system has a zero in the RHP but can still be stable.')">Non-minimum
+                                    phase systems</span>
+                            </div>
+                            <div class="ai-response" id="aiResp"></div>
+                        </div>
+
+                        <!-- CHAPTER SUMMARY GRID -->
+                        <h3 class="sub">Chapter Summary</h3>
+                        <div class="sum-grid">
+                            <div class="sum-card sc-o">
+                                <div class="sum-lbl">Bilateral &amp; Unilateral LT</div>
+                                <p>Bilateral integrates \(-\infty\) to \(\infty\) — for all signals. Unilateral from
+                                    \(0^-\) — for causal systems with initial conditions. Same formula, different
+                                    limits. Unilateral handles ICs naturally.</p>
+                            </div>
+                            <div class="sum-card sc-t">
+                                <div class="sum-lbl">Region of Convergence</div>
+                                <p>ROC = set of s where integral converges. Cannot contain poles. Right-sided → right
+                                    half-plane. Left-sided → left half-plane. Two-sided → vertical strip. Finite
+                                    duration → entire s-plane.</p>
+                            </div>
+                            <div class="sum-card sc-g">
+                                <div class="sum-lbl">IVT &amp; FVT</div>
+                                <p>IVT: \(x(0^+) = \lim_{s\to\infty} sX(s)\) — needs proper X(s). FVT: \(x(\infty) =
+                                    \lim_{s\to 0} sX(s)\) — needs all poles of sX(s) in LHP. Never apply FVT to
+                                    oscillatory or unstable systems.</p>
+                            </div>
+                            <div class="sum-card sc-a">
+                                <div class="sum-lbl">Transfer Function</div>
+                                <p>\(H(s) = Y(s)/X(s)\) at zero ICs. Equals Laplace of impulse response. Characterises
+                                    system completely. Poles determine stability. Zeros shape frequency response.</p>
+                            </div>
+                            <div class="sum-card sc-r">
+                                <div class="sum-lbl">Stability</div>
+                                <p>BIBO stable iff all poles in LHP. Marginal: simple poles on jω-axis. Unstable: any
+                                    RHP pole or repeated jω-axis pole. FVT applicable only to stable systems. ROC
+                                    includes jω-axis ↔ stable.</p>
+                            </div>
+                            <div class="sum-card sc-g">
+                                <div class="sum-lbl">Pole-Zero Analysis</div>
+                                <p>Poles dictate natural response modes: LHP → decay, RHP → grow. Zeros shape but don't
+                                    cause instability. RHP zeros → non-minimum phase. Complex poles → oscillatory
+                                    response with damping.</p>
+                            </div>
+                        </div>
+
+                        <div class="callout c-tip" style="margin-top:22px;">
+                            <div class="ci">➡️</div>
+                            <div class="cb">
+                                <div class="ct">Coming Next — Chapter 7</div>
+                                <p>Z-Transform and Discrete-Time System Analysis — definition, ROC for sequences,
+                                    properties, inverse Z-transform via partial fractions and power series, transfer
+                                    function of discrete systems, stability via pole locations, and GATE-focused solved
+                                    problems.</p>
+                            </div>
+                        </div>
+
+                        <!-- CITATIONS -->
+                        <div class="citations" id="citations">
+                            <div class="cite-h">References &amp; Citations</div>
+                            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is
+                                derived from the following standard textbooks. All explanations, derivations, diagrams
+                                and examples are original to Aarova AI.</p>
+                            <ul class="cite-list">
+                                <li><span class="cite-num">[1]</span><span>Oppenheim, A.V. and Willsky, A.S. <em>Signals
+                                            and Systems</em>, 2nd ed. Prentice-Hall, 1997. Chapter 9 — The Laplace
+                                        Transform: definition, ROC, properties, system analysis, bilateral and
+                                        unilateral forms, inverse LT, initial and final value theorems.</span></li>
+                                <li><span class="cite-num">[2]</span><span>Haykin, S. and Van Veen, B. <em>Signals and
+                                            Systems</em>, 2nd ed. Wiley, 2002. Chapter 6 — Laplace Transform: transfer
+                                        functions, pole-zero analysis, BIBO stability, frequency response derivation
+                                        from s-domain.</span></li>
+                                <li><span class="cite-num">[3]</span><span>Nagoor Kani, A. <em>Signals and Systems</em>.
+                                        RBA Publications, 2010. Chapters on Laplace Transform — GATE-oriented treatment,
+                                        Routh-Hurwitz criterion, initial and final value theorems, solved GATE
+                                        problems.</span></li>
+                                <li><span class="cite-num">[4]</span><span>Lathi, B.P. <em>Linear Systems and
+                                            Signals</em>, 2nd ed. Oxford University Press, 2004. Chapter 7 — Laplace
+                                        transform, system description by differential equations, convolution in
+                                        s-domain, stability analysis.</span></li>
+                                <li><span class="cite-num">[5]</span><span>IIT NPTEL. <em>Signals and Systems — Video
+                                            Lectures</em>. National Programme on Technology Enhanced Learning. Lectures
+                                        28–36: Laplace Transform, ROC, stability, IVT, FVT. nptel.ac.in.</span></li>
+                            </ul>
+                        </div>
+
+                        <hr>
+                        <footer>
+                            <strong>Aarova AI</strong> &nbsp;·&nbsp; Signals &amp; Systems Series &nbsp;·&nbsp; Chapter
+                            6 of 8<br>
+                            <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; GATE EC
+                                &nbsp;·&nbsp; IES E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                            <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All
+                                explanations, derivations, and diagrams are original to Aarova AI. Derived from standard
+                                textbooks [1–5].</span>
+                        </footer>
+                    </div>
+
+                </div><!-- end .page -->
+
+                <script>
+                    function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+                    async function askClaude() {
+                        const q = document.getElementById('userQ').value.trim(); if (!q) return;
+                        const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+                        btn.textContent = 'Thinking…'; btn.disabled = true;
+                        resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+                        const sys = `You are Aarova AI, an expert GATE EE/EC and IES tutor specialising in Signals & Systems. Topic: Laplace Transform & System Analysis (Chapter 6). Cover bilateral/unilateral LT, ROC determination, properties, IVT, FVT, transfer functions, pole-zero analysis, BIBO stability. Answer with step-by-step working for numericals. Base answers on Oppenheim & Willsky, Haykin & Van Veen, Nagoor Kani. Use clear mathematical notation. All content is original to Aarova AI.`;
+                        try {
+                            const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                            const data = await res.json();
+                            resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+                        } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+                        btn.textContent = 'Ask Aarova'; btn.disabled = false;
+                    }
+                    document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+                    // Mobile SVG scroll hints
+                    (function () {
+                        if (window.innerWidth > 600) return;
+                        document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                            const hint = document.createElement('div');
+                            hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                            hint.textContent = '← scroll to see full diagram →';
+                            wrap.appendChild(hint);
+                            wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+                        });
+                    })();
+                </script>
+</body>
+
+</html>
