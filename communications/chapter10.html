@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Communication Systems Ch.10 Channel Capacity Theorem</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo-link{text-decoration:none;cursor:pointer;transition:opacity .18s;}.logo-link:hover{opacity:.75;}.logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 83%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+        }
+
+        @media(max-width:480px) {
+            html {
+                font-size: 15px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sum-grid,
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <a href="../subject.html?s=communications" class="logo-link"><div class="logo">Aarova AI <span class="logo-sub">Communication Systems Series</span></div></a>
+        <div class="hbadges"><span class="hbadge">GATE EC/EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header></div>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 10 &nbsp;·&nbsp; Communication Systems / Information Theory</div>
+            <h1 class="hero-title">Channel <em>Capacity</em> Theorem</h1>
+            <p class="hero-desc">Shannon–Hartley capacity theorem, the AWGN channel model, bandwidth–SNR tradeoff,
+                power-limited and bandwidth-limited regions, and the channel coding theorem — full GATE EC/EE and
+                IES derivations with solved numericals.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EC</span>
+                <span class="badge">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">Follows Ch.9 — Information Theory &amp; Entropy</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div><span class="pp">Chapter 10 of 12</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">10.1</span>Why Capacity Theorem Exists</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">10.6</span>Capacity Limits &amp; Regions</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">10.2</span>Information Rate Recap</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">10.7</span>Channel Coding Theorem</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">10.3</span>AWGN Channel Model</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">10.8</span>Solved Numericals</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">10.4</span>Shannon–Hartley Theorem</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">10.9</span>GATE &amp; IES Questions</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">10.5</span>Bandwidth vs SNR Tradeoff</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">10.10</span>Chapter Summary</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: WHY CAPACITY THEOREM EXISTS ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">10.1</span>
+                <h2 class="sec-t">Why the Channel Capacity Theorem Exists — The Big Picture</h2>
+            </div>
+            <p>Every communication link — a 4G phone call, a satellite downlink, a deep-space probe sending photos
+                from Mars — faces the same fundamental question: <strong>how fast can I send data reliably over this
+                    channel?</strong> Every real channel has limited bandwidth and is corrupted by noise. Engineers
+                needed a hard ceiling on data rate so that system designers know whether a target throughput is even
+                theoretically possible, before spending years building modulators, coders, and antennas to chase it.</p>
+            <p>In 1948, Claude Shannon answered this with the <strong>channel capacity theorem</strong>: a precise
+                formula for the maximum rate, in bits per second, at which information can be transmitted over a
+                noisy channel with an arbitrarily small probability of error. This single result underpins the
+                design of every modern digital system — Wi-Fi, 5G, DSL, deep-space links, and fibre optics all
+                operate as percentages of their Shannon limit.</p>
+            <div class="callout c-info">
+                <div class="ci">📡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>Capacity is not about a particular modulation scheme or coding method — it is a property of
+                        the <strong>channel itself</strong> (its bandwidth and noise). No clever engineering trick
+                        can push reliable throughput above this limit; the only freedom is choosing how close you get
+                        to it.</p>
+                </div>
+            </div>
+
+            <!-- SVG: communication link with capacity ceiling -->
+            <div class="svg-wrap">
+                <img src="images/ch10/fig10.1.png" alt="Image 1" />
+                <div class="svg-cap">Fig 10.1 — Capacity C sets the theoretical ceiling for any
+                    encoder/modulator/decoder design over a given noisy channel.</div>
+            </div>
+
+            <h3 class="sub">Where This Concept Appears in Practice</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Wireless &amp; Cellular</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">•</span>4G/5G link budgets are quoted as a fraction of Shannon capacity
+                            for the allocated bandwidth and SNR.</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Satellite &amp; Deep Space</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">•</span>Voyager and Mars rovers use near-capacity-achieving codes (turbo,
+                            LDPC) because transmit power is extremely limited.</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">DSL &amp; Wired Broadband</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">•</span>ADSL/VDSL allocate bits per subcarrier based on per-tone SNR using
+                            a capacity-based "water-filling" rule.</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Fibre Optic Networks</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">•</span>Coherent optical systems push modulation order (16-QAM, 64-QAM)
+                            close to the nonlinear Shannon limit of the fibre.</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Storage Systems</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">•</span>Hard-disk and SSD read channels are modelled as noisy channels;
+                            ECC design targets near-capacity reliability.</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">IoT &amp; Sensor Networks</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">•</span>Low-power, narrowband IoT links (LoRa, NB-IoT) trade rate for
+                            range by operating in the power-limited capacity region.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: INFORMATION RATE RECAP ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">10.2</span>
+                <h2 class="sec-t">Information Rate — A Quick Recap</h2>
+            </div>
+            <p>Before capacity can make sense, recall two quantities from information theory. <strong>Entropy
+                    H(X)</strong> measures the average information content (in bits/symbol) of a source, and
+                <strong>information rate R</strong> measures how many of those bits are actually pushed through the
+                channel per second.
+            </p>
+            <div class="math-block">
+                <div class="math-lbl">Information Rate</div>
+                $$ R = r_s \cdot H(X) \quad \text{bits/sec} $$
+            </div>
+            <p>Here \(r_s\) is the symbol rate (symbols/sec) and \(H(X)\) is the source entropy in bits/symbol. The
+                channel capacity theorem asks: what is the largest value \(R\) can take while still allowing the
+                receiver to recover the message with an error probability that can be pushed toward zero by using
+                longer and cleverer codes?</p>
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Key Distinction</div>
+                    <p><strong>Information rate R</strong> is what you are actually sending. <strong>Capacity
+                            C</strong> is the maximum R can ever be for a given channel. Shannon's theorem is silent on
+                        <em>how</em> to achieve rates near C — that is the job of channel coding (turbo, LDPC, polar
+                        codes).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: AWGN CHANNEL MODEL ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">10.3</span>
+                <h2 class="sec-t">The AWGN Channel Model</h2>
+            </div>
+            <p>The simplest and most widely used channel model in communication theory is the <strong>Additive White
+                    Gaussian Noise (AWGN) channel</strong>. The received signal is the transmitted signal plus an
+                independent random noise term:</p>
+            <div class="math-block">
+                <div class="math-lbl">AWGN Channel Equation</div>
+                $$ y(t) = x(t) + n(t) $$
+            </div>
+            <p>where \(x(t)\) is the transmitted signal, \(n(t)\) is noise, and \(y(t)\) is the received signal.
+                The noise \(n(t)\) is called:</p>
+            <div class="two-col">
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Additive</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">•</span>Noise adds onto the signal; it does not multiply or distort it.
+                        </li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">White</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">•</span>Flat power spectral density across all frequencies of interest
+                            (like white light contains all colours equally).</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Gaussian</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">•</span>Its amplitude follows a normal (bell-curve) probability
+                            distribution — justified physically by the Central Limit Theorem, since thermal noise is the
+                            sum of countless random electron motions.</li>
+                    </ul>
+                </div>
+            </div>
+            <p>The noise power spectral density is written \(N_0/2\) (two-sided) so that the total noise power in a
+                channel of bandwidth \(B\) is \(N = N_0 B\).</p>
+
+            <!-- SVG: AWGN model -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch10/fig10.2.png" alt="Image 2" />
+                <div class="svg-cap">Fig 10.2 — AWGN model: noise n(t) adds to the transmitted signal x(t); receiver
+                    must recover x(t) from the corrupted y(t).</div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">GATE Trap</div>
+                    <p>Students often confuse \(N_0\) (PSD, watts/Hz, two-sided value usually written \(N_0/2\)) with
+                        total noise power \(N = N_0 B\) (watts). Always check whether a problem gives \(N_0\) or
+                        total noise power before substituting into SNR.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S4: SHANNON-HARTLEY THEOREM ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">10.4</span>
+                <h2 class="sec-t">Shannon–Hartley Capacity Theorem</h2>
+            </div>
+            <p>For a continuous AWGN channel with bandwidth \(B\) Hz and average received signal power \(S\) watts
+                in the presence of noise power \(N\) watts, the channel capacity is:</p>
+            <div class="math-block">
+                <div class="math-lbl">Shannon–Hartley Theorem</div>
+                $$ C = B \log_2\left(1 + \frac{S}{N}\right) \quad \text{bits/sec} $$
+            </div>
+            <p>Here:</p>
+            <ul class="mc-list" style="margin:0 0 14px 4px;">
+                <li><span class="dot">•</span><strong>C</strong> = channel capacity in bits per second (bps) — the
+                    maximum error-free information rate.</li>
+                <li><span class="dot">•</span><strong>B</strong> = channel bandwidth in Hz — how much spectrum is
+                    available.</li>
+                <li><span class="dot">•</span><strong>S/N</strong> = signal-to-noise power ratio (dimensionless, not in
+                    dB) at the receiver.</li>
+            </ul>
+
+            <h3 class="sub">Physical Interpretation — Why log₂(1 + S/N)?</h3>
+            <p>Think of the received signal as occupying a "volume" in signal space. Noise blurs every transmitted
+                point into a small fuzzy sphere of radius proportional to \(\sqrt{N}\); the receiver can only tell
+                two points apart if their spheres don't overlap. The total signal-plus-noise power defines a larger
+                sphere of radius proportional to \(\sqrt{S+N}\). The number of distinguishable points that fit
+                inside the big sphere — and hence the number of distinct messages per dimension — scales as the
+                ratio of the two sphere volumes, raised to a power related to dimension (degrees of freedom). Working
+                this through with \(2B\) degrees of freedom per second (Nyquist) gives exactly the
+                \(B\log_2(1+S/N)\) result.</p>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Intuition Without the Geometry</div>
+                    <p>Doubling bandwidth gives you twice as many independent "slots" per second to pack bits into —
+                        capacity grows <strong>linearly</strong> with B. Doubling power only lets you pack
+                        <strong>logarithmically</strong> more distinguishable levels into each slot, because each
+                        extra bit needs the signal "sphere" to roughly double in radius, i.e. quadruple in power.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Derivation Outline (Nyquist + Shannon Entropy)</h3>
+            <div class="fblock"><span class="flbl">Step-by-step Logic</span><span class="fh">Step 1 — Sampling:</span>
+                A bandlimited signal of bandwidth B Hz needs 2B samples/sec (Nyquist) to be fully represented.
+
+                <span class="fh">Step 2 — Each sample as a Gaussian RV:</span>
+                Each sample carries signal power S/2B and is corrupted by Gaussian noise of power N/2B per sample.
+
+                <span class="fh">Step 3 — Entropy of a Gaussian variable:</span>
+                <span class="feq">H = (1/2) log2(2πe·σ²)</span> — differential entropy of a Gaussian with variance σ².
+
+                <span class="fh">Step 4 — Mutual information per sample:</span>
+                <span class="feq">I = (1/2) log2(1 + S/N)</span> bits/sample (difference of output and noise entropies).
+
+                <span class="fh">Step 5 — Multiply by sample rate (2B):</span>
+                <span class="feq">C = 2B × (1/2) log2(1 + S/N) = B log2(1 + S/N)</span> bits/sec.
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">Assumptions Behind the Formula</div>
+                    <p>1) Channel is linear, time-invariant, and bandlimited to B Hz. 2) Noise is additive, white,
+                        and Gaussian (AWGN). 3) Average transmit power is constrained to S. 4) The result is an
+                        information-theoretic limit assuming ideal coding of arbitrary complexity and length —
+                        practical systems always operate below C.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S5: BANDWIDTH vs SNR TRADEOFF ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">10.5</span>
+                <h2 class="sec-t">Bandwidth vs SNR Tradeoff</h2>
+            </div>
+            <p>The Shannon–Hartley formula shows that the <strong>same capacity C</strong> can be achieved by many
+                different combinations of bandwidth and SNR — engineers can trade one for the other. This tradeoff
+                is central to system design: satellite links are power-starved but spectrum-rich (use large B, low
+                S/N), while cellular spectrum is scarce but power is more available (use small B, high S/N).</p>
+
+            <div class="svg-wrap">
+                <img src="images/ch10/fig10.3.png" alt="Image 3" />
+                <div class="svg-cap">Fig 10.3 — As B grows without bound, noise power N = N₀B grows too, so C saturates
+                    at C∞ = 1.44·S/N₀ rather than growing forever.</div>
+            </div>
+
+            <h3 class="sub">The Two Operating Regions</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Region</th>
+                            <th>Condition</th>
+                            <th>Behaviour</th>
+                            <th>Typical Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Bandwidth-limited</td>
+                            <td class="t-org">S/N ≫ 1, B small</td>
+                            <td>C grows almost linearly with B</td>
+                            <td>Cable/coax, fibre, cellular spectrum</td>
+                        </tr>
+                        <tr>
+                            <td>Power-limited</td>
+                            <td class="t-tel">S/N ≪ 1, B large</td>
+                            <td>C grows almost linearly with S (logarithmic in B)</td>
+                            <td>Deep-space, spread-spectrum, IoT</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">Infinite-Bandwidth Capacity Limit</h3>
+            <p>Taking \(B \to \infty\) while holding average power \(S\) fixed (so \(N = N_0 B \to \infty\) too)
+                gives a finite limiting capacity:</p>
+            <div class="math-block">
+                <div class="math-lbl">Shannon Limit (Infinite Bandwidth)</div>
+                $$ C_{\infty} = \lim_{B\to\infty} B\log_2\!\left(1+\frac{S}{N_0 B}\right) = \frac{S}{N_0}\log_2 e
+                \approx 1.44\,\frac{S}{N_0} $$
+            </div>
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Takeaway</div>
+                    <p>Beyond a certain bandwidth, throwing more spectrum at a fixed-power link gives essentially no
+                        extra capacity — this is exactly why spread-spectrum and ultra-wideband systems are
+                        power-efficient but never reach unbounded throughput.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S6: CAPACITY LIMITS & REGIONS ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">10.6</span>
+                <h2 class="sec-t">Capacity Limits — Practical Boundaries</h2>
+            </div>
+            <p>Capacity is an upper bound, but several related "limits" appear throughout GATE/IES syllabi and
+                practical design. Knowing how they connect avoids confusion.</p>
+
+            <h3 class="sub">Shannon Limit and Eb/N0</h3>
+            <p>Expressing capacity per bit rather than per second leads to the energy-per-bit form. If \(R\) is the
+                actual transmission rate and \(E_b\) the energy used per bit, then \(S = E_b R\). Substituting and
+                setting \(R = C\) (transmitting exactly at capacity) gives the famous bound:</p>
+            <div class="math-block">
+                <div class="math-lbl">Shannon Bound on Eb/N0</div>
+                $$ \frac{E_b}{N_0} \;\geq\; \frac{2^{C/B}-1}{C/B} \quad\xrightarrow[B\to\infty]{}\quad
+                \frac{E_b}{N_0}\Big|_{\min} = \ln 2 \approx -1.6\ \text{dB} $$
+            </div>
+            <p>This −1.6 dB figure is the absolute floor — no communication system, however cleverly coded, can
+                achieve reliable communication with less energy per bit than this, in the infinite-bandwidth limit.</p>
+
+            <h3 class="sub">Capacity of a Bandlimited Noiseless Channel (Hartley's Law)</h3>
+            <p>Before Shannon's full noisy-channel result, Hartley (1928) showed that for a noiseless channel with
+                \(M\) discrete distinguishable levels:</p>
+            <div class="math-block">
+                <div class="math-lbl">Hartley's Law</div>
+                $$ C = 2B \log_2 M \quad \text{bits/sec} $$
+            </div>
+            <p>Shannon's contribution was to replace the arbitrary \(M\) with a principled value derived from the
+                actual noise power, giving \(M_{eff} = \sqrt{1+S/N}\) — connecting Hartley's discrete-level idea to
+                a continuous noisy channel.</p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Limit / Law</th>
+                            <th>Formula</th>
+                            <th>Applies To</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Nyquist Rate</td>
+                            <td class="t-org">f_s ≥ 2B</td>
+                            <td>Minimum sampling rate to avoid aliasing</td>
+                        </tr>
+                        <tr>
+                            <td>Hartley's Law</td>
+                            <td class="t-grn">C = 2B log₂M</td>
+                            <td>Noiseless channel, M discrete levels</td>
+                        </tr>
+                        <tr>
+                            <td>Shannon–Hartley</td>
+                            <td class="t-tel">C = B log₂(1+S/N)</td>
+                            <td>AWGN channel, continuous</td>
+                        </tr>
+                        <tr>
+                            <td>Infinite-B Limit</td>
+                            <td class="t-amb">C∞ = 1.44 S/N₀</td>
+                            <td>B→∞, fixed average power S</td>
+                        </tr>
+                        <tr>
+                            <td>Eb/N0 Shannon Bound</td>
+                            <td class="t-red">Eb/N0 ≥ ln 2 (−1.6 dB)</td>
+                            <td>Absolute energy-per-bit floor</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Mistake</div>
+                    <p>Many students write Hartley's law as \(C = B\log_2 M\) (missing the factor 2). Remember
+                        Hartley assumed \(2B\) independent samples per second (Nyquist), so the factor of 2 must
+                        appear unless the problem already defines symbol rate as \(2B\).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: CHANNEL CODING THEOREM ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">10.7</span>
+                <h2 class="sec-t">Channel Coding Theorem &amp; Achievability</h2>
+            </div>
+            <p>Shannon's full result (the noisy-channel coding theorem) is stronger than just defining a number C —
+                it proves two complementary facts:</p>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Achievability (R &lt; C)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">•</span>If the information rate R is strictly less than C, there exists a
+                            code (possibly very long and complex) that drives the error probability arbitrarily close to
+                            zero.</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Converse (R &gt; C)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">•</span>If R exceeds C, the error probability is bounded away from zero —
+                            no coding scheme, however sophisticated, can make transmission reliable.</li>
+                    </ul>
+                </div>
+            </div>
+            <p>Shannon's original proof was non-constructive — it proved such codes <em>exist</em> using random
+                coding arguments, but didn't show how to build them. It took nearly 50 years of coding theory
+                (convolutional codes, turbo codes in 1993, LDPC codes, and polar codes in 2008) before practical
+                codes approached within a fraction of a dB of the Shannon limit.</p>
+            <div class="callout c-tip">
+                <div class="ci">🏭</div>
+                <div class="cb">
+                    <div class="ct">Industry Note</div>
+                    <p>5G New Radio uses LDPC codes for data channels and polar codes for control channels — both
+                        chosen specifically because they operate within a small fraction of a dB of the Shannon
+                        limit at practical block lengths.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S8: SOLVED NUMERICALS ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">10.8</span>
+                <h2 class="sec-t">Solved Numerical Examples</h2>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr"><span class="ex-num">EX 10.1</span><span class="ex-title">Basic — Capacity from B
+                        and SNR</span></div>
+                <div class="ex-body">
+                    <div class="ex-q">A telephone channel has a bandwidth of 3 kHz and an SNR of 1000. Find the channel
+                        capacity.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>Given: \(B = 3000\) Hz, \(S/N = 1000\).</p>
+                    <div class="math-block">$$ C = B\log_2(1+S/N) = 3000 \times \log_2(1001) \approx 3000 \times 9.97
+                        \approx 29{,}907 \text{ bps} \approx 29.9\ \text{kbps} $$</div>
+                    <p>This matches the classic textbook result that a standard 3 kHz voice channel can carry
+                        roughly 30 kbps under good SNR — close to the practical limits achieved by voiceband modems.</p>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr"><span class="ex-num">EX 10.2</span><span class="ex-title">GATE-Level — SNR in dB,
+                        finding required bandwidth</span></div>
+                <div class="ex-body">
+                    <div class="ex-q">A channel has SNR = 30 dB. What bandwidth is required to support a data rate of 1
+                        Mbps?</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>Step 1 — convert dB to ratio: \(30\,\text{dB} \Rightarrow S/N = 10^{30/10} = 1000\).</p>
+                    <p>Step 2 — set \(C = R = 10^6\) bps and solve for B:</p>
+                    <div class="math-block">$$ 10^6 = B\log_2(1001) = 9.97B \;\Rightarrow\; B \approx 100{,}300\
+                        \text{Hz} \approx 100.3\ \text{kHz} $$</div>
+                    <p>So at least ≈100.3 kHz of bandwidth is needed at this SNR to theoretically sustain 1 Mbps —
+                        any practical system would need somewhat more due to coding overhead and implementation loss.
+                    </p>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr"><span class="ex-num">EX 10.3</span><span class="ex-title">Conceptual — Effect of
+                        doubling bandwidth vs doubling power</span></div>
+                <div class="ex-body">
+                    <div class="ex-q">A channel currently has B = 1 MHz and S/N = 63. Compare the new capacity if (a)
+                        bandwidth is doubled (S/N unchanged) vs (b) signal power is doubled (B unchanged, noise
+                        unchanged).</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>Original: \(C_0 = 10^6 \log_2(64) = 10^6\times 6 = 6\) Mbps.</p>
+                    <p>(a) Double B: \(C_a = 2\times10^6\log_2(64) = 12\) Mbps — capacity doubles, exactly proportional
+                        to B.</p>
+                    <p>(b) Double S (so S/N becomes 126, since N stays fixed): \(C_b = 10^6\log_2(127) \approx 6.99\)
+                        Mbps — capacity barely increases.</p>
+                    <p>This confirms the core intuition: bandwidth gives <strong>linear</strong> capacity gains, power
+                        gives only <strong>logarithmic</strong> gains.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S9: GATE & IES QUESTIONS ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">10.9</span>
+                <h2 class="sec-t">GATE &amp; IES Previous-Year Style Questions</h2>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr"><span class="gate-tag">GATE INSIGHT</span><span class="gate-title">Capacity
+                        questions are almost always solved by direct substitution into C = B log₂(1+S/N) — the trick is
+                        usually unit conversion (dB ↔ ratio, kHz ↔ Hz).</span></div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr"><span class="pyq-tag pyq-gate">GATE EC</span><span class="pyq-title">A channel with
+                        4 kHz bandwidth has SNR of 255. Find capacity.<span class="prob prob-h">🟢
+                            High</span></span><span class="pyq-year">Pattern question</span></div>
+                <div class="pyq-body">
+                    <p>Solve: \(C = 4000\log_2(256) = 4000\times8 = 32{,}000\) bps = 32 kbps.</p>
+                    <ul class="pyq-opts">
+                        <li>16 kbps</li>
+                        <li class="correct">32 kbps ✓ — log₂256 = 8 exactly, a favourite GATE number</li>
+                        <li>40 kbps</li>
+                        <li>64 kbps</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr"><span class="pyq-tag pyq-ies">IES</span><span
+                        class="pyq-title pyq-title-ies">As bandwidth B → ∞ with fixed signal power S, channel
+                        capacity:<span class="prob prob-m">🟡 Medium</span></span><span class="pyq-year">Concept</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>Increases without bound</li>
+                        <li>Falls to zero</li>
+                        <li class="correct">Approaches a finite limit 1.44 S/N₀ ✓</li>
+                        <li>Stays exactly equal to S/N₀</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr"><span class="pyq-tag pyq-gate">GATE EE</span><span class="pyq-title">If R &gt; C
+                        for a channel, which statement is true?<span class="prob prob-h">🟢 High</span></span><span
+                        class="pyq-year">Concept</span></div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>Errors can still be reduced to zero with a long enough code</li>
+                        <li class="correct">Error probability cannot be made arbitrarily small by any coding scheme ✓
+                        </li>
+                        <li>The channel must be re-equalised</li>
+                        <li>Capacity automatically increases to match R</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">🚫</div>
+                <div class="cb">
+                    <div class="ct">Common GATE Trap</div>
+                    <p>Watch for problems giving SNR in <strong>dB</strong> but expecting the ratio inside
+                        \(\log_2(1+S/N)\) — plugging the dB value directly is one of the most frequent numerical
+                        errors in this topic.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ AI WIDGET ═══ -->
+        <div class="ai-prompt">
+            <div class="ai-prompt-title">💬 Ask About This Chapter</div>
+            <p>Type a doubt about Shannon capacity, AWGN, or bandwidth–SNR tradeoff, or tap a suggested question.</p>
+            <div class="ai-input-row">
+                <input type="text" class="ai-input" id="userQ"
+                    placeholder="e.g. Why is capacity linear in B but logarithmic in S/N?">
+                <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+            </div>
+            <div class="ai-suggest">
+                <span class="ai-chip"
+                    onclick="setQ('Derive the Shannon-Hartley capacity formula from first principles using sphere packing in signal space.')">Derive
+                    C = B log₂(1+S/N)</span>
+                <span class="ai-chip"
+                    onclick="setQ('Explain why capacity saturates as bandwidth tends to infinity, with the 1.44 S/N0 result derived step by step.')">Why
+                    does C saturate as B→∞?</span>
+                <span class="ai-chip"
+                    onclick="setQ('A channel has bandwidth 10 kHz and SNR 31. Find capacity and compare with Nyquist rate for binary signalling.')">Worked
+                    capacity problem</span>
+                <span class="ai-chip"
+                    onclick="setQ('What is the Shannon limit on Eb/N0 and why is it -1.6 dB? Explain the derivation.')">Eb/N0
+                    Shannon bound (−1.6 dB)</span>
+            </div>
+            <div class="ai-response" id="aiResp"></div>
+        </div>
+
+        <!-- ═══ S10: SUMMARY ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">10.10</span>
+                <h2 class="sec-t">Chapter Summary</h2>
+            </div>
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Core Formula</div>
+                    <p>C = B log₂(1+S/N) bps. Linear in B, logarithmic in S/N. Valid for AWGN channel, average power
+                        constraint S.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">AWGN Model</div>
+                    <p>y(t) = x(t) + n(t). Noise: Additive, White (flat PSD N₀/2), Gaussian amplitude. Total noise power
+                        N = N₀B.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">B vs SNR Tradeoff</div>
+                    <p>Bandwidth-limited region: S/N≫1, C∝B. Power-limited region: S/N≪1, C∝S. Infinite-B limit C∞ =
+                        1.44·S/N₀.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Related Limits</div>
+                    <p>Hartley: C=2B log₂M (noiseless). Shannon bound: Eb/N0 ≥ ln2 ≈ −1.6 dB. Nyquist rate: fs ≥ 2B.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Coding Theorem</div>
+                    <p>R&lt;C → arbitrarily low error possible with suitable code. R&gt;C → reliable transmission
+                        impossible. Proof non-constructive; LDPC/turbo/polar approach C in practice.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">GATE Strategy</div>
+                    <p>Always check SNR units (dB vs ratio). Convert kHz→Hz. log₂256=8, log₂1024=10 — common
+                        GATE-friendly numbers to recognise instantly.</p>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- ═══ CITATIONS ═══ -->
+        <div class="citations" id="citations">
+            <div class="cite-h">References &amp; Citations</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                the following standard textbooks and learning resources. All explanations, derivations, diagrams and
+                examples are original to Aarova AI.</p>
+            <ul class="cite-list">
+                <li><span class="cite-num">[1]</span><span>Haykin, Simon. <em>Communication Systems</em>, 5th ed.
+                        Wiley, 2009. Chapter 9 — Information theory, entropy, and the Shannon channel capacity
+                        theorem.</span></li>
+                <li><span class="cite-num">[2]</span><span>Proakis, John G. and Salehi, Masoud. <em>Digital
+                            Communications</em>, 5th ed. McGraw-Hill, 2008. Chapter 6 — Channel capacity, AWGN
+                        channel, and the noisy-channel coding theorem.</span></li>
+                <li><span class="cite-num">[3]</span><span>Taub, Herbert and Schilling, Donald L. <em>Principles of
+                            Communication Systems</em>, 3rd ed. Tata McGraw-Hill, 2007. Chapter on information
+                        theory and channel capacity.</span></li>
+                <li><span class="cite-num">[4]</span><span>Lathi, B.P. and Ding, Zhi. <em>Modern Digital and Analog
+                            Communication Systems</em>, 4th ed. Oxford University Press, 2009. Chapter 15 —
+                        Information theory and channel capacity.</span></li>
+                <li><span class="cite-num">[5]</span><span>Shannon, Claude E. "A Mathematical Theory of
+                        Communication." <em>Bell System Technical Journal</em>, 1948. Foundational paper — used only
+                        for historical context, not reproduced.</span></li>
+            </ul>
+        </div>
+
+        <hr>
+        <footer>
+            <strong>Aarova AI</strong> &nbsp;·&nbsp; Communication Systems Series &nbsp;·&nbsp; Chapter 10 of 12<br>
+            <span style="font-size:12px;margin-top:5px;display:block;">GATE EC/EE &nbsp;·&nbsp; IES E&amp;T
+                &nbsp;·&nbsp; PSU Electrical / Electronics Engineering</span><br>
+            <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and diagrams
+                are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+        </footer>
+    </div>
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EC/EE and IES tutor specialising in Communication Systems. Topic: Channel Capacity Theorem (Chapter 10) — Shannon capacity, AWGN channel, bandwidth-SNR tradeoff, capacity limits, information rate. Answer with step-by-step working for numericals. Base answers on Haykin, Proakis & Salehi, Lathi & Ding. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

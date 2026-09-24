@@ -200,6 +200,29 @@ const AarovaData = {
         { num: 10, title: "Chapter 10", description: "MOS Capacitor Fundamentals", file: "SemiConductors/chapter10.html", available: true },
         { num: 11, title: "Chapter 11", description: "LED, Photodiode & Solar Cell", file: "SemiConductors/chapter11.html", available: true }
       ]
+    },
+    {
+      id: "communications",
+      title: "Communication Systems",
+      icon: "📻",
+      description: "Probability, random processes, analog & digital modulation, information theory, and channel capacity.",
+      exam_tags: ["GATE EC", "IES"],
+      accent: "teal",
+      available: true,
+      total_chapters: 11,
+      chapters: [
+        { num: 1,  title: "Chapter 1",  description: "Probability & Random Variables",                          file: "communications/chapter1.html",  available: true },
+        { num: 2,  title: "Chapter 2",  description: "Random Processes & Statistical Characterization",         file: "communications/chapter2.html",  available: true },
+        { num: 3,  title: "Chapter 3",  description: "Power Spectral Density & White Noise",                   file: "communications/chapter3.html",  available: true },
+        { num: 4,  title: "Chapter 4",  description: "Random Signals Through LTI Systems",                     file: "communications/chapter4.html",  available: true },
+        { num: 5,  title: "Chapter 5",  description: "Amplitude Modulation (AM)",                              file: "communications/chapter5.html",  available: true },
+        { num: 6,  title: "Chapter 6",  description: "AM Demodulation & Receivers",                            file: "communications/chapter6.html",  available: true },
+        { num: 7,  title: "Chapter 7",  description: "Angle Modulation — FM & PM",                             file: "communications/chapter7.html",  available: true },
+        { num: 8,  title: "Chapter 8",  description: "FM Demodulation & Superheterodyne Receivers",            file: "communications/chapter8.html",  available: true },
+        { num: 9,  title: "Chapter 9",  description: "Information Theory — Fundamentals",                      file: "communications/chapter9.html",  available: true },
+        { num: 10, title: "Chapter 10", description: "Channel Capacity Theorem",                               file: "communications/chapter10.html", available: true },
+        { num: 11, title: "Chapter 11", description: "Source Coding & Digital Modulation",                     file: "communications/chapter11.html", available: true }
+      ]
     }
   ]
-};
+};

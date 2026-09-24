@@ -1,0 +1,2596 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Communication Systems Ch.6 AM Demodulation &amp; Receivers</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481–768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo-link{text-decoration:none;cursor:pointer;transition:opacity .18s;}.logo-link:hover{opacity:.75;}.logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 60%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* CALLOUT BOXES */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* MATH BLOCK */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* SVG */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* EXAMPLES */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* PYQ / GATE CARDS */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* TWO-COL */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* SUMMARY GRID */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* PROBABILITY TAG */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ASK AAROVA WIDGET */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* MISC */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* TABLET 481–768 */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* MOBILE ≤480 */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* LARGE DESKTOP 1024+ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <a href="../subject.html?s=communications" class="logo-link"><div class="logo">Aarova AI <span class="logo-sub">Communication Systems Series</span></div></a>
+        <div class="hbadges"><span class="hbadge">GATE EC</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header></div>
+
+    <div class="page">
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 06 &nbsp;·&nbsp; Communication Systems</div>
+            <h1 class="hero-title">AM Demodulation &amp; <em>Receivers</em></h1>
+            <p class="hero-desc">Envelope detectors, coherent (synchronous) detection, practical superheterodyne
+                receivers, figure of merit, SNR analysis — complete derivations and GATE/IES concepts based on Haykin,
+                Lathi, Proakis &amp; Salehi.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EC</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electronics</span>
+                <span class="badge">Follows Ch.5 — AM Modulation</span>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Chapter 6 of 10</span>
+        </div>
+
+        <!-- TOC -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">6.1</span>Why Demodulation Matters</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">6.5</span>Practical AM Receivers</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">6.2</span>Envelope Detector</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">6.6</span>Superheterodyne Architecture</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">6.3</span>Coherent Detection</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">6.7</span>Receiver Noise Analysis</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">6.4</span>AM vs DSB-SC vs SSB</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">6.8</span>GATE Insights &amp; PYQs</a>
+            </div>
+        </div>
+
+        <!-- ══════════════════════ SECTION 1 ══════════════════════ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">6.1</span>
+                <h2 class="sec-t">Why Demodulation? — The Big Picture</h2>
+            </div>
+
+            <p>Imagine you sent a message in a secret language (the message signal), wrapped it inside a high-frequency
+                carrier wave, and broadcast it over the air. That is modulation. <strong>Demodulation is the act of
+                    unwrapping that carrier and recovering the original message</strong> — accurately and with minimal
+                distortion.</p>
+
+            <p>In Amplitude Modulation (AM), the message information is encoded in the <em>amplitude envelope</em> of
+                the carrier. After propagating through the channel, the received signal is a noisy, attenuated version
+                of the transmitted waveform. The demodulator must extract the envelope and reject the carrier and noise
+                as much as possible.<sup class="cite">[1]</sup></p>
+
+            <div class="callout c-info">
+                <div class="ci">📡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Problem Statement</div>
+                    <p>Given a received AM signal \(r(t) = A_c[1 + k_a m(t)]\cos(2\pi f_c t) + n(t)\), recover \(m(t)\)
+                        with maximum fidelity. The two practical approaches are the <strong>envelope detector</strong>
+                        (non-coherent) and <strong>coherent (synchronous) detection</strong>.</p>
+                </div>
+            </div>
+
+            <!-- SVG: Demodulation Overview -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.1.png" alt="Image 1" />
+                <div class="svg-cap">The received AM signal passes through a BPF, then a demodulator recovers the
+                    message</div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Two Fundamental Demodulation Methods</div>
+                    <p><strong>Non-coherent (Envelope Detector):</strong> Does not need a local carrier reference.
+                        Simple, cheap, widely used in AM broadcast. Works only when modulation index \(\mu \leq 1\).<br>
+                        <strong>Coherent (Synchronous) Detector:</strong> Requires an exact local carrier replica. Works
+                        for all AM types — AM, DSB-SC, SSB. Gives better SNR performance.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════ SECTION 2 ══════════════════════ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">6.2</span>
+                <h2 class="sec-t">Envelope Detector</h2>
+            </div>
+
+            <h3 class="sub">6.2.1 Physical Intuition</h3>
+            <p>Think of the AM waveform as a river whose banks follow the shape of your voice. The <strong>envelope
+                    detector simply traces those banks</strong> and ignores all the rapid oscillations of the carrier
+                underneath.</p>
+
+            <p>The circuit uses a diode to pass only positive half cycles of the AM signal, and a resistor-capacitor
+                (RC) low-pass filter to smooth out the rapid carrier oscillations, leaving only the slowly varying
+                envelope — which is proportional to \(1 + k_a m(t)\).<sup class="cite">[1]</sup></p>
+
+            <!-- Circuit SVG -->
+            <div class="svg-wrap">
+                <img src="images/ch6/fig6.2.png" alt="Image 2" />
+            </div>
+            <div class="svg-cap">Diode half-wave rectifier + RC filter. The capacitor charges quickly on the positive
+                peaks and discharges slowly through R, tracing the envelope.</div>
+
+            <h3 class="sub">6.2.2 Time Constant Design Criterion</h3>
+            <p>The RC time constant must be chosen carefully. If \(\tau = RC\) is too small, the capacitor discharges
+                too fast and the output follows every carrier oscillation (the filter passes the carrier). If \(\tau\)
+                is too large, the capacitor cannot discharge fast enough to follow the message — called <strong>diagonal
+                    clipping</strong>.<sup class="cite">[2]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">RC Time Constant Design Rule (Haykin, Lathi)</div>
+                $$\frac{1}{f_c} \;\ll\; RC \;\ll\; \frac{1}{W}$$
+            </div>
+            <p>where \(f_c\) is the carrier frequency and \(W\) is the highest message frequency (message bandwidth).
+                This ensures the capacitor:</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Condition: RC Too Small</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Capacitor discharges every carrier cycle</li>
+                        <li><span class="dot">▸</span>Output ripples at carrier frequency</li>
+                        <li><span class="dot">▸</span>Carrier passes through — <em>carrier feedthrough</em></li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Condition: RC Too Large</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Capacitor cannot follow message envelope</li>
+                        <li><span class="dot">▸</span>Output clips the downward slope — diagonal clipping</li>
+                        <li><span class="dot">▸</span>Message distortion — GATE trap!</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Diagonal clipping SVG -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.3.png" alt="Image 3" />
+            </div>
+
+            <h3 class="sub">6.2.3 Condition for Envelope Detection to Work</h3>
+            <p>The envelope detector is only valid for <strong>conventional (full-carrier) AM with \(\mu \leq
+                    1\)</strong>. The AM signal is:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">AM Signal — Conventional Form</div>
+                $$s(t) = A_c[1 + \mu \cos(2\pi f_m t)]\cos(2\pi f_c t)$$
+            </div>
+
+            <p>When \(\mu > 1\), the envelope \(A_c[1+\mu\cos(2\pi f_m t)]\) goes negative — the diode clips the
+                negative envelope, causing severe distortion. For DSB-SC and SSB signals, the envelope is <em>not</em>
+                proportional to the message, so envelope detection fails completely. Those signals require coherent
+                detection.</p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common GATE Mistake</div>
+                    <p>Students confuse envelope detection with rectification. Envelope detection recovers the
+                        <em>slowly varying amplitude profile</em>. It works only when \(\mu \leq 1\) and does NOT work
+                        for DSB-SC or SSB signals. Applying an envelope detector to DSB-SC gives a full-wave rectified
+                        output — not the message.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════ SECTION 3 ══════════════════════ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">6.3</span>
+                <h2 class="sec-t">Coherent (Synchronous) Detection</h2>
+            </div>
+
+            <h3 class="sub">6.3.1 Principle and Block Diagram</h3>
+            <p>Coherent detection requires <strong>exact frequency and phase synchronisation</strong> between the local
+                oscillator at the receiver and the carrier used at the transmitter. The received signal is multiplied
+                (mixed) with the local carrier, producing sum and difference frequency terms; a low-pass filter retains
+                only the difference (baseband) term — the message.<sup class="cite">[1]</sup></p>
+
+            <div class="svg-wrap">
+                <img src="images/ch6/fig6.4.png" alt="Image 4" />
+            </div>
+
+            <h3 class="sub">6.3.2 Mathematical Analysis</h3>
+            <p>For a DSB-SC AM signal \(s(t) = A_c m(t)\cos(2\pi f_c t)\), the received signal (ignoring noise
+                initially) is \(r(t) = A_c m(t)\cos(2\pi f_c t)\). Multiplying by the local carrier \(\cos(2\pi f_c t +
+                \phi)\):<sup class="cite">[2]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Multiplication Output — Coherent Detector</div>
+                $$v(t) = r(t) \cdot \cos(2\pi f_c t + \phi) = A_c m(t)\cos(2\pi f_c t)\cos(2\pi f_c t + \phi)$$
+                $$= \frac{A_c}{2}m(t)\cos\phi + \frac{A_c}{2}m(t)\cos(4\pi f_c t + \phi)$$
+            </div>
+
+            <p>The low-pass filter removes the \(2f_c\) term, leaving:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">LPF Output — Effect of Phase Error φ</div>
+                $$y(t) = \frac{A_c}{2}m(t)\cos\phi$$
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Phase Error in Coherent Detection</div>
+                    <p>If the local oscillator has a phase error \(\phi\), the output is scaled by \(\cos\phi\). At
+                        \(\phi = 0\), maximum output. At \(\phi = 90^\circ\), output is <strong>zero</strong> (complete
+                        signal cancellation). Maintaining \(\phi \approx 0\) is the key challenge — requiring a
+                        phase-locked loop (PLL) or Costas loop at the receiver.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">6.3.3 The Costas Loop</h3>
+            <p>For DSB-SC or SSB signals, there is no carrier component to aid synchronisation. The <strong>Costas
+                    loop</strong> (proposed by Costas, 1956) is a self-synchronising device that simultaneously
+                demodulates the message and tracks the carrier phase.<sup class="cite">[1]</sup></p>
+
+            <div class="svg-wrap">
+                <img src="images/ch6/fig6.5.png" alt="Image 5" />
+            </div>
+            <div class="svg-cap">The Costas loop uses the product of I and Q branch outputs as an error signal to keep
+                the VCO phase-locked to the incoming carrier.</div>
+        </div>
+
+        <!-- ══════════════════════ SECTION 4 ══════════════════════ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">6.4</span>
+                <h2 class="sec-t">Comparison — AM, DSB-SC, SSB Detection</h2>
+            </div>
+
+            <p>A critical GATE topic is comparing modulation schemes on the basis of which detector works, power
+                efficiency, and bandwidth. From Haykin's <em>Communication Systems</em>, Table 6.1 below summarises the
+                key differences:<sup class="cite">[1]</sup></p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Conventional AM</th>
+                            <th>DSB-SC</th>
+                            <th>SSB-SC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Transmitted Bandwidth</td>
+                            <td>2W</td>
+                            <td>2W</td>
+                            <td class="t-grn">W</td>
+                        </tr>
+                        <tr>
+                            <td>Carrier Component</td>
+                            <td class="t-org">Yes (wasted power)</td>
+                            <td class="t-grn">No</td>
+                            <td class="t-grn">No</td>
+                        </tr>
+                        <tr>
+                            <td>Demodulator Type</td>
+                            <td class="t-grn">Envelope Det. (simple)</td>
+                            <td>Coherent only</td>
+                            <td>Coherent only</td>
+                        </tr>
+                        <tr>
+                            <td>Power Efficiency</td>
+                            <td class="t-red">Low (η ≤ 33.3%)</td>
+                            <td class="t-grn">100%</td>
+                            <td class="t-grn">100%</td>
+                        </tr>
+                        <tr>
+                            <td>Figure of Merit (SNR ratio)</td>
+                            <td>η/(1+η) — fraction of η</td>
+                            <td class="t-grn">1 (same as baseband)</td>
+                            <td class="t-grn">1 (same as baseband)</td>
+                        </tr>
+                        <tr>
+                            <td>Implementation Complexity</td>
+                            <td class="t-grn">Very simple</td>
+                            <td>Moderate</td>
+                            <td class="t-red">Complex (SSB generation)</td>
+                        </tr>
+                        <tr>
+                            <td>Application</td>
+                            <td>Broadcast radio (MW)</td>
+                            <td>Stereo pilot, data</td>
+                            <td>HF voice, SSB radio</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="svg-cap">Table 6.1 — Comparison of AM modulation systems from a demodulation perspective</div>
+
+            <div class="callout c-key">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Power Efficiency of Conventional AM</div>
+                    <p>For a single-tone message \(m(t) = A_m\cos(2\pi f_m t)\) with modulation index \(\mu = A_m k_a\),
+                        the power efficiency is \(\eta = \dfrac{\mu^2/2}{1 + \mu^2/2}\). At \(\mu = 1\), \(\eta = 1/3
+                        \approx 33.3\%\). Two-thirds of transmitted power is wasted in the carrier — this is the
+                        fundamental inefficiency of conventional AM.</p>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">AM Power Efficiency (Haykin, Ch. 3)</div>
+                $$\eta = \frac{\text{Useful sideband power}}{\text{Total transmitted power}} = \frac{\mu^2/2}{1 +
+                \mu^2/2}$$
+                <p style="font-size:12px;color:var(--muted);margin-top:6px;text-align:left;">At \(\mu = 1\) (single
+                    tone): \(\eta = 1/3 \approx 33.3\%\) &nbsp;|&nbsp; At \(\mu \to 0\): \(\eta \to 0\) &nbsp;|&nbsp;
+                    Maximum possible: 50% (\(\mu\to\infty\), not practical)
+                </p>
+            </div>
+        </div>
+
+        <!-- ══════════════════════ SECTION 5 ══════════════════════ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">6.5</span>
+                <h2 class="sec-t">Practical AM Receivers</h2>
+            </div>
+
+            <h3 class="sub">6.5.1 The TRF Receiver — Historical Context</h3>
+            <p>The earliest practical AM receivers were <strong>Tuned Radio Frequency (TRF)</strong> receivers. They
+                used a series of RF amplification stages, each tuned to the desired station frequency. While
+                conceptually simple, TRF receivers suffered from:</p>
+
+            <div class="two-col">
+                <div class="mini-card mc-red">
+                    <div class="mc-t">TRF Receiver Problems</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Gang tuning: all stages must track simultaneously</li>
+                        <li><span class="dot">▸</span>Variable gain and selectivity across the band</li>
+                        <li><span class="dot">▸</span>At high frequencies, filter Q becomes impractical</li>
+                        <li><span class="dot">▸</span>Image rejection difficult at high RF</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Why Superheterodyne Won</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Fixed IF allows fixed, highly selective filters</li>
+                        <li><span class="dot">▸</span>Constant gain across the band</li>
+                        <li><span class="dot">▸</span>Better image rejection via IF filter</li>
+                        <li><span class="dot">▸</span>Stable AGC possible at fixed IF frequency</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════ SECTION 6 ══════════════════════ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">6.6</span>
+                <h2 class="sec-t">Superheterodyne Receiver Architecture</h2>
+            </div>
+
+            <p>Invented by Edwin Armstrong in 1918, the <strong>superheterodyne receiver</strong> remains the dominant
+                architecture for AM (and FM) broadcast receivers, short-wave receivers, and many communication systems.
+                The key idea: <em>translate the desired signal to a fixed Intermediate Frequency (IF)</em> where highly
+                efficient filtering and amplification can occur.<sup class="cite">[3]</sup></p>
+
+            <!-- Superhet block diagram SVG -->
+            <div class="svg-wrap svg-scroll">
+                <img src="images/ch6/fig6.6.png" alt="Image 6" />
+            </div>
+            <div class="svg-cap">Signal flow in a superheterodyne receiver. AGC feedback maintains constant output level
+                as received signal strength varies.</div>
+
+            <h3 class="sub">6.6.1 Intermediate Frequency (IF) Selection</h3>
+            <p>In the AM broadcast band (535 kHz – 1605 kHz), the universally adopted IF is <strong>455 kHz</strong>
+                (sometimes 450 kHz). The local oscillator runs at \(f_{LO} = f_s + f_{IF}\) for high-side injection, so
+                the mixer output contains a component at \(f_{LO} - f_s = f_{IF}\).<sup class="cite">[3]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Frequency Conversion in Superheterodyne Receiver</div>
+                $$f_{LO} = f_s + f_{IF} \qquad (\text{high-side injection})$$
+                $$f_{IF} = f_{LO} - f_s \quad \Rightarrow \quad 455 \text{ kHz (AM broadcast standard)}$$
+            </div>
+
+            <h3 class="sub">6.6.2 Image Frequency — Critical GATE Concept</h3>
+            <p>The most important problem in superheterodyne design is the <strong>image frequency</strong>. Any signal
+                at frequency \(f_{image} = f_{LO} + f_{IF}\) will also mix with the LO to produce a component at
+                \(f_{IF}\), appearing as interference.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Image Frequency Formula</div>
+                $$f_{image} = f_s + 2f_{IF} = f_{LO} + f_{IF}$$
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">🚨</div>
+                <div class="cb">
+                    <div class="ct">Image Frequency — GATE High Probability Topic</div>
+                    <p>The image frequency is <strong>\(2 f_{\text{IF}}\) away from the desired station</strong>. The RF
+                        preselector
+                        filter (bandpass filter before the mixer) must reject the image. A higher IF makes image
+                        rejection easier (image is farther away) but makes the IF filter harder to build with high Q.
+                        This is a fundamental tradeoff in superheterodyne design.</p>
+                </div>
+            </div>
+
+            <!-- Image frequency SVG -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.7.png" alt="Image 7" />
+            </div>
+            <div class="svg-cap">The image frequency is separated from the desired station by \(2 f_{\text{IF}} =
+                910\text{ kHz}\) for
+                standard AM receivers</div>
+
+            <h3 class="sub">6.6.3 AGC — Automatic Gain Control</h3>
+            <p>The received signal strength can vary enormously — from picowatts (distant station) to milliwatts (local
+                station). Without AGC, a nearby powerful station would blast your speaker while a distant station would
+                be inaudible. The AGC circuit samples the detector output, generates a DC control voltage proportional
+                to received signal strength, and uses it to reduce the gain of the RF and IF amplifiers when the signal
+                is strong.<sup class="cite">[2]</sup></p>
+        </div>
+
+        <!-- ══════════════════════ SECTION 7 ══════════════════════ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">6.7</span>
+                <h2 class="sec-t">Receiver Noise Analysis &amp; SNR</h2>
+            </div>
+
+            <h3 class="sub">6.7.1 Noise Model — Channel and Receiver</h3>
+            <p>In the standard noise analysis model (Haykin, Ch. 8; Lathi Ch. 11), the received signal at the antenna
+                is:<sup class="cite">[1]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Received Signal with Additive White Gaussian Noise (AWGN)</div>
+                $$r(t) = s(t) + n(t)$$
+            </div>
+
+            <p>where \(n(t)\) is bandlimited AWGN with PSD \(S_n(f) = N_0/2\) watts/Hz (two-sided). After passing
+                through the bandpass filter of bandwidth \(B_T\), the noise power at the demodulator input is:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Input Noise Power — BPF Output</div>
+                $$N_i = N_0 \cdot B_T = \frac{N_0}{2} \times 2B_T$$
+            </div>
+
+            <h3 class="sub">6.7.2 SNR Definitions — Pre and Post Detector</h3>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>SNR Definition</th>
+                            <th>Formula</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Input SNR (SNR_i or \( SNR_C \))</td>
+                            <td>\(\dfrac{S_i}{N_i} = \dfrac{\overline{s^2(t)}}{N_0 B_T}\)</td>
+                            <td>At demodulator input (before detector)</td>
+                        </tr>
+                        <tr>
+                            <td>Output SNR (\( SNR_o \))</td>
+                            <td>\(\dfrac{S_o}{N_o}\)</td>
+                            <td>At demodulator output (after detector + LPF)</td>
+                        </tr>
+                        <tr>
+                            <td>Channel SNR (\( SNR_C \))</td>
+                            <td>\(\dfrac{S_T}{N_0 W}\)</td>
+                            <td>Normalised to message bandwidth W</td>
+                        </tr>
+                        <tr>
+                            <td>Figure of Merit</td>
+                            <td>\(\dfrac{\text{SNR}_o}{\text{SNR}_C}\)</td>
+                            <td>Measures demodulator efficiency</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="sub">6.7.3 SNR Analysis — Envelope Detector (Conventional AM)</h3>
+            <p>For a conventional AM signal with single-tone modulation \(s(t) = A_c[1 + \mu\cos(2\pi f_m t)]\cos(2\pi
+                f_c t)\):</p>
+
+            <p>The total transmitted power is:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Transmitted Power — Conventional AM (single tone)</div>
+                $$S_T = \frac{A_c^2}{2}\left(1 + \frac{\mu^2}{2}\right)$$
+            </div>
+
+            <p>After the envelope detector (in the high-SNR approximation, which is required for the envelope detector
+                to work correctly), the output SNR is:<sup class="cite">[1]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Output SNR — Envelope Detector (High SNR Approximation)</div>
+                $$\text{SNR}_o = \frac{\mu^2/2}{1 + \mu^2/2} \cdot \text{SNR}_C = \eta \cdot \text{SNR}_C$$
+            </div>
+
+            <p>where \(\eta = \mu^2/2\,/(1+\mu^2/2)\) is the power efficiency. The <strong>figure of merit</strong> is
+                \(\eta < 1\) always — conventional AM is <em>always inferior</em> to baseband transmission in SNR
+                    performance.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Figure of Merit — Conventional AM (Envelope Detector)</div>
+                $$\text{FOM}_{AM} = \frac{\text{SNR}_o}{\text{SNR}_C} = \frac{\mu^2/2}{1+\mu^2/2} = \eta \;\leq\;
+                \frac{1}{3}$$
+            </div>
+
+            <h3 class="sub">6.7.4 SNR Analysis — Coherent Detection (DSB-SC)</h3>
+            <p>For DSB-SC, all transmitted power goes into the sidebands (no carrier component). Coherent detection
+                gives:<sup class="cite">[1]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Output SNR — DSB-SC with Coherent Detection</div>
+                $$\text{SNR}_o = \frac{A_c^2\overline{m^2(t)}/2}{N_0 W} = \text{SNR}_C$$
+            </div>
+
+            $$\text{FOM}_{DSB\text{-}SC} = \frac{\text{SNR}_o}{\text{SNR}_C} = 1$$
+
+            <p>DSB-SC achieves the <strong>same SNR as a baseband system</strong> using the same transmitted power. This
+                is a factor of \(1/\eta\) better than conventional AM — a significant advantage in power-limited
+                scenarios like deep-space communication.</p>
+
+            <h3 class="sub">6.7.5 SNR Analysis — SSB with Coherent Detection</h3>
+            <p>SSB transmits only one sideband, halving the bandwidth. The SNR analysis (from Haykin) gives:<sup
+                    class="cite">[1]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Figure of Merit — SSB-SC Coherent Detection</div>
+                $$\text{FOM}_{SSB} = \frac{\text{SNR}_o}{\text{SNR}_C} = 1$$
+            </div>
+
+            <p>SSB also achieves FOM = 1, identical to DSB-SC and to baseband! However, SSB uses <em>half the
+                    bandwidth</em> of DSB-SC. For a given transmitter power and noise power spectral density, SSB and
+                DSB-SC are equal in SNR performance, but SSB requires less spectrum.</p>
+
+            <div class="callout c-key">
+                <div class="ci">📊</div>
+                <div class="cb">
+                    <div class="ct">SNR Comparison Summary — The Key GATE Table</div>
+                    <p><strong>Baseband:</strong> FOM = 1 (reference). <strong>DSB-SC (coherent):</strong> FOM = 1.
+                        <strong>SSB-SC (coherent):</strong> FOM = 1. <strong>AM (envelope, μ=1):</strong> FOM = 1/3 ≈
+                        −4.77 dB. The price paid for simple envelope detection in AM is a 4.77 dB SNR penalty relative
+                        to DSB-SC.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Threshold effect -->
+            <h3 class="sub">6.7.6 Threshold Effect in Envelope Detection</h3>
+            <p>The high-SNR analysis above breaks down at low SNR. When \(\text{SNR}_i \ll 1\), the noise dominates the
+                signal, and the envelope detector enters the <strong>threshold region</strong>. Below the threshold, the
+                SNR at the output degrades catastrophically — much faster than the linear degradation in coherent
+                detection. This is a fundamental nonlinearity of the envelope detector.<sup class="cite">[4]</sup></p>
+
+            <!-- Threshold SVG -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch6/fig6.8.png" alt="Image 8" />
+            </div>
+            <div class="svg-cap">Below the threshold SNR, the envelope detector output SNR collapses non-linearly — much
+                worse than coherent detection</div>
+        </div>
+
+        <!-- ══════════════════════ SECTION 8 ══════════════════════ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr">
+                <span class="sec-num">6.8</span>
+                <h2 class="sec-t">GATE Insights, Solved Numericals &amp; PYQs</h2>
+            </div>
+
+            <h3 class="sub">6.8.1 Important Formulas at a Glance <span class="prob prob-h">🟢 HIGH PROB</span></h3>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Quantity</th>
+                            <th>AM (Envelope Det.)</th>
+                            <th>DSB-SC (Coherent)</th>
+                            <th>SSB-SC (Coherent)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Bandwidth \( B_T \)</td>
+                            <td>2W</td>
+                            <td>2W</td>
+                            <td class="t-grn">W</td>
+                        </tr>
+                        <tr>
+                            <td>\( \text{FOM} = \frac{\text{SNR}_o}{\text{SNR}_c} \)</td>
+                            <td class="t-red">η = μ²/2 / (1+μ²/2)</td>
+                            <td class="t-grn">1</td>
+                            <td class="t-grn">1</td>
+                        </tr>
+                        <tr>
+                            <td>FOM at μ = 1 (single tone)</td>
+                            <td class="t-red">1/3</td>
+                            <td class="t-grn">1</td>
+                            <td class="t-grn">1</td>
+                        </tr>
+                        <tr>
+                            <td>Carrier required at Rx</td>
+                            <td class="t-grn">No (simple)</td>
+                            <td class="t-red">Yes (PLL/Costas)</td>
+                            <td class="t-red">Yes (PLL/Costas)</td>
+                        </tr>
+                        <tr>
+                            <td>Works below threshold</td>
+                            <td class="t-red">No (collapses)</td>
+                            <td class="t-grn">Yes (linear)</td>
+                            <td class="t-grn">Yes (linear)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Solved Example 1 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 6.1</span>
+                    <span class="ex-title">Image Frequency Calculation — Superheterodyne</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An AM superheterodyne receiver is tuned to a station at 1000 kHz. The IF is 455
+                        kHz and the local oscillator uses high-side injection. Find: (a) LO frequency, (b) image
+                        frequency, (c) image rejection if the RF preselector has a bandwidth of 100 kHz centred at the
+                        desired station.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>(a) LO Frequency:</strong></p>
+                    <div class="math-block">
+                        $$f_{LO} = f_s + f_{IF} = 1000 + 455 = \mathbf{1455 \text{ kHz}}$$
+                    </div>
+                    <p><strong>(b) Image Frequency:</strong></p>
+                    <div class="math-block">
+                        $$f_{image} = f_s + 2f_{IF} = 1000 + 2(455) = 1000 + 910 = \mathbf{1910 \text{ kHz}}$$
+                    </div>
+                    <p><strong>(c) Image Rejection:</strong> The preselector is a BPF centred at 1000 kHz with bandwidth
+                        \(100\text{ kHz}\), so it passes 950 to 1050 kHz. The image at 1910 kHz is well outside this
+                        band — the
+                        image is rejected by the preselector attenuation at 1910 kHz. This is determined by the Q of the
+                        RF preselector filter.</p>
+                    <div class="callout c-tip" style="margin-top:10px;">
+                        <div class="ci">✅</div>
+                        <div class="cb">
+                            <div class="ct">Key insight</div>
+                            <p>Image = Desired + 2×IF. The image is always 910 kHz above the desired for AM receivers
+                                with 455 kHz IF. This is a direct GATE formula to memorise.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solved Example 2 -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 6.2</span>
+                    <span class="ex-title">FOM Calculation — Envelope Detector vs Coherent</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An AM transmitter outputs \(P_T = 10\) kW with modulation index \(\mu = 0.8\)
+                        (single-tone modulation). The noise PSD is \(N_0/2\). Message bandwidth \(W = 5\) kHz.
+                        Calculate: (a) power efficiency η, (b) channel SNR, (c) output SNR using envelope detector, (d)
+                        FOM.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>(a) Power Efficiency:</strong></p>
+                    <div class="math-block">
+                        $$\eta = \frac{\mu^2/2}{1 + \mu^2/2} = \frac{(0.8)^2/2}{1 + (0.8)^2/2} = \frac{0.32}{1.32} =
+                        \mathbf{0.242 \approx 24.2\%}$$
+                    </div>
+                    <p><strong>(b) Channel SNR (\( SNR_C \)):</strong></p>
+                    <div class="math-block">
+                        $$\text{SNR}_C = \frac{P_T}{N_0 W} = \frac{10 \times 10^3}{N_0 \times 5 \times 10^3} =
+                        \frac{2}{N_0}$$
+                    </div>
+                    <p><strong>(c) Output SNR (Envelope Detector):</strong></p>
+                    <div class="math-block">
+                        $$\text{SNR}_o = \eta \cdot \text{SNR}_C = 0.242 \times \frac{2}{N_0} = \frac{0.484}{N_0}$$
+                    </div>
+                    <p><strong>(d) Figure of Merit:</strong></p>
+                    <div class="math-block">
+                        $$\text{FOM} = \eta = 0.242 \approx \mathbf{24.2\%}$$
+                    </div>
+                    <p>For the same transmitted power, coherent DSB-SC would give FOM = 1, which is \(1/0.242 \approx
+                        4.13\) times better — about 6.16 dB improvement.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 1 — GATE EC -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EC</span>
+                    <span class="pyq-title">Envelope Detector RC Time Constant</span>
+                    <span class="pyq-year">GATE EC 2015</span>
+                </div>
+                <div class="pyq-body">
+                    <p>An AM signal has carrier frequency \(f_c = 1\) MHz and message bandwidth \(W = 5\) kHz. For the
+                        envelope detector to work without distortion, the RC time constant should satisfy:</p>
+                    <ul class="pyq-opts">
+                        <li>(A) \(RC \ll 1/f_c = 1\;\mu\text{s}\) and \(RC \ll 1/W = 200\;\mu\text{s}\)</li>
+                        <li class="correct">(B) \(1/f_c \ll RC \ll 1/W\), i.e., \(1\;\mu\text{s} \ll RC \ll
+                            200\;\mu\text{s}\)</li>
+                        <li>(C) \(RC \gg 1/W\), i.e., \(RC \gg 200\;\mu\text{s}\)</li>
+                        <li>(D) \(RC = 1/f_c = 1\;\mu\text{s}\)</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> The correct condition is \(1/f_c \ll RC \ll 1/W\). This ensures the
+                        capacitor: (i) does not follow the carrier oscillations (requires \(RC \gg 1/f_c\)) and (ii) can
+                        follow the slowly varying message envelope (requires \(RC \ll 1/W\)). Answer:
+                        <strong>B</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PYQ 2 — GATE EC -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EC</span>
+                    <span class="pyq-title">Superheterodyne Image Frequency</span>
+                    <span class="pyq-year">GATE EC 2019</span>
+                </div>
+                <div class="pyq-body">
+                    <p>An AM superheterodyne receiver has an IF of 455 kHz. It is tuned to a station at 720 kHz using
+                        high-side injection. What is the image frequency?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 265 kHz</li>
+                        <li>(B) 910 kHz</li>
+                        <li class="correct">(C) 1630 kHz</li>
+                        <li>(D) 1175 kHz</li>
+                    </ul>
+                    <p><strong>Solution:</strong> \(f_{image} = f_s + 2f_{IF} = 720 + 2(455) = 720 + 910 = 1630\) kHz.
+                        Answer: <strong>C</strong>.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 3 — IES -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Figure of Merit Comparison</span>
+                    <span class="pyq-year">IES 2018</span>
+                </div>
+                <div class="pyq-body">
+                    <p>For full AM (conventional AM) with modulation index \(\mu = 1\) and single-tone modulation, what
+                        is the figure of merit when envelope detection is used?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 1</li>
+                        <li>(B) 1/2</li>
+                        <li class="correct">(C) 1/3</li>
+                        <li>(D) 2/3</li>
+                    </ul>
+                    <p><strong>Explanation:</strong> At \(\mu = 1\), \(\eta = (1/2)/(1+1/2) = (1/2)/(3/2) = 1/3\). The
+                        FOM = \(\eta = 1/3\). Answer: <strong>C</strong>.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 4 — GATE EC -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EC</span>
+                    <span class="pyq-title">Phase Error in Coherent Detection</span>
+                    <span class="pyq-year">GATE EC 2017</span>
+                </div>
+                <div class="pyq-body">
+                    <p>In a coherent detector for DSB-SC, the local oscillator has a phase error of \(\phi = 45^\circ\)
+                        relative to the carrier. What is the reduction in output SNR compared to perfect
+                        synchronisation?</p>
+                    <ul class="pyq-opts">
+                        <li>(A) 0 dB</li>
+                        <li class="correct">(B) 3 dB</li>
+                        <li>(C) 6 dB</li>
+                        <li>(D) ∞ dB (complete cancellation)</li>
+                    </ul>
+                    <p><strong>Solution:</strong> Output is scaled by \(\cos\phi\). Power scales as \(\cos^2\phi =
+                        \cos^2(45^\circ) = 1/2\). So SNR drops by a factor of 2 = 3 dB. Answer: <strong>B</strong>.</p>
+                </div>
+            </div>
+
+            <!-- Memory tricks section -->
+            <h3 class="sub">6.8.2 Memory Tricks &amp; Mnemonics</h3>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic — RC Condition</div>
+                    <p><strong>"Carrier Quick, Message Slow"</strong> → RC must be slow for the carrier (\(RC \gg T_c\))
+                        but fast compared to the message (\(RC \ll T_m\)). Think of the capacitor as a sponge that
+                        absorbs rapid carrier oscillations but flows with the slow envelope.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic — Image = Station + 910 kHz (AM)</div>
+                    <p>For AM receivers with \( f_{\text{IF}} = 455 \text{ kHz} \): <strong>Image = Desired + 910
+                            kHz</strong>. The number 910
+                        = 2 × 455. Easy to remember: "Nine-Ten is the image gap in standard AM."</p>
+                </div>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">GATE Shortcut — FOM Values (Commit to Memory)</div>
+                    <p>
+                        🟢 DSB-SC coherent: FOM = <strong>1</strong><br>
+                        🟢 SSB-SC coherent: FOM = <strong>1</strong><br>
+                        🟡 AM envelope (μ=1, single tone): FOM = <strong>1/3</strong><br>
+                        🔴 AM with phase error \( \phi \): \( \text{FOM} = \eta \cdot \cos^2\phi \)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Ask Aarova Widget -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI</div>
+                <p>Have a doubt about AM demodulation, noise analysis, or receiver design? Ask your GATE tutor.</p>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="userQ" type="text"
+                        placeholder="e.g. Why does envelope detector fail for DSB-SC?" autocomplete="off"
+                        autocorrect="off" spellcheck="false">
+                    <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('Derive the figure of merit for conventional AM using envelope detection step by step.')">FOM
+                        derivation — AM</span>
+                    <span class="ai-chip"
+                        onclick="setQ('What is the threshold effect in envelope detection and why does it not occur in coherent detection?')">Threshold
+                        effect</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Explain the Costas loop and how it achieves carrier synchronisation for DSB-SC.')">Costas
+                        loop explained</span>
+                    <span class="ai-chip"
+                        onclick="setQ('An AM receiver IF is 455 kHz. Station at 850 kHz. Find image freq and suggest how to reject it.')">Image
+                        rejection numerics</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+            <!-- Summary Grid -->
+            <h3 class="sub">Chapter Summary</h3>
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">Envelope Detector</div>
+                    <p>Diode + RC LPF. Requires \( \mu \leq 1 \) and \( \frac{1}{f_c} \ll RC \ll \frac{1}{W} \). Fails
+                        below threshold SNR. Simple, no
+                        carrier reference needed. Used in AM broadcast.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Coherent Detection</div>
+                    <p>Multiply by \( \cos(2\pi f_c t + \phi) \) then LPF. Phase error \( \phi \) degrades output by \(
+                        \cos^2\phi \). Works for AM,
+                        DSB-SC, SSB. FOM = 1 for DSB-SC and SSB.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">Superheterodyne</div>
+                    <p>RF Amp → Mixer → IF Amp (455 kHz) → Detector → Audio Amp. \( f_{\text{LO}} = f_s + f_{\text{IF}}
+                        \). Image = \( f_s + 2f_{\text{IF}} \)
+                        = 910 kHz away. AGC maintains constant output.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">Figure of Merit</div>
+                    <p>\( \text{FOM} = \frac{\text{SNR}_o}{\text{SNR}_c} \). AM (\( \mu=1 \)): \( \frac{1}{3} \).
+                        DSB-SC: 1. SSB: 1. DSB-SC is 4.77 dB better than AM at \( \mu=1 \).
+                        Coherent detection never has threshold effect.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Noise &amp; SNR</div>
+                    <p>AWGN: \( N_i = N_0 \cdot B_T \). AM \( \text{SNR}_o = \eta \cdot \text{SNR}_c \). DSB-SC \(
+                        \text{SNR}_o = \text{SNR}_c \). Threshold collapse for envelope
+                        detector at low SNR. Coherent: linear SNR degradation.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Costas Loop</div>
+                    <p>I and Q branch multipliers + LPF each. Product gives error signal → VCO. Recovers DSB-SC carrier
+                        phase without pilot tone. Fundamental to modern receivers.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip" style="margin-top:22px">
+                <div class="ci">➡️</div>
+                <div class="cb">
+                    <div class="ct">Coming Next — Chapter 7</div>
+                    <p>Angle Modulation — FM and PM Fundamentals: instantaneous frequency, frequency deviation, Carson's
+                        rule for bandwidth, Bessel function spectrum, FM discriminators, PLL-based demodulators,
+                        preemphasis and deemphasis, and SNR comparison with AM.</p>
+                </div>
+            </div>
+
+            <!-- Citations -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                    the following standard textbooks. All explanations, derivations, diagrams, and examples are original
+                    to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Haykin, Simon. <em>Communication Systems</em>, 4th ed.
+                            John Wiley &amp; Sons, 2001. Chapters 3 &amp; 8 — AM demodulation, envelope detector design,
+                            coherent detection, SNR analysis, figure of merit for AM, DSB-SC and SSB, Costas loop,
+                            threshold effect.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Lathi, B.P. and Ding, Zhi. <em>Modern Digital and Analog
+                                Communication Systems</em>, 4th ed. Oxford University Press, 2010. Chapters 4 &amp; 9 —
+                            Envelope detector time constant design, diagonal clipping, coherent detection, phase error
+                            analysis, superheterodyne architecture.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Couch, Leon W. <em>Digital and Analog Communication
+                                Systems</em>, 8th ed. Pearson, 2013. Chapter 4 — Superheterodyne receiver stages, AGC,
+                            image frequency derivation, IF standard selection rationale.</span></li>
+                    <li><span class="cite-num">[4]</span><span>Proakis, John G. and Salehi, Masoud. <em>Communication
+                                Systems Engineering</em>, 2nd ed. Pearson, 2002. Chapter 5 — AWGN channel noise model,
+                            SNR definitions, figure of merit, threshold effect in envelope detection vs. coherent
+                            detection.</span></li>
+                    <li><span class="cite-num">[5]</span><span>IIT Kharagpur NPTEL. <em>Communication Engineering —
+                                Lectures 20–26: AM Demodulation and Noise Analysis</em>. National Programme on
+                            Technology Enhanced Learning. nptel.ac.in. Envelope detector, coherent detection, noise
+                            figure calculations.</span></li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Communication Systems Series &nbsp;·&nbsp; Chapter 6 of 10<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EC &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electronics Engineering</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                    diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        function setQ(t) {
+            document.getElementById('userQ').value = t;
+            document.getElementById('userQ').focus();
+        }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim();
+            if (!q) return;
+            const btn = document.querySelector('.ai-btn');
+            const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…';
+            btn.disabled = true;
+            resp.style.display = 'block';
+            resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EC and IES tutor specialising in Communication Systems. Topic: AM Demodulation and Receivers — Chapter 6. Cover envelope detector (RC condition, diagonal clipping, threshold effect), coherent detection (phase error, Costas loop), superheterodyne receiver (image frequency = \( f_s \) + 2*\( f_IF \), IF = 455 kHz), SNR and figure of merit (AM: η, DSB-SC: 1, SSB: 1). Answer with step-by-step working for numericals. Base on Haykin, Lathi, Proakis & Salehi, Couch. Keep answers clear and exam-focused.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-6',
+                        max_tokens: 1000,
+                        system: sys,
+                        messages: [{ role: 'user', content: q }]
+                    })
+                });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) {
+                resp.textContent = 'Could not connect. Please try again.';
+            }
+            btn.textContent = 'Ask Aarova';
+            btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => {
+            if (e.key === 'Enter') askClaude();
+        });
+
+        /* Mobile SVG scroll hints */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

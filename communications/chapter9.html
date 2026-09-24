@@ -1,0 +1,2409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Information Theory Ch.9 Fundamentals</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- KaTeX for LaTeX math rendering -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile \le480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, 0.10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, 0.14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px;
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px;
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .logo-link{text-decoration:none;cursor:pointer;transition:opacity .18s;}.logo-link:hover{opacity:.75;}.logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400;
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange);
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px);
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, 0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px;
+        }
+
+        .pf {
+            height: 100%;
+            width: 25%;
+            background: var(--orange);
+            border-radius: 4px;
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+
+        /* ── TABLE OF CONTENTS ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px);
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px;
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5;
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt);
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px;
+        }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68;
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+        }
+
+        .c-info .ct {
+            color: var(--orange);
+        }
+
+        .c-info p {
+            color: var(--text2);
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green);
+        }
+
+        .c-tip .ct {
+            color: var(--green);
+        }
+
+        .c-tip p {
+            color: #1e4d38;
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal);
+        }
+
+        .c-key .ct {
+            color: var(--teal);
+        }
+
+        .c-key p {
+            color: #154e4c;
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber);
+        }
+
+        .c-warn .ct {
+            color: var(--amber);
+        }
+
+        .c-warn p {
+            color: #6e3f00;
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red);
+        }
+
+        .c-danger .ct {
+            color: var(--red);
+        }
+
+        .c-danger p {
+            color: #6e1515;
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px);
+        }
+
+        thead tr {
+            background: var(--bg3);
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg2);
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important;
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre;
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block;
+        }
+
+        .fv {
+            color: var(--orange);
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        .fh {
+            color: var(--teal);
+        }
+
+        /* ── MATH (KaTeX) display ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left;
+        }
+
+        /* ── SVG DIAGRAMS ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block;
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4;
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px);
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62;
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px;
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pyq-gate {
+            background: var(--teal);
+        }
+
+        .pyq-ies {
+            background: var(--green);
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr);
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .pyq-title-ies {
+            color: var(--green);
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px);
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px);
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45;
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* ── TWO COLUMN CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow);
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px;
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green);
+        }
+
+        .mc-red .mc-t {
+            color: var(--red);
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange);
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal);
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber);
+        }
+
+        .mc-list {
+            list-style: none;
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5;
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none;
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* ── SUMMARY GRID ── */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s;
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px;
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62;
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange);
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green);
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal);
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber);
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red);
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px;
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .cite-list {
+            list-style: none;
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62;
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px;
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic;
+        }
+
+        /* ── PROBABILITY TAG ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr);
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr);
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr);
+        }
+
+        /* ── ASK CLAUDE WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, 0.12);
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none;
+        }
+
+        .ai-btn:hover {
+            background: #155250;
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b;
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg);
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border);
+        }
+
+        footer strong {
+            color: var(--orange);
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .svg-wrap {
+                padding: 12px 10px;
+            }
+
+            .svg-wrap svg {
+                min-width: 480px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px;
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8;
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px;
+            }
+
+            .pyq-year {
+                margin-left: 0;
+            }
+        }
+
+        /* ════ MOBILE \le480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px;
+            }
+
+            .logo-sub {
+                display: none;
+            }
+
+            .hbadges {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 14px;
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px);
+            }
+
+            .hero-desc {
+                font-size: 14px;
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px;
+            }
+
+            .pl {
+                font-size: 11px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0;
+            }
+
+            .toc {
+                padding: 14px 16px;
+            }
+
+            .sec-hdr {
+                gap: 9px;
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px);
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px);
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto;
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%;
+            }
+
+            .svg-cap {
+                font-size: 11px;
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px;
+            }
+
+            .tw {
+                border-radius: 8px;
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em;
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px;
+            }
+
+            .mini-card {
+                padding: 13px 14px;
+            }
+
+            .sum-card {
+                padding: 14px 16px;
+            }
+
+            .callout {
+                padding: 11px 13px;
+                gap: 9px;
+            }
+
+            .ci {
+                font-size: 16px;
+            }
+
+            .cb p {
+                font-size: 13.5px;
+            }
+
+            .ex-hdr {
+                padding: 8px 13px;
+            }
+
+            .ex-body {
+                padding: 12px 13px;
+            }
+
+            .ex-q {
+                font-size: 13.5px;
+                padding: 9px 12px;
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                padding: 8px 13px;
+                gap: 7px;
+            }
+
+            .gate-body,
+            .pyq-body {
+                padding: 12px 13px;
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                padding: 9px 11px;
+            }
+
+            .pyq-year {
+                display: none;
+            }
+
+            .ai-prompt {
+                padding: 14px 14px;
+            }
+
+            .ai-input-row {
+                flex-direction: column;
+            }
+
+            .ai-input {
+                font-size: 15px;
+            }
+
+            .ai-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 15px;
+                padding: 13px;
+            }
+
+            .ai-chip {
+                font-size: 11px;
+            }
+
+            .ai-suggest {
+                gap: 5px;
+            }
+
+            .cite-list li {
+                font-size: 12.5px;
+                gap: 9px;
+            }
+
+            .citations {
+                padding: 14px 14px;
+            }
+
+            footer {
+                padding: 20px 0;
+                font-size: 11.5px;
+            }
+
+            .math-block {
+                padding: 10px 12px;
+            }
+        }
+
+        /* ════ LARGE DESKTOP 1024+ ════ */
+        @media(min-width:1024px) {
+            .page {
+                padding: 0 48px 100px;
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .svg-wrap svg {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        @media(hover:none) {
+            .toc-item:hover {
+                color: var(--text3);
+                border-bottom-color: transparent;
+            }
+
+            .sum-card:hover {
+                transform: none;
+                box-shadow: var(--shadow);
+            }
+
+            .ai-btn:hover {
+                background: var(--teal);
+            }
+        }
+
+        @media print {
+
+            .site-header,
+            .ai-prompt,
+            footer {
+                display: none;
+            }
+
+            .section {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+
+            .svg-wrap {
+                break-inside: avoid;
+            }
+
+            body {
+                font-size: 12pt;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <a href="../subject.html?s=communications" class="logo-link"><div class="logo">Aarova AI <span class="logo-sub">Communication Systems Series</span></div></a>
+        <div class="hbadges"><span class="hbadge">GATE EE</span><span class="hbadge">IES</span><span
+                class="hbadge">PSU</span></div>
+    </header></div>
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Chapter 09 &nbsp;·&nbsp; Communication Systems</div>
+            <h1 class="hero-title">Information Theory <em>Fundamentals</em></h1>
+            <p class="hero-desc">Self information, entropy, joint entropy, conditional entropy and mutual
+                information — the mathematical backbone of source coding and channel coding. Full derivations,
+                intuitive analogies and solved GATE/IES numericals.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EE</span>
+                <span class="badge">IES E&amp;T</span>
+                <span class="badge">PSU Electrical</span>
+                <span class="badge">Follows Ch.8 — Digital Modulation Techniques</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf" style="width:34%"></div>
+            </div><span class="pp">Chapter 9 of 14</span>
+        </div>
+
+        <!-- ═══ TOC ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">9.1</span>Why Information Theory Exists</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">9.5</span>Joint Entropy</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">9.2</span>Self Information</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">9.6</span>Conditional Entropy</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">9.3</span>Entropy of a Source</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">9.7</span>Mutual Information</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">9.4</span>Properties &amp; Extremes of Entropy</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">9.8</span>Key Formula Sheet</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">9.9</span>Solved Numericals</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">9.10</span>GATE &amp; IES Questions</a>
+            </div>
+        </div>
+
+        <!-- ═══ S1: WHY INFORMATION THEORY EXISTS ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr"><span class="sec-num">9.1</span>
+                <h2 class="sec-t">Why Information Theory Exists — The Big Picture</h2>
+            </div>
+
+            <p>Imagine a weather forecaster who says <em>"It will be sunny in the Sahara desert tomorrow."</em> You
+                already expected this — the message carries almost no new information. Now imagine the same
+                forecaster says <em>"It will snow in the Sahara desert tomorrow."</em> This is shocking news — it
+                carries enormous information. <strong>Information theory</strong> is the branch of mathematics,
+                pioneered by Claude E. Shannon in 1948, that quantifies exactly this idea: information is tied to
+                <em>uncertainty</em>, not to the length of a message.
+            </p>
+
+            <div class="callout c-info">
+                <div class="ci">⚡</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight</div>
+                    <p>Every digital communication system — Wi-Fi, 4G/5G, satellite links, deep-space probes, even
+                        ZIP file compression — rests on two pillars built from information theory: <strong>source
+                            coding</strong> (remove redundancy, compress data) and <strong>channel coding</strong>
+                        (add controlled redundancy to fight noise). Both pillars are quantified using entropy.</p>
+                </div>
+            </div>
+
+            <!-- Information theory pipeline diagram -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch9/fig9.1.png" alt="Image 1" />
+                <div class="svg-cap">Fig 9.1 — Shannon's model of communication. Information theory provides the
+                    mathematical tools (entropy, mutual information) to design every block of this chain.</div>
+            </div>
+
+            <h3 class="sub">Where This Topic Connects</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Used Directly In</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Source coding (Huffman, Shannon-Fano) — compression</li>
+                        <li><span class="dot">▸</span>Channel capacity (Shannon-Hartley theorem)</li>
+                        <li><span class="dot">▸</span>Error-control coding — redundancy design</li>
+                        <li><span class="dot">▸</span>Data compression: ZIP, JPEG, MP3, video codecs</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Industry Applications</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>Deep space:</strong> NASA's Voyager uses near-capacity
+                            error correction derived from entropy bounds</li>
+                        <li><span class="dot">▸</span><strong>5G/Wi-Fi:</strong> adaptive modulation chooses scheme
+                            based on channel mutual information</li>
+                        <li><span class="dot">▸</span><strong>Cryptography:</strong> entropy measures randomness
+                            quality of keys</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S2: SELF INFORMATION ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr"><span class="sec-num">9.2</span>
+                <h2 class="sec-t">Self Information</h2>
+            </div>
+
+            <p>Self information measures how surprising — or how informative — a single outcome is. An event that
+                is almost certain to occur carries little self information; a rare event carries a lot. Shannon
+                formalised this intuition using a logarithm so that information from independent events simply
+                adds up.</p>
+
+            <div class="callout c-info">
+                <div class="ci">🔍</div>
+                <div class="cb">
+                    <div class="ct">Intuitive Understanding</div>
+                    <p>Think of probability as "expectedness." If \( P(x) \) = 1 (certain), the message tells you
+                        nothing
+                        new — information should be zero. If \( P(x) \) \to 0 (extremely rare), the message is maximally
+                        surprising — information should tend to infinity. The function -log \( P(x) \) satisfies exactly
+                        these two boundary conditions, and the logarithm ensures that information from two
+                        independent messages adds rather than multiplies.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Definition</h3>
+            <div class="math-block">
+                <div class="math-lbl">Self Information of an event x with probability \( P(x) \)</div>
+                $$I(x) = -\log_2 P(x) = \log_2\left(\frac{1}{P(x)}\right) \quad \text{bits}$$
+            </div>
+
+            <div class="fblock"><span class="flbl">Self Information — Key Points</span><span class="fh">Unit:</span>
+                bits, when log base 2 is used<br>
+                \( I(x) \) in nats &nbsp;\to&nbsp; natural log (base e)<br>
+                \( I(x) \) in Hartleys / dits &nbsp;\to&nbsp; log base 10<br><br>
+
+                <span class="fh">Range:</span> \( 0 \le P(x) \le 1 \;\Rightarrow\; I(x) \ge 0 \) (information is never
+                negative)<br>
+                <span class="fh">Boundary cases:</span><br>
+                \( P(x) = 1 \Rightarrow I(x) = 0 \) (certain event, zero information)<br>
+                \( P(x) \to 0 \Rightarrow I(x) \to \infty \) (rare event, unbounded information)
+            </div>
+
+            <h3 class="sub">Concept Building Questions</h3>
+            <div class="two-col">
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Q: Why base 2 (bits)?</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Digital systems use binary symbols (0/1), so bits map
+                            directly to physical signalling</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Q: What if two symbols are equally likely?</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>P = 0.5 for each \to \( I(x) \) = -log₂(0.5) = 1 bit. This is
+                            exactly
+                            the definition of "1 bit" of information</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr"><span class="ex-num">EX 9.1</span><span class="ex-title">Basic — Self
+                        Information of a Fair Coin Toss</span></div>
+                <div class="ex-body">
+                    <div class="ex-q">A fair coin is tossed. Find the self information associated with the outcome
+                        "Heads."</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>P(Heads) = 0.5 for a fair coin.</p>
+                    $$I(\text{Heads}) = -\log_2(0.5) = \log_2(2) = 1 \text{ bit}$$
+                    <p>So one toss of a fair coin conveys exactly 1 bit of information — matching our everyday
+                        usage of the word "bit."</p>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr"><span class="ex-num">EX 9.2</span><span class="ex-title">GATE-Level — Biased
+                        Source Self Information</span></div>
+                <div class="ex-body">
+                    <div class="ex-q">A source emits symbol A with probability 0.125. Find the self information of
+                        symbol A in bits.</div>
+                    <div class="sol-lbl">Solution</div>
+                    $$I(A) = -\log_2(0.125) = -\log_2\left(\frac{1}{8}\right) = \log_2(8) = 3 \text{ bits}$$
+                    <p>Note the pattern: P = 1/2ⁿ always gives I = n bits exactly. GATE frequently uses powers of
+                        2 (1/2, 1/4, 1/8, 1/16) to keep the arithmetic clean.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S3: ENTROPY ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr"><span class="sec-num">9.3</span>
+                <h2 class="sec-t">Entropy of a Discrete Source</h2>
+            </div>
+
+            <p>Self information tells you the surprise of a single outcome. But a source emits many symbols over
+                time — we need the <strong>average</strong> information per symbol. This average is called
+                <strong>entropy</strong>, denoted \( H(X) \), borrowed deliberately from thermodynamics because both
+                quantify "disorder" or "uncertainty" in a system.
+            </p>
+
+            <h3 class="sub">Definition</h3>
+            <div class="math-block">
+                <div class="math-lbl">Entropy of a discrete source X with symbols x₁...xₙ</div>
+                $$H(X) = \sum_{i=1}^{n} P(x_i)\, I(x_i) = -\sum_{i=1}^{n} P(x_i)\log_2 P(x_i) \quad \text{bits/symbol}$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">Physical Interpretation</div>
+                    <p>Entropy is the expected value (statistical average) of self information: \(H(X) = E[I(x)]\).
+                        It represents the minimum average number of bits required to represent one symbol from the
+                        source without loss — this is exactly the bound that <strong>source coding theorem</strong>
+                        (Shannon's first theorem) uses to define optimal compression.</p>
+                </div>
+            </div>
+
+            <!-- Entropy curve diagram for binary source -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch9/fig9.2.png" alt="Image 2" />
+                <div class="svg-cap">Fig 9.2 — For a binary source, entropy is maximum (1 bit) when both symbols
+                    are equally likely (\( p \) = 0.5), and falls to zero when the outcome is certain (\( p \) = 0 or
+                    1).</div>
+            </div>
+
+            <h3 class="sub">Why the Peak Occurs at \( p \) = 0.5</h3>
+            <p>Entropy measures uncertainty. When one symbol is far more likely than the other (\( p \) close to 0 or
+                1),
+                you can predict the outcome with confidence, so uncertainty — and hence entropy — is low. When both
+                symbols are equally likely, you have the maximum possible uncertainty about which symbol will
+                appear next, so entropy peaks. This single curve is the most frequently tested concept in GATE
+                Information Theory.</p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Misconception</div>
+                    <p>Students often think entropy depends on the <em>values</em> of the symbols (e.g., the actual
+                        voltage levels). It does not — entropy depends purely on the <em>probability
+                            distribution</em> of the symbols, not on what the symbols physically represent.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S4: PROPERTIES OF ENTROPY ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr"><span class="sec-num">9.4</span>
+                <h2 class="sec-t">Properties &amp; Extremes of Entropy</h2>
+            </div>
+
+            <p>For a source with <strong>n</strong> equally likely symbols, entropy reaches a clean, easily testable
+                maximum value. This bound is one of the most repeated GATE results.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Maximum entropy of an n-symbol source (equiprobable case)</div>
+                $$H_{max}(X) = \log_2 n \quad \text{bits/symbol, achieved when } P(x_i) = \frac{1}{n}\ \forall i$$
+            </div>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Statement</th>
+                            <th>Physical Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Non-negativity</td>
+                            <td class="t-grn">\( H(X) \) \ge 0</td>
+                            <td>Probabilities \le 1, so -log₂P(x) \ge 0 always</td>
+                        </tr>
+                        <tr>
+                            <td>Zero entropy</td>
+                            <td class="t-org">\( H(X) \) = 0</td>
+                            <td>Only when outcome is certain (one symbol has P = 1)</td>
+                        </tr>
+                        <tr>
+                            <td>Maximum entropy</td>
+                            <td class="t-tel">\( H(X) \) = log₂n</td>
+                            <td>Only when all n symbols are equiprobable — max uncertainty</td>
+                        </tr>
+                        <tr>
+                            <td>Upper bound rule</td>
+                            <td>0 \le \( H(X) \) \le log₂n</td>
+                            <td>Entropy is always sandwiched between certainty and total randomness</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr"><span class="ex-num">EX 9.3</span><span class="ex-title">GATE-Level — Entropy
+                        of a 4-Symbol Equiprobable Source</span></div>
+                <div class="ex-body">
+                    <div class="ex-q">A discrete memoryless source emits one of 4 equally likely symbols every Ts
+                        seconds. Find the entropy of the source.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>n = 4, each P(xᵢ) = 1/4.</p>
+                    $$H(X) = \log_2 4 = 2 \text{ bits/symbol}$$
+                    <p>This matches intuition: 4 equally likely symbols can be encoded exactly using 2-bit binary
+                        codewords (00, 01, 10, 11) with zero redundancy — entropy gives the theoretical minimum
+                        code length.</p>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr"><span class="ex-num">EX 9.4</span><span class="ex-title">Conceptual — Unequal
+                        Probabilities Reduce Entropy</span></div>
+                <div class="ex-body">
+                    <div class="ex-q">A source has symbols A, B, C, D with probabilities 0.5, 0.25, 0.125, 0.125.
+                        Find \( H(X) \) and compare with the equiprobable 4-symbol case.</div>
+                    <div class="sol-lbl">Solution</div>
+                    $$H(X) = 0.5\log_2\frac{1}{0.5} + 0.25\log_2\frac{1}{0.25} + 2\times 0.125\log_2\frac{1}{0.125}$$
+                    $$H(X) = 0.5(1) + 0.25(2) + 0.125(3) + 0.125(3) = 0.5+0.5+0.375+0.375 = 1.75 \text{ bits/symbol}$$
+                    <p>\( H(X) \) = 1.75 bits is less than log₂4 = 2 bits. This confirms the property: unequal
+                        probabilities always reduce entropy below the equiprobable maximum.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S5: JOINT ENTROPY ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr"><span class="sec-num">9.5</span>
+                <h2 class="sec-t">Joint Entropy</h2>
+            </div>
+
+            <p>So far we considered one source. Real communication systems involve two related random variables —
+                for example, the transmitted symbol X and the received symbol Y (which may differ due to channel
+                noise). <strong>Joint entropy</strong> \( H(X,Y) \) measures the total average uncertainty of the pair
+                (X,Y) taken together.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Joint Entropy of two random variables X and Y</div>
+                $$H(X,Y) = -\sum_{i}\sum_{j} P(x_i,y_j)\log_2 P(x_i,y_j) \quad \text{bits/symbol pair}$$
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">🔍</div>
+                <div class="cb">
+                    <div class="ct">Intuitive Understanding</div>
+                    <p>Imagine you must guess both today's weather (X) and tomorrow's weather (Y) together. Joint
+                        entropy is the total uncertainty of guessing the <em>pair</em> correctly — not each one
+                        separately, but the combined outcome (X=x, Y=y).</p>
+                </div>
+            </div>
+
+            <div class="fblock"><span class="flbl">Joint Entropy — Key Bound</span><span
+                    class="fh">Sub-additivity:</span>
+                \( H(X,Y) \le H(X) + H(Y) \)
+
+                <span class="fh">Equality holds when:</span> X and Y are statistically independent
+                \( H(X,Y) = H(X) + H(Y) \) &nbsp;⟺&nbsp; \( P(x,y) = P(x)P(y) \) for all x,y
+            </div>
+        </div>
+
+        <!-- ═══ S6: CONDITIONAL ENTROPY ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr"><span class="sec-num">9.6</span>
+                <h2 class="sec-t">Conditional Entropy</h2>
+            </div>
+
+            <p><strong>Conditional entropy</strong> \( H(Y|X) \) measures the remaining average uncertainty about Y once
+                X is already known. In a communication channel, \( H(Y|X) \) represents the noise added by the channel
+                — uncertainty about the received symbol given that we know what was transmitted.</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Conditional Entropy of Y given X</div>
+                $$H(Y|X) = -\sum_{i}\sum_{j} P(x_i,y_j)\log_2 P(y_j|x_i) \quad \text{bits/symbol}$$
+            </div>
+
+            <h3 class="sub">The Chain Rule — Linking Joint and Conditional Entropy</h3>
+            <div class="math-block">
+                <div class="math-lbl">Chain Rule of Entropy</div>
+                $$H(X,Y) = H(X) + H(Y|X) = H(Y) + H(X|Y)$$
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">📌</div>
+                <div class="cb">
+                    <div class="ct">Engineering Insight — Channel Noise Interpretation</div>
+                    <p>If the channel were perfectly noiseless, knowing X tells you Y exactly, so \( H(Y|X) \) = 0. As
+                        channel noise increases, even knowing X leaves growing uncertainty about Y, so \( H(Y|X) \)
+                        increases. This is why \( H(Y|X) \) is also called the <strong>noise entropy</strong> of a
+                        channel.</p>
+                </div>
+            </div>
+
+            <!-- Conditional entropy / mutual info venn-like diagram -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch9/fig9.3.png" alt="Image 3" />
+                <div class="svg-cap">Fig 9.3 — Venn diagram view: the overlap region is mutual information \( I(X;Y) \);
+                    the non-overlapping parts are the conditional entropies \( H(X|Y) \) and \( H(Y|X) \).</div>
+            </div>
+        </div>
+
+        <!-- ═══ S7: MUTUAL INFORMATION ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr"><span class="sec-num">9.7</span>
+                <h2 class="sec-t">Mutual Information</h2>
+            </div>
+
+            <p><strong>Mutual information</strong> \( I(X;Y) \) quantifies how much knowing one random variable reduces
+                uncertainty about the other. It is the single most important quantity for defining
+                <strong>channel capacity</strong> — the maximum reliable data rate of a communication channel.
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">Mutual Information between X and Y</div>
+                $$I(X;Y) = H(X) - H(X|Y) = H(Y) - H(Y|X) = H(X) + H(Y) - H(X,Y)$$
+            </div>
+
+            <div class="fblock"><span class="flbl">Mutual Information - Key Properties</span><span
+                    class="fh">Symmetry:</span>
+                \( I(X;Y) = I(Y;X) \) (information gained about X from Y equals info gained about Y from X)<br><br>
+
+                <span class="fh">Non-negativity:</span> \( I(X;Y) \ge 0 \) always, equality only if X, Y independent<br>
+                <span class="fh">Maximum value:</span> \( I(X;Y) \le \min(H(X), H(Y)) \)<br>
+                <span class="fh">Noiseless channel:</span> \( H(Y|X) = 0 \Rightarrow I(X;Y) = H(X) = H(Y) \) (perfect
+                information transfer)<br>
+                <span class="fh">Useless channel:</span> X,Y independent \( \Rightarrow I(X;Y) = 0 \) (output reveals
+                nothing about input)
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Why This Defines Channel Capacity</div>
+                    <p>Shannon defined channel capacity as <strong>\( C = \max I(X;Y) \)</strong>, maximised over all
+                        possible input probability distributions \( P(x) \). This single quantity tells communication
+                        engineers the absolute upper limit of error-free data rate over a given noisy channel —
+                        the foundation of the Shannon-Hartley theorem covered in the next chapter.</p>
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr"><span class="ex-num">EX 9.5</span><span class="ex-title">GATE-Level — Mutual
+                        Information from Joint Probabilities</span></div>
+                <div class="ex-body">
+                    <div class="ex-q">A binary symmetric channel has input X ∈ {0,1} with P(0)=P(1)=0.5. The
+                        channel flips a bit with probability \( p \) = 0.1 (crossover probability). Find \( H(Y|X) \)
+                        and
+                        \( I(X;Y) \).</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>For a BSC, \( H(Y|X) \) equals the binary entropy of the crossover probability \( p \):</p>
+                    $$H(Y|X) = H(p) = -p\log_2 p - (1-p)\log_2(1-p)$$
+                    $$H(0.1) = -0.1\log_2(0.1) - 0.9\log_2(0.9) \approx 0.332 + 0.137 = 0.469 \text{ bits}$$
+                    <p>Since inputs are equiprobable, the output Y is also equiprobable (P(Y=0)=P(Y=1)=0.5), so
+                        \( H(Y) \) = 1 bit.</p>
+                    $$I(X;Y) = H(Y) - H(Y|X) = 1 - 0.469 = 0.531 \text{ bits}$$
+                    <p>This 0.531 bits/symbol is exactly the channel capacity of this BSC — the GATE-favourite
+                        result \(C = 1 - H(p)\) for a symmetric binary channel.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S8: KEY FORMULA SHEET ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr"><span class="sec-num">9.8</span>
+                <h2 class="sec-t">Key Formula Sheet</h2>
+            </div>
+
+            <div class="fblock"><span class="flbl">Complete Quick-Reference</span><span class="fh">Self
+                    Information:</span>
+                \( I(x) = -\log_2 P(x) \) bits
+
+                <span class="fh">Entropy:</span> \( H(X) = -\sum P(x_i)\log_2 P(x_i) \) bits/symbol
+                <span class="fh">Max Entropy:</span> \( H_{max}(X) = \log_2 n \) (n equiprobable symbols)
+                <span class="fh">Joint Entropy:</span> \( H(X,Y) = -\sum\sum P(x,y)\log_2 P(x,y) \)
+                <span class="fh">Conditional Entropy:</span> \( H(Y|X) = -\sum\sum P(x,y)\log_2 P(y|x) \)
+                <span class="fh">Chain Rule:</span> \( H(X,Y) = H(X) + H(Y|X) = H(Y) + H(X|Y) \)
+                <span class="fh">Mutual Information:</span> \( I(X;Y) = H(X) - H(X|Y) = H(Y) - H(Y|X) \)
+                <span class="fh">Channel Capacity:</span> \( C = \max_{P(x)} I(X;Y) \) bits/symbol
+            </div>
+
+            <h3 class="sub">Memory Tricks</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Mnemonic: SECM</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span><strong>S</strong>elf info \to single event surprise</li>
+                        <li><span class="dot">▸</span><strong>E</strong>ntropy \to average surprise (one source)</li>
+                        <li><span class="dot">▸</span><strong>C</strong>onditional \to leftover surprise after
+                            knowing one variable</li>
+                        <li><span class="dot">▸</span><strong>M</strong>utual \to shared surprise reduction
+                            (overlap)</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Venn Diagram Trick</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Two overlapping circles = \( H(X) \), \( H(Y) \)</li>
+                        <li><span class="dot">▸</span>Overlap = \( I(X;Y) \) (shared info)</li>
+                        <li><span class="dot">▸</span>Non-overlap of X = \( H(X|Y) \); of Y = \( H(Y|X) \)</li>
+                        <li><span class="dot">▸</span>Whole figure area = \( H(X,Y) \)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S9: SOLVED NUMERICALS ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr"><span class="sec-num">9.9</span>
+                <h2 class="sec-t">Additional Solved Numericals</h2>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr"><span class="ex-num">EX 9.6</span><span class="ex-title">Conceptual — Entropy
+                        Rate of a Source with Symbol Duration</span></div>
+                <div class="ex-body">
+                    <div class="ex-q">A source emits 8 equally likely symbols at a rate of 1000 symbols/second.
+                        Find (a) entropy per symbol and (b) information rate.</div>
+                    <div class="sol-lbl">Solution</div>
+                    $$H(X) = \log_2 8 = 3 \text{ bits/symbol}$$
+                    <p>Information rate R = rs × \( H(X) \), where rs is the symbol rate:</p>
+                    $$R = 1000 \times 3 = 3000 \text{ bits/second}$$
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="ex-hdr"><span class="ex-num">EX 9.7</span><span class="ex-title">GATE-Level — Joint
+                        and Marginal Entropy Check</span></div>
+                <div class="ex-body">
+                    <div class="ex-q">X and Y are independent random variables with \( H(X) \) = 2 bits and \( H(Y) \) =
+                        1.5
+                        bits. Find \( H(X,Y) \) and \( I(X;Y) \).</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>Since X and Y are independent, joint entropy is simply additive:</p>
+                    $$H(X,Y) = H(X) + H(Y) = 2 + 1.5 = 3.5 \text{ bits}$$
+                    <p>And mutual information must be zero for independent variables (no shared information):</p>
+                    $$I(X;Y) = H(X) + H(Y) - H(X,Y) = 2 + 1.5 - 3.5 = 0 \text{ bits}$$
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ S10: GATE & IES QUESTIONS ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr"><span class="sec-num">9.10</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+            </div>
+
+            <p>This topic is rated <span class="prob prob-h">🟢 High Probability</span> in GATE EE/EC. Entropy of
+                equiprobable sources and binary entropy function are almost guaranteed to appear in some form every
+                year.</p>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr"><span class="pyq-tag pyq-gate">GATE</span><span class="pyq-title">A source
+                        emits one of four symbols with probabilities ½, ¼, ⅛, ⅛. The entropy of the source in
+                        bits/symbol is:</span><span class="pyq-year">GATE EC 2013</span></div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>1.5</li>
+                        <li class="correct">1.75 ✓</li>
+                        <li>2.0</li>
+                        <li>2.25</li>
+                    </ul>
+                    <p><strong>Solution:</strong> H = 0.5(1) + 0.25(2) + 0.125(3) + 0.125(3) = 0.5+0.5+0.375+0.375 =
+                        1.75 bits/symbol. (Same structure as Example 9.4 above — a recurring GATE pattern.)</p>
+                </div>
+            </div>
+
+            <div class="pyq-card">
+                <div class="pyq-hdr"><span class="pyq-tag pyq-gate">GATE</span><span class="pyq-title">For a
+                        binary symmetric channel, the channel capacity is maximum when the crossover probability
+                        \( p \) equals:</span><span class="pyq-year">GATE EC (Concept-based)</span></div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li class="correct">\( p \) = 0 (noiseless channel) ✓</li>
+                        <li>\( p \) = 0.25</li>
+                        <li>\( p \) = 0.5</li>
+                        <li>\( p \) = 1</li>
+                    </ul>
+                    <p><strong>Solution:</strong> C = 1 − H(\( p \)). H(\( p \)) is minimum (= 0) at \( p \) = 0 or \( p
+                        \) = 1, so capacity
+                        is maximum (= 1 bit) there. At \( p \) = 0.5, H(\( p \)) = 1 (max), so C = 0 — the channel is
+                        useless
+                        (output independent of input).</p>
+                </div>
+            </div>
+
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr"><span class="pyq-tag pyq-ies">IES</span><span
+                        class="pyq-title pyq-title-ies">The unit of entropy when logarithm base 'e' is used is:</span>
+                    <span class="pyq-year">IES E&amp;T (Conventional)</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>bits</li>
+                        <li class="correct">nats ✓</li>
+                        <li>Hartleys</li>
+                        <li>dits</li>
+                    </ul>
+                    <p><strong>Solution:</strong> Base-2 log \to bits, base-e (natural log) \to nats, base-10 log \to
+                        Hartleys (or decits/dits). Conversion: 1 nat = log₂e ≈ 1.443 bits.</p>
+                </div>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr"><span class="gate-tag">EXAM TIP</span><span class="gate-title">Shortcut for
+                        Powers-of-Two Probabilities</span></div>
+                <div class="gate-body">
+                    <p>Whenever a GATE probability is of the form 1/2ⁿ, the self information is exactly n bits —
+                        no calculator needed. For entropy of mixed powers-of-two distributions, simply compute
+                        Σ P(xᵢ)·nᵢ where nᵢ = log₂(1/P(xᵢ)). This mental shortcut saves significant time in the
+                        exam.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ ASK CLAUDE WIDGET ═══ -->
+        <div class="ai-prompt">
+            <div class="ai-prompt-title">🤖 Ask Aarova AI— Information Theory Doubt Solver</div>
+            <p>Have a question on entropy, mutual information, or channel capacity? Type below or pick a
+                suggestion.</p>
+            <div class="ai-input-row">
+                <input class="ai-input" id="userQ" type="text"
+                    placeholder="e.g. Derive why \( H(X,Y) \) \le \( H(X) \) + \( H(Y) \) for two random variables…">
+                <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+            </div>
+            <div class="ai-suggest">
+                <span class="ai-chip"
+                    onclick="setQ('Derive the chain rule \( H(X,Y) \) = \( H(X) \) + \( H(Y|X) \) from the definition of joint and conditional entropy.')">Derive
+                    chain rule</span>
+                <span class="ai-chip"
+                    onclick="setQ('Explain intuitively why mutual information \( I(X;Y) \) is always non-negative.')">Why
+                    is \( I(X;Y) \) \ge 0?</span>
+                <span class="ai-chip"
+                    onclick="setQ('A source has 6 symbols with probabilities 0.3, 0.25, 0.2, 0.15, 0.05, 0.05. Calculate \( H(X) \) step by step.')">6-symbol
+                    entropy calculation</span>
+                <span class="ai-chip"
+                    onclick="setQ('Explain the difference between entropy and mutual information with a real communication system example.')">Entropy
+                    vs Mutual Info</span>
+                <span class="ai-chip"
+                    onclick="setQ('What is the relationship between entropy and Huffman coding average code length?')">Entropy
+                    &amp; Huffman coding link</span>
+            </div>
+            <div class="ai-response" id="aiResp"></div>
+        </div>
+
+        <!-- ═══ SUMMARY GRID ═══ -->
+        <h3 class="sub">Chapter Summary</h3>
+        <div class="sum-grid">
+            <div class="sum-card sc-o">
+                <div class="sum-lbl">Self Information</div>
+                <p>\( I(x) \) = -log₂P(x), bits. Certain event \to \( I=0 \). Rare event \to I\to\infty. \( P=1/2^n \)
+                    gives \( I=n \) bits exactly.</p>
+            </div>
+            <div class="sum-card sc-g">
+                <div class="sum-lbl">Entropy</div>
+                <p>\( H(X) \) = E[I(x)] = -ΣP(xᵢ)log₂P(xᵢ). Average info/symbol. Max = log₂n at equiprobable symbols.
+                </p>
+            </div>
+            <div class="sum-card sc-t">
+                <div class="sum-lbl">Joint Entropy</div>
+                <p>\( H(X,Y) \) = -ΣΣP(x,y)log₂P(x,y). \( H(X,Y) \) \le H(X)+H(Y), equality iff X,Y independent.</p>
+            </div>
+            <div class="sum-card sc-a">
+                <div class="sum-lbl">Conditional Entropy</div>
+                <p>\( H(Y|X) \) = noise/leftover uncertainty. Chain rule: \( H(X,Y) = H(X) + H(Y|X) = H(Y) + H(X|Y) \).
+                </p>
+            </div>
+            <div class="sum-card sc-r">
+                <div class="sum-lbl">Mutual Information</div>
+                <p>\( I(X;Y) = H(X) - H(X|Y) = H(Y) - H(Y|X) \). Symmetric, \ge0. Channel capacity \( C = \max I(X;Y)
+                    \).</p>
+            </div>
+            <div class="sum-card sc-g">
+                <div class="sum-lbl">GATE Focus</div>
+                <p>Binary entropy function H(\( p \)), powers-of-2 probability shortcuts, BSC capacity C=1-H(\( p \)).
+                </p>
+            </div>
+        </div>
+
+
+        <!-- ═══ CITATIONS ═══ -->
+        <div class="citations" id="citations">
+            <div class="cite-h">References &amp; Citations</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                the following standard textbooks and learning resources. All explanations, derivations, diagrams
+                and examples are original to Aarova AI.</p>
+            <ul class="cite-list">
+                <li><span class="cite-num">[1]</span><span>Shannon, Claude E. <em>A Mathematical Theory of
+                            Communication</em>. Bell System Technical Journal, 1948. Foundational paper defining
+                        entropy, mutual information and channel capacity.</span></li>
+                <li><span class="cite-num">[2]</span><span>Haykin, Simon. <em>Communication Systems</em>, 5th ed.
+                        Wiley, 2009. Chapter 9 — Information theory: entropy, source coding, channel capacity.</span>
+                </li>
+                <li><span class="cite-num">[3]</span><span>Taub, Herbert and Schilling, Donald L. <em>Principles of
+                            Communication Systems</em>, 3rd ed. Tata McGraw-Hill, 2008. Chapter on information
+                        theory and coding.</span></li>
+                <li><span class="cite-num">[4]</span><span>Lathi, B.P. and Ding, Zhi. <em>Modern Digital and
+                            Analog Communication Systems</em>, 4th ed. Oxford University Press, 2009. Information
+                        theory and source/channel coding chapters.</span></li>
+                <li><span class="cite-num">[5]</span><span>IIT Madras / IIT Kharagpur NPTEL. <em>Information
+                            Theory and Coding</em> lecture series. National Programme on Technology Enhanced
+                        Learning. nptel.ac.in.</span></li>
+            </ul>
+        </div>
+
+        <hr>
+        <footer>
+            <strong>Aarova AI</strong> &nbsp;·&nbsp; Communication Systems Series &nbsp;·&nbsp; Chapter 9 of
+            14<br>
+            <span style="font-size:12px;margin-top:5px;display:block;">GATE EE &nbsp;·&nbsp; IES E&amp;T
+                &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+            <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations and
+                diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+        </footer>
+    </div>
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EE and IES tutor specialising in Communication Systems. Topic: Information Theory Fundamentals (Chapter 9). Cover self information, entropy, joint entropy, conditional entropy, mutual information, channel capacity. Answer with step-by-step working for numericals. Base answers on Shannon, Haykin, Taub & Schilling, Lathi. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] }) });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram \to';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

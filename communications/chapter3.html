@@ -1,0 +1,2749 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Communication Systems Ch.3 Power Spectral Density & White Noise</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        /* ═══════════════════════════════════════════════
+   AAROVA AI — RESPONSIVE DESIGN SYSTEM
+   Breakpoints: mobile ≤480 | tablet 481-768 | desktop 769+
+═══════════════════════════════════════════════ */
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* ── HEADER ── */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo-link{text-decoration:none;cursor:pointer;transition:opacity .18s;}.logo-link:hover{opacity:.75;}.logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* ── HERO ── */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 37.5%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* ── TOC ── */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* ── SECTION ── */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px
+        }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* ── TABLE ── */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* ── FORMULA BLOCK ── */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* ── MATH ── */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* ── SVG ── */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* ── EXAMPLES ── */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px)
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px
+        }
+
+        /* ── GATE / PYQ CARDS ── */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* ── MINI / TWO-COL / SUM CARDS ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* ── CITATIONS ── */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* ── PROB TAGS ── */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* ── ASK AAROVA AI WIDGET ── */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12)
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none
+        }
+
+        .ai-btn:hover {
+            background: #155250
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg)
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto
+        }
+
+        /* ── MISC ── */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border)
+        }
+
+        footer strong {
+            color: var(--orange)
+        }
+
+        /* ════ TABLET 481–768 ════ */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .svg-wrap {
+                padding: 12px 10px
+            }
+
+            .svg-wrap svg {
+                min-width: 480px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px
+            }
+
+            .pyq-year {
+                margin-left: 0
+            }
+        }
+
+        /* ════ MOBILE ≤480 ════ */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .hbadges {
+                display: none
+            }
+
+            .site-header {
+                padding: 10px 14px
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px)
+            }
+
+            .hero-desc {
+                font-size: 14px
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px
+            }
+
+            .pl {
+                font-size: 11px
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0
+            }
+
+            .toc {
+                padding: 14px 16px
+            }
+
+            .sec-hdr {
+                gap: 9px
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px)
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px)
+            }
+
+            p {
+                font-size: 15px
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%
+            }
+
+            .svg-cap {
+                font-size: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px
+            }
+
+            .tw {
+                border-radius: 8px
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px
+            }
+
+            .mini-card {
+                padding: 13px 14px
+            }
+
+            .callout {
+                flex-direction: row;
+                align-items: flex-start
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-btn {
+                width: 100%;
+                text-align: center
+            }
+
+            .gate-hdr,
+            .pyq-hdr {
+                flex-wrap: wrap;
+                gap: 6px
+            }
+
+            .pyq-year {
+                margin-left: 0
+            }
+
+            .ex-hdr {
+                flex-wrap: wrap
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══ STICKY HEADER ═══ -->
+    <header class="site-header">
+        <div style="display:flex;align-items:center">
+            <a href="../subject.html?s=communications" class="logo-link"><span class="logo">Aarova <em style="color:var(--orange)">AI</em></span></a>
+            <span class="logo-sub">Communication Systems · Ch.3</span>
+        </div>
+        <div class="hbadges">
+            <span class="hbadge">GATE EC/EE</span>
+            <span class="hbadge">IES/ESE</span>
+            <span class="hbadge">PSU</span>
+        </div>
+    </header></div>
+
+    <div class="page">
+
+        <!-- ═══ HERO ═══ -->
+        <div class="hero">
+            <div class="eyebrow">Communication Systems Series · Chapter 3 of 8</div>
+            <h1 class="hero-title">Power Spectral Density<br>&amp; <em>White Noise</em></h1>
+            <p class="hero-desc">From the Wiener–Khinchin theorem to band-limited channels — master how energy and power
+                distribute across frequency. The foundational framework for every communication, control, and signal
+                processing system you will ever analyse.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">🟢 High GATE Weightage</span>
+                <span class="badge">Wiener–Khinchin Theorem</span>
+                <span class="badge">PSD &amp; ESD</span>
+                <span class="badge">White Noise</span>
+                <span class="badge">Band-limited Noise</span>
+                <span class="badge">Random Processes</span>
+            </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-bar">
+            <span class="pl">Series Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Ch 3 / 8 — 37.5%</span>
+        </div>
+
+        <!-- ═══ TABLE OF CONTENTS ═══ -->
+        <div class="toc">
+            <div class="toc-h">Contents — Chapter 3</div>
+            <div class="toc-grid">
+                <a href="#s1" class="toc-item"><span class="toc-n">§1</span>Why PSD Matters</a>
+                <a href="#s2" class="toc-item"><span class="toc-n">§2</span>Autocorrelation Function</a>
+                <a href="#s3" class="toc-item"><span class="toc-n">§3</span>Wiener–Khinchin Theorem</a>
+                <a href="#s4" class="toc-item"><span class="toc-n">§4</span>Power Spectral Density</a>
+                <a href="#s5" class="toc-item"><span class="toc-n">§5</span>Energy Spectral Density</a>
+                <a href="#s6" class="toc-item"><span class="toc-n">§6</span>White Noise</a>
+                <a href="#s7" class="toc-item"><span class="toc-n">§7</span>Band-limited Noise</a>
+                <a href="#s8" class="toc-item"><span class="toc-n">§8</span>GATE PYQs &amp; Concepts</a>
+                <a href="#s9" class="toc-item"><span class="toc-n">§9</span>Numerical Examples</a>
+                <a href="#s10" class="toc-item"><span class="toc-n">§10</span>Ask Aarova AI</a>
+                <a href="#s11" class="toc-item"><span class="toc-n">§11</span>Quick Revision Sheet</a>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- §1 WHY PSD MATTERS -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 01</span>
+                <h2 class="sec-t">Why Power Spectral Density Matters</h2>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">The Big Engineering Problem</div>
+                    <p>Every real-world signal — speech, ECG, radar echo, Wi-Fi — is <strong>random</strong>. Its exact
+                        waveform is unknown in advance. Yet engineers must design filters, amplifiers, and channels to
+                        handle it. How? By describing what <em>frequencies carry how much power</em>. That is Power
+                        Spectral Density.</p>
+                </div>
+            </div>
+
+            <p>Consider a thermal resistor sitting on a laboratory bench. Even with no external source, it produces a
+                tiny fluctuating voltage due to random motion of electrons — <strong>Johnson–Nyquist noise</strong>. The
+                instantaneous value is completely unpredictable. Yet the total noise power, and how it distributes
+                across frequency, is perfectly predictable through PSD. Engineers use this to design low-noise
+                amplifiers, radar receivers, and communication links.<sup class="cite">[1]</sup></p>
+
+            <h3 class="sub">Connecting PSD to Other Subjects</h3>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch3/fig3.1.png" alt="Image 1" />
+                <p class="svg-cap">Fig 1.1 — The PSD pathway: from random processes → autocorrelation → Fourier
+                    transform → spectral analysis</p>
+            </div>
+
+            <h3 class="sub">Real-World Engineering Applications</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">📡 Communication Systems</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Signal-to-noise ratio (SNR) at receiver = ratio of signal PSD to
+                            noise PSD in the band</li>
+                        <li><span class="dot">▸</span>Channel capacity (Shannon) depends on noise PSD distribution</li>
+                        <li><span class="dot">▸</span>OFDM subcarrier power allocation uses PSD shaping</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">⚡ Power Systems &amp; Control</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Load fluctuations modelled as random processes — PSD guides AGC
+                            bandwidth</li>
+                        <li><span class="dot">▸</span>Vibration analysis in rotating machines — PSD detects bearing
+                            faults</li>
+                        <li><span class="dot">▸</span>EMI/EMC compliance: radiated emissions measured as PSD (dBm/Hz)
+                        </li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">🧠 Biomedical Engineering</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>EEG: brain activity characterised by PSD in α (8–13 Hz), β (13–30
+                            Hz) bands</li>
+                        <li><span class="dot">▸</span>ECG noise filtering requires knowing PSD of both signal and
+                            interference</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">🛰️ Radar &amp; Sonar</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">▸</span>Clutter suppression: PSD of clutter vs target helps design matched
+                            filters</li>
+                        <li><span class="dot">▸</span>Doppler processing: frequency shift detected on the PSD plot</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- §2 AUTOCORRELATION FUNCTION -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 02</span>
+                <h2 class="sec-t">Autocorrelation Function — The Bridge</h2>
+            </div>
+
+            <p>Before we can find the power spectrum, we need a statistical description of a random signal that does not
+                require knowing the signal at every instant. The <strong>Autocorrelation Function (ACF)</strong>
+                \(R_X(\tau)\) provides this — it measures how similar a signal is to a time-shifted copy of itself.<sup
+                    class="cite">[1,2]</sup></p>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Physical Intuition for Autocorrelation</div>
+                    <p>Imagine listening to a random noise signal. If you shift the signal by a tiny amount \(\tau\), it
+                        still sounds very similar — high \(R_X(\tau)\). If you shift it by a large amount, it sounds
+                        completely different — \(R_X(\tau) \approx 0\). The rate at which \(R_X(\tau)\) decays tells you
+                        the "memory" of the process — how quickly it changes.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Definitions: Deterministic vs Random</h3>
+
+            <div class="math-block">
+                <div class="math-lbl">For a Deterministic (energy) signal</div>
+                $$R_x(\tau) = \int_{-\infty}^{\infty} x(t)\, x(t+\tau)\, dt$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">For a Wide-Sense Stationary (WSS) Random Process</div>
+                $$R_X(\tau) = E\bigl[X(t)\,X(t+\tau)\bigr]$$
+            </div>
+
+            <p>Here \(E[\cdot]\) denotes statistical expectation. For a <strong>WSS process</strong>, the
+                autocorrelation depends only on the time difference \(\tau\), not on the absolute time \(t\). This is
+                the key stationarity assumption that makes PSD analysis tractable.<sup class="cite">[2]</sup></p>
+
+            <h3 class="sub">Properties of the Autocorrelation Function</h3>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Mathematical Statement</th>
+                            <th>Physical Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Even symmetry</td>
+                            <td>\(R_X(\tau) = R_X(-\tau)\)</td>
+                            <td>The function is always real and symmetric about \(\tau=0\)</td>
+                        </tr>
+                        <tr>
+                            <td>Maximum at origin</td>
+                            <td>\(|R_X(\tau)| \leq R_X(0)\)</td>
+                            <td>A signal is most correlated with itself at zero lag</td>
+                        </tr>
+                        <tr>
+                            <td>Mean square value</td>
+                            <td>\(R_X(0) = E[X^2(t)]\)</td>
+                            <td>Equals the total average power of the process</td>
+                        </tr>
+                        <tr>
+                            <td>Tail behaviour</td>
+                            <td>\(R_X(\tau) \to \mu_X^2\) as \(\tau \to \infty\)</td>
+                            <td>Widely separated samples become uncorrelated</td>
+                        </tr>
+                        <tr>
+                            <td>Fourier pair</td>
+                            <td>\(R_X(\tau) \xleftrightarrow{\mathcal{F}} S_X(f)\)</td>
+                            <td>The FT of ACF gives PSD — the Wiener–Khinchin theorem</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- SVG: ACF shapes -->
+            <div class="svg-wrap">
+                <img src="images/ch3/fig3.2.png" alt="Image 2" />
+                <p class="svg-cap">Fig 2.1 — Autocorrelation shapes: exponential decay (typical band-limited noise) vs
+                    cosine (pure sinusoid)</p>
+                <p class="svg-cite">Concept: Haykin, <em>Communication Systems</em> 4th ed., Ch. 8</p>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Common Misconception</div>
+                    <p>Students often confuse autocorrelation \(R_X(\tau)\) with cross-correlation \(R_{XY}(\tau)\).
+                        Autocorrelation always uses the <em>same</em> process at two different times. Cross-correlation
+                        uses <em>two different</em> processes. Also, for a WSS process, \(R_X(\tau) = R_X(-\tau)\) (even
+                        function) — this is a property, not an assumption.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- §3 WIENER–KHINCHIN THEOREM -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 03</span>
+                <h2 class="sec-t">The Wiener–Khinchin Theorem</h2>
+            </div>
+
+            <p>The <strong>Wiener–Khinchin theorem</strong> (also called the Wiener–Khinchine or correlation theorem) is
+                one of the most important results in the theory of stochastic processes. It establishes the fundamental
+                link between the time-domain description of a random process (its autocorrelation function) and its
+                frequency-domain description (its power spectral density).<sup class="cite">[1,3]</sup></p>
+
+            <div class="callout c-key">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">Theorem Statement</div>
+                    <p>For a wide-sense stationary (WSS) random process \(X(t)\), the Power Spectral Density \(S_X(f)\)
+                        is the Fourier Transform of its autocorrelation function \(R_X(\tau)\):</p>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Wiener–Khinchin Theorem — Fourier Transform Pair</div>
+                $$\boxed{S_X(f) = \int_{-\infty}^{\infty} R_X(\tau)\, e^{-j2\pi f\tau}\, d\tau}$$
+                $$\boxed{R_X(\tau) = \int_{-\infty}^{\infty} S_X(f)\, e^{+j2\pi f\tau}\, df}$$
+            </div>
+
+            <h3 class="sub">Why the Theorem Works — Intuitive Derivation</h3>
+
+            <p>Consider a power signal \(X(t)\) observed over a finite window \([-T/2, +T/2]\). Define the truncated
+                version \(X_T(t)\). Its Fourier transform exists:</p>
+
+            <div class="math-block">
+                <div class="math-lbl">Step 1 — Truncated Fourier Transform</div>
+                $$X_T(f) = \int_{-T/2}^{T/2} X(t)\, e^{-j2\pi ft}\, dt$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Step 2 — Power Spectral Density as a Limit</div>
+                $$S_X(f) = \lim_{T \to \infty} \frac{1}{T}\, E\!\left[|X_T(f)|^2\right]$$
+            </div>
+
+            <p>Expanding \(|X_T(f)|^2\) and using the definition of autocorrelation, one arrives at the Fourier
+                transform of \(R_X(\tau)\). This derivation (given rigorously in Papoulis, Ch. 9 and Haykin, Ch. 8)
+                shows that PSD is always a <strong>non-negative, real-valued, even function</strong> of frequency.<sup
+                    class="cite">[2,3]</sup></p>
+
+            <div class="svg-wrap">
+                <img src="images/ch3/fig3.3.png" alt="Image 3" />
+                <p class="svg-cap">Fig 3.1 — Wiener–Khinchin theorem: exponential ACF transforms to Lorentzian PSD
+                    (low-pass shape)</p>
+                <p class="svg-cite">After Papoulis & Pillai, <em>Probability, Random Variables and Stochastic
+                        Processes</em>, 4th ed.</p>
+            </div>
+
+            <h3 class="sub">Key Properties of PSD (from W-K Theorem)</h3>
+
+            <div class="fblock"><span class="flbl">Properties provable directly from Wiener–Khinchin</span>
+                <span class="fv">1.</span> \( S_X(f) \geq 0 \) for all \( f \) [non-negative — physical requirement]
+                <span class="fv">2.</span> \( S_X(f) = S_X(-f) \) [even function — since \( R_X(\tau) \) is real and
+                even]
+                <span class="fv">3.</span> \( \int_{-\infty}^{\infty} S_X(f) \, df = R_X(0) = E[X^2(t)] \) [total area =
+                mean square power]
+                <span class="fv">4.</span> \( S_X(f) \) is real-valued [no imaginary part]
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✅</div>
+                <div class="cb">
+                    <div class="ct">GATE Exam Insight</div>
+                    <p>GATE frequently tests the total power calculation using property 3: <strong>Total Power = ∫
+                            \( S_X(f) \) df = \( R_X(0) \)</strong>. If they give you \( R_X(\tau) \) and ask for total
+                        power, just evaluate
+                        at τ = 0. No integration needed. This is a 1-mark shortcut that saves 2 minutes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- §4 POWER SPECTRAL DENSITY -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 04</span>
+                <h2 class="sec-t">Power Spectral Density — Deep Dive</h2>
+            </div>
+
+            <p>The Power Spectral Density \(S_X(f)\) is the most important frequency-domain descriptor of a random
+                process. It tells us <strong>how much power per unit bandwidth</strong> a signal carries at each
+                frequency. Its units are <strong>Watts per Hertz (\( \text{W/Hz} \))</strong>.<sup
+                    class="cite">[1,2]</sup></p>
+
+            <h3 class="sub">Physical Interpretation</h3>
+
+            <div class="callout c-info">
+                <div class="ci">🎯</div>
+                <div class="cb">
+                    <div class="ct">What \( S_X(f) \) Actually Means</div>
+                    <p>Imagine passing the random signal \(X(t)\) through an ideal narrowband bandpass filter of
+                        bandwidth \(\Delta f\) centred at frequency \(f_0\). The average power at the filter output
+                        equals \(S_X(f_0) \cdot \Delta f\). As \(\Delta f \to 0\), we get the PSD exactly. It is the
+                        power <em>density</em> — power per infinitesimal bandwidth.</p>
+                </div>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">Average Power in a Frequency Band [f₁, f₂]</div>
+                $$P_{[f_1, f_2]} = \int_{f_1}^{f_2} S_X(f)\, df \quad \text{(one-sided, } f \geq 0\text{)}$$
+                $$P_{\text{total}} = \int_{-\infty}^{\infty} S_X(f)\, df = R_X(0) = E[X^2(t)]$$
+            </div>
+
+            <h3 class="sub">PSD Through a Linear Time-Invariant System</h3>
+
+            <p>One of the most powerful and frequently examined results: when a WSS random process \(X(t)\) is passed
+                through an LTI system with transfer function \(H(f)\), the output PSD \(S_Y(f)\) is related to the input
+                PSD by a simple multiplication.<sup class="cite">[1,3]</sup></p>
+
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch3/fig3.4.png" alt="Image 4" />
+                <p class="svg-cap">Fig 4.1 — PSD through an LTI system: output PSD = |H(f)|² × input PSD</p>
+            </div>
+
+            <div class="math-block">
+                <div class="math-lbl">The Key LTI–PSD Relationship</div>
+                $$\boxed{S_Y(f) = |H(f)|^2 \cdot S_X(f)}$$
+            </div>
+
+            <p>This is remarkable: there is no phase information in PSD (since we take \(|H(f)|^2\), the phase of
+                \(H(f)\) vanishes). This makes sense physically — phase of a random signal is meaningless; power is what
+                matters.</p>
+
+            <div class="callout c-tip">
+                <div class="ci">🔁</div>
+                <div class="cb">
+                    <div class="ct">ACF of Output Process</div>
+                    <p>The output autocorrelation \(R_Y(\tau)\) is related to the input by convolution: \(R_Y(\tau) =
+                        h(\tau) * h(-\tau) * R_X(\tau)\). In frequency domain this becomes \(S_Y(f) = |H(f)|^2 S_X(f)\)
+                        — much simpler to work with.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">One-Sided vs Two-Sided PSD</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Notation</th>
+                            <th>Domain</th>
+                            <th>Relationship</th>
+                            <th>Units</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Two-sided (bilateral)</td>
+                            <td>\(S_X(f)\)</td>
+                            <td>\(-\infty < f < \infty\)</td>
+                            <td>Symmetric: \(S_X(f) = S_X(-f)\)</td>
+                            <td>\( \text{W/Hz} \)</td>
+                        </tr>
+                        <tr>
+                            <td>One-sided (unilateral)</td>
+                            <td>\(G_X(f)\)</td>
+                            <td>\(f \geq 0\) only</td>
+                            <td>\(G_X(f) = 2S_X(f)\)</td>
+                            <td>\( \text{W/Hz} \)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>GATE problems almost always use the <strong>two-sided PSD</strong>. The factor of 2 appears because we
+                fold the negative-frequency contribution onto the positive axis.</p>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- §5 ENERGY SPECTRAL DENSITY -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 05</span>
+                <h2 class="sec-t">Energy Spectral Density — For Finite-Energy Signals</h2>
+            </div>
+
+            <p>While PSD applies to <strong>power signals</strong> (random processes with infinite duration and finite
+                average power), the <strong>Energy Spectral Density (ESD)</strong> applies to <strong>energy
+                    signals</strong> (deterministic signals with finite total energy, typically pulses or
+                transients).<sup class="cite">[1,4]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Energy Spectral Density — Parseval's Theorem basis</div>
+                $$\Psi_x(f) = |X(f)|^2 \quad \text{(ESD)}$$
+                $$E_x = \int_{-\infty}^{\infty} |x(t)|^2\, dt = \int_{-\infty}^{\infty} |X(f)|^2\, df =
+                \int_{-\infty}^{\infty} \Psi_x(f)\, df$$
+            </div>
+
+            <p>Here \(X(f)\) is the ordinary Fourier transform of \(x(t)\). The ESD \(\Psi_x(f)\) has units of
+                <strong>\( \text{J/Hz} \) = Joules per Hertz</strong>.
+            </p>
+
+            <h3 class="sub">Comparing PSD and ESD</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Power Spectral Density (PSD)</th>
+                            <th>Energy Spectral Density (ESD)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Signal type</td>
+                            <td class="t-org">Power signal (random, infinite duration)</td>
+                            <td class="t-tel">Energy signal (deterministic, finite duration)</td>
+                        </tr>
+                        <tr>
+                            <td>Definition</td>
+                            <td>\(S_X(f) = \mathcal{F}\{R_X(\tau)\}\)</td>
+                            <td>\(\Psi_x(f) = |X(f)|^2\)</td>
+                        </tr>
+                        <tr>
+                            <td>Units</td>
+                            <td>\( \text{W/Hz} \)</td>
+                            <td>\( \text{J/Hz} \)</td>
+                        </tr>
+                        <tr>
+                            <td>Total integral</td>
+                            <td>= Mean square power (W)</td>
+                            <td>= Total signal energy (J)</td>
+                        </tr>
+                        <tr>
+                            <td>Wiener–Khinchin?</td>
+                            <td class="t-grn">Yes (fundamental theorem)</td>
+                            <td class="t-amb">Also valid: ESD = FT of autocorrelation of deterministic signal</td>
+                        </tr>
+                        <tr>
+                            <td>GATE examples</td>
+                            <td>White noise, thermal noise, random signals</td>
+                            <td>Rectangular pulse, sinc pulse, Gaussian pulse</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Critical Distinction for GATE</div>
+                    <p>A common trap: GATE may give a signal like \(x(t) = A\cos(2\pi f_0 t)\) (a sinusoid — power
+                        signal, not energy signal) and ask for its "spectral density." The correct answer uses PSD (with
+                        impulse functions at \(\pm f_0\)), not ESD. Always check: does the signal have finite energy or
+                        finite average power?</p>
+                </div>
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Wiener–Khinchin for Energy Signals</div>
+                    <p>For a deterministic energy signal, define the autocorrelation as \(R_x(\tau) = \int
+                        x(t)x(t+\tau)dt\). Then the ESD is the Fourier transform of this autocorrelation: \(\Psi_x(f) =
+                        \mathcal{F}\{R_x(\tau)\} = |X(f)|^2\). The theorem applies to both random (PSD) and
+                        deterministic (ESD) worlds.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- §6 WHITE NOISE -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 06</span>
+                <h2 class="sec-t">White Noise — The Idealised Random Signal</h2>
+            </div>
+
+            <div class="callout c-info">
+                <div class="ci">☁️</div>
+                <div class="cb">
+                    <div class="ct">Analogy: White Light</div>
+                    <p>Just as white light contains all colours (frequencies) in equal amounts, <strong>white
+                            noise</strong> contains all frequencies in equal power — its PSD is flat (constant) across
+                        the entire frequency spectrum, from \(-\infty\) to \(+\infty\). This is the defining property.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Mathematical Definition</h3>
+
+            <div class="math-block">
+                <div class="math-lbl">White Noise PSD and Autocorrelation</div>
+                $$\boxed{S_W(f) = \frac{N_0}{2} \quad \text{for all } f \in (-\infty, +\infty)}$$
+                $$R_W(\tau) = \mathcal{F}^{-1}\left\{\frac{N_0}{2}\right\} = \frac{N_0}{2}\,\delta(\tau)$$
+            </div>
+
+            <p>Here \(N_0/2\) is the two-sided noise power spectral density (in \( \text{W/Hz} \)). The subscript "2" in
+                the
+                denominator distinguishes the two-sided PSD from the one-sided PSD \(N_0\). The autocorrelation being an
+                impulse at \(\tau = 0\) means that white noise samples taken at any two distinct time instants are
+                <strong>completely uncorrelated</strong>.<sup class="cite">[2,3]</sup>
+            </p>
+
+            <!-- SVG: White noise PSD and ACF -->
+            <div class="svg-wrap">
+                <img src="images/ch3/fig3.5.png" alt="Image 5" />
+                <p class="svg-cap">Fig 6.1 — White noise: flat PSD (left) ↔ impulse ACF (right). The Fourier Transform
+                    pair that defines white noise.</p>
+                <p class="svg-cite">Reference: Haykin, <em>Communication Systems</em>, Ch. 8; Proakis &amp; Salehi,
+                    <em>Communication Systems Engineering</em>
+                </p>
+            </div>
+
+            <h3 class="sub">Is White Noise Real? The Idealisation Argument</h3>
+
+            <div class="callout c-warn">
+                <div class="ci">🤔</div>
+                <div class="cb">
+                    <div class="ct">White Noise is a Mathematical Idealisation</div>
+                    <p>A truly flat PSD from \(-\infty\) to \(+\infty\) would mean <strong>infinite total power</strong>
+                        — physically impossible. White noise is an idealisation valid when the noise PSD is
+                        approximately flat over the frequency band of interest (e.g., the communication channel
+                        bandwidth). For thermal noise at room temperature, this approximation is excellent up to ~10
+                        THz.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Thermal Noise (Johnson–Nyquist Noise)</h3>
+
+            <p>The most important practical realisation of white noise is <strong>thermal noise</strong> in resistors.
+                From Nyquist's analysis (1928), the open-circuit noise voltage of a resistor \(R\) at temperature \(T\)
+                has:<sup class="cite">[4]</sup></p>
+
+            <div class="math-block">
+                <div class="math-lbl">Thermal Noise PSD — Nyquist Formula</div>
+                $$S_V(f) = 2kTR \quad \text{(two-sided, W/Hz)}$$
+                $$\text{where } k = 1.38 \times 10^{-23} \text{ J/K (Boltzmann's constant)}$$
+                $$N_0 = kT \text{ at standard temp (290 K): } N_0 \approx -174 \text{ dBm/Hz}$$
+            </div>
+
+            <h3 class="sub">Properties of White Noise</h3>
+
+            <div class="fblock"><span class="flbl">White Noise Summary — All Properties</span>
+                <span class="fv">PSD:</span> \( S_W(f) = \frac{N_0}{2} \) (constant for all \( f \))
+                <span class="fv">ACF:</span> \( R_W(\tau) = \frac{N_0}{2}\delta(\tau) \)
+                <span class="fv">Mean:</span> \( E[W(t)] = 0 \) (zero-mean assumed)
+                <span class="fv">Variance:</span> \( \sigma^2 = R_W(0) = \frac{N_0}{2}\delta(0) \to \infty \) [infinite
+                power — idealisation]
+                <span class="fv">Correlation:</span> \( E[W(t_1)W(t_2)] = 0 \) for \( t_1 \neq t_2 \) [samples
+                uncorrelated]
+                <span class="fv">Gaussian WN:</span> If additionally Gaussian → samples are INDEPENDENT (not just
+                uncorrelated)
+                <span class="fv">Bandwidth:</span> Infinite (flat from \( -\infty \) to \( +\infty \))
+            </div>
+
+            <div class="callout c-key">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">Gaussian White Noise — AWGN</dt>
+                        <p>When white noise is also Gaussian (each sample follows a normal distribution), we get
+                            <strong>Additive White Gaussian Noise (AWGN)</strong> — the standard channel model for
+                            digital communication analysis in GATE. AWGN means: (1) additive — noise adds to signal, (2)
+                            white — flat PSD, (3) Gaussian — amplitude distribution is normal.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- §7 BAND-LIMITED NOISE -->
+            <!-- ═══════════════════════════════════════════ -->
+            <div class="section" id="s7">
+                <div class="sec-hdr">
+                    <span class="sec-num">§ 07</span>
+                    <h2 class="sec-t">Band-Limited Noise</h2>
+                </div>
+
+                <p>In practice, every real system has a finite bandwidth. When white noise is passed through a
+                    <strong>bandpass or lowpass filter</strong>, the result is <strong>band-limited noise</strong> —
+                    noise confined to a specific frequency range. This is the noise that actually enters receivers,
+                    amplifiers, and ADCs.<sup class="cite">[2,3]</sup>
+                </p>
+
+                <h3 class="sub">Low-Pass Band-Limited Noise</h3>
+
+                <div class="math-block">
+                    <div class="math-lbl">Ideal LPF applied to white noise — PSD and Power</div>
+                    $$S_N(f) = \begin{cases} \dfrac{N_0}{2} & |f| \leq B \\ 0 & |f| > B \end{cases}$$
+                    $$P_N = \int_{-B}^{B} \frac{N_0}{2}\, df = N_0 B \quad \text{(Total noise power in bandwidth B)}$$
+                </div>
+
+                <div class="math-block">
+                    <div class="math-lbl">ACF of Low-Pass Band-Limited Noise</div>
+                    $$R_N(\tau) = N_0 B\, \text{sinc}(2B\tau)$$
+                </div>
+
+                <div class="svg-wrap">
+                    <img src="images/ch3/fig3.6.png" alt="Image 6" />
+                    <p class="svg-cap">Fig 7.1 — Low-pass band-limited noise: rectangular PSD (left) → sinc ACF (right).
+                        Zero crossings at τ = ±n/(2B) give the sampling theorem interpretation.</p>
+                </div>
+
+                <h3 class="sub">Band-Pass Noise — Representation</h3>
+
+                <p>When white noise is passed through a bandpass filter centred at \(f_c\) with bandwidth \(B\), we get
+                    <strong>bandpass noise</strong>. Its PSD is:
+                </p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Bandpass Noise PSD</div>
+                    $$S_N(f) = \begin{cases} \dfrac{N_0}{2} & f_c - \dfrac{B}{2} \leq |f| \leq f_c + \dfrac{B}{2} \\ 0 &
+                    \text{otherwise} \end{cases}$$
+                    $$P_N = N_0 B \quad \text{(same total power as LPF with bandwidth B)}$$
+                </div>
+
+                <p>Bandpass noise can be written in <strong>quadrature form</strong> — the canonical representation used
+                    in demodulator analysis:<sup class="cite">[3]</sup></p>
+
+                <div class="math-block">
+                    <div class="math-lbl">Quadrature Representation of Bandpass Noise</div>
+                    $$n(t) = n_I(t)\cos(2\pi f_c t) - n_Q(t)\sin(2\pi f_c t)$$
+                    $$\text{where } n_I(t), n_Q(t) \text{ are lowpass noise processes with PSD} = N_0 \text{ for } |f|
+                    \leq B/2$$
+                </div>
+
+                <div class="callout c-tip">
+                    <div class="ci">✅</div>
+                    <div class="cb">
+                        <div class="ct">Key Facts for GATE: Bandpass Noise</div>
+                        <p>1. \(n_I(t)\) and \(n_Q(t)\) have the <em>same</em> PSD and variance as each other.
+                            &nbsp; 2. \(\sigma^2_{n_I} = \sigma^2_{n_Q} = N_0 B\) (same as original noise power).
+                            &nbsp; 3. \(n_I\) and \(n_Q\) are <em>uncorrelated</em> (and for Gaussian noise,
+                            independent). &nbsp; 4. Envelope of bandpass noise follows a Rayleigh distribution.</p>
+
+                        <div class="svg-wrap">
+                            <img src="images/ch3/fig43.7.png" alt="Image 7" />
+                            <p class="svg-cap">Fig 7.2 — Bandpass noise PSD: symmetric rectangular bands about ±f_c with
+                                bandwidth B. Total power = \( N_0 B \).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════ -->
+                <!-- §8 GATE PYQs -->
+                <!-- ═══════════════════════════════════════════ -->
+                <div class="section" id="s8">
+                    <div class="sec-hdr">
+                        <span class="sec-num">§ 08</span>
+                        <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+                    </div>
+
+                    <h3 class="sub">GATE Perspective — Topic Importance</h3>
+                    <div class="gate-card">
+                        <div class="gate-hdr">
+                            <span class="gate-tag">GATE FOCUS</span>
+                            <span class="gate-title">High-Frequency Topics in PSD &amp; White Noise</span>
+                        </div>
+                        <div class="gate-body">
+                            <div class="tw">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Topic</th>
+                                            <th>GATE Probability</th>
+                                            <th>IES Probability</th>
+                                            <th>Typical Question Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Wiener–Khinchin: find PSD from R(τ)</td>
+                                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                            <td>Given \( R_X(\tau) = A e^{-\alpha|\tau|} \), find \( S_X(f) \)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total power from PSD integral</td>
+                                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                            <td>Find mean square value of output</td>
+                                        </tr>
+                                        <tr>
+                                            <td>PSD through LTI system</td>
+                                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                            <td><span class="prob prob-m">🟡 MED</span></td>
+                                            <td>\( S_Y(f) = |H(f)|^2 S_X(f) \) applications</td>
+                                        </tr>
+                                        <tr>
+                                            <td>White noise ACF (impulse)</td>
+                                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                            <td>MCQ: \( R_W(\tau) = (N_0/2)\delta(\tau) \)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Noise power in bandwidth</td>
+                                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                            <td>P = N_0B, find power in 10 kHz band</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ESD vs PSD distinction</td>
+                                            <td><span class="prob prob-m">🟡 MED</span></td>
+                                            <td><span class="prob prob-m">🟡 MED</span></td>
+                                            <td>Conceptual MCQ on units and applicability</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bandpass noise quadrature representation</td>
+                                            <td><span class="prob prob-m">🟡 MED</span></td>
+                                            <td><span class="prob prob-h">🟢 HIGH</span></td>
+                                            <td>Properties of \( n_I \), \( n_Q \); variance calculation</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ACF properties (max at origin, even)</td>
+                                            <td><span class="prob prob-m">🟡 MED</span></td>
+                                            <td><span class="prob prob-m">🟡 MED</span></td>
+                                            <td>True/false or MCQ on ACF properties</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PYQ 1 -->
+                    <div class="pyq-card">
+                        <div class="pyq-hdr">
+                            <span class="pyq-tag pyq-gate">GATE EC</span>
+                            <span class="pyq-title">PSD from Autocorrelation Function</span>
+                            <span class="pyq-year">2018</span>
+                        </div>
+                        <div class="pyq-body">
+                            <p>A WSS random process \(X(t)\) has autocorrelation function \(R_X(\tau) = 4e^{-2|\tau|}\).
+                                The Power Spectral Density \(S_X(f)\) is:</p>
+                            <ul class="pyq-opts">
+                                <li>(A) \(\dfrac{8}{1 + 4\pi^2 f^2}\)</li>
+                                <li class="correct">(B) \(\dfrac{16}{4 + 16\pi^2 f^2}\)</li>
+                                <li>(C) \(4\,\delta(f)\)</li>
+                                <li>(D) \(\dfrac{4}{2 + j2\pi f}\)</li>
+                            </ul>
+                            <div class="sol-lbl">✦ Solution</div>
+                            <p>Using the Wiener–Khinchin theorem: \(S_X(f) = \mathcal{F}\{R_X(\tau)\}\). For \(R_X(\tau)
+                                = Ae^{-\alpha|\tau|}\), the Fourier transform is \(S_X(f) = \dfrac{2A\alpha}{\alpha^2 +
+                                (2\pi f)^2}\).</p>
+                            <p>Here \(A = 4\), \(\alpha = 2\): \(\quad S_X(f) = \dfrac{2 \times 4 \times 2}{4 + 4\pi^2
+                                f^2} = \dfrac{16}{4 + 16\pi^2 f^2} = \dfrac{4}{1 + 4\pi^2 f^2}\).</p>
+                            <div class="callout c-tip" style="margin-top:10px">
+                                <div class="ci">💡</div>
+                                <div class="cb">
+                                    <p>Remember the FT pair: \(Ae^{-\alpha|\tau|} \leftrightarrow
+                                        \dfrac{2A\alpha}{\alpha^2 + (2\pi f)^2}\). This appears in almost every GATE
+                                        question on PSD.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PYQ 2 -->
+                    <div class="pyq-card">
+                        <div class="pyq-hdr">
+                            <span class="pyq-tag pyq-gate">GATE EC</span>
+                            <span class="pyq-title">White Noise Through RC Lowpass Filter</span>
+                            <span class="pyq-year">2016</span>
+                        </div>
+                        <div class="pyq-body">
+                            <p>White noise with PSD \(N_0/2\) is passed through an RC lowpass filter with \(H(f) =
+                                \dfrac{1}{1 + j2\pi fRC}\). Find the total output noise power.</p>
+                            <div class="sol-lbl">✦ Solution</div>
+                            <p><strong>Step 1:</strong> Output PSD: \(S_Y(f) = |H(f)|^2 \cdot S_X(f) = \dfrac{1}{1 +
+                                (2\pi fRC)^2} \cdot \dfrac{N_0}{2}\)</p>
+                            <p><strong>Step 2:</strong> Total power \(= \int_{-\infty}^{\infty} S_Y(f)\,df =
+                                \dfrac{N_0}{2} \int_{-\infty}^{\infty} \dfrac{df}{1 + (2\pi RC)^2 f^2}\)</p>
+                            <p><strong>Step 3:</strong> Using the standard result \(\int_{-\infty}^{\infty}
+                                \dfrac{df}{1+a^2f^2} = \dfrac{\pi}{a}\) where \(a = 2\pi RC\):</p>
+                            <div class="math-block">
+                                <div class="math-lbl">Final Answer</div>
+                                $$P_{\text{out}} = \frac{N_0}{2} \cdot \frac{\pi}{2\pi RC} = \frac{N_0}{4RC}$$
+                            </div>
+                            <p>This equals \(\dfrac{kT}{2C}\) for thermal noise (the well-known kT/C noise formula in
+                                CMOS design).</p>
+                        </div>
+                    </div>
+
+                    <!-- PYQ 3 -->
+                    <div class="pyq-card">
+                        <div class="pyq-hdr">
+                            <span class="pyq-tag pyq-gate">GATE EE</span>
+                            <span class="pyq-title">Properties of PSD — MCQ</span>
+                            <span class="pyq-year">2020</span>
+                        </div>
+                        <div class="pyq-body">
+                            <p>Which of the following is NOT a property of the Power Spectral Density \(S_X(f)\) of a
+                                WSS random process?</p>
+                            <ul class="pyq-opts">
+                                <li>(A) \(S_X(f) \geq 0\) for all \(f\)</li>
+                                <li>(B) \(S_X(f) = S_X(-f)\)</li>
+                                <li class="correct">(C) \(S_X(f)\) can take complex values</li>
+                                <li>(D) \(\int_{-\infty}^{\infty} S_X(f)\,df = R_X(0)\)</li>
+                            </ul>
+                            <div class="sol-lbl">✦ Solution</div>
+                            <p>Answer: <strong>(C)</strong>. PSD is always real-valued. Since \(R_X(\tau)\) is real and
+                                even, its Fourier transform \(S_X(f)\) must also be real. Complex PSD is physically
+                                meaningless. Options A, B, D are all valid properties.</p>
+                        </div>
+                    </div>
+
+                    <!-- IES PYQ -->
+                    <div class="pyq-card ies-card">
+                        <div class="pyq-hdr ies-hdr">
+                            <span class="pyq-tag pyq-ies">IES / ESE</span>
+                            <span class="pyq-title pyq-title-ies">Bandpass Noise — Quadrature Components</span>
+                            <span class="pyq-year">2019</span>
+                        </div>
+                        <div class="pyq-body">
+                            <p>Bandpass noise \(n(t)\) with PSD \(N_0/2\) passes through an ideal BPF of bandwidth \(B\)
+                                Hz centred at \(f_c\). The noise is expressed as \(n(t) = n_I(t)\cos(2\pi f_c t) -
+                                n_Q(t)\sin(2\pi f_c t)\). What is the variance of \(n_I(t)\)?</p>
+                            <ul class="pyq-opts">
+                                <li>(A) \(N_0 B/2\)</li>
+                                <li class="correct">(B) \(N_0 B\)</li>
+                                <li>(C) \(2N_0 B\)</li>
+                                <li>(D) \(N_0/(2B)\)</li>
+                            </ul>
+                            <div class="sol-lbl">✦ Solution</div>
+                            <p>The in-phase component \(n_I(t)\) is a lowpass noise process with PSD equal to \(N_0\)
+                                for \(|f| \leq B/2\) (note: one-sided bandwidth B/2). Its variance (= power) is:</p>
+                            <div class="math-block">
+                                $$\sigma^2_{n_I} = \int_{-B/2}^{B/2} N_0\, df = N_0 B$$
+                            </div>
+                            <p>Same result for \(n_Q\): \(\sigma^2_{n_Q} = N_0 B\). And this equals the total bandpass
+                                noise power — consistent with energy conservation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════ -->
+                <!-- §9 NUMERICAL EXAMPLES -->
+                <!-- ═══════════════════════════════════════════ -->
+                <div class="section" id="s9">
+                    <div class="sec-hdr">
+                        <span class="sec-num">§ 09</span>
+                        <h2 class="sec-t">Numerical Examples</h2>
+                    </div>
+
+                    <!-- Example 1 -->
+                    <div class="example">
+                        <div class="ex-hdr">
+                            <span class="ex-num">EX 01</span>
+                            <span class="ex-title">Basic — PSD from ACF using Wiener–Khinchin</span>
+                        </div>
+                        <div class="ex-body">
+                            <div class="ex-q">
+                                A random process has autocorrelation \(R_X(\tau) = 9 + 4e^{-3|\tau|}\). Find: (a) the
+                                PSD \(S_X(f)\), (b) the total average power, (c) the DC power and AC power separately.
+                            </div>
+                            <div class="sol-lbl">✦ Solution</div>
+                            <p><strong>Step 1 — Decompose \( R_X(\tau) \):</strong> Write as two terms: \(R_X(\tau) = 9
+                                +
+                                4e^{-3|\tau|}\)</p>
+                            <p><strong>Step 2 — Apply W-K theorem to each term:</strong></p>
+                            <p>Term 1: \(\mathcal{F}\{9\} = 9\,\delta(f)\) &nbsp;(constant → impulse at DC)</p>
+                            <p>Term 2: \(\mathcal{F}\{4e^{-3|\tau|}\} = \dfrac{2 \times 4 \times 3}{9 + (2\pi f)^2} =
+                                \dfrac{24}{9 + 4\pi^2 f^2}\)</p>
+
+                            <div class="math-block">
+                                <div class="math-lbl">Complete PSD</div>
+                                $$S_X(f) = 9\,\delta(f) + \frac{24}{9 + 4\pi^2 f^2}$$
+                            </div>
+
+                            <p><strong>Step 3 — Total Power:</strong> \(P_{\text{total}} = R_X(0) = 9 + 4e^0 = 9 + 4 =
+                                \mathbf{13 \text{ W}}\)</p>
+                            <p><strong>Step 4 — DC Power:</strong> From the impulse component, DC power = \(9\) W (this
+                                is \(\mu_X^2 = [E[X]]^2\), since \(\lim_{\tau\to\infty}R_X(\tau) = 9 = \mu_X^2
+                                \Rightarrow \mu_X = 3\))</p>
+                            <p><strong>Step 5 — AC Power:</strong> \(P_{\text{AC}} = P_{\text{total}} - P_{\text{DC}} =
+                                13 - 9 = \mathbf{4 \text{ W}}\)</p>
+                            <div class="callout c-tip">
+                                <div class="ci">🔑</div>
+                                <div class="cb">
+                                    <p>Key shortcut: if \(R_X(\tau) \to C\) as \(\tau \to \infty\), then DC power = C
+                                        and mean = √C. This avoids integral computation.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Example 2 -->
+                    <div class="example">
+                        <div class="ex-hdr">
+                            <span class="ex-num">EX 02</span>
+                            <span class="ex-title">GATE-Level — White Noise Through Ideal BPF</span>
+                        </div>
+                        <div class="ex-body">
+                            <div class="ex-q">
+                                White noise with two-sided PSD \(= 10^{-6}\) \( \text{W/Hz} \) is applied to an ideal
+                                bandpass filter
+                                centred at \(f_c = 100\) kHz with bandwidth \(B = 20\) kHz. Find: (a) total output noise
+                                power, (b) ACF of output noise, (c) the rms noise voltage.
+                            </div>
+                            <div class="sol-lbl">✦ Solution</div>
+                            <p><strong>Given:</strong> \(N_0/2 = 10^{-6}\) \( \text{W/Hz} \), \(f_c = 100\) kHz, \(B =
+                                20\) kHz</p>
+                            <p><strong>Part (a) — Total output power:</strong></p>
+                            <div class="math-block">
+                                $$P_N = \frac{N_0}{2} \times 2B = N_0 \times B = 2 \times 10^{-6} \times 20 \times 10^3
+                                = 40 \times 10^{-3} = 40 \text{ mW}$$
+                            </div>
+                            <p>Note: factor of \(2B\) because PSD extends over \([f_c - B/2, f_c + B/2]\) AND \([-(f_c +
+                                B/2), -(f_c - B/2)]\), total bandwidth = \(2B\) in double-sided sense.</p>
+                            <p><strong>Part (b) — ACF:</strong></p>
+                            <div class="math-block">
+                                $$R_N(\tau) = N_0 B\, \cos(2\pi f_c \tau)\, \text{sinc}(B\tau) = 40 \times 10^{-3}
+                                \cos(2\pi \times 10^5 \tau)\, \text{sinc}(2 \times 10^4 \tau)$$
+                            </div>
+                            <p><strong>Part (c) — RMS voltage:</strong></p>
+                            <div class="math-block">
+                                $$V_{\text{rms}} = \sqrt{P_N} = \sqrt{40 \times 10^{-3}} \approx 200 \text{ mV (rms)}$$
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Example 3 -->
+                    <div class="example">
+                        <div class="ex-hdr">
+                            <span class="ex-num">EX 03</span>
+                            <span class="ex-title">Conceptual — Verify ACF Properties</span>
+                        </div>
+                        <div class="ex-body">
+                            <div class="ex-q">
+                                Given \(R_X(\tau) = 25\cos(4\pi\tau) + 16e^{-|\tau|}\cos(6\pi\tau)\). Without computing
+                                the full FT, identify: (a) mean square power, (b) DC component, (c) mean value of X(t).
+                            </div>
+                            <div class="sol-lbl">✦ Solution</div>
+                            <p><strong>(a) Mean Square Power:</strong> \(E[X^2] = R_X(0) = 25\cos(0) + 16e^0\cos(0) = 25
+                                + 16 = \mathbf{41 \text{ W}}\)</p>
+                            <p><strong>(b) DC Component:</strong> \(\lim_{\tau \to \infty} R_X(\tau) =
+                                25\cos(4\pi\tau)\). This does not decay to a constant — it oscillates. This means the
+                                process contains a periodic (sinusoidal) component. The mean-square value of this
+                                periodic part = 25/2 = 12.5 W. There is no true DC (non-oscillating) component here.</p>
+                            <p><strong>(c) Mean Value:</strong> For the DC calculation, \(\mu_X^2 =
+                                \lim_{\tau\to\infty}R_X(\tau)\). Since the limit oscillates, \(\mu_X = 0\) (the DC value
+                                is zero; the \(25\cos\) term represents a sinusoidal component of the process, not a
+                                constant mean).</p>
+                            <div class="callout c-danger">
+                                <div class="ci">❌</div>
+                                <div class="cb">
+                                    <div class="ct">Classic Mistake</div>
+                                    <p>Students confuse \(\lim_{\tau\to\infty}R_X(\tau)\) oscillating (→ sinusoidal
+                                        component in signal) with converging to a constant (→ DC component). A purely
+                                        sinusoidal ACF tail means the signal has a periodic component — its average
+                                        (mean) is still zero.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════ -->
+                <!-- §10 ASK AAROVA AI -->
+                <!-- ═══════════════════════════════════════════ -->
+                <div class="section" id="s10">
+                    <div class="ai-prompt">
+                        <div class="ai-prompt-title">✨ Ask Aarova AI</div>
+                        <p>Ask any doubt about PSD, white noise, Wiener–Khinchin, or band-limited noise. Get a
+                            step-by-step explanation instantly.</p>
+                        <div class="ai-input-row">
+                            <input class="ai-input" id="userQ"
+                                placeholder="e.g. Why is the ACF of white noise an impulse function?" type="text" />
+                            <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                        </div>
+                        <div class="ai-suggest">
+                            <span class="ai-chip"
+                                onclick="setQ('Derive PSD from \( R_X(\tau) \) = σ²e^{-α|τ|} step by step and show it is a Lorentzian spectrum.')">Exponential
+                                ACF → PSD</span>
+                            <span class="ai-chip"
+                                onclick="setQ('Explain why the autocorrelation of white noise is a Dirac delta function — with physical reasoning.')">White
+                                noise ACF = δ(τ)?</span>
+                            <span class="ai-chip"
+                                onclick="setQ('White noise with N_0/2 = 5×10⁻⁷ \( \text{W/Hz} \) enters an RC filter with R=1kΩ, C=1μF. Find output noise power step by step.')">RC
+                                filter noise power</span>
+                            <span class="ai-chip"
+                                onclick="setQ('What is the physical difference between PSD and ESD? When do I use each in GATE problems?')">PSD
+                                vs ESD</span>
+                            <span class="ai-chip"
+                                onclick="setQ('Explain the quadrature representation of bandpass noise and prove that \( n_I \) and \( n_Q \) have the same variance.')">Bandpass
+                                noise \( n_I \), \( n_Q \)</span>
+                        </div>
+                        <div class="ai-response" id="aiResp"></div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════ -->
+                <!-- §11 QUICK REVISION SHEET -->
+                <!-- ═══════════════════════════════════════════ -->
+                <div class="section" id="s11">
+                    <div class="sec-hdr">
+                        <span class="sec-num">§ 11</span>
+                        <h2 class="sec-t">Quick Revision Sheet</h2>
+                    </div>
+
+                    <h3 class="sub">Memory Tricks &amp; Mnemonics</h3>
+                    <div class="callout c-info">
+                        <div class="ci">🧠</div>
+                        <div class="cb">
+                            <div class="ct">Mnemonic — "WRAP" for Wiener–Khinchin</div>
+                            <p><strong>W</strong>SS process → <strong>R</strong>_X(τ) autocorrelation →
+                                <strong>A</strong>pply Fourier Transform → <strong>P</strong>SD \( S_X(f) \). "WRAP" the
+                                time
+                                domain into the frequency domain.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="callout c-tip">
+                        <div class="ci">🎯</div>
+                        <div class="cb">
+                            <div class="ct">Mnemonic — "PURE" for White Noise Properties</div>
+                            <p><strong>P</strong>SD is flat (constant N_0/2) · <strong>U</strong>ncorrelated samples at
+                                any τ≠0 · <strong>R</strong>_W(τ) = (N_0/2)δ(τ) · <strong>E</strong>nergy is infinite
+                                (ideal model only).</p>
+                        </div>
+                    </div>
+
+                    <h3 class="sub">Master Formula Card</h3>
+                    <div class="fblock"><span class="flbl">Chapter 3 — All Key Formulas at a Glance</span>
+                        <span class="fh">── WIENER–KHINCHIN ──────────────────────────────</span>
+                        <span class="fv">\( S_X(f) \)</span> = \( \int R_X(\tau) e^{-j2\pi f\tau} \, d\tau \) [FT of
+                        ACF]
+                        <span class="fv">\( R_X(\tau) \)</span> = \( \int S_X(f) e^{j2\pi f\tau} \, df \) [Inverse FT]
+
+                        <span class="fh">── PSD PROPERTIES ───────────────────────────────</span>
+                        <span class="fv">\( S_X(f) \)</span> ≥ 0 (non-negative)
+                        <span class="fv">\( S_X(f) \)</span> = \( S_X(−f) \) (even function)
+                        <span class="fv">Total Power</span> = \( \int S_X(f) \, df \) = \( R_X(0) \) = \( E[X^2(t)] \)
+
+                        <span class="fh">── LTI SYSTEM ───────────────────────────────────</span>
+                        <span class="fv">\( S_Y(f) = |H(f)|^2 S_X(f) \)</span>
+
+                        <span class="fh">── ENERGY SPECTRAL DENSITY ──────────────────────</span>
+                        <span class="fv">\( \Psi_x(f) \)</span> = |X(f)|² [for finite energy signals]
+                        <span class="fv">Total Energy</span> = \( \int \Psi_x(f) \, df = \int |x(t)|^2 \, dt \)
+
+                        <span class="fh">── WHITE NOISE ──────────────────────────────────</span>
+                        <span class="fv">\( S_W(f) \)</span> = N_0/2 (all f)
+                        <span class="fv">\( R_W(\tau) \)</span> = \( (N_0/2)\delta(\tau) \)
+                        <span class="fv">\( N_0 \)</span> = \( kT \) at room temp \( (k = 1.38 \times 10^{-23} \text{
+                        J/K}) \)
+
+                        <span class="fh">── BAND-LIMITED NOISE ───────────────────────────</span>
+                        <span class="fv">LPF Noise Power</span> = \( N_0 B \)
+                        <span class="fv">BPF Noise Power</span> = \( N_0 B \)
+                        <span class="fv">ACF (LPF noise)</span> = \( N_0 B \text{ sinc}(2B\tau) \)
+                        <span class="fv">ACF (BPF noise)</span> = \( N_0 B \text{ sinc}(B\tau) \cos(2\pi f_c \tau) \)
+
+                        <span class="fh">── KEY FT PAIRS ─────────────────────────────────</span>
+                        <span class="fv">Ae^{−α|τ|}</span> ↔ 2Aα/(α² + 4π²f²) [Lorentzian]
+                        <span class="fv">C</span> ↔ C·δ(f) [DC → impulse]
+                        <span class="fv">cos(2πf₀τ)</span> ↔ ½[δ(f−f₀) + δ(f+f₀)] [sinusoid → impulses]
+                        <span class="fv">δ(τ)</span> ↔ 1 [flat spectrum = white noise]
+                    </div>
+
+                    <h3 class="sub">Chapter Summary Cards</h3>
+                    <div class="sum-grid">
+                        <div class="sum-card sc-o">
+                            <div class="sum-lbl">Autocorrelation Function</div>
+                            <p>\( R_X(\tau) = E[X(t)X(t+\tau)] \) for WSS. Even, non-negative at \( \tau=0 \), total
+                                power = \( R_X(0) \). Decays
+                                to \( \mu^2 \) as \( \tau\to\infty \).</p>
+                        </div>
+                        <div class="sum-card sc-g">
+                            <div class="sum-lbl">Wiener–Khinchin Theorem</div>
+                            <p>\( S_X(f) = \text{FT}\{R_X(\tau)\} \). Applies to WSS processes. PSD is always real,
+                                non-negative, and
+                                even. Total power = \( \int S(f) \, df = R(0) \).</p>
+                        </div>
+                        <div class="sum-card sc-t">
+                            <div class="sum-lbl">PSD Through LTI</div>
+                            <p>\( S_Y(f) = |H(f)|^2 S_X(f) \). Phase of H(f) cancels. Most important result for noise
+                                analysis in circuits and systems.</p>
+                        </div>
+                        <div class="sum-card sc-a">
+                            <div class="sum-lbl">White Noise</div>
+                            <p>Flat PSD: \( N_0/2 \) for all \( f \). ACF = \( (N_0/2)\delta(\tau) \). Samples
+                                uncorrelated. Infinite power
+                                (idealisation). AWGN = white + Gaussian.</p>
+                        </div>
+                        <div class="sum-card sc-r">
+                            <div class="sum-lbl">Band-Limited Noise</div>
+                            <p>LPF: \( S(f) = N_0/2 \) for \( |f| \leq B \), power = \( N_0 B \), ACF = \( N_0 B \text{
+                                sinc}(2B\tau) \). BPF: same power, ACF has
+                                cosine modulation.</p>
+                        </div>
+                        <div class="sum-card sc-g">
+                            <div class="sum-lbl">ESD vs PSD</div>
+                            <p>\( \text{ESD} = |X(f)|^2 \) for energy signals (\( \text{J/Hz} \)). PSD = \(
+                                \text{FT}\{R_X(\tau)\} \) for power/random signals
+                                (\( \text{W/Hz} \)). Both use Parseval's theorem.</p>
+                        </div>
+                    </div>
+
+
+
+                    <!-- ═══ CITATIONS ═══ -->
+                    <div class="citations" id="citations">
+                        <div class="cite-h">References &amp; Citations</div>
+                        <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is
+                            derived from the following standard textbooks. All explanations, derivations, diagrams, and
+                            examples are original to Aarova AI.</p>
+                        <ul class="cite-list">
+                            <li><span class="cite-num">[1]</span><span>Haykin, Simon. <em>Communication Systems</em>,
+                                    4th ed. John Wiley &amp; Sons, 2001. Chapter 8 — Noise in analogue communication
+                                    systems: PSD, white noise, thermal noise, bandpass noise representations.</span>
+                            </li>
+                            <li><span class="cite-num">[2]</span><span>Papoulis, Athanasios and Pillai, S. Unnikrishna.
+                                    <em>Probability, Random Variables and Stochastic Processes</em>, 4th ed.
+                                    McGraw-Hill, 2002. Chapter 9 — The Wiener–Khinchin theorem, PSD, autocorrelation,
+                                    and stochastic spectral analysis.</span></li>
+                            <li><span class="cite-num">[3]</span><span>Proakis, John G. and Salehi, Masoud.
+                                    <em>Communication Systems Engineering</em>, 2nd ed. Prentice Hall, 2002. Chapter 6 —
+                                    Bandpass noise, quadrature representation, energy and power spectral
+                                    densities.</span></li>
+                            <li><span class="cite-num">[4]</span><span>Lathi, B.P. and Ding, Zhi. <em>Modern Digital and
+                                        Analogue Communication Systems</em>, 4th ed. Oxford University Press, 2009.
+                                    Chapter 9 — Noise characterisation: thermal noise, Johnson–Nyquist formula, noise
+                                    figure.</span></li>
+                            <li><span class="cite-num">[5]</span><span>Oppenheim, Alan V. and Willsky, Alan S.
+                                    <em>Signals and Systems</em>, 2nd ed. Prentice Hall, 1997. Chapter 10 — Frequency
+                                    domain analysis of LTI systems with random inputs: PSD relationships.</span></li>
+                        </ul>
+                    </div>
+
+                    <hr>
+                    <footer>
+                        <strong>Aarova AI</strong> &nbsp;·&nbsp; Communication Systems Series &nbsp;·&nbsp; Chapter 3 of
+                        8<br>
+                        <span style="font-size:12px;margin-top:5px;display:block;">GATE EC / EE &nbsp;·&nbsp; IES
+                            E&amp;T &nbsp;·&nbsp; PSU Electrical Engineering</span><br>
+                        <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations
+                            and diagrams are original to Aarova AI. Content derived from standard textbooks
+                            [1–5].</span>
+                    </footer>
+                </div>
+            </div><!-- end .page -->
+
+            <script>
+                function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+                async function askClaude() {
+                    const q = document.getElementById('userQ').value.trim(); if (!q) return;
+                    const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+                    btn.textContent = 'Thinking…'; btn.disabled = true;
+                    resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+                    const sys = `You are Aarova AI, an expert GATE EC/EE and IES tutor specialising in Communication Systems. Topic: Power Spectral Density, Wiener–Khinchin Theorem, Energy Spectral Density, White Noise, Band-limited Noise (Chapter 3). Answer with step-by-step working for numericals. Use standard notation: \( S_X(f) \) for PSD, \( R_X(\tau) \) for ACF, N_0/2 for white noise PSD. Base answers on Haykin, Papoulis, Proakis & Salehi, Lathi. All content is original to Aarova AI.`;
+                    try {
+                        const res = await fetch('https://api.anthropic.com/v1/messages', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] })
+                        });
+                        const data = await res.json();
+                        resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+                    } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+                    btn.textContent = 'Ask Claude'; btn.disabled = false;
+                }
+                document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+                /* Responsive SVG scroll hints on mobile */
+                (function () {
+                    if (window.innerWidth > 600) return;
+                    document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                        const hint = document.createElement('div');
+                        hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                        hint.textContent = '← scroll to see full diagram →';
+                        wrap.appendChild(hint);
+                        wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+                    });
+                })();
+            </script>
+</body>
+
+</html>

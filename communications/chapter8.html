@@ -1,0 +1,2741 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#fdf6ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Aarova AI — Communication Systems Ch.8 FM Demodulation &amp; Superheterodyne Receivers</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+    <style>
+        :root {
+            --bg: #fdf6ee;
+            --bg2: #f8ede0;
+            --bg3: #f0e0cc;
+            --bg4: #e8d0b8;
+            --text: #1e1208;
+            --text2: #3d2010;
+            --text3: #6b3e22;
+            --muted: #9a6e50;
+            --orange: #c95f1a;
+            --orange-md: #e07235;
+            --orange-lt: #f5956a;
+            --orange-bg: #fdebd8;
+            --orange-bdr: #f0b48a;
+            --green: #2d6648;
+            --green-bg: #dff0e8;
+            --green-bdr: #8ecaaa;
+            --teal: #1e6b68;
+            --teal-bg: #d8eeed;
+            --teal-bdr: #7ec4c2;
+            --amber: #a05c00;
+            --amber-bg: #fef0d0;
+            --amber-bdr: #f0c060;
+            --red: #9a2020;
+            --red-bg: #fde8e8;
+            --red-bdr: #e89090;
+            --border: #ddc8b0;
+            --border2: #c8a888;
+            --radius: 14px;
+            --shadow: 0 2px 16px rgba(150, 80, 20, .10);
+            --shadow-md: 0 6px 28px rgba(150, 80, 20, .14);
+            --page-px: clamp(14px, 4vw, 48px);
+            --section-gap: clamp(36px, 6vw, 64px);
+            --card-px: clamp(14px, 2.5vw, 22px);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 18px;
+            -webkit-text-size-adjust: 100%
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text2);
+            font-family: 'Lora', Georgia, serif;
+            line-height: 1.85;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg2)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 3px
+        }
+
+        img,
+        svg {
+            max-width: 100%;
+            display: block
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--page-px) 80px
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(253, 246, 238, .96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--border);
+            padding: 12px var(--page-px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .logo-link{text-decoration:none;cursor:pointer;transition:opacity .18s;}.logo-link:hover{opacity:.75;}.logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .logo-sub {
+            font-family: 'Lora', serif;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-weight: 400
+        }
+
+        .hbadges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap
+        }
+
+        .hbadge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--orange-bg);
+            border: 1px solid var(--orange-bdr);
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* HERO */
+        .hero {
+            padding: clamp(28px, 6vw, 64px) 0 clamp(22px, 4vw, 44px);
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: clamp(24px, 4vw, 44px)
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--orange);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 2.5px;
+            background: var(--orange);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 7vw, 52px);
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 14px
+        }
+
+        h1.hero-title em {
+            font-style: italic;
+            color: var(--orange)
+        }
+
+        .hero-desc {
+            font-size: clamp(14px, 2vw, 17px);
+            color: var(--text3);
+            max-width: 640px;
+            line-height: 1.75;
+            font-weight: 400;
+            margin-bottom: 22px
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 13px;
+            border-radius: 22px;
+            border: 1.5px solid var(--border2);
+            color: var(--text3);
+            background: var(--bg2);
+            font-family: 'Lora', serif
+        }
+
+        .badge-p {
+            background: var(--orange-bg);
+            border-color: var(--orange-bdr);
+            color: var(--orange);
+            font-weight: 600
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--orange-bg);
+            border: 1.5px solid var(--orange-bdr);
+            border-radius: 10px;
+            padding: 11px 16px;
+            margin-bottom: clamp(20px, 4vw, 40px)
+        }
+
+        .pl {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        .pt {
+            flex: 1;
+            height: 7px;
+            background: rgba(201, 95, 26, .18);
+            border-radius: 4px;
+            overflow: hidden;
+            min-width: 30px
+        }
+
+        .pf {
+            height: 100%;
+            width: 100%;
+            background: var(--orange);
+            border-radius: 4px
+        }
+
+        .pp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--orange);
+            white-space: nowrap
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--orange);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-bottom: clamp(28px, 5vw, 52px)
+        }
+
+        .toc-h {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--muted);
+            margin-bottom: 14px
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0 24px
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 9px;
+            font-size: 14px;
+            color: var(--text3);
+            text-decoration: none;
+            padding: 7px 0;
+            border-bottom: 1px dashed transparent;
+            transition: color .2s, border-color .2s;
+            line-height: 1.5
+        }
+
+        .toc-item:hover,
+        .toc-item:focus {
+            color: var(--orange);
+            border-bottom-color: var(--orange-lt)
+        }
+
+        .toc-n {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--orange);
+            min-width: 28px;
+            flex-shrink: 0
+        }
+
+        /* SECTION */
+        .section {
+            margin-bottom: var(--section-gap);
+            opacity: 0;
+            transform: translateY(12px);
+            animation: rise .42s forwards
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .section:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .section:nth-child(2) {
+            animation-delay: .09s
+        }
+
+        .section:nth-child(3) {
+            animation-delay: .13s
+        }
+
+        .section:nth-child(4) {
+            animation-delay: .17s
+        }
+
+        .section:nth-child(5) {
+            animation-delay: .21s
+        }
+
+        .section:nth-child(6) {
+            animation-delay: .25s
+        }
+
+        .section:nth-child(7) {
+            animation-delay: .29s
+        }
+
+        .section:nth-child(8) {
+            animation-delay: .33s
+        }
+
+        .section:nth-child(9) {
+            animation-delay: .37s
+        }
+
+        .section:nth-child(10) {
+            animation-delay: .41s
+        }
+
+        .section:nth-child(11) {
+            animation-delay: .45s
+        }
+
+        .section:nth-child(12) {
+            animation-delay: .49s
+        }
+
+        .sec-hdr {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: clamp(14px, 3vw, 24px);
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .sec-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            background: var(--orange-bg);
+            color: var(--orange);
+            border: 1px solid var(--orange-bdr);
+            padding: 3px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0
+        }
+
+        h2.sec-t {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 3.5vw, 26px);
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2
+        }
+
+        h3.sub {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(15px, 2.5vw, 19px);
+            font-weight: 600;
+            color: var(--text2);
+            margin: clamp(20px, 3vw, 32px) 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+
+        h3.sub::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--orange-lt);
+            border-radius: 2px;
+            flex-shrink: 0
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text2);
+            font-size: clamp(14px, 2vw, 17px);
+            line-height: 1.85
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        sup.cite {
+            font-size: 9px;
+            color: var(--teal);
+            font-weight: 700;
+            cursor: pointer;
+            vertical-align: super;
+            margin-left: 1px
+        }
+
+        /* CALLOUTS */
+        .callout {
+            border-radius: 10px;
+            padding: clamp(11px, 2vw, 16px) clamp(13px, 2vw, 20px);
+            margin: 16px 0;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start
+        }
+
+        .ci {
+            font-size: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            line-height: 1
+        }
+
+        .cb {
+            flex: 1;
+            min-width: 0
+        }
+
+        .ct {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px
+        }
+
+        .cb p {
+            margin: 0;
+            font-size: clamp(13px, 1.8vw, 15.5px);
+            line-height: 1.68
+        }
+
+        .c-info {
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange)
+        }
+
+        .c-info .ct {
+            color: var(--orange)
+        }
+
+        .c-info p {
+            color: var(--text2)
+        }
+
+        .c-tip {
+            background: var(--green-bg);
+            border-left: 4px solid var(--green)
+        }
+
+        .c-tip .ct {
+            color: var(--green)
+        }
+
+        .c-tip p {
+            color: #1e4d38
+        }
+
+        .c-key {
+            background: var(--teal-bg);
+            border-left: 4px solid var(--teal)
+        }
+
+        .c-key .ct {
+            color: var(--teal)
+        }
+
+        .c-key p {
+            color: #154e4c
+        }
+
+        .c-warn {
+            background: var(--amber-bg);
+            border-left: 4px solid var(--amber)
+        }
+
+        .c-warn .ct {
+            color: var(--amber)
+        }
+
+        .c-warn p {
+            color: #6e3f00
+        }
+
+        .c-danger {
+            background: var(--red-bg);
+            border-left: 4px solid var(--red)
+        }
+
+        .c-danger .ct {
+            color: var(--red)
+        }
+
+        .c-danger p {
+            color: #6e1515
+        }
+
+        /* TABLE */
+        .tw {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 16px 0;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1.8vw, 15px)
+        }
+
+        thead tr {
+            background: var(--bg3)
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--text3);
+            border-bottom: 1.5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--bg3);
+            transition: background .12s
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        tbody tr:hover {
+            background: var(--bg2)
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            color: var(--text2);
+            vertical-align: top;
+            line-height: 1.55
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--text)
+        }
+
+        .t-org {
+            color: var(--orange) !important;
+            font-weight: 600 !important
+        }
+
+        .t-grn {
+            color: var(--green) !important;
+            font-weight: 600 !important
+        }
+
+        .t-red {
+            color: var(--red) !important;
+            font-weight: 600 !important
+        }
+
+        .t-amb {
+            color: var(--amber) !important;
+            font-weight: 600 !important
+        }
+
+        .t-tel {
+            color: var(--teal) !important;
+            font-weight: 600 !important
+        }
+
+        /* FORMULA BLOCK */
+        .fblock {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--orange-lt);
+            border-radius: 10px;
+            padding: clamp(13px, 2vw, 20px) clamp(14px, 2vw, 24px);
+            margin: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(11.5px, 1.8vw, 13.5px);
+            color: var(--text);
+            line-height: 2;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: pre
+        }
+
+        .fblock .flbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 5px;
+            white-space: normal;
+            display: block
+        }
+
+        .fv {
+            color: var(--orange)
+        }
+
+        .feq {
+            color: var(--green);
+            font-weight: 500
+        }
+
+        .fh {
+            color: var(--teal)
+        }
+
+        /* MATH */
+        .math-block {
+            background: var(--bg3);
+            border: 1.5px solid var(--border2);
+            border-left: 4px solid var(--teal);
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            text-align: center
+        }
+
+        .math-block .math-lbl {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-align: left
+        }
+
+        /* SVG */
+        .svg-wrap {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: clamp(12px, 2.5vw, 24px);
+            margin: 16px 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-wrap svg {
+            width: 100%;
+            height: auto;
+            min-width: 300px;
+            display: block
+        }
+
+        .svg-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .svg-scroll svg {
+            min-width: 560px;
+            width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .svg-cap {
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+            line-height: 1.5
+        }
+
+        .svg-cite {
+            font-size: 10.5px;
+            color: var(--teal);
+            text-align: center;
+            margin-top: 3px
+        }
+
+        /* EXAMPLES */
+        .example {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .ex-hdr {
+            background: var(--bg3);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            border-bottom: 1.5px solid var(--border);
+            flex-wrap: wrap
+        }
+
+        .ex-num {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--orange);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .06em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .ex-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            line-height: 1.4
+        }
+
+        .ex-body {
+            padding: clamp(13px, 2vw, 22px) var(--card-px)
+        }
+
+        .ex-q {
+            font-size: clamp(13px, 2vw, 15.5px);
+            color: var(--text);
+            background: var(--orange-bg);
+            border-left: 4px solid var(--orange);
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 14px;
+            line-height: 1.62
+        }
+
+        .sol-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .10em;
+            color: var(--green);
+            margin-bottom: 9px
+        }
+
+        /* GATE CARDS */
+        .gate-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .gate-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .gate-tag {
+            font-size: 9px;
+            font-weight: 700;
+            background: var(--teal);
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .gate-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4
+        }
+
+        .gate-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .gate-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        /* PYQ CARDS */
+        .pyq-card {
+            background: #fff;
+            border: 1.5px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            margin: 18px 0;
+            box-shadow: var(--shadow);
+            overflow: hidden
+        }
+
+        .pyq-hdr {
+            background: var(--teal-bg);
+            border-bottom: 1.5px solid var(--teal-bdr);
+            padding: 9px var(--card-px);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .pyq-tag {
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: .07em;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap
+        }
+
+        .pyq-gate {
+            background: var(--teal)
+        }
+
+        .pyq-ies {
+            background: var(--green)
+        }
+
+        .pyq-hdr.ies-hdr {
+            background: var(--green-bg);
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-card.ies-card {
+            border-color: var(--green-bdr)
+        }
+
+        .pyq-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            line-height: 1.4;
+            flex: 1
+        }
+
+        .pyq-title-ies {
+            color: var(--green)
+        }
+
+        .pyq-year {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            white-space: nowrap
+        }
+
+        .pyq-body {
+            padding: clamp(13px, 2vw, 20px) var(--card-px)
+        }
+
+        .pyq-body p {
+            color: var(--text2);
+            font-size: clamp(13px, 2vw, 15.5px)
+        }
+
+        .pyq-opts {
+            list-style: none;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .pyq-opts li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 9px 13px;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            background: var(--bg2);
+            font-family: 'Lora', serif;
+            cursor: default;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            line-height: 1.45
+        }
+
+        .pyq-opts li.correct {
+            background: var(--green-bg);
+            border-color: var(--green-bdr);
+            color: var(--green);
+            font-weight: 600
+        }
+
+        /* TWO COL CARDS */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+            margin: 16px 0
+        }
+
+        .mini-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: var(--card-px);
+            box-shadow: var(--shadow)
+        }
+
+        .mc-t {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 11px
+        }
+
+        .mc-grn .mc-t {
+            color: var(--green)
+        }
+
+        .mc-red .mc-t {
+            color: var(--red)
+        }
+
+        .mc-org .mc-t {
+            color: var(--orange)
+        }
+
+        .mc-tel .mc-t {
+            color: var(--teal)
+        }
+
+        .mc-amb .mc-t {
+            color: var(--amber)
+        }
+
+        .mc-list {
+            list-style: none
+        }
+
+        .mc-list li {
+            font-size: clamp(13px, 1.8vw, 15px);
+            color: var(--text2);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--bg3);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5
+        }
+
+        .mc-list li:last-child {
+            border-bottom: none
+        }
+
+        .dot {
+            color: var(--muted);
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        /* SUMMARY GRID */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 16px 0
+        }
+
+        .sum-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            transition: box-shadow .2s, transform .15s
+        }
+
+        .sum-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px)
+        }
+
+        .sum-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            margin-bottom: 6px
+        }
+
+        .sum-card p {
+            font-size: clamp(12px, 1.7vw, 14px);
+            color: var(--text3);
+            margin: 0;
+            line-height: 1.62
+        }
+
+        .sc-o .sum-lbl {
+            color: var(--orange)
+        }
+
+        .sc-g .sum-lbl {
+            color: var(--green)
+        }
+
+        .sc-t .sum-lbl {
+            color: var(--teal)
+        }
+
+        .sc-a .sum-lbl {
+            color: var(--amber)
+        }
+
+        .sc-r .sum-lbl {
+            color: var(--red)
+        }
+
+        /* CITATIONS */
+        .citations {
+            background: var(--bg2);
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--teal);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin-top: 36px
+        }
+
+        .cite-h {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 16px
+        }
+
+        .cite-list {
+            list-style: none
+        }
+
+        .cite-list li {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: clamp(12px, 1.8vw, 14px);
+            color: var(--text2);
+            line-height: 1.62
+        }
+
+        .cite-list li:last-child {
+            border-bottom: none
+        }
+
+        .cite-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--teal-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: fit-content;
+            margin-top: 2px
+        }
+
+        .cite-list em {
+            color: var(--orange-md);
+            font-style: italic
+        }
+
+        /* PROBABILITY TAGS */
+        .prob {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 8px;
+            vertical-align: middle
+        }
+
+        .prob-h {
+            background: var(--green-bg);
+            color: var(--green);
+            border: 1px solid var(--green-bdr)
+        }
+
+        .prob-m {
+            background: var(--amber-bg);
+            color: var(--amber);
+            border: 1px solid var(--amber-bdr)
+        }
+
+        .prob-l {
+            background: var(--red-bg);
+            color: var(--red);
+            border: 1px solid var(--red-bdr)
+        }
+
+        /* AI PROMPT */
+        .ai-prompt {
+            background: linear-gradient(135deg, var(--teal-bg), var(--orange-bg));
+            border: 2px solid var(--teal-bdr);
+            border-radius: var(--radius);
+            padding: clamp(16px, 3vw, 28px);
+            margin: 28px 0;
+            box-shadow: var(--shadow-md)
+        }
+
+        .ai-prompt-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--teal);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px
+        }
+
+        .ai-prompt>p {
+            color: var(--text2);
+            font-size: 14px;
+            margin-bottom: 12px
+        }
+
+        .ai-input-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap
+        }
+
+        .ai-input {
+            flex: 1;
+            min-width: 0;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border2);
+            background: var(--bg);
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none
+        }
+
+        .ai-input:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(30, 107, 104, .12)
+        }
+
+        .ai-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s;
+            white-space: nowrap;
+            min-height: 44px;
+            -webkit-appearance: none
+        }
+
+        .ai-btn:hover {
+            background: #155250
+        }
+
+        .ai-btn:active {
+            background: #0f3d3b
+        }
+
+        .ai-suggest {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px
+        }
+
+        .ai-chip {
+            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--teal-bdr);
+            color: var(--teal);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: 'Lora', serif;
+            transition: background .15s;
+            min-height: 36px;
+            display: flex;
+            align-items: center
+        }
+
+        .ai-chip:hover,
+        .ai-chip:active {
+            background: var(--teal-bg)
+        }
+
+        .ai-response {
+            margin-top: 14px;
+            padding: 13px 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text2);
+            display: none;
+            line-height: 1.72;
+            white-space: pre-wrap;
+            overflow-x: auto
+        }
+
+        /* MISC */
+        hr {
+            border: none;
+            border-top: 1.5px solid var(--border);
+            margin: 40px 0
+        }
+
+        footer {
+            text-align: center;
+            padding: 26px 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1.5px solid var(--border)
+        }
+
+        footer strong {
+            color: var(--orange)
+        }
+
+        /* TABLET */
+        @media(min-width:481px) and (max-width:768px) {
+            html {
+                font-size: 16.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .svg-wrap {
+                padding: 12px 10px
+            }
+
+            .svg-wrap svg {
+                min-width: 480px
+            }
+
+            .toc-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0 20px
+            }
+
+            .two-col {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px
+            }
+
+            .sum-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 12px;
+                line-height: 1.8
+            }
+
+            thead th,
+            tbody td {
+                padding: 8px 10px
+            }
+
+            .pyq-year {
+                margin-left: 0
+            }
+        }
+
+        /* MOBILE */
+        @media(max-width:480px) {
+            html {
+                font-size: 15.5px
+            }
+
+            .logo-sub {
+                display: none
+            }
+
+            .hbadges {
+                display: none
+            }
+
+            .site-header {
+                padding: 10px 14px
+            }
+
+            h1.hero-title {
+                font-size: clamp(26px, 8vw, 34px)
+            }
+
+            .hero-desc {
+                font-size: 14px
+            }
+
+            .badge-row .badge {
+                font-size: 11px;
+                padding: 4px 10px
+            }
+
+            .progress-bar {
+                padding: 9px 12px;
+                gap: 8px
+            }
+
+            .pl {
+                font-size: 11px
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 0
+            }
+
+            .toc-item {
+                font-size: 14px;
+                padding: 9px 0
+            }
+
+            .toc {
+                padding: 14px 16px
+            }
+
+            .sec-hdr {
+                gap: 9px
+            }
+
+            h2.sec-t {
+                font-size: clamp(16px, 5vw, 20px)
+            }
+
+            h3.sub {
+                font-size: clamp(14px, 4.5vw, 17px)
+            }
+
+            p {
+                font-size: 15px
+            }
+
+            .svg-wrap {
+                padding: 10px 8px;
+                border-radius: 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch
+            }
+
+            .svg-wrap svg {
+                min-width: 520px;
+                width: 520px;
+                height: auto
+            }
+
+            .svg-wrap.svg-simple svg {
+                min-width: 280px;
+                width: 100%
+            }
+
+            .svg-cap {
+                font-size: 11px
+            }
+
+            .fblock {
+                white-space: pre-wrap;
+                word-break: break-word;
+                font-size: 11.5px;
+                line-height: 1.75;
+                padding: 12px 12px;
+                border-radius: 8px
+            }
+
+            .tw {
+                border-radius: 8px
+            }
+
+            thead th {
+                font-size: 9px;
+                padding: 8px 10px;
+                letter-spacing: .06em
+            }
+
+            tbody td {
+                font-size: 12px;
+                padding: 8px 10px
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 10px
+            }
+
+            .sum-grid {
+                grid-template-columns: 1fr;
+                gap: 9px
+            }
+
+            .mini-card {
+                padding: 13px 14px
+            }
+
+            .callout {
+                gap: 9px
+            }
+
+            .ai-input-row {
+                flex-direction: column
+            }
+
+            .ai-btn {
+                width: 100%
+            }
+
+            .gate-body p,
+            .pyq-body p {
+                font-size: 14px
+            }
+
+            .pyq-opts li {
+                font-size: 13px;
+                min-height: 40px
+            }
+
+            .pyq-year {
+                margin-left: 0;
+                width: 100%
+            }
+
+            .pyq-hdr,
+            .gate-hdr {
+                flex-wrap: wrap
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div>
+            <a href="../subject.html?s=communications" class="logo-link"><span class="logo">Aarova AI<span class="logo-sub">Communication Systems</span></a></span>
+        </div>
+        <div class="hbadges">
+            <span class="hbadge">GATE EC</span>
+            <span class="hbadge">IES E&amp;T</span>
+            <span class="hbadge">Chapter 8</span>
+        </div>
+    </header></div>
+
+    <div class="page">
+
+        <!-- HERO -->
+        <div class="hero">
+            <div class="eyebrow">Communication Systems · Chapter 8</div>
+            <h1 class="hero-title">FM Demodulation &amp; <em>Superheterodyne</em> Receivers</h1>
+            <p class="hero-desc">From frequency discriminators to phase-locked loops, from receiver architecture to the
+                image frequency problem — every concept explained the way a top GATE faculty member would teach it, with
+                diagrams, derivations, and exam insights.</p>
+            <div class="badge-row">
+                <span class="badge badge-p">GATE EC</span>
+                <span class="badge badge-p">IES E&amp;T</span>
+                <span class="badge">Haykin · Lathi · Couch</span>
+                <span class="badge">Beginner → Advanced</span>
+                <span class="badge">Chapter 8 of 10</span>
+            </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-bar">
+            <span class="pl">Course Progress</span>
+            <div class="pt">
+                <div class="pf"></div>
+            </div>
+            <span class="pp">Ch. 8 / 10 — 80%</span>
+        </div>
+
+        <!-- TOC -->
+        <div class="toc">
+            <div class="toc-h">Contents — Chapter 8</div>
+            <div class="toc-grid">
+                <a class="toc-item" href="#s1"><span class="toc-n">8.1</span>Why FM Demodulation Matters</a>
+                <a class="toc-item" href="#s2"><span class="toc-n">8.2</span>Frequency Discriminator</a>
+                <a class="toc-item" href="#s3"><span class="toc-n">8.3</span>PLL Demodulation</a>
+                <a class="toc-item" href="#s4"><span class="toc-n">8.4</span>Superheterodyne Receiver</a>
+                <a class="toc-item" href="#s5"><span class="toc-n">8.5</span>Image Frequency Problem</a>
+                <a class="toc-item" href="#s6"><span class="toc-n">8.6</span>IF Amplifier</a>
+                <a class="toc-item" href="#s7"><span class="toc-n">8.7</span>Concept Building Q&amp;A</a>
+                <a class="toc-item" href="#s8"><span class="toc-n">8.8</span>GATE &amp; IES Questions</a>
+                <a class="toc-item" href="#s9"><span class="toc-n">8.9</span>Common Mistakes</a>
+                <a class="toc-item" href="#s10"><span class="toc-n">8.10</span>Memory Tricks</a>
+                <a class="toc-item" href="#s11"><span class="toc-n">8.11</span>Numerical Examples</a>
+                <a class="toc-item" href="#s12"><span class="toc-n">8.12</span>Quick Revision Sheet</a>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 1: WHY THIS MATTERS ═══ -->
+        <div class="section" id="s1">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 8.1</span>
+                <h2 class="sec-t">Why FM Demodulation Matters</h2>
+            </div>
+
+            <p>Frequency Modulation (FM) is everywhere — FM radio, two-way radios, TV audio, radar altimeters, and
+                telemetry systems all rely on FM. But generating an FM signal is only half the problem. <strong>The real
+                    challenge is recovering the original message signal at the receiver.</strong> This chapter addresses
+                that challenge.</p>
+
+            <div class="callout c-info">
+                <div class="ci">📡</div>
+                <div class="cb">
+                    <div class="ct">The Big Picture</div>
+                    <p>FM demodulation solves one fundamental engineering problem: the transmitter encoded information
+                        in <em>frequency variations</em>, so the receiver must convert <em>frequency variations back
+                            into amplitude variations</em> to recover the message. This frequency-to-amplitude
+                        conversion is the job of an FM demodulator.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Real-World Applications</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">FM Broadcasting (88–108 MHz)</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">→</span>Commercial FM radio uses frequency discriminators or PLL
+                            demodulators in receiver ICs</li>
+                        <li><span class="dot">→</span>Stereo pilot at 19 kHz decoded after demodulation</li>
+                        <li><span class="dot">→</span>Superheterodyne architecture with IF = 10.7 MHz universally
+                            adopted</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Radar &amp; Avionics</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">→</span>FM radar altimeters use FM-CW signals; PLL demodulation recovers
+                            altitude information</li>
+                        <li><span class="dot">→</span>VOR (VHF Omnidirectional Range) uses FM modulated reference signal
+                        </li>
+                        <li><span class="dot">→</span>Superheterodyne architecture enables narrow-band IF filtering for
+                            selectivity</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Cellular &amp; Wireless</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">→</span>Legacy GSM systems used frequency-shift keying (a form of digital
+                            FM)</li>
+                        <li><span class="dot">→</span>Bluetooth uses GFSK (Gaussian FSK) — demodulated using
+                            discriminator circuits</li>
+                        <li><span class="dot">→</span>Image rejection is critical in crowded 2.4 GHz band</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-amb">
+                    <div class="mc-t">Instrumentation &amp; Telemetry</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">→</span>Vibration sensors transmit FM signals over power lines</li>
+                        <li><span class="dot">→</span>Biomedical telemetry (ECG, EEG) uses FM for noise immunity</li>
+                        <li><span class="dot">→</span>Space telemetry: NASA deep space missions use FM with PLL
+                            receivers for weak-signal recovery</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p>Understanding FM demodulation also gives you insight into <strong>receiver design philosophy</strong> —
+                why the superheterodyne architecture became the universal standard for virtually all radio receivers
+                built after 1920, and why it remains dominant today despite being nearly a century old.</p>
+        </div>
+
+        <!-- ═══ SECTION 2: FREQUENCY DISCRIMINATOR ═══ -->
+        <div class="section" id="s2">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 8.2</span>
+                <h2 class="sec-t">Frequency Discriminator</h2>
+            </div>
+
+            <p>A <strong>frequency discriminator</strong> is the classical FM demodulator. It converts instantaneous
+                frequency deviations into proportional output voltage changes. The name "discriminator" comes from its
+                ability to <em>discriminate</em> between different frequencies.</p>
+
+            <div class="callout c-key">
+                <div class="ci">🎯</div>
+                <div class="cb">
+                    <div class="ct">Core Principle</div>
+                    <p>An FM signal carries information in its instantaneous frequency \(f_i(t) = f_c + k_f m(t)\). The
+                        discriminator must produce an output voltage <em>linearly proportional</em> to \(f_i(t) - f_c\),
+                        i.e., proportional to \(m(t)\).</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Intuitive Understanding: The Frequency-to-Amplitude Converter</h3>
+            <p>Think of a simple LC circuit tuned slightly off-resonance. At resonance, the impedance is purely
+                resistive and maximum. As frequency moves away from resonance, the impedance changes — and so does the
+                voltage across the circuit. This <strong>slope of the impedance-vs-frequency curve</strong> is exactly
+                what a discriminator exploits.</p>
+
+            <p>A practical discriminator uses <strong>two resonant circuits</strong> tuned above and below the carrier
+                frequency, and the difference of their outputs gives a linear characteristic — this is the balanced
+                discriminator or the <em>Foster-Seeley discriminator.</em><sup class="cite">[1]</sup></p>
+
+            <!-- SVG: Frequency discriminator block diagram -->
+            <div class="svg-wrap">
+                <img src="images/ch8/fig8.1.png" alt="Image 1" />
+                <div class="svg-cap">Fig 8.1 — Ideal FM Discriminator: amplitude limiter removes noise, differentiator
+                    converts FM to AM, envelope detector recovers m(t)</div>
+                <div class="svg-cite">Original diagram · Derived from Haykin [1] and Lathi [2]</div>
+            </div>
+
+            <h3 class="sub">Mathematical Derivation</h3>
+            <p>Let the received FM signal be:<sup class="cite">[1]</sup></p>
+            <div class="math-block">
+                <div class="math-lbl">FM Signal (input to discriminator)</div>
+                $$s(t) = A_c \cos\!\left(2\pi f_c t + 2\pi k_f \int_{-\infty}^{t} m(\tau)\,d\tau\right)$$
+            </div>
+            <p>After passing through the amplitude limiter (which removes amplitude fluctuations), the signal is
+                differentiated:</p>
+            <div class="math-block">
+                <div class="math-lbl">After differentiation</div>
+                $$\frac{ds}{dt} = -A_c \cdot 2\pi \underbrace{\left[f_c + k_f m(t)\right]}_{f_i(t)} \cdot
+                \sin\!\left(2\pi f_c t + 2\pi k_f \int m\,d\tau\right)$$
+            </div>
+            <p>This differentiated signal is an AM signal whose <strong>instantaneous amplitude is \(2\pi A_c
+                    f_i(t)\)</strong>. The envelope detector recovers this amplitude:</p>
+            <div class="math-block">
+                <div class="math-lbl">Envelope detector output</div>
+                $$v_o(t) = 2\pi A_c f_i(t) = 2\pi A_c [f_c + k_f m(t)]$$
+            </div>
+            <p>After DC blocking (removing the \(2\pi A_c f_c\) term):</p>
+            <div class="math-block">
+                <div class="math-lbl">Final demodulated output</div>
+                $$\boxed{v_o(t) = 2\pi A_c k_f \cdot m(t)}$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">✅</div>
+                <div class="cb">
+                    <div class="ct">Key Insight</div>
+                    <p>The output is <em>linearly</em> proportional to \(m(t)\) — perfect demodulation! The constant
+                        \(2\pi A_c k_f\) is just a gain factor and can be removed by normalisation. The
+                        <strong>differentiator does the heavy lifting</strong> by converting instantaneous frequency
+                        variation into amplitude variation.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Foster-Seeley Discriminator (Phase Discriminator)</h3>
+            <p>The practical implementation most commonly used in FM receivers is the <strong>Foster-Seeley
+                    discriminator</strong>. It uses a double-tuned transformer where the primary and secondary are both
+                tuned to the carrier frequency \(f_c\).<sup class="cite">[2]</sup></p>
+
+            <!-- SVG: Foster-Seeley discriminator characteristic curve -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch8/fig8.2.png" alt="Image 2" />
+            </div>
+
+            <h3 class="sub">Ratio Detector</h3>
+            <p>A variant of the Foster-Seeley discriminator is the <strong>ratio detector</strong>. The key advantage:
+                it is <em>inherently insensitive to amplitude variations</em>, eliminating the need for a separate
+                limiter stage. This makes it popular in practical receivers where circuit simplicity is important.<sup
+                    class="cite">[2]</sup></p>
+
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Foster-Seeley</th>
+                            <th>Ratio Detector</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Requires limiter?</td>
+                            <td class="t-red">Yes</td>
+                            <td class="t-grn">No</td>
+                        </tr>
+                        <tr>
+                            <td>AM rejection</td>
+                            <td>Poor (needs limiter)</td>
+                            <td class="t-grn">Good (built-in)</td>
+                        </tr>
+                        <tr>
+                            <td>Sensitivity</td>
+                            <td class="t-grn">Higher</td>
+                            <td>Lower</td>
+                        </tr>
+                        <tr>
+                            <td>Circuit complexity</td>
+                            <td>Moderate</td>
+                            <td>Moderate</td>
+                        </tr>
+                        <tr>
+                            <td>GATE importance</td>
+                            <td class="t-org">🟢 High</td>
+                            <td class="t-amb">🟡 Medium</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 3: PLL DEMODULATION ═══ -->
+        <div class="section" id="s3">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 8.3</span>
+                <h2 class="sec-t">PLL Demodulation</h2>
+            </div>
+
+            <p>The <strong>Phase-Locked Loop (PLL)</strong> is the modern FM demodulator of choice. Unlike the
+                discriminator, which works by frequency-to-amplitude conversion, the PLL achieves demodulation by
+                <em>forcing a local oscillator to track the frequency of the incoming FM signal.</em> The control
+                voltage needed to achieve this tracking is precisely the demodulated output.
+            </p>
+
+            <div class="callout c-info">
+                <div class="ci">💡</div>
+                <div class="cb">
+                    <div class="ct">Intuitive Analogy</div>
+                    <p>Imagine you are walking behind a friend whose speed keeps changing. To keep pace (zero relative
+                        velocity), you must continuously adjust your walking speed. The <em>effort you exert to adjust
+                            your speed</em> is exactly proportional to your friend's velocity. That effort is the
+                        demodulated message. The PLL does exactly this — its VCO tracks the FM signal's instantaneous
+                        frequency, and the control voltage is m(t).</p>
+                </div>
+            </div>
+
+            <h3 class="sub">PLL Architecture</h3>
+
+            <!-- SVG: PLL block diagram -->
+            <div class="svg-wrap">
+                <img src="images/ch8/fig8.3.png" alt="Image 3" />
+            </div>
+
+            <h3 class="sub">Mathematical Analysis of PLL Demodulator</h3>
+            <p>The FM input signal is \(s(t) = A_c \cos\!\left(2\pi f_c t + \phi_i(t)\right)\) where \(\phi_i(t) = 2\pi
+                k_f \int m(\tau)\,d\tau\).</p>
+            <p>The VCO output is \(r(t) = A_v \sin\!\left(2\pi f_c t + \phi_v(t)\right)\) where \(\phi_v(t) = 2\pi k_v
+                \int v_c(\tau)\,d\tau\).</p>
+
+            <p>The phase detector multiplies the two and the LPF retains only the difference term. For small phase
+                errors (linear approximation):<sup class="cite">[1]</sup></p>
+            <div class="math-block">
+                <div class="math-lbl">Phase Error (Locked condition)</div>
+                $$\theta_e(t) = \phi_i(t) - \phi_v(t) \approx 0 \quad \text{(when PLL is locked)}$$
+            </div>
+            <div class="math-block">
+                <div class="math-lbl">VCO control voltage (= demodulated output)</div>
+                $$v_c(t) = \frac{k_f}{k_v} \cdot m(t)$$
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🔑</div>
+                <div class="cb">
+                    <div class="ct">GATE Insight — PLL vs Discriminator</div>
+                    <p>When the PLL is locked, the VCO frequency equals the instantaneous FM frequency. Since \(f_v =
+                        f_c + k_v v_c\), and \(f_i = f_c + k_f m(t)\), locking means \(v_c = (k_f/k_v)\,m(t)\) — perfect
+                        demodulation. The PLL acts as a <strong>feedback system</strong>, so it has superior noise
+                        performance compared to the open-loop discriminator.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">PLL Performance Advantages</h3>
+            <div class="two-col">
+                <div class="mini-card mc-grn">
+                    <div class="mc-t">Advantages of PLL</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">✓</span>Better noise performance (SNR improvement) at low carrier-to-noise
+                            ratios</li>
+                        <li><span class="dot">✓</span>No separate limiter needed (inherent amplitude rejection)</li>
+                        <li><span class="dot">✓</span>Can track slowly varying carrier frequency (frequency uncertainty)
+                        </li>
+                        <li><span class="dot">✓</span>Easily integrated in CMOS ICs</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-red">
+                    <div class="mc-t">Limitations of PLL</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">✗</span>Acquisition range limited — will not lock if initial frequency
+                            offset too large</li>
+                        <li><span class="dot">✗</span>More complex than simple discriminator</li>
+                        <li><span class="dot">✗</span>Threshold effect still exists at very low SNR</li>
+                        <li><span class="dot">✗</span>Loop filter design affects demodulation bandwidth</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 4: SUPERHETERODYNE RECEIVER ═══ -->
+        <div class="section" id="s4">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 8.4</span>
+                <h2 class="sec-t">Superheterodyne Receiver</h2>
+            </div>
+
+            <p>The <strong>superheterodyne receiver</strong> (invented by Edwin Armstrong in 1918) is the most widely
+                used receiver architecture in history. Almost every radio, TV tuner, radar, and wireless receiver built
+                today uses this principle. Its genius: instead of amplifying and filtering at the <em>received</em>
+                frequency (which varies as you tune), it converts all incoming signals to a <strong>single fixed
+                    intermediate frequency (IF)</strong> before amplification and filtering.</p>
+
+            <div class="callout c-info">
+                <div class="ci">🏆</div>
+                <div class="cb">
+                    <div class="ct">Why "Superheterodyne"?</div>
+                    <p>"Super" refers to supersonic (ultrasonic) intermediate frequencies used originally. "Heterodyne"
+                        means mixing two frequencies to produce sum and difference (heterodyning). The IF amplifier
+                        operates at a fixed frequency, allowing highly selective, high-gain amplification — impossible
+                        to achieve at varying RF frequencies.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Architecture — Complete Block Diagram</h3>
+
+            <!-- SVG: Superheterodyne receiver block diagram -->
+            <div class="svg-wrap">
+                <img src="images/ch8/fig8.4.png" alt="Image 4" />
+            </div>
+
+            <h3 class="sub">How the Superheterodyne Works — Step by Step</h3>
+            <p><strong>Step 1 — RF Amplifier (Pre-selector):</strong> The antenna picks up signals across the entire RF
+                spectrum. A broad bandpass filter (pre-selector) centred at the desired station frequency \(f_s\)
+                reduces interference from other stations and the image frequency (explained in §8.5). The RF amplifier
+                boosts the weak antenna signal.<sup class="cite">[3]</sup></p>
+
+            <p><strong>Step 2 — Mixer (Frequency Conversion):</strong> The mixer combines the RF signal at \(f_s\) with
+                the local oscillator (LO) signal at \(f_{LO}\). The mixer is a nonlinear device that produces output
+                components at \(f_{LO} + f_s\) and \(f_{LO} - f_s\). We retain the difference \(f_{IF} = f_{LO} - f_s\).
+            </p>
+
+            <div class="math-block">
+                <div class="math-lbl">Frequency Conversion</div>
+                $$f_{IF} = f_{LO} - f_s \quad \text{(high-side injection)}$$
+                $$\text{or}\quad f_{IF} = f_s - f_{LO} \quad \text{(low-side injection)}$$
+            </div>
+
+            <p><strong>Step 3 — IF Amplifier:</strong> The IF amplifier operates at the fixed frequency \(f_{IF}\) (10.7
+                MHz for FM broadcast; 455 kHz for AM broadcast). Because the frequency is fixed, highly selective,
+                high-Q bandpass filters and very high gain can be designed and manufactured precisely. This is the key
+                advantage over older TRF (Tuned Radio Frequency) receivers.</p>
+
+            <p><strong>Step 4 — Limiter:</strong> Removes amplitude variations (noise, fading). Essential before the
+                discriminator.</p>
+
+            <p><strong>Step 5 — FM Demodulator:</strong> Recovers \(m(t)\) using discriminator or PLL.</p>
+
+            <div class="callout c-key">
+                <div class="ci">📐</div>
+                <div class="cb">
+                    <div class="ct">Standard IF Frequencies (Important for GATE)</div>
+                    <p>FM broadcast: <strong>10.7 MHz</strong> · AM broadcast: <strong>455 kHz</strong> · TV:
+                        <strong>38.9 MHz (video), 32.9 MHz (sound)</strong> · GPS: <strong>1575.42 MHz L1</strong>
+                        (direct conversion). Knowing these values is expected in GATE and IES.
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="sub">Why Superheterodyne Dominates — Comparison with TRF</h3>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>TRF Receiver</th>
+                            <th>Superheterodyne</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Selectivity</td>
+                            <td class="t-red">Variable, degrades at high freq</td>
+                            <td class="t-grn">Fixed, excellent at IF</td>
+                        </tr>
+                        <tr>
+                            <td>Sensitivity (Gain)</td>
+                            <td class="t-red">Low — varies with tuning</td>
+                            <td class="t-grn">High — fixed IF gain stages</td>
+                        </tr>
+                        <tr>
+                            <td>Tracking problem</td>
+                            <td class="t-red">Multiple tuned circuits must track</td>
+                            <td class="t-grn">Only LO tracks; IF is fixed</td>
+                        </tr>
+                        <tr>
+                            <td>Image frequency</td>
+                            <td>Not applicable</td>
+                            <td class="t-red">Exists (major drawback)</td>
+                        </tr>
+                        <tr>
+                            <td>Circuit complexity</td>
+                            <td class="t-grn">Simple</td>
+                            <td>Moderate</td>
+                        </tr>
+                        <tr>
+                            <td>Use today</td>
+                            <td class="t-red">Virtually obsolete</td>
+                            <td class="t-grn">Universal</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 5: IMAGE FREQUENCY ═══ -->
+        <div class="section" id="s5">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 8.5</span>
+                <h2 class="sec-t">Image Frequency Problem</h2>
+            </div>
+
+            <p>The image frequency is the <strong>most important concept</strong> in superheterodyne receiver design
+                from a GATE perspective. <span class="prob prob-h">🟢 HIGH GATE PROB</span></p>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">The Problem Statement</div>
+                    <p>The mixer produces an IF output whenever <em>any</em> input signal differs from the LO by
+                        \(f_{IF}\). Since \(f_{LO} - f_s = f_{IF}\), there exists another frequency \(f_{si} = f_{LO} +
+                        f_{IF}\) which also produces an output at \(f_{IF}\). This <strong>image frequency</strong> acts
+                        as an unwanted interferer that cannot be removed by the IF filter.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">Deriving the Image Frequency Formula</h3>
+            <p>With high-side injection (\(f_{LO} = f_s + f_{IF}\)), any signal at:<sup class="cite">[3]</sup></p>
+            <div class="math-block">
+                <div class="math-lbl">Image Frequency (high-side injection)</div>
+                $$f_{si} = f_{LO} + f_{IF} = f_s + 2f_{IF}$$
+            </div>
+            <div class="math-block">
+                <div class="math-lbl">Image Frequency (low-side injection)</div>
+                $$f_{si} = f_{LO} - f_{IF} = f_s - 2f_{IF}$$
+            </div>
+            <p>The image frequency is always separated from the desired signal by <strong>\(2f_{IF}\)</strong>. The
+                pre-selector (RF BPF) must reject this frequency.</p>
+
+            <!-- SVG: Image frequency visualisation on spectrum -->
+            <div class="svg-wrap">
+                <img src="images/ch8/fig8.5.png" alt="Image 5" />
+            </div>
+
+            <h3 class="sub">Image Rejection Ratio (IRR)</h3>
+            <p>The <strong>Image Rejection Ratio</strong> measures how well the receiver suppresses the image frequency
+                signal relative to the desired signal. It is defined as:<sup class="cite">[3]</sup></p>
+            <div class="math-block">
+                <div class="math-lbl">Image Rejection Ratio</div>
+                $$\text{IRR} = \frac{\text{Gain at desired frequency } f_s}{\text{Gain at image frequency } f_{si}} =
+                \sqrt{1 + Q^2 \rho^2}$$
+            </div>
+            <p>where \(\rho = \frac{f_{si}}{f_s} - \frac{f_s}{f_{si}}\) and \(Q\) is the quality factor of the
+                pre-selector filter.</p>
+            <div class="math-block">
+                <div class="math-lbl">In dB</div>
+                $$\text{IRR (dB)} = 20\log_{10}\!\left(\sqrt{1 + Q^2\rho^2}\right)$$
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">❌</div>
+                <div class="cb">
+                    <div class="ct">Why High IF Helps Image Rejection</div>
+                    <p>If \(f_{IF}\) is large, the image frequency \(f_{si} = f_s + 2f_{IF}\) is far from \(f_s\),
+                        making it <em>easier</em> for the pre-selector to reject it. But high IF makes the IF filter
+                        design harder (lower Q at higher frequency). This is the fundamental <strong>selectivity–image
+                            rejection tradeoff</strong> in superheterodyne design.</p>
+                </div>
+            </div>
+
+            <h3 class="sub">The Dual Conversion Superheterodyne</h3>
+            <p>To resolve this tradeoff, many receivers use <strong>dual conversion</strong>: two IF stages. The first
+                IF is high (good image rejection), and the second IF is low (good selectivity and gain). This
+                architecture is used in high-performance communications receivers and spectrum analysers.<sup
+                    class="cite">[4]</sup></p>
+
+            <!-- SVG: Dual conversion -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch8/fig8.6.png" alt="Image 6" />
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 6: IF AMPLIFIER ═══ -->
+        <div class="section" id="s6">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 8.6</span>
+                <h2 class="sec-t">IF Amplifier</h2>
+            </div>
+
+            <p>The <strong>Intermediate Frequency (IF) amplifier</strong> is the heart of the superheterodyne receiver.
+                It provides the bulk of the receiver's gain and selectivity at a <em>fixed</em> intermediate frequency.
+                Because the frequency does not change as you tune the receiver, the IF amplifier can be optimised once
+                and performs consistently across the entire tuning range.</p>
+
+            <h3 class="sub">Key Characteristics of IF Amplifier</h3>
+            <div class="two-col">
+                <div class="mini-card mc-org">
+                    <div class="mc-t">Bandwidth Requirements</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">→</span>FM broadcast IF (10.7 MHz): bandwidth ≈ 200 kHz (for 75 kHz
+                            deviation + guard bands)</li>
+                        <li><span class="dot">→</span>AM broadcast IF (455 kHz): bandwidth ≈ 10 kHz</li>
+                        <li><span class="dot">→</span>SSB: bandwidth ≈ 3.5 kHz</li>
+                    </ul>
+                </div>
+                <div class="mini-card mc-tel">
+                    <div class="mc-t">Design Parameters</div>
+                    <ul class="mc-list">
+                        <li><span class="dot">→</span>Gain: typically 60–80 dB (multiple cascaded stages)</li>
+                        <li><span class="dot">→</span>Selectivity: high-Q LC circuits or ceramic/crystal filters</li>
+                        <li><span class="dot">→</span>Noise figure must be low (SNR set mainly by first stage)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="sub">Selectivity and Bandwidth</h3>
+            <p>The IF amplifier uses a <strong>bandpass filter</strong> centred at \(f_{IF}\). The bandwidth must be
+                wide enough to pass all sidebands of the FM signal but narrow enough to reject adjacent channels. For FM
+                broadcast:</p>
+            <div class="math-block">
+                <div class="math-lbl">Carson's Rule (FM bandwidth)</div>
+                $$B_T = 2(\Delta f + f_m) = 2(\beta + 1)f_m$$
+            </div>
+            <p>where \(\Delta f\) is the maximum frequency deviation, \(f_m\) is the highest message frequency, and
+                \(\beta = \Delta f / f_m\) is the modulation index. For commercial FM: \(\Delta f = 75\text{ kHz}\),
+                \(f_m = 15\text{ kHz}\), giving \(B_T = 180\text{ kHz} \approx 200\text{ kHz}\).<sup
+                    class="cite">[1]</sup></p>
+
+            <h3 class="sub">Noise Figure and Friis Formula</h3>
+            <p>In a cascaded receiver system (RF amp → Mixer → IF amp), the overall noise figure is dominated by the
+                first stage. The <strong>Friis formula</strong> gives:<sup class="cite">[1]</sup></p>
+            <div class="math-block">
+                <div class="math-lbl">Friis Noise Figure Formula</div>
+                $$F_{total} = F_1 + \frac{F_2 - 1}{G_1} + \frac{F_3 - 1}{G_1 G_2} + \cdots$$
+            </div>
+            <p>where \(F_n\) is the noise factor and \(G_n\) is the gain of each stage. This shows why the RF amplifier
+                (stage 1) must have <em>low noise figure and adequate gain</em> — it sets the noise floor for the entire
+                receiver.</p>
+
+            <div class="callout c-key">
+                <div class="ci">🎓</div>
+                <div class="cb">
+                    <div class="ct">IES / PSU Interview Point</div>
+                    <p>The IF amplifier operates at a single fixed frequency — this allows the use of <strong>ceramic IF
+                            filters</strong> (piezoelectric resonators) that provide very high Q (300–1000) at low cost
+                        and small size. Crystal filters provide even higher Q. These cannot be made at variable RF
+                        frequencies, which is why the superheterodyne architecture was such a breakthrough.</p>
+                </div>
+            </div>
+
+            <!-- SVG: IF filter response -->
+            <div class="svg-wrap svg-simple">
+                <img src="images/ch8/fig8.7.png" alt="Image 7" />
+            </div>
+
+            <h3 class="sub">AGC — Automatic Gain Control</h3>
+            <p>The IF amplifier includes an <strong>Automatic Gain Control (AGC)</strong> circuit that adjusts the gain
+                based on signal strength. Strong stations get less gain; weak stations get more. This keeps the
+                demodulator output at a constant level regardless of received signal strength, preventing overload from
+                nearby transmitters and audible fading for distant ones.<sup class="cite">[2]</sup></p>
+        </div>
+
+        <!-- ═══ SECTION 7: CONCEPT BUILDING Q&A ═══ -->
+        <div class="section" id="s7">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 8.7</span>
+                <h2 class="sec-t">Concept Building Questions &amp; Answers</h2>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr"><span class="gate-tag">CBQ 1</span><span class="gate-title">Why does
+                        differentiation convert FM to AM?</span></div>
+                <div class="gate-body">
+                    <p><strong>A:</strong> The FM signal has a <em>constant amplitude</em> \(A_c\) and information in
+                        its instantaneous frequency. When differentiated, the chain rule brings out the instantaneous
+                        angular frequency \(\omega_i(t) = 2\pi f_i(t)\) as a multiplier of the amplitude. So the output
+                        has amplitude \(A_c \cdot 2\pi f_i(t)\) — which now varies in time just like an AM signal. The
+                        key: <strong>differentiation converts frequency modulation in the argument to amplitude
+                            modulation in the envelope.</strong></p>
+                </div>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr"><span class="gate-tag">CBQ 2</span><span class="gate-title">What happens if the
+                        PLL loses lock?</span></div>
+                <div class="gate-body">
+                    <p><strong>A:</strong> If the input FM signal's frequency deviates beyond the <strong>hold-in
+                            range</strong> of the PLL, the loop loses lock. The VCO can no longer track the input, and
+                        the output \(v_c(t)\) becomes noisy and meaningless. The PLL must then go through the
+                        <strong>acquisition process</strong> to re-lock — which takes time and results in signal
+                        dropout. This is the PLL's Achilles' heel in mobile and fading environments.
+                    </p>
+                </div>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr"><span class="gate-tag">CBQ 3</span><span class="gate-title">Why can't the IF
+                        filter remove the image frequency?</span></div>
+                <div class="gate-body">
+                    <p><strong>A:</strong> Because by the time the signal reaches the IF filter, the image has already
+                        been <em>converted to the same IF frequency</em> as the desired signal. The mixer maps both
+                        \(f_s\) and \(f_{si} = f_s + 2f_{IF}\) to the same \(f_{IF}\). After mixing, they are
+                        indistinguishable to any filter. The image must be suppressed <em>before</em> mixing — that's
+                        the job of the pre-selector RF filter.</p>
+                </div>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr"><span class="gate-tag">CBQ 4</span><span class="gate-title">What is the effect of
+                        increasing \( f_{ ext{IF}} \) on receiver performance?</span></div>
+                <div class="gate-body">
+                    <p><strong>A:</strong> Increasing \(f_{IF}\) increases \(2f_{IF}\) — the separation between desired
+                        and image frequency. This makes image rejection easier (better IRR) because the pre-selector can
+                        more easily attenuate the image. <em>However</em>, a higher IF makes it harder to build a
+                        narrow, high-Q IF filter, reducing selectivity (ability to reject adjacent channels). This is
+                        the fundamental tradeoff that led to the invention of dual-conversion receivers.</p>
+                </div>
+            </div>
+
+            <div class="gate-card">
+                <div class="gate-hdr"><span class="gate-tag">CBQ 5</span><span class="gate-title">Why is the limiter
+                        needed before the FM discriminator?</span></div>
+                <div class="gate-body">
+                    <p><strong>A:</strong> FM signals carry information only in frequency — not in amplitude. However,
+                        the channel introduces amplitude variations (noise, multipath). The discriminator
+                        (differentiator + envelope detector) would interpret these amplitude variations as frequency
+                        changes, corrupting the output. The <strong>limiter clips the signal to constant
+                            amplitude</strong>, removing all amplitude noise before the discriminator sees it. This is
+                        why FM is inherently more noise-immune than AM — the limiter stage removes noise for free.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 8: GATE & IES QUESTIONS ═══ -->
+        <div class="section" id="s8">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 8.8</span>
+                <h2 class="sec-t">GATE &amp; IES Previous Year Questions</h2>
+            </div>
+
+            <!-- PYQ 1 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EC</span>
+                    <span class="pyq-title">A superheterodyne receiver operates in the range 550–1650 kHz. The IF is 450
+                        kHz. For high-side injection, the image frequency for a desired station at 800 kHz is:</span>
+                    <span class="pyq-year">GATE EC 2014</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) &nbsp; 350 kHz</li>
+                        <li>(B) &nbsp; 800 kHz</li>
+                        <li class="correct">✓ &nbsp;(C) &nbsp; 1700 kHz — [\( f_{si} = f_s + 2f_{\text{IF}} \) = 800 +
+                            2×450 = 1700 kHz]
+                        </li>
+                        <li>(D) &nbsp; 1250 kHz</li>
+                    </ul>
+                    <p><strong>Solution:</strong> For high-side injection, \(f_{LO} = f_s + f_{IF} = 800 + 450 = 1250\)
+                        kHz. Image frequency: \(f_{si} = f_{LO} + f_{IF} = 1250 + 450 = \mathbf{1700}\) kHz, or
+                        equivalently \(f_{si} = f_s + 2f_{IF} = 800 + 900 = 1700\) kHz.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 2 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EC</span>
+                    <span class="pyq-title">In an FM demodulator, the discriminator output is proportional to:</span>
+                    <span class="pyq-year">GATE EC 2010</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) &nbsp; The amplitude of the FM signal</li>
+                        <li>(B) &nbsp; The integral of the message signal</li>
+                        <li class="correct">✓ &nbsp;(C) &nbsp; The instantaneous frequency deviation — [Output ∝ \( k_f
+                            \) ·
+                            m(t)]</li>
+                        <li>(D) &nbsp; The phase of the carrier</li>
+                    </ul>
+                    <p><strong>Solution:</strong> The discriminator converts \(f_i(t) - f_c = k_f m(t)\) to a
+                        proportional voltage. The output is \(v_o = A \cdot k_f \cdot m(t)\), which is proportional to
+                        the instantaneous frequency deviation — equivalently, to \(m(t)\) itself.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 3 IES -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">Which of the following is the advantage of the ratio detector
+                        over the Foster-Seeley discriminator?</span>
+                    <span class="pyq-year">IES 2016</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) &nbsp; Higher output voltage</li>
+                        <li class="correct">✓ &nbsp;(B) &nbsp; Does not require a preceding limiter stage</li>
+                        <li>(C) &nbsp; Better linearity</li>
+                        <li>(D) &nbsp; Wider capture range</li>
+                    </ul>
+                    <p><strong>Solution:</strong> The ratio detector inherently rejects amplitude variations due to the
+                        large capacitor in its circuit that holds the total diode voltage constant. This removes the
+                        need for a separate limiter, simplifying the receiver design. The Foster-Seeley is sensitive to
+                        amplitude variations and must be preceded by a limiter.</p>
+                </div>
+            </div>
+
+            <!-- PYQ 4 -->
+            <div class="pyq-card">
+                <div class="pyq-hdr">
+                    <span class="pyq-tag pyq-gate">GATE EC</span>
+                    <span class="pyq-title">In a PLL-based FM demodulator, the VCO control voltage is proportional
+                        to:</span>
+                    <span class="pyq-year">GATE EC 2018</span>
+                </div>
+                <div class="pyq-body">
+                    <ul class="pyq-opts">
+                        <li>(A) &nbsp; \(\int m(t)\,dt\)</li>
+                        <li class="correct">✓ &nbsp;(B) &nbsp; \(m(t)\) — [\( v_c = \frac{k_f}{k_v} \cdot m(t) \) when
+                            locked]</li>
+                        <li>(C) &nbsp; \(m^2(t)\)</li>
+                        <li>(D) &nbsp; \(dm/dt\)</li>
+                    </ul>
+                    <p><strong>Solution:</strong> When the PLL is locked, \(f_{VCO} = f_i(t) = f_c + k_f m(t)\). Since
+                        \(f_{VCO} = f_c + k_v v_c(t)\), we get \(v_c(t) = (k_f/k_v) m(t)\). The control voltage is
+                        directly proportional to the message signal \(m(t)\).</p>
+                </div>
+            </div>
+
+            <!-- PYQ 5 IES Numerical -->
+            <div class="pyq-card ies-card">
+                <div class="pyq-hdr ies-hdr">
+                    <span class="pyq-tag pyq-ies">IES E&amp;T</span>
+                    <span class="pyq-title pyq-title-ies">An FM receiver has IF = 10.7 MHz, and is tuned to 98 MHz.
+                        Using high-side injection, find the local oscillator frequency and image frequency.</span>
+                    <span class="pyq-year">IES 2019</span>
+                </div>
+                <div class="pyq-body">
+                    <p><strong>Solution:</strong></p>
+                    <p>Given: \(f_s = 98\) MHz, \(f_{IF} = 10.7\) MHz, high-side injection.</p>
+                    <p>Local oscillator: \(f_{LO} = f_s + f_{IF} = 98 + 10.7 = \mathbf{108.7}\) MHz</p>
+                    <p>Image frequency: \(f_{si} = f_s + 2f_{IF} = 98 + 21.4 = \mathbf{119.4}\) MHz</p>
+                    <p>Note: 119.4 MHz is <em>outside</em> the FM broadcast band (88–108 MHz), which is why the standard
+                        10.7 MHz IF was chosen — the image frequency falls outside the band for most tuned stations,
+                        naturally aiding image rejection.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 9: COMMON MISTAKES ═══ -->
+        <div class="section" id="s9">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 8.9</span>
+                <h2 class="sec-t">Common Student Mistakes</h2>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">❌</div>
+                <div class="cb">
+                    <div class="ct">Mistake 1 — Confusing Image Rejection and Selectivity</div>
+                    <p>Image rejection is the suppression of the frequency \(f_s + 2f_{IF}\) (or \(f_s - 2f_{IF}\)) —
+                        done by the <em>pre-selector RF filter before mixing</em>. Selectivity is the rejection of
+                        <em>adjacent channels</em> — done by the <em>IF filter after mixing</em>. These are two
+                        different problems, solved by two different filters.
+                    </p>
+                </div>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">❌</div>
+                <div class="cb">
+                    <div class="ct">Mistake 2 — Wrong Image Frequency Formula</div>
+                    <p>The image frequency is NOT \(f_{LO}\). It is \(f_{si} = f_s + 2f_{IF}\) (high-side injection) or
+                        \(f_{si} = f_s - 2f_{IF}\) (low-side injection). Memorise: image = desired ± 2·IF. Many students
+                        write \(f_{si} = f_{LO} + f_{IF}\) — while this gives the same result, it is confusing. The
+                        formula \(f_{si} = f_s + 2f_{IF}\) is the clearest.</p>
+                </div>
+            </div>
+
+            <div class="callout c-danger">
+                <div class="ci">❌</div>
+                <div class="cb">
+                    <div class="ct">Mistake 3 — PLL Output is Phase, Not Frequency</div>
+                    <p>Students often confuse the PLL phase detector output (which measures <em>phase error</em>) with
+                        the final demodulator output (which is proportional to frequency deviation = message). The loop
+                        filter integrates the phase error to drive the VCO; the VCO control voltage at steady state is
+                        proportional to <em>frequency deviation</em>, which equals \(m(t)\). Do not confuse phase with
+                        frequency.</p>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Mistake 4 — Forgetting the Limiter in Discriminator Circuits</div>
+                    <p>The Foster-Seeley discriminator is sensitive to amplitude variations. Without a limiter, AM noise
+                        appears in the demodulated output. The ratio detector avoids this, but the Foster-Seeley (which
+                        is GATE-frequent) <em>requires</em> a limiter. Always include the limiter when drawing the
+                        discriminator-based demodulator.</p>
+                </div>
+            </div>
+
+            <div class="callout c-warn">
+                <div class="ci">⚠️</div>
+                <div class="cb">
+                    <div class="ct">Mistake 5 — High IF → Always Better Performance</div>
+                    <p>Higher IF improves image rejection BUT reduces selectivity (because filter Q must be higher at
+                        higher frequency for the same bandwidth). It also increases spurious responses. There is always
+                        a tradeoff — dual conversion solves this by using two IFs: one high (for image rejection) and
+                        one low (for selectivity).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 10: MEMORY TRICKS ═══ -->
+        <div class="section" id="s10">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 8.10</span>
+                <h2 class="sec-t">Memory Tricks &amp; Mnemonics</h2>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic 1 — Superheterodyne Block Order</div>
+                    <p><strong>"A Man In London Does Aeroplane Maintenance"</strong><br>
+                        <strong>A</strong>ntenna → <strong>M</strong>ixer → <strong>I</strong>F Amp →
+                        <strong>L</strong>imiter → <strong>D</strong>emodulator → <strong>A</strong>udio Amp →
+                        <strong>M</strong>essage out<br>
+                        (Insert RF Amp between Antenna and Mixer if needed.)
+                    </p>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic 2 — Image Frequency</div>
+                    <p><strong>"Image is two IF's away from desired"</strong><br>
+                        \(f_{image} = f_{desired} + 2 \times f_{IF}\) (high side) or \(f_{desired} - 2 \times f_{IF}\)
+                        (low side).<br>
+                        Think: IF is the "gap" — image sits two gaps away. Draw the number line: <em>desired — gap — LO
+                            — gap — image</em>.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic 3 — Standard IF Values</div>
+                    <p><strong>"FM → 10.7 · AM → 455 · TV → 38.9"</strong><br>
+                        FM broadcast: <strong>10.7 MHz</strong> (remember: "ten point seven")<br>
+                        AM broadcast: <strong>455 kHz</strong> (remember: "four fifty five")<br>
+                        TV (video): <strong>38.9 MHz</strong> (remember: "thirty-eight nine")<br>
+                        These are required for direct GATE numericals.</p>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Mnemonic 4 — Foster-Seeley vs Ratio Detector</div>
+                    <p><strong>"Foster Needs Limits, Ratio Rejects Ratio"</strong><br>
+                        <strong>F</strong>oster-Seeley = needs <strong>F</strong>ull limiter<br>
+                        <strong>R</strong>atio detector = inherently <strong>R</strong>ejects amplitude (has built-in AM
+                        rejection)<br>
+                        Ratio detector sacrifices sensitivity for AM immunity.
+                    </p>
+                </div>
+            </div>
+
+            <div class="callout c-tip">
+                <div class="ci">🧠</div>
+                <div class="cb">
+                    <div class="ct">Story — PLL Demodulation</div>
+                    <p>Imagine a dog (VCO) on a leash (loop filter). The owner (FM signal) walks at varying speed. The
+                        dog must match the owner's speed exactly (phase lock). The tension in the leash — the effort to
+                        stay locked — is exactly proportional to the owner's speed change. That leash tension =
+                        \(v_c(t)\) = demodulated \(m(t)\).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 11: NUMERICAL EXAMPLES ═══ -->
+        <div class="section" id="s11">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 8.11</span>
+                <h2 class="sec-t">Numerical Examples</h2>
+            </div>
+
+            <!-- Example 1: Basic -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 8.1</span>
+                    <span class="ex-title">Basic — Image Frequency Calculation</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An AM receiver uses an IF of 455 kHz. The receiver is tuned to 1000 kHz (1 MHz)
+                        using high-side injection. Find: (a) Local oscillator frequency, (b) Image frequency, (c)
+                        Comment on whether the image falls inside the AM broadcast band (535–1605 kHz).</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p><strong>(a) Local Oscillator Frequency:</strong></p>
+                    <div class="math-block">
+                        <div class="math-lbl">High-side injection</div>
+                        $$f_{LO} = f_s + f_{IF} = 1000 + 455 = \mathbf{1455} \text{ kHz}$$
+                    </div>
+                    <p><strong>(b) Image Frequency:</strong></p>
+                    <div class="math-block">
+                        <div class="math-lbl">Image = desired + 2·IF</div>
+                        $$f_{si} = f_s + 2f_{IF} = 1000 + 2(455) = 1000 + 910 = \mathbf{1910} \text{ kHz}$$
+                    </div>
+                    <p><strong>(c) Comment:</strong> 1910 kHz is <em>outside</em> the AM broadcast band (535–1605 kHz),
+                        so no legitimate broadcast station can act as image. However, a shortwave station or other
+                        service at 1910 kHz could cause image interference if the pre-selector is too wide.</p>
+                </div>
+            </div>
+
+            <!-- Example 2: GATE Level -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 8.2</span>
+                    <span class="ex-title">GATE-Level — Image Rejection Ratio</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">A superheterodyne receiver has a pre-selector Q = 100. The desired station is at
+                        \(f_s = 1\) MHz and IF = 455 kHz. Calculate the image rejection ratio (IRR) in dB for high-side
+                        injection.</div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>Step 1: Find image frequency:</p>
+                    <div class="math-block">$$f_{si} = f_s + 2f_{IF} = 1000 + 910 = 1910 \text{ kHz}$$</div>
+                    <p>Step 2: Compute \(\rho\):</p>
+                    <div class="math-block">
+                        $$\rho = \frac{f_{si}}{f_s} - \frac{f_s}{f_{si}} = \frac{1910}{1000} - \frac{1000}{1910} = 1.91
+                        - 0.524 = 1.386$$
+                    </div>
+                    <p>Step 3: Compute IRR:</p>
+                    <div class="math-block">
+                        $$\text{IRR} = \sqrt{1 + Q^2\rho^2} = \sqrt{1 + (100)^2(1.386)^2} = \sqrt{1 + 19212} \approx
+                        \sqrt{19213} \approx 138.6$$
+                    </div>
+                    <div class="math-block">
+                        $$\text{IRR (dB)} = 20\log_{10}(138.6) \approx \mathbf{42.8 \text{ dB}}$$
+                    </div>
+                    <p>A higher Q or higher IF would further improve image rejection. If Q were doubled to 200, IRR
+                        would increase by ~6 dB.</p>
+                </div>
+            </div>
+
+            <!-- Example 3: Conceptual -->
+            <div class="example">
+                <div class="ex-hdr">
+                    <span class="ex-num">EXAMPLE 8.3</span>
+                    <span class="ex-title">Conceptual — PLL Demodulator Output</span>
+                </div>
+                <div class="ex-body">
+                    <div class="ex-q">An FM signal with carrier \(f_c = 100\) MHz, frequency sensitivity \(k_f = 50\)
+                        kHz/V, and message \(m(t) = 2\cos(2\pi \cdot 1000 t)\) is applied to a PLL FM demodulator. The
+                        VCO has frequency sensitivity \(k_v = 100\) kHz/V. Find the steady-state output \(v_c(t)\).
+                    </div>
+                    <div class="sol-lbl">Solution</div>
+                    <p>When the PLL is locked, the VCO frequency equals the instantaneous FM frequency:</p>
+                    <div class="math-block">
+                        $$f_i(t) = f_c + k_f m(t) = 100 \text{ MHz} + 50000 \times 2\cos(2\pi \times 1000 t)$$
+                        $$= 100 \text{ MHz} + 100 \text{ kHz} \cdot \cos(2000\pi t)$$
+                    </div>
+                    <p>At lock: \(f_{VCO} = f_i(t)\), so:</p>
+                    <div class="math-block">
+                        $$f_c + k_v v_c(t) = f_c + k_f m(t)$$
+                        $$v_c(t) = \frac{k_f}{k_v} m(t) = \frac{50 \text{ kHz/V}}{100 \text{ kHz/V}} \times
+                        2\cos(2000\pi t)$$
+                        $$\boxed{v_c(t) = 1.0\cos(2000\pi t) \text{ V}}$$
+                    </div>
+                    <p><strong>Physical meaning:</strong> The VCO output perfectly tracks the FM signal. The control
+                        voltage is a 1V amplitude, 1 kHz cosine — the demodulated message signal, with a scaling factor
+                        of \(k_f/k_v = 0.5\).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECTION 12: QUICK REVISION ═══ -->
+        <div class="section" id="s12">
+            <div class="sec-hdr">
+                <span class="sec-num">§ 8.12</span>
+                <h2 class="sec-t">Quick Revision Sheet</h2>
+            </div>
+
+            <div class="sum-grid">
+                <div class="sum-card sc-o">
+                    <div class="sum-lbl">FM Discriminator</div>
+                    <p>Limiter → Differentiator → Envelope Detector. Output \( \propto k_f \cdot m(t) \). Foster-Seeley
+                        needs limiter;
+                        Ratio detector does not. S-curve = linear characteristic. Sensitivity in V/Hz.</p>
+                </div>
+                <div class="sum-card sc-t">
+                    <div class="sum-lbl">PLL Demodulator</div>
+                    <p>VCO tracks FM frequency. Control voltage \( v_c = \frac{k_f}{k_v} \cdot m(t) \) when locked.
+                        Better SNR than
+                        discriminator. Subject to acquisition failure. Holds-in range = lock range.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">Superheterodyne</div>
+                    <p>RF Amp → Mixer → IF Amp → Limiter → Demod → Audio. \( f_{\text{IF}} = 10.7 \text{ MHz} \) (FM),
+                        \( 455 \text{ kHz} \) (AM). LO ganged
+                        with RF. High gain and selectivity at fixed IF. AGC controls level.</p>
+                </div>
+                <div class="sum-card sc-r">
+                    <div class="sum-lbl">Image Frequency</div>
+                    <p>\( f_{si} = f_s + 2f_{\text{IF}} \) (high-side). Image maps to same IF as desired. Must be
+                        rejected by
+                        pre-selector RF BPF. IF filter cannot help. \( \text{IRR} = \sqrt{1 + Q^2\rho^2} \). Higher IF →
+                        better IRR.</p>
+                </div>
+                <div class="sum-card sc-a">
+                    <div class="sum-lbl">IF Amplifier</div>
+                    <p>Fixed frequency → high Q, high gain. \( B_{\text{IF}} \approx 200 \text{ kHz} \) for FM.
+                        Ceramic/crystal filters. AGC
+                        built-in. Noise figure: Friis formula — first stage dominates. Typically 60–80 dB gain.</p>
+                </div>
+                <div class="sum-card sc-g">
+                    <div class="sum-lbl">GATE Formulas</div>
+                    <p>\( f_{si} = f_s \pm 2f_{\text{IF}} \) · \( \text{IRR} = \sqrt{1 + Q^2\rho^2} \) · \( \rho =
+                        \frac{f_{si}}{f_s} - \frac{f_s}{f_{si}} \) · \( B_T = 2(\Delta f + f_m) \) · \( v_c =
+                        \frac{k_f}{k_v} m(t) \)</p>
+                </div>
+            </div>
+
+            <div class="fblock">
+                <span class="flbl">Quick Probability Map — Chapter 8</span>
+                <span class="fv">🟢 HIGH (Appears almost every year)</span>
+                <span class="feq"> Image frequency calculation → \( f_{si} = f_s + 2f_{\text{IF}} \)</span>
+                <span class="feq"> Superheterodyne block diagram identification</span>
+                <span class="feq"> PLL output when locked → \( v_c = \frac{k_f}{k_v} \cdot m(t) \)</span>
+
+                <span class="fv">🟡 MEDIUM (Every 2–3 years)</span>
+                <span class="fh"> Image Rejection Ratio (IRR) numerical</span>
+                <span class="fh"> Foster-Seeley vs Ratio Detector comparison</span>
+                <span class="fh"> FM discriminator working principle</span>
+
+                <span class="fv">🔴 LOW (Rarely asked)</span>
+                <span class="fv"> Friis noise formula in receiver cascade</span>
+                <span class="fv"> Dual conversion receiver design</span>
+                <span class="fv"> AGC detailed analysis</span>
+            </div>
+
+            <!-- AI Prompt Widget -->
+            <div class="ai-prompt">
+                <div class="ai-prompt-title">🤖 Ask Aarova AI — Chapter 8 Tutor</div>
+                <p>Ask any question about FM demodulation, superheterodyne receivers, image frequency, or PLL. Get
+                    step-by-step GATE-focused answers.</p>
+                <div class="ai-input-row">
+                    <input class="ai-input" id="userQ" type="text"
+                        placeholder="e.g. Derive image rejection ratio formula from first principles…"
+                        autocomplete="off" autocorrect="off" spellcheck="false">
+                    <button class="ai-btn" onclick="askClaude()">Ask Aarova AI</button>
+                </div>
+                <div class="ai-suggest">
+                    <span class="ai-chip"
+                        onclick="setQ('Explain why the image frequency cannot be removed by the IF filter — use a numerical example.')">Why
+                        IF can't remove image?</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Derive the expression for image rejection ratio (IRR) starting from the pre-selector transfer function.')">Derive
+                        IRR formula</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Compare the noise performance of PLL demodulator vs Foster-Seeley discriminator for FM — which is better and why?')">PLL
+                        vs discriminator SNR</span>
+                    <span class="ai-chip"
+                        onclick="setQ('Why is 10.7 MHz chosen as the standard IF for FM broadcast receivers? What happens if IF = 1 MHz?')">Why
+                        10.7 MHz IF?</span>
+                    <span class="ai-chip"
+                        onclick="setQ('A receiver tunes from 88 to 108 MHz with IF = 10.7 MHz using high-side injection. Find the LO range and image frequency range.')">FM
+                        band LO & image range</span>
+                </div>
+                <div class="ai-response" id="aiResp"></div>
+            </div>
+
+
+            <!-- CITATIONS -->
+            <div class="citations" id="citations">
+                <div class="cite-h">References &amp; Citations</div>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">All technical content is derived from
+                    the following standard textbooks and examination resources. All explanations, derivations, diagrams,
+                    and examples are original to Aarova AI.</p>
+                <ul class="cite-list">
+                    <li><span class="cite-num">[1]</span><span>Haykin, Simon. <em>Communication Systems</em>, 4th ed.
+                            John Wiley &amp; Sons, 2001. Chapter 4 — Angle Modulation: FM discriminators, PLL
+                            demodulator, noise in FM; Chapter 8 — Noise in Communication Systems.</span></li>
+                    <li><span class="cite-num">[2]</span><span>Lathi, B.P. and Ding, Zhi. <em>Modern Digital and Analog
+                                Communication Systems</em>, 4th ed. Oxford University Press, 2009. Chapter 8 — Angle
+                            Modulation, FM demodulators; Chapter 9 — Noise and Communication Systems.</span></li>
+                    <li><span class="cite-num">[3]</span><span>Couch, Leon W. <em>Digital and Analog Communication
+                                Systems</em>, 8th ed. Pearson, 2013. Chapter 5 — AM, FM, and Digital Modulated Systems;
+                            Section 5.7 — Superheterodyne receivers, image frequency, IF amplifiers.</span></li>
+                    <li><span class="cite-num">[4]</span><span>Razavi, Behzad. <em>RF Microelectronics</em>, 2nd ed.
+                            Prentice Hall, 2011. Chapter 3 — Receiver Architectures: superheterodyne, dual conversion,
+                            image rejection, selectivity analysis.</span></li>
+                    <li><span class="cite-num">[5]</span><span>IIT Kharagpur NPTEL. <em>Communication Engineering —
+                                Lectures 18–22: FM Receivers and Superheterodyne Architecture</em>. National Programme
+                            on Technology Enhanced Learning. nptel.ac.in. FM demodulation, image frequency, PLL.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <hr>
+            <footer>
+                <strong>Aarova AI</strong> &nbsp;·&nbsp; Communication Systems Series &nbsp;·&nbsp; Chapter 8 of 10<br>
+                <span style="font-size:12px;margin-top:5px;display:block;">GATE EC &nbsp;·&nbsp; IES E&amp;T
+                    &nbsp;·&nbsp; PSU Electronics &amp; Telecommunications</span><br>
+                <span style="font-size:11px;margin-top:4px;display:block;color:var(--teal);">All explanations,
+                    derivations, and diagrams are original to Aarova AI. Derived from standard textbooks [1–5].</span>
+            </footer>
+        </div>
+
+    </div><!-- /page -->
+
+    <script>
+        function setQ(t) { document.getElementById('userQ').value = t; document.getElementById('userQ').focus(); }
+        async function askClaude() {
+            const q = document.getElementById('userQ').value.trim(); if (!q) return;
+            const btn = document.querySelector('.ai-btn'); const resp = document.getElementById('aiResp');
+            btn.textContent = 'Thinking…'; btn.disabled = true;
+            resp.style.display = 'block'; resp.textContent = 'Generating answer…';
+            const sys = `You are Aarova AI, an expert GATE EC and IES E&T tutor specialising in Communication Systems. Topic: FM Demodulation and Superheterodyne Receivers (Chapter 8). Cover frequency discriminators (Foster-Seeley, ratio detector), PLL demodulation, superheterodyne architecture, image frequency, IF amplifiers. Answer with step-by-step working for numericals. Base answers on Haykin, Lathi, and Couch. All content is original.`;
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sys, messages: [{ role: 'user', content: q }] })
+                });
+                const data = await res.json();
+                resp.textContent = data.content?.map(c => c.text || '').join('\n') || 'No response.';
+            } catch (e) { resp.textContent = 'Could not connect. Please try again.'; }
+            btn.textContent = 'Ask Claude'; btn.disabled = false;
+        }
+        document.getElementById('userQ').addEventListener('keydown', e => { if (e.key === 'Enter') askClaude(); });
+
+        /* Responsive SVG scroll hints on mobile */
+        (function () {
+            if (window.innerWidth > 600) return;
+            document.querySelectorAll('.svg-wrap').forEach(function (wrap) {
+                const hint = document.createElement('div');
+                hint.style.cssText = 'font-size:10px;color:#9a6e50;text-align:right;margin-top:4px;opacity:.7;font-family:Lora,serif;font-style:italic;';
+                hint.textContent = '← scroll to see full diagram →';
+                wrap.appendChild(hint);
+                wrap.addEventListener('touchstart', function () { hint.style.display = 'none'; }, { once: true, passive: true });
+            });
+        })();
+    </script>
+</body>
+
+</html>

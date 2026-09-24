@@ -548,6 +548,117 @@
     }
 
     /* ══════════════════════════════════════
+   EEE / ECE TAB SWITCHER
+══════════════════════════════════════ */
+    .tab-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 28px;
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-radius: 40px;
+      padding: 5px;
+      width: fit-content;
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 24px;
+      border-radius: 32px;
+      border: none;
+      background: transparent;
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    .tab-btn .tab-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: var(--bg3);
+      color: var(--muted);
+      transition: all 0.22s;
+    }
+
+    .tab-btn.active {
+      background: var(--orange);
+      color: #fff;
+      box-shadow: 0 3px 14px rgba(201, 95, 26, 0.30);
+    }
+
+    .tab-btn.active .tab-count {
+      background: rgba(255,255,255,0.22);
+      color: #fff;
+    }
+
+    .tab-btn.ece-active {
+      background: var(--teal);
+      color: #fff;
+      box-shadow: 0 3px 14px rgba(30, 107, 104, 0.28);
+    }
+
+    .tab-btn.ece-active .tab-count {
+      background: rgba(255,255,255,0.22);
+      color: #fff;
+    }
+
+    .tab-btn:hover:not(.active):not(.ece-active) {
+      background: var(--bg3);
+      color: var(--text3);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+      animation: tabIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes tabIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .stream-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 18px;
+    }
+
+    .stream-label.eee {
+      color: var(--orange);
+      background: var(--orange-bg);
+      border: 1.5px solid var(--orange-bdr);
+    }
+
+    .stream-label.ece {
+      color: var(--teal);
+      background: var(--teal-bg);
+      border: 1.5px solid var(--teal-bdr);
+    }
+
+    /* ══════════════════════════════════════
    BOTTOM BANNER / ABOUT
 ══════════════════════════════════════ */
     .about-strip {
@@ -700,7 +811,7 @@
       </div>
       <div class="stat-div"></div>
       <div class="stat-item">
-        <div class="stat-num">4</div>
+        <div class="stat-num">9</div>
         <div class="stat-lbl">Subjects</div>
       </div>
       <div class="stat-div"></div>
@@ -718,9 +829,28 @@
 
   <!-- ══ SUBJECTS ══ -->
   <section class="subjects-wrap">
-    <div class="sec-label">Choose Your Subject</div>
-    <div class="subjects-grid" id="subjectsGrid">
-      <!-- Dynamically rendered by JS below -->
+    <div class="sec-label">Choose Your Stream</div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar" role="tablist" aria-label="Engineering stream">
+      <button class="tab-btn active" id="tab-eee" role="tab" aria-selected="true"  aria-controls="panel-eee" onclick="switchTab('eee')">
+        ⚡ EEE <span class="tab-count" id="count-eee">5</span>
+      </button>
+      <button class="tab-btn"         id="tab-ece" role="tab" aria-selected="false" aria-controls="panel-ece" onclick="switchTab('ece')">
+        📡 ECE <span class="tab-count" id="count-ece">4</span>
+      </button>
+    </div>
+
+    <!-- EEE Panel -->
+    <div class="tab-panel active" id="panel-eee" role="tabpanel" aria-labelledby="tab-eee">
+      <div class="stream-label eee">✦ &nbsp;Electrical Engineering</div>
+      <div class="subjects-grid" id="gridEee"></div>
+    </div>
+
+    <!-- ECE Panel -->
+    <div class="tab-panel" id="panel-ece" role="tabpanel" aria-labelledby="tab-ece">
+      <div class="stream-label ece">✦ &nbsp;Electronics & Communication Engineering</div>
+      <div class="subjects-grid" id="gridEce"></div>
     </div>
   </section>
 
@@ -756,35 +886,29 @@
   <!-- ══ LOAD DATA + RENDER ══ -->
   <script src="content/subjects.js"></script>
   <script>
-    (function () {
-      const accentMap = {
-        orange: { tag: 'tag-orange', cta: 'cta-orange', fill: 'cp-fill-orange', accent: 'accent-orange' },
-        teal: { tag: 'tag-teal', cta: 'cta-teal', fill: 'cp-fill-teal', accent: 'accent-teal' },
-        green: { tag: 'tag-green', cta: 'cta-green', fill: 'cp-fill-green', accent: 'accent-green' },
-        amber: { tag: 'tag-amber', cta: 'cta-amber', fill: 'cp-fill-amber', accent: 'accent-amber' },
-      };
+    /* ── Stream membership ── */
+    const EEE_IDS = ['controlsystems','measurements','machines','powerelectronics','powersystems'];
+    const ECE_IDS = ['analog_and_digital','signalsandsystems','SemiConductors','communications'];
 
-      function renderSubjects() {
-        const grid = document.getElementById('subjectsGrid');
-        if (!grid || !AarovaData) return;
+    const accentMap = {
+      orange: { tag:'tag-orange', cta:'cta-orange', fill:'cp-fill-orange', accent:'accent-orange' },
+      teal:   { tag:'tag-teal',   cta:'cta-teal',   fill:'cp-fill-teal',   accent:'accent-teal'   },
+      green:  { tag:'tag-green',  cta:'cta-green',  fill:'cp-fill-green',  accent:'accent-green'  },
+      amber:  { tag:'tag-amber',  cta:'cta-amber',  fill:'cp-fill-amber',  accent:'accent-amber'  },
+    };
 
-        AarovaData.subjects.forEach(subj => {
-          const a = accentMap[subj.accent] || accentMap.orange;
-          const availChs = subj.chapters.filter(c => c.available).length;
-          const totalChs = subj.total_chapters;
-          const pct = totalChs > 0 ? Math.round((availChs / totalChs) * 100) : 0;
-
-          const tagHtml = subj.exam_tags.slice(0, 3).map(t =>
-            `<span class="tag ${a.tag}">${t}</span>`
-          ).join('');
-
-          const ctaHtml = subj.available
-            ? `<a href="subject.html?s=${subj.id}" class="card-cta ${a.cta}" id="cta-${subj.id}">
-             Explore Chapters →
-           </a>`
-            : `<span class="coming-badge">⏳ Coming Soon</span>`;
-
-          const cardHtml = `
+    function buildCard(subj) {
+      const a = accentMap[subj.accent] || accentMap.orange;
+      const availChs = subj.chapters.filter(c => c.available).length;
+      const totalChs = subj.total_chapters;
+      const pct = totalChs > 0 ? Math.round((availChs / totalChs) * 100) : 0;
+      const tagHtml = subj.exam_tags.slice(0, 3).map(t =>
+        `<span class="tag ${a.tag}">${t}</span>`
+      ).join('');
+      const ctaHtml = subj.available
+        ? `<a href="subject.html?s=${subj.id}" class="card-cta ${a.cta}" id="cta-${subj.id}">Explore Chapters →</a>`
+        : `<span class="coming-badge">⏳ Coming Soon</span>`;
+      return `
         <div class="subject-card ${subj.available ? 'available' : 'unavailable'}"
              onclick="${subj.available ? `window.location='subject.html?s=${subj.id}'` : ''}">
           <div class="card-accent ${a.accent}"></div>
@@ -801,20 +925,59 @@
           <div class="card-footer">
             <div class="card-progress">
               <span class="cp-text">${availChs}/${totalChs} chapters</span>
-              <div class="cp-bar">
-                <div class="cp-fill ${a.fill}" style="width:${pct}%"></div>
-              </div>
+              <div class="cp-bar"><div class="cp-fill ${a.fill}" style="width:${pct}%"></div></div>
             </div>
             ${ctaHtml}
           </div>
         </div>`;
+    }
 
-          grid.insertAdjacentHTML('beforeend', cardHtml);
-        });
-      }
+    function renderSubjects() {
+      if (!AarovaData) return;
+      const gridEee = document.getElementById('gridEee');
+      const gridEce = document.getElementById('gridEce');
+      let eeeCount = 0, eceCount = 0;
 
-      renderSubjects();
-    })();
+      AarovaData.subjects.forEach(subj => {
+        const card = buildCard(subj);
+        if (EEE_IDS.includes(subj.id)) {
+          gridEee.insertAdjacentHTML('beforeend', card);
+          eeeCount++;
+        } else if (ECE_IDS.includes(subj.id)) {
+          gridEce.insertAdjacentHTML('beforeend', card);
+          eceCount++;
+        }
+      });
+
+      document.getElementById('count-eee').textContent = eeeCount;
+      document.getElementById('count-ece').textContent = eceCount;
+    }
+
+    /* ── Tab switching ── */
+    function switchTab(stream) {
+      const isEee = stream === 'eee';
+      const tabEee = document.getElementById('tab-eee');
+      const tabEce = document.getElementById('tab-ece');
+      const panelEee = document.getElementById('panel-eee');
+      const panelEce = document.getElementById('panel-ece');
+
+      tabEee.className = 'tab-btn' + (isEee ? ' active' : '');
+      tabEce.className = 'tab-btn' + (!isEee ? ' ece-active' : '');
+      tabEee.setAttribute('aria-selected', isEee);
+      tabEce.setAttribute('aria-selected', !isEee);
+
+      panelEee.className = 'tab-panel' + (isEee ? ' active' : '');
+      panelEce.className = 'tab-panel' + (!isEee ? ' active' : '');
+
+      /* Persist selection in URL hash */
+      history.replaceState(null, '', isEee ? '#eee' : '#ece');
+    }
+
+    /* ── Init ── */
+    renderSubjects();
+
+    /* Restore tab from URL hash */
+    if (location.hash === '#ece') switchTab('ece');
   </script>
 </body>
 
