@@ -202,6 +202,30 @@ const AarovaData = {
       ]
     },
     {
+      id: "magnetics",
+      title: "Electromagnetic Field Theory",
+      icon: "🧲",
+      description: "Vector calculus, Maxwell's equations, wave propagation, transmission lines, waveguides, and antennas.",
+      exam_tags: ["GATE EC", "GATE EE", "IES"],
+      accent: "amber",
+      available: true,
+      total_chapters: 12,
+      chapters: [
+        { num: 1,  title: "Chapter 1",  description: "Vector Calculus & EM Fundamentals",          file: "magnetics/chapter1.html",  available: true },
+        { num: 2,  title: "Chapter 2",  description: "Electrostatics & Magnetostatics",             file: "magnetics/chapter2.html",  available: true },
+        { num: 3,  title: "Chapter 3",  description: "Maxwell's Equations",                         file: "magnetics/chapter3.html",  available: true },
+        { num: 4,  title: "Chapter 4",  description: "Boundary Conditions & Wave Equations",        file: "magnetics/chapter4.html",  available: true },
+        { num: 5,  title: "Chapter 5",  description: "Poynting Theorem & EM Energy Flow",           file: "magnetics/chapter5.html",  available: true },
+        { num: 6,  title: "Chapter 6",  description: "Uniform Plane Waves",                         file: "magnetics/chapter6.html",  available: true },
+        { num: 7,  title: "Chapter 7",  description: "Reflection, Refraction & Polarization",       file: "magnetics/chapter7.html",  available: true },
+        { num: 8,  title: "Chapter 8",  description: "Transmission Line Fundamentals",              file: "magnetics/chapter8.html",  available: true },
+        { num: 9,  title: "Chapter 9",  description: "Impedance Matching & Smith Chart",            file: "magnetics/chapter9.html",  available: true },
+        { num: 10, title: "Chapter 10", description: "Microwave Networks & S-Parameters",           file: "magnetics/chapter10.html", available: true },
+        { num: 11, title: "Chapter 11", description: "Waveguides & Optical Fiber",                  file: "magnetics/chapter11.html", available: true },
+        { num: 12, title: "Chapter 12", description: "Antenna Fundamentals & Arrays",               file: "magnetics/chapter12.html", available: true }
+      ]
+    },
+    {
       id: "communications",
       title: "Communication Systems",
       icon: "📻",
